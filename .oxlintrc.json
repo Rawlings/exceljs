@@ -1,0 +1,20 @@
+{
+  "plugins": ["typescript", "import", "unicorn", "node"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-console": "off",
+    "eqeqeq": "warn",
+    "no-sparse-arrays": "off",
+    "no-underscore-dangle": "off",
+    "no-dupe-class-members": "off",
+    "unicorn/no-empty-file": "off"
+  },
+  "env": {
+    "node": true,
+    "es2024": true
+  },
+  "ignorePatterns": ["**/*.xml", "**/*.json", "**/*.rels", "old-repo/**", "dist/**", "node_modules/**"]
+}

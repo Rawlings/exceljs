@@ -1,0 +1,55 @@
+{
+  "name": "exceljs",
+  "version": "4.4.0",
+  "description": "Excel Workbook Manager - Read and Write xlsx and csv Files.",
+  "license": "MIT",
+  "author": {
+    "name": "Guyon Roche",
+    "email": "guyon@live.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/exceljs/exceljs.git"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./index.d.ts",
+  "browser": "./dist/exceljs.bare.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "browser": "./dist/exceljs.bare.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "README.md",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "oxlint src tests",
+    "lint:fix": "oxlint --fix src tests",
+    "format": "oxfmt src",
+    "format:fix": "oxfmt --write src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "node -e \"fs.rmSync('dist', {recursive: true, force: true})\""
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "oxfmt": "^0.61.0",
+    "oxlint": "^1.76.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}

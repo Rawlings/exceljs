@@ -1,0 +1,7 @@
+**/*.xml
+**/*.json
+**/*.rels
+**/*.txt
+old-repo
+dist
+node_modules

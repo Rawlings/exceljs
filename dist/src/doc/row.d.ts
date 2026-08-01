@@ -1,0 +1,66 @@
+declare const _: any;
+declare const Enums: any;
+declare const colCache: any;
+declare const Cell: any;
+declare class Row {
+    constructor(worksheet: any, number: any);
+    get number(): any;
+    get worksheet(): any;
+    commit(): void;
+    destroy(): void;
+    findCell(colNumber: any): any;
+    getCellEx(address: any): any;
+    getCell(col: any): any;
+    splice(start: any, count: any, ...inserts: any[]): void;
+    eachCell(options: any, iteratee: any): void;
+    addPageBreak(lft: any, rght: any): void;
+    get values(): any[];
+    set values(value: any[]);
+    get hasValues(): any;
+    get cellCount(): any;
+    get actualCellCount(): number;
+    get dimensions(): {
+        min: number;
+        max: number;
+    };
+    _applyStyle(name: any, value: any): any;
+    get numFmt(): any;
+    set numFmt(value: any);
+    get font(): any;
+    set font(value: any);
+    get alignment(): any;
+    set alignment(value: any);
+    get protection(): any;
+    set protection(value: any);
+    get border(): any;
+    set border(value: any);
+    get fill(): any;
+    set fill(value: any);
+    get hidden(): boolean;
+    set hidden(value: boolean);
+    get outlineLevel(): any;
+    set outlineLevel(value: any);
+    get collapsed(): boolean;
+    get model(): {
+        cells: any[];
+        number: any;
+        min: number;
+        max: number;
+        height: any;
+        style: any;
+        hidden: boolean;
+        outlineLevel: any;
+        collapsed: boolean;
+    };
+    set model(value: {
+        cells: any[];
+        number: any;
+        min: number;
+        max: number;
+        height: any;
+        style: any;
+        hidden: boolean;
+        outlineLevel: any;
+        collapsed: boolean;
+    });
+}

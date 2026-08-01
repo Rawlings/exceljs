@@ -1,0 +1,38 @@
+declare const fs: any;
+declare const NativeZipWriter: any;
+declare const StreamBuf: any;
+declare const RelType: any;
+declare const StylesXform: any;
+declare const SharedStrings: any;
+declare const DefinedNames: any;
+declare const CoreXform: any;
+declare const RelationshipsXform: any;
+declare const ContentTypesXform: any;
+declare const AppXform: any;
+declare const WorkbookXform: any;
+declare const SharedStringsXform: any;
+declare const WorksheetWriter: any;
+declare const theme1Xml: any;
+declare class WorkbookWriter {
+    constructor(options: any);
+    get definedNames(): any;
+    _openStream(path: any): any;
+    _commitWorksheets(): Promise<any>;
+    commit(): Promise<unknown>;
+    get nextId(): any;
+    addImage(image: any): any;
+    getImage(id: any): any;
+    addWorksheet(name: any, options: any): any;
+    getWorksheet(id: any): any;
+    addStyles(): Promise<unknown>;
+    addThemes(): Promise<unknown>;
+    addOfficeRels(): Promise<unknown>;
+    addContentTypes(): Promise<unknown>;
+    addMedia(): Promise<any>;
+    addApp(): Promise<unknown>;
+    addCore(): Promise<unknown>;
+    addSharedStrings(): Promise<unknown>;
+    addWorkbookRels(): Promise<unknown>;
+    addWorkbook(): Promise<unknown>;
+    _finalize(): Promise<unknown>;
+}

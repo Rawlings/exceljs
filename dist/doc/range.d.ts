@@ -1,0 +1,34 @@
+declare class Range {
+    constructor();
+    setTLBR(t: any, l: any, b: any, r: any, s: any): void;
+    decode(argv: any): void;
+    get top(): any;
+    set top(value: any);
+    get left(): any;
+    set left(value: any);
+    get bottom(): any;
+    set bottom(value: any);
+    get right(): any;
+    set right(value: any);
+    get sheetName(): any;
+    set sheetName(value: any);
+    get _serialisedSheetName(): string;
+    expand(top: any, left: any, bottom: any, right: any): void;
+    expandRow(row: any): void;
+    expandToAddress(addressStr: any): void;
+    get tl(): string;
+    get $t$l(): string;
+    get br(): string;
+    get $b$r(): string;
+    get range(): string;
+    get $range(): string;
+    get shortRange(): string;
+    get $shortRange(): string;
+    get count(): number;
+    toString(): string;
+    intersects(other: any): boolean;
+    contains(addressStr: any): boolean;
+    containsEx(address: any): boolean;
+    forEachAddress(cb: any): void;
+}
+export default Range;
