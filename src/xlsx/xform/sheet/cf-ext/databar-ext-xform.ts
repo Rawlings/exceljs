@@ -5,6 +5,12 @@ import ColorXform from '../../style/color-xform';
 import CfvoExtXform from './cfvo-ext-xform';
 
 class DatabarExtXform extends CompositeXform {
+  cfvoXform: any;
+  borderColorXform: any;
+  negativeBorderColorXform: any;
+  negativeFillColorXform: any;
+  axisColorXform: any;
+
   constructor() {
     super();
 
@@ -49,7 +55,7 @@ class DatabarExtXform extends CompositeXform {
       direction: BaseXform.toAttribute(model.direction, 'leftToRight'),
     });
 
-    model.cfvo.forEach((cfvo) => {
+    model.cfvo.forEach((cfvo: any) => {
       this.cfvoXform.render(xmlStream, cfvo);
     });
 

@@ -3,6 +3,7 @@ import XmlStream from '../../../utils/xml-stream';
 import BaseXform from '../base-xform';
 
 class PivotCacheRecordsXform extends BaseXform {
+  static PIVOT_CACHE_RECORDS_ATTRIBUTES: any;
   constructor() {
     super();
 
@@ -33,7 +34,7 @@ class PivotCacheRecordsXform extends BaseXform {
     // Helpers
 
     function renderTable() {
-      const rowsInXML = sourceBodyRows.map((row) => {
+      const rowsInXML = sourceBodyRows.map((row: any) => {
         const realRow = row.slice(1);
         return [...renderRowLines(realRow)].join('');
       });

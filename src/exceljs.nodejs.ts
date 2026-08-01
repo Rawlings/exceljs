@@ -1,14 +1,19 @@
-const ExcelJS = {
-  Workbook: require('./doc/workbook'),
-  ModelContainer: require('./doc/modelcontainer'),
+import Workbook from './doc/workbook';
+import ModelContainer from './doc/modelcontainer';
+import WorkbookWriter from './stream/xlsx/workbook-writer';
+import WorkbookReader from './stream/xlsx/workbook-reader';
+import Enums from './doc/enums';
+
+const ExcelJS: Record<string, any> = {
+  Workbook,
+  ModelContainer,
   stream: {
     xlsx: {
-      WorkbookWriter: require('./stream/xlsx/workbook-writer'),
-      WorkbookReader: require('./stream/xlsx/workbook-reader'),
+      WorkbookWriter,
+      WorkbookReader,
     },
   },
+  ...Enums,
 };
-
-Object.assign(ExcelJS, require('./doc/enums'));
 
 export default ExcelJS;

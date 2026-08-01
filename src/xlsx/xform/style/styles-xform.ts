@@ -107,7 +107,7 @@ class StylesXform extends BaseXform {
     this.weakMap = new WeakMap();
   }
 
-  render(xmlStream: any, model: any) {
+  render(xmlStream: any, model?: any) {
     model = model || this.model;
     //
     //   <fonts count="2" x14ac:knownFonts="1">

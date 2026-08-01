@@ -82,7 +82,7 @@ class SharedStringsXform extends BaseXform {
     });
 
     const sx = this.sharedStringXform;
-    model.values.forEach((sharedString) => {
+    model.values.forEach((sharedString: any) => {
       sx.render(xmlStream, sharedString);
     });
     xmlStream.closeNode();

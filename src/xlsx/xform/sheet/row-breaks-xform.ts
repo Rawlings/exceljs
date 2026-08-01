@@ -25,7 +25,7 @@ class RowBreaksXform extends ListXform {
       }
 
       const { childXform } = this;
-      model.forEach((childModel) => {
+      model.forEach((childModel: any) => {
         childXform.render(xmlStream, childModel);
       });
 

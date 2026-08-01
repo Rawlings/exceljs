@@ -54,14 +54,14 @@ class DefinedNames {
   }
 
   removeAllNames(location: any) {
-    _.each(this.matrixMap, (matrix) => {
+    _.each(this.matrixMap, (matrix: any) => {
       matrix.removeCellEx(location);
     });
   }
 
   forEach(callback: any) {
-    _.each(this.matrixMap, (matrix, name) => {
-      matrix.forEach((cell) => {
+    _.each(this.matrixMap, (matrix: any, name: any) => {
+      matrix.forEach((cell: any) => {
         callback(name, cell);
       });
     });
@@ -73,9 +73,10 @@ class DefinedNames {
   }
 
   getNamesEx(address: any) {
-    return _.map(this.matrixMap, (matrix, name) => matrix.findCellEx(address) && name).filter(
-      Boolean
-    );
+    return _.map(
+      this.matrixMap,
+      (matrix: any, name: any) => matrix.findCellEx(address) && name
+    ).filter(Boolean);
   }
 
   _explore(matrix: any, cell: any) {
@@ -92,7 +93,7 @@ class DefinedNames {
       if (!c || !c.mark) {
         return false;
       }
-      range[edge] = yy;
+      (range as any)[edge] = yy;
       c.mark = false;
       return true;
     }
@@ -110,7 +111,7 @@ class DefinedNames {
           return false;
         }
       }
-      range[edge] = xx;
+      (range as any)[edge] = xx;
       for (let i = 0; i < cells.length; i++) {
         cells[i].mark = false;
       }
@@ -122,7 +123,7 @@ class DefinedNames {
     return range;
   }
 
-  getRanges(name: any, matrix: any) {
+  getRanges(name: any, matrix?: any) {
     matrix = matrix || this.matrixMap[name];
 
     if (!matrix) {
@@ -130,13 +131,13 @@ class DefinedNames {
     }
 
     // mark and sweep!
-    matrix.forEach((cell) => {
+    matrix.forEach((cell: any) => {
       cell.mark = true;
     });
     const ranges = matrix
-      .map((cell) => cell.mark && this._explore(matrix, cell))
+      .map((cell: any) => cell.mark && this._explore(matrix, cell))
       .filter(Boolean)
-      .map((range) => range.$shortRange);
+      .map((range: any) => range.$shortRange);
 
     return {
       name,
@@ -147,7 +148,7 @@ class DefinedNames {
   normaliseMatrix(matrix: any, sheetName: any) {
     // some of the cells might have shifted on specified sheet
     // need to reassign rows, cols
-    matrix.forEachInSheet(sheetName, (cell, row, col) => {
+    matrix.forEachInSheet(sheetName, (cell: any, row: any, col: any) => {
       if (cell) {
         if (cell.row !== row || cell.col !== col) {
           cell.row = row;
@@ -159,14 +160,14 @@ class DefinedNames {
   }
 
   spliceRows(sheetName: any, start: any, numDelete: any, numInsert: any) {
-    _.each(this.matrixMap, (matrix) => {
+    _.each(this.matrixMap, (matrix: any) => {
       matrix.spliceRows(sheetName, start, numDelete, numInsert);
       this.normaliseMatrix(matrix, sheetName);
     });
   }
 
   spliceColumns(sheetName: any, start: any, numDelete: any, numInsert: any) {
-    _.each(this.matrixMap, (matrix) => {
+    _.each(this.matrixMap, (matrix: any) => {
       matrix.spliceColumns(sheetName, start, numDelete, numInsert);
       this.normaliseMatrix(matrix, sheetName);
     });
@@ -174,7 +175,7 @@ class DefinedNames {
 
   get model() {
     // To get names per cell - just iterate over all names finding cells if they exist
-    return _.map(this.matrixMap, (matrix, name) => this.getRanges(name, matrix)).filter(
+    return _.map(this.matrixMap, (matrix: any, name: any) => this.getRanges(name, matrix)).filter(
       (definedName) => definedName.ranges.length
     );
   }
@@ -182,9 +183,9 @@ class DefinedNames {
   set model(value: any) {
     // value is [ { name, ranges }, ... ]
     const matrixMap = (this.matrixMap = {});
-    value.forEach((definedName) => {
-      const matrix = (matrixMap[definedName.name] = new CellMatrix(undefined));
-      definedName.ranges.forEach((rangeStr) => {
+    value.forEach((definedName: any) => {
+      const matrix = ((matrixMap as any)[definedName.name] = new CellMatrix(undefined));
+      definedName.ranges.forEach((rangeStr: any) => {
         if (rangeRegexp.test(rangeStr.split('!').pop() || '')) {
           matrix.addCell(rangeStr);
         }

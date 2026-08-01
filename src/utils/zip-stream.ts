@@ -21,8 +21,8 @@ class ZipWriter extends events.EventEmitter {
       options
     );
 
-    this.zip = new JSZip();
-    this.stream = new StreamBuf();
+    this.zip = new (JSZip as new (...args: any[]) => any)();
+    this.stream = new (StreamBuf as unknown as new (options?: any) => any)();
   }
 
   append(data: any, options: any) {
@@ -61,7 +61,7 @@ class ZipWriter extends events.EventEmitter {
     return this.stream.isPaused();
   }
 
-  pipe(destination: any, options: any) {
+  pipe(destination: any, options?: any) {
     return this.stream.pipe(destination, options);
   }
 

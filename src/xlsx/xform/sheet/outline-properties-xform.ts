@@ -1,6 +1,6 @@
 import BaseXform from '../base-xform';
 
-const isDefined = (attr) => typeof attr !== 'undefined';
+const isDefined = (attr: any) => typeof attr !== 'undefined';
 
 class OutlinePropertiesXform extends BaseXform {
   get tag() {

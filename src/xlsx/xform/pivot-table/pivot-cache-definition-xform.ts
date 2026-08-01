@@ -3,6 +3,8 @@ import CacheField from './cache-field';
 import XmlStream from '../../../utils/xml-stream';
 
 class PivotCacheDefinitionXform extends BaseXform {
+  static PIVOT_CACHE_DEFINITION_ATTRIBUTES: any;
+
   constructor() {
     super();
 
@@ -44,7 +46,7 @@ class PivotCacheDefinitionXform extends BaseXform {
     xmlStream.openNode('cacheFields', { count: cacheFields.length });
     // Note: keeping this pretty-printed for now to ease debugging.
     xmlStream.writeXml(
-      cacheFields.map((cacheField) => new CacheField(cacheField).render()).join('\n    ')
+      cacheFields.map((cacheField: any) => new CacheField(cacheField).render()).join('\n    ')
     );
     xmlStream.closeNode();
 

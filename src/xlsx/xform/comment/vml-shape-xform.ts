@@ -3,6 +3,7 @@ import VmlTextboxXform from './vml-textbox-xform';
 import VmlClientDataXform from './vml-client-data-xform';
 
 class VmlShapeXform extends BaseXform {
+  static V_SHAPE_ATTRIBUTES: any;
   constructor() {
     super();
     this.map = {
@@ -82,7 +83,7 @@ class VmlShapeXform extends BaseXform {
   }
 }
 
-VmlShapeXform.V_SHAPE_ATTRIBUTES = (model, index) => ({
+VmlShapeXform.V_SHAPE_ATTRIBUTES = (model: any, index: any) => ({
   id: `_x0000_s${1025 + index}`,
   type: '#_x0000_t202',
   style:

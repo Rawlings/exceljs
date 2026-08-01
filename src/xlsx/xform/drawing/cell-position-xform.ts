@@ -2,16 +2,22 @@ import BaseXform from '../base-xform';
 import IntegerXform from '../simple/integer-xform';
 
 class CellPositionXform extends BaseXform {
+  _tag: string;
+
   constructor(options: any) {
     super();
 
-    this.tag = options.tag;
+    this._tag = options.tag;
     this.map = {
       'xdr:col': new IntegerXform({ tag: 'xdr:col', zero: true }),
       'xdr:colOff': new IntegerXform({ tag: 'xdr:colOff', zero: true }),
       'xdr:row': new IntegerXform({ tag: 'xdr:row', zero: true }),
       'xdr:rowOff': new IntegerXform({ tag: 'xdr:rowOff', zero: true }),
     };
+  }
+
+  override get tag() {
+    return this._tag;
   }
 
   render(xmlStream: any, model: any) {

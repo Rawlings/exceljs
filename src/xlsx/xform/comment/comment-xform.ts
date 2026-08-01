@@ -32,7 +32,7 @@ const CommentXform = function (this: any, model: any) {
 
 export default CommentXform;
 
-utils.inherits(CommentXform, BaseXform, {
+utils.inherits(CommentXform, BaseXform, undefined, {
   get tag() {
     return 'r';
   },
@@ -53,7 +53,7 @@ utils.inherits(CommentXform, BaseXform, {
     });
     xmlStream.openNode('text');
     if (model && model.note && model.note.texts) {
-      model.note.texts.forEach((text) => {
+      model.note.texts.forEach((text: any) => {
         this.richTextXform.render(xmlStream, text);
       });
     }

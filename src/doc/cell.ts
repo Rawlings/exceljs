@@ -19,7 +19,7 @@ class Cell {
   _mergeCount: any;
   _comment: any;
 
-  constructor(row: any, column: any, address: any) {
+  constructor(row?: any, column?: any, address?: any) {
     if (!row || !column) {
       throw new Error('A Cell needs a Row');
     }

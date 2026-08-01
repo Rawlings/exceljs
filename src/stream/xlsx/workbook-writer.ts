@@ -17,6 +17,7 @@ import SharedStringsXform from '../../xlsx/xform/strings/shared-strings-xform';
 
 import WorksheetWriter from './worksheet-writer';
 
+// @ts-ignore
 import theme1Xml from '../../xlsx/theme1';
 
 class WorkbookWriter {
@@ -36,7 +37,9 @@ class WorkbookWriter {
   zip: any;
   media: any[];
   mediaIndex: any;
-  tables: any[];
+  tables: any[] = [];
+  commentRefs: any;
+  promise: any;
 
   constructor(options?: any) {
     options = options || {};
@@ -71,7 +74,7 @@ class WorkbookWriter {
     } else if (options.filename) {
       this.stream = fs.createWriteStream(options.filename);
     } else {
-      this.stream = new StreamBuf();
+      this.stream = new (StreamBuf as any)();
     }
 
     // these bits can be added right now
@@ -83,7 +86,7 @@ class WorkbookWriter {
   }
 
   _openStream(path: any) {
-    const stream = new StreamBuf({ bufSize: 65536, batch: true });
+    const stream = new (StreamBuf as any)({ bufSize: 65536, batch: true });
     this.zip.append(stream, { name: path });
     stream.on('finish', () => {
       stream.emit('zipped');
@@ -94,7 +97,7 @@ class WorkbookWriter {
   _commitWorksheets() {
     const commitWorksheet = function (worksheet: any) {
       if (!worksheet.committed) {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
           worksheet.stream.on('zipped', () => {
             resolve();
           });
@@ -206,21 +209,21 @@ class WorkbookWriter {
   }
 
   addStyles() {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       this.zip.append(this.styles.xml, { name: 'xl/styles.xml' });
       resolve();
     });
   }
 
   addThemes() {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       this.zip.append(theme1Xml, { name: 'xl/theme/theme1.xml' });
       resolve();
     });
   }
 
   addOfficeRels() {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       const xform = new RelationshipsXform();
       const xml = xform.toXml([
         { Id: 'rId1', Type: RelType.OfficeDocument, Target: 'xl/workbook.xml' },
@@ -233,7 +236,7 @@ class WorkbookWriter {
   }
 
   addContentTypes() {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       const model = {
         worksheets: this._worksheets.filter(Boolean),
         sharedStrings: this.sharedStrings,
@@ -277,7 +280,7 @@ class WorkbookWriter {
       const xform = new AppXform();
       const xml = xform.toXml(model);
       this.zip.append(xml, { name: 'docProps/app.xml' });
-      resolve();
+      resolve(undefined);
     });
   }
 
@@ -286,7 +289,7 @@ class WorkbookWriter {
       const coreXform = new CoreXform();
       const xml = coreXform.toXml(this);
       this.zip.append(xml, { name: 'docProps/core.xml' });
-      resolve();
+      resolve(undefined);
     });
   }
 
@@ -296,7 +299,7 @@ class WorkbookWriter {
         const sharedStringsXform = new SharedStringsXform();
         const xml = sharedStringsXform.toXml(this.sharedStrings);
         this.zip.append(xml, { name: '/xl/sharedStrings.xml' });
-        resolve();
+        resolve(undefined);
       });
     }
     return Promise.resolve();
@@ -304,7 +307,7 @@ class WorkbookWriter {
 
   addWorkbookRels() {
     let count = 1;
-    const relationships = [
+    const relationships: any[] = [
       { Id: `rId${count++}`, Type: RelType.Styles, Target: 'styles.xml' },
       { Id: `rId${count++}`, Type: RelType.Theme, Target: 'theme/theme1.xml' },
     ];
@@ -315,7 +318,7 @@ class WorkbookWriter {
         Target: 'sharedStrings.xml',
       });
     }
-    this._worksheets.forEach((worksheet) => {
+    this._worksheets.forEach((worksheet: any) => {
       if (worksheet) {
         worksheet.rId = `rId${count++}`;
         relationships.push({
@@ -329,7 +332,7 @@ class WorkbookWriter {
       const xform = new RelationshipsXform();
       const xml = xform.toXml(relationships);
       this.zip.append(xml, { name: '/xl/_rels/workbook.xml.rels' });
-      resolve();
+      resolve(undefined);
     });
   }
 
@@ -347,7 +350,7 @@ class WorkbookWriter {
       const xform = new WorkbookXform();
       xform.prepare(model);
       zip.append(xform.toXml(model), { name: '/xl/workbook.xml' });
-      resolve();
+      resolve(undefined);
     });
   }
 

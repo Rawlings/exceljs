@@ -54,7 +54,7 @@ class XmlStream {
     xml.push('?>\n');
   }
 
-  openNode(name: any, attributes: any) {
+  openNode(name: any, attributes?: any) {
     const parent = this.tos;
     const xml = this._xml;
     if (parent && this.open) {

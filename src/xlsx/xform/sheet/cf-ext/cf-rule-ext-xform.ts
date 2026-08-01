@@ -13,6 +13,9 @@ const extIcons = {
 };
 
 class CfRuleExtXform extends CompositeXform {
+  databarXform: any;
+  iconSetXform: any;
+
   constructor() {
     super();
 
@@ -32,7 +35,7 @@ class CfRuleExtXform extends CompositeXform {
       return DatabarExtXform.isExt(rule);
     }
     if (rule.type === 'iconSet') {
-      if (rule.custom || extIcons[rule.iconSet]) {
+      if (rule.custom || (extIcons as Record<string, any>)[rule.iconSet]) {
         return true;
       }
     }

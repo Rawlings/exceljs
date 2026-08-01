@@ -7,7 +7,7 @@ class ExtXform extends BaseXform {
   constructor(options: any) {
     super();
 
-    this.tag = options.tag;
+    (this as any).tag = options.tag;
     this.map = {};
   }
 

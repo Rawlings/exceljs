@@ -1,3 +1,5 @@
+import { once } from 'node:events';
+
 export default async function* iterateStream(stream: any) {
   const contents: any[] = [];
   stream.on('data', (data: any) => contents.push(data));
@@ -30,19 +32,4 @@ export default async function* iterateStream(stream: any) {
     if (error) throw error;
   }
   resolveStreamEndedPromise!();
-}
-
-function once(eventEmitter: any, type: any) {
-  // TODO: Use require('events').once when node v10 is dropped
-  return new Promise((resolve) => {
-    let fired = false;
-    const handler = () => {
-      if (!fired) {
-        fired = true;
-        eventEmitter.removeListener(type, handler);
-        resolve(undefined);
-      }
-    };
-    eventEmitter.addListener(type, handler);
-  });
 }

@@ -37,7 +37,7 @@ class CacheField {
     // string types
     return `<cacheField name="${this.name}" numFmtId="0">
       <sharedItems count="${this.sharedItems.length}">
-        ${this.sharedItems.map((item) => `<s v="${item}" />`).join('')}
+        ${this.sharedItems.map((item: any) => `<s v="${item}" />`).join('')}
       </sharedItems>
     </cacheField>`;
   }

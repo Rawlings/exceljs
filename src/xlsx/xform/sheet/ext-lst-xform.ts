@@ -4,6 +4,8 @@ import CompositeXform from '../composite-xform';
 import ConditionalFormattingsExt from './cf-ext/conditional-formattings-ext-xform';
 
 class ExtXform extends CompositeXform {
+  conditionalFormattings: any;
+
   constructor() {
     super();
     this.map = {
@@ -44,6 +46,8 @@ class ExtXform extends CompositeXform {
 }
 
 class ExtLstXform extends CompositeXform {
+  ext: any;
+
   constructor() {
     super();
 

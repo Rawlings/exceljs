@@ -1,6 +1,9 @@
 import BaseXform from '../../base-xform';
 
 class VmlProtectionXform extends BaseXform {
+  declare _model: any;
+  text: any;
+
   constructor(model: any) {
     super();
     this._model = model;

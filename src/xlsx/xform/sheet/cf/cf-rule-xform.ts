@@ -15,7 +15,7 @@ const extIcons = {
   '5Boxes': true,
 };
 
-const getTextFormula = (model) => {
+const getTextFormula = (model: any) => {
   if (model.formulae && model.formulae[0]) {
     return model.formulae[0];
   }
@@ -38,7 +38,7 @@ const getTextFormula = (model) => {
   }
 };
 
-const getTimePeriodFormula = (model) => {
+const getTimePeriodFormula = (model: any) => {
   if (model.formulae && model.formulae[0]) {
     return model.formulae[0];
   }
@@ -71,7 +71,7 @@ const getTimePeriodFormula = (model) => {
   }
 };
 
-const opType = (attributes) => {
+const opType = (attributes: any) => {
   const { type, operator } = attributes;
   switch (type) {
     case 'containsText':
@@ -90,6 +90,12 @@ const opType = (attributes) => {
 };
 
 class CfRuleXform extends CompositeXform {
+  databarXform: any;
+  extLstRefXform: any;
+  formulaXform: any;
+  colorScaleXform: any;
+  iconSetXform: any;
+
   constructor() {
     super();
 
@@ -109,7 +115,7 @@ class CfRuleXform extends CompositeXform {
   static isPrimitive(rule: any) {
     // is this rule primitive?
     if (rule.type === 'iconSet') {
-      if (rule.custom || extIcons[rule.iconSet]) {
+      if (rule.custom || (extIcons as Record<string, any>)[rule.iconSet]) {
         return false;
       }
     }
@@ -168,7 +174,7 @@ class CfRuleXform extends CompositeXform {
       operator: model.operator,
     });
 
-    model.formulae.forEach((formula) => {
+    model.formulae.forEach((formula: any) => {
       this.formulaXform.render(xmlStream, formula);
     });
 
@@ -182,7 +188,7 @@ class CfRuleXform extends CompositeXform {
       priority: model.priority,
       percent: BaseXform.toBoolAttribute(model.percent, false),
       bottom: BaseXform.toBoolAttribute(model.bottom, false),
-      rank: BaseXform.toIntValue(model.rank, 10, true),
+      rank: BaseXform.toIntValue(model.rank, 10),
     });
   }
 

@@ -26,7 +26,7 @@ class RowXform extends BaseXform {
       model.styleId = styleId;
     }
     const cellXform = this.map.c;
-    model.cells.forEach((cellModel) => {
+    model.cells.forEach((cellModel: any) => {
       cellXform.prepare(cellModel, options);
     });
   }
@@ -57,7 +57,7 @@ class RowXform extends BaseXform {
     }
 
     const cellXform = this.map.c;
-    model.cells.forEach((cellModel) => {
+    model.cells.forEach((cellModel: any) => {
       cellXform.render(xmlStream, cellModel, options);
     });
 
@@ -72,7 +72,7 @@ class RowXform extends BaseXform {
     if (node.name === 'row') {
       this.numRowsSeen += 1;
       const spans = node.attributes.spans
-        ? node.attributes.spans.split(':').map((span) => parseInt(span, 10))
+        ? node.attributes.spans.split(':').map((span: any) => parseInt(span, 10))
         : [undefined, undefined];
       const model: any = (this.model = {
         number: parseInt(node.attributes.r, 10),

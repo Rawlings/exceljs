@@ -16,11 +16,11 @@
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./index.d.ts",
+  "types": "./src/index.d.ts",
   "browser": "./dist/exceljs.bare.js",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
+      "types": "./src/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "browser": "./dist/exceljs.bare.js"
@@ -30,8 +30,7 @@
     "dist",
     "src",
     "LICENSE",
-    "README.md",
-    "index.d.ts"
+    "README.md"
   ],
   "scripts": {
     "build": "tsc",

@@ -3,6 +3,8 @@ import CompositeXform from '../../composite-xform';
 import FExtXform from './f-ext-xform';
 
 class CfvoExtXform extends CompositeXform {
+  fExtXform: any;
+
   constructor() {
     super();
 

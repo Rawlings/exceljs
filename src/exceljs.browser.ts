@@ -1,11 +1,13 @@
+import Workbook from './doc/workbook';
+
 const ExcelJS = {
-  Workbook: require('./doc/workbook'),
+  Workbook,
 };
 
 import Enums from './doc/enums';
 
 Object.keys(Enums).forEach((key) => {
-  ExcelJS[key] = Enums[key];
+  (ExcelJS as Record<string, any>)[key] = (Enums as Record<string, any>)[key];
 });
 
 export default ExcelJS;

@@ -1,13 +1,15 @@
 // this bundle is built without polyfill leaving apps the freedom to add their own
+import Workbook from './doc/workbook';
+
 const ExcelJS = {
-  Workbook: require('./doc/workbook'),
+  Workbook,
 };
 
 // Object.assign mono-fill
 import Enums from './doc/enums';
 
 Object.keys(Enums).forEach((key) => {
-  ExcelJS[key] = Enums[key];
+  (ExcelJS as Record<string, any>)[key] = (Enums as Record<string, any>)[key];
 });
 
 export default ExcelJS;

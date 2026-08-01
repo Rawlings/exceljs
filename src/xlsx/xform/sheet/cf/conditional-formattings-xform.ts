@@ -3,6 +3,8 @@ import BaseXform from '../../base-xform';
 import ConditionalFormattingXform from './conditional-formatting-xform';
 
 class ConditionalFormattingsXform extends BaseXform {
+  cfXform: any;
+
   constructor() {
     super();
 
@@ -20,11 +22,11 @@ class ConditionalFormattingsXform extends BaseXform {
   prepare(model: any, options: any) {
     // ensure each rule has a priority value
     let nextPriority = model.reduce(
-      (p, cf) => Math.max(p, ...cf.rules.map((rule) => rule.priority || 0)),
+      (p: number, cf: any) => Math.max(p, ...cf.rules.map((rule: any) => rule.priority || 0)),
       1
     );
-    model.forEach((cf) => {
-      cf.rules.forEach((rule) => {
+    model.forEach((cf: any) => {
+      cf.rules.forEach((rule: any) => {
         if (!rule.priority) {
           rule.priority = nextPriority++;
         }
@@ -37,7 +39,7 @@ class ConditionalFormattingsXform extends BaseXform {
   }
 
   render(xmlStream: any, model: any) {
-    model.forEach((cf) => {
+    model.forEach((cf: any) => {
       this.cfXform.render(xmlStream, cf);
     });
   }
@@ -78,8 +80,8 @@ class ConditionalFormattingsXform extends BaseXform {
   }
 
   reconcile(model: any, options: any) {
-    model.forEach((cf) => {
-      cf.rules.forEach((rule) => {
+    model.forEach((cf: any) => {
+      cf.rules.forEach((rule: any) => {
         if (rule.dxfId !== undefined) {
           rule.style = options.styles.getDxfStyle(rule.dxfId);
           delete rule.dxfId;

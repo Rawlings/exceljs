@@ -24,9 +24,10 @@ import CommentsXform from './xform/comment/comments-xform';
 import VmlNotesXform from './xform/comment/vml-notes-xform';
 import RelType from './rel-type';
 
+// @ts-ignore
 import theme1Xml from './theme1';
 
-function fsReadFileAsync(filename: any, options: any) {
+function fsReadFileAsync(filename: any, options?: any) {
   return new Promise((resolve, reject) => {
     fs.readFile(filename, options, (error, data) => {
       if (error) {
@@ -132,7 +133,7 @@ class XLSX {
       tables: model.tables,
       vmlDrawings: model.vmlDrawings,
     };
-    model.worksheets.forEach((worksheet) => {
+    model.worksheets.forEach((worksheet: any) => {
       worksheet.relationships = model.worksheetRels[worksheet.sheetNo];
       worksheetXform.reconcile(worksheet, sheetOptions);
     });
@@ -183,8 +184,8 @@ class XLSX {
     if (lastDot >= 1) {
       const extension = filename.substr(lastDot + 1);
       const name = filename.substr(0, lastDot);
-      await new Promise((resolve, reject) => {
-        const streamBuf = new StreamBuf();
+      await new Promise<void>((resolve, reject) => {
+        const streamBuf = new (StreamBuf as unknown as new (options?: any) => any)();
         streamBuf.on('finish', () => {
           model.mediaIndex[filename] = model.media.length;
           model.mediaIndex[name] = model.media.length;
@@ -195,9 +196,9 @@ class XLSX {
             buffer: streamBuf.toBuffer(),
           };
           model.media.push(medium);
-          resolve();
+          resolve(undefined);
         });
-        entry.on('error', (error) => {
+        entry.on('error', (error: any) => {
           reject(error);
         });
         entry.pipe(streamBuf);
@@ -224,14 +225,14 @@ class XLSX {
   }
 
   async _processThemeEntry(entry: any, model: any, name: any) {
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       // TODO: stream entry into buffer and store the xml in the model.themes[]
-      const stream = new StreamBuf();
+      const stream = new (StreamBuf as unknown as new (options?: any) => any)();
       entry.on('error', reject);
       stream.on('error', reject);
       stream.on('finish', () => {
         model.themes[name] = stream.read().toString();
-        resolve();
+        resolve(undefined);
       });
       entry.pipe(stream);
     });
@@ -282,7 +283,7 @@ class XLSX {
     };
 
     const zip = await JSZip.loadAsync(buffer);
-    for (const entry of Object.values(zip.files)) {
+    for (const entry of Object.values(zip.files) as any[]) {
       /* eslint-disable no-await-in-loop */
       if (!entry.dir) {
         let entryName = entry.name;
@@ -417,7 +418,7 @@ class XLSX {
 
   async addMedia(zip: any, model: any) {
     await Promise.all(
-      model.media.map(async (medium) => {
+      model.media.map(async (medium: any) => {
         if (medium.type === 'image') {
           const filename = `xl/media/${medium.name}.${medium.extension}`;
           if (medium.filename) {
@@ -442,10 +443,10 @@ class XLSX {
     const drawingXform = new DrawingXform();
     const relsXform = new RelationshipsXform();
 
-    model.worksheets.forEach((worksheet) => {
+    model.worksheets.forEach((worksheet: any) => {
       const { drawing } = worksheet;
       if (drawing) {
-        drawingXform.prepare(drawing, {});
+        drawingXform.prepare(drawing);
         let xml = drawingXform.toXml(drawing);
         zip.append(xml, { name: `xl/drawings/${drawing.name}.xml` });
 
@@ -458,9 +459,9 @@ class XLSX {
   addTables(zip: any, model: any) {
     const tableXform = new TableXform();
 
-    model.worksheets.forEach((worksheet) => {
+    model.worksheets.forEach((worksheet: any) => {
       const { tables } = worksheet;
-      tables.forEach((table) => {
+      tables.forEach((table: any) => {
         tableXform.prepare(table, {});
         const tableXml = tableXform.toXml(table);
         zip.append(tableXml, { name: `xl/tables/${table.target}` });
@@ -591,7 +592,7 @@ class XLSX {
         Target: 'pivotCache/pivotCacheDefinition1.xml',
       });
     }
-    model.worksheets.forEach((worksheet) => {
+    model.worksheets.forEach((worksheet: any) => {
       worksheet.rId = `rId${count++}`;
       relationships.push({
         Id: worksheet.rId,
@@ -630,7 +631,7 @@ class XLSX {
     const vmlNotesXform = new VmlNotesXform();
 
     // write sheets
-    model.worksheets.forEach((worksheet) => {
+    model.worksheets.forEach((worksheet: any) => {
       let xmlStream = new XmlStream();
       worksheetXform.render(xmlStream, worksheet);
       zip.append(xmlStream.xml, { name: `xl/worksheets/sheet${worksheet.id}.xml` });
@@ -678,7 +679,9 @@ class XLSX {
     model.sharedStrings = new SharedStringsXform();
 
     // add a style manager to handle cell formats, fonts, etc.
-    model.styles = model.useStyles ? new StylesXform(true) : new StylesXform.Mock();
+    model.styles = model.useStyles
+      ? new StylesXform(true)
+      : new (StylesXform.Mock as new (...args: any[]) => any)();
 
     // prepare all of the things before the render
     const workbookXform = new WorkbookXform();
@@ -686,7 +689,7 @@ class XLSX {
 
     workbookXform.prepare(model);
 
-    const worksheetOptions = {
+    const worksheetOptions: any = {
       sharedStrings: model.sharedStrings,
       styles: model.styles,
       date1904: model.properties.date1904,
@@ -697,9 +700,9 @@ class XLSX {
     worksheetOptions.commentRefs = model.commentRefs = [];
     let tableCount = 0;
     model.tables = [];
-    model.worksheets.forEach((worksheet) => {
+    model.worksheets.forEach((worksheet: any) => {
       // assign unique filenames to tables
-      worksheet.tables.forEach((table) => {
+      worksheet.tables.forEach((table: any) => {
         tableCount++;
         table.target = `table${tableCount}.xml`;
         table.id = tableCount;
@@ -722,7 +725,7 @@ class XLSX {
 
     // render
     await this.addContentTypes(zip, model);
-    await this.addOfficeRels(zip, model);
+    await this.addOfficeRels(zip);
     await this.addWorkbookRels(zip, model);
     await this.addWorksheets(zip, model);
     await this.addSharedStrings(zip, model); // always after worksheets
@@ -739,9 +742,9 @@ class XLSX {
   writeFile(filename: any, options: any) {
     const stream = fs.createWriteStream(filename);
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       stream.on('finish', () => {
-        resolve();
+        resolve(undefined);
       });
       stream.on('error', (error) => {
         reject(error);
@@ -757,8 +760,8 @@ class XLSX {
     });
   }
 
-  async writeBuffer(options: any) {
-    const stream = new StreamBuf();
+  async writeBuffer(options?: any) {
+    const stream = new (StreamBuf as unknown as new (options?: any) => any)();
     await this.write(stream, options);
     return stream.read();
   }

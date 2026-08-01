@@ -197,7 +197,9 @@ class Worksheet {
     }
 
     if (
-      this._workbook._worksheets.find((ws: any) => ws && ws.name.toLowerCase() === name.toLowerCase())
+      this._workbook._worksheets.find(
+        (ws: any) => ws && ws.name.toLowerCase() === name.toLowerCase()
+      )
     ) {
       throw new Error(`Worksheet name already exists: ${name}`);
     }
@@ -603,7 +605,7 @@ class Worksheet {
 
   // return all rows as sparse array
   getSheetValues() {
-    const rows = [];
+    const rows: any[] = [];
     this._rows.forEach((row) => {
       if (row) {
         rows[row.number] = row.values;
@@ -635,7 +637,7 @@ class Worksheet {
   // convert the range defined by ['tl:br'], [tl,br] or [t,l,b,r] into a single 'merged' cell
   mergeCells(...cells: any) {
     const dimensions = new Range(cells);
-    this._mergeCellsInternal(dimensions);
+    this._mergeCellsInternal(dimensions, undefined);
   }
 
   mergeCellsWithoutStyle(...cells: any) {
@@ -645,7 +647,7 @@ class Worksheet {
 
   _mergeCellsInternal(dimensions: any, ignoreStyle: any) {
     // check cells aren't already merged
-    _.each(this._merges, (merge) => {
+    _.each(this._merges, (merge: any) => {
       if (merge.intersects(dimensions)) {
         throw new Error('Cannot merge already merged cells');
       }
@@ -787,7 +789,7 @@ class Worksheet {
   protect(password: any, options: any) {
     // TODO: make this function truly async
     // perhaps marshal to worker thread or something
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       this.sheetProtection = {
         sheet: true,
       };
@@ -911,20 +913,20 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
       autoFilter: this.autoFilter,
       media: this._media.map((medium) => medium.model),
       sheetProtection: this.sheetProtection,
-      tables: Object.values(this.tables).map((table) => table.model),
+      tables: Object.values(this.tables).map((table) => (table as any).model),
       pivotTables: this.pivotTables,
       conditionalFormattings: this.conditionalFormattings,
     };
 
     // =================================================
     // columns
-    model.cols = Column.toModel(this.columns);
+    (model as any).cols = Column.toModel(this.columns);
 
     // ==========================================================
     // Rows
-    const rows = (model.rows = []);
-    const dimensions = (model.dimensions = new Range());
-    this._rows.forEach((row) => {
+    const rows: any[] = ((model as any).rows = []);
+    const dimensions = ((model as any).dimensions = new Range());
+    this._rows.forEach((row: any) => {
       const rowModel = row && row.model;
       if (rowModel) {
         dimensions.expand(rowModel.number, rowModel.min, rowModel.number, rowModel.max);
@@ -934,9 +936,9 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
 
     // ==========================================================
     // Merges
-    model.merges = [];
-    _.each(this._merges, (merge) => {
-      model.merges.push(merge.range);
+    (model as any).merges = [];
+    _.each(this._merges, (merge: any) => {
+      (model as any).merges.push(merge.range);
     });
 
     return model;
@@ -944,7 +946,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
 
   _parseRows(model: any) {
     this._rows = [];
-    model.rows.forEach((rowModel) => {
+    model.rows.forEach((rowModel: any) => {
       const row = new Row(this, rowModel.number);
       this._rows[row.number - 1] = row;
       row.model = rowModel;
@@ -952,7 +954,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
   }
 
   _parseMergeCells(model: any) {
-    _.each(model.mergeCells, (merge) => {
+    _.each(model.mergeCells, (merge: any) => {
       // Do not merge styles when importing an Excel file
       // since each cell may have different styles intentionally.
       this.mergeCellsWithoutStyle(merge);
@@ -971,10 +973,10 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     this.headerFooter = value.headerFooter;
     this.views = value.views;
     this.autoFilter = value.autoFilter;
-    this._media = value.media.map((medium) => new Image(this, medium));
+    this._media = value.media.map((medium: any) => new Image(this, medium));
     this.sheetProtection = value.sheetProtection;
-    this.tables = value.tables.reduce((tables, table) => {
-      const t = new Table();
+    this.tables = value.tables.reduce((tables: any, table: any) => {
+      const t = new Table(this, table);
       t.model = table;
       tables[table.name] = t;
       return tables;

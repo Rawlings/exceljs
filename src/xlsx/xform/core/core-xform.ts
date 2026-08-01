@@ -5,6 +5,10 @@ import StringXform from '../simple/string-xform';
 import IntegerXform from '../simple/integer-xform';
 
 class CoreXform extends BaseXform {
+  static DateFormat: any;
+  static DateAttrs: any;
+  static CORE_PROPERTY_ATTRIBUTES: any;
+
   constructor() {
     super();
 

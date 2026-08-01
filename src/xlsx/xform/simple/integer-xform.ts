@@ -5,7 +5,7 @@ class IntegerXform extends BaseXform {
   attr: any;
   attrs: any;
   zero: any;
-  text: any[];
+  text: any[] = [];
 
   override get tag(): any {
     return this._tag;
@@ -63,7 +63,7 @@ class IntegerXform extends BaseXform {
 
   parseClose() {
     if (!this.attr) {
-      this.model = parseInt(this.text.join('') || 0, 10);
+      this.model = parseInt(String(this.text.join('') || 0), 10);
     }
     return false;
   }

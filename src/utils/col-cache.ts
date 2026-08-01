@@ -183,7 +183,7 @@ const colCache = {
   },
 
   // convert r,c into structure (if only 1 arg, assume r is address string)
-  getAddress(r: any, c: any) {
+  getAddress(r: any, c?: any) {
     if (c) {
       const address = this.n2l(c) + r;
       return this.decodeAddress(address);
@@ -262,7 +262,7 @@ const colCache = {
   },
 
   // convert row,col into string address or t,l,b,r into range
-  encode() {
+  encode(...args: any[]) {
     switch (arguments.length) {
       case 2:
         return colCache.encodeAddress(arguments[0], arguments[1]);

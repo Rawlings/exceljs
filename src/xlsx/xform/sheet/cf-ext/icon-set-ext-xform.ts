@@ -5,6 +5,9 @@ import CfvoExtXform from './cfvo-ext-xform';
 import CfIconExtXform from './cf-icon-ext-xform';
 
 class IconSetExtXform extends CompositeXform {
+  cfvoXform: any;
+  cfIconXform: any;
+
   constructor() {
     super();
 
@@ -26,12 +29,12 @@ class IconSetExtXform extends CompositeXform {
       custom: BaseXform.toBoolAttribute(model.icons, false),
     });
 
-    model.cfvo.forEach((cfvo) => {
+    model.cfvo.forEach((cfvo: any) => {
       this.cfvoXform.render(xmlStream, cfvo);
     });
 
     if (model.icons) {
-      model.icons.forEach((icon, i) => {
+      model.icons.forEach((icon: any, i: any) => {
         icon.iconId = i;
         this.cfIconXform.render(xmlStream, icon);
       });

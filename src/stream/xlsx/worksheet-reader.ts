@@ -18,6 +18,7 @@ class WorksheetReader extends EventEmitter {
   _columns: any;
   _keys: any;
   _dimensions: any;
+  hyperlinks: any;
 
   constructor({ workbook, id, iterator, options }: any = {}) {
     super();
@@ -35,7 +36,7 @@ class WorksheetReader extends EventEmitter {
     this._keys = {};
 
     // keep a record of dimensions
-    this._dimensions = new Dimensions();
+    this._dimensions = new Dimensions(undefined);
   }
 
   // destroy - not a valid operation for a streaming writer
@@ -158,15 +159,15 @@ class WorksheetReader extends EventEmitter {
     let inHyperlinks = false;
 
     // parse state
-    let cols = null;
-    let row = null;
-    let c = null;
-    let current = null;
+    let cols: any = null;
+    let row: any = null;
+    let c: any = null;
+    let current: any = null;
     for await (const events of parseSax(iterator)) {
       const worksheetEvents = [];
       for (const { eventType, value } of events) {
         if (eventType === 'opentag') {
-          const node = value;
+          const node: any = value;
           if (emitSheet) {
             switch (node.name) {
               case 'cols':
@@ -252,7 +253,7 @@ class WorksheetReader extends EventEmitter {
                   if (emitHyperlinks) {
                     worksheetEvents.push({ eventType: 'hyperlink', value: hyperlink });
                   } else {
-                    hyperlinks[hyperlink.ref] = hyperlink;
+                    (hyperlinks as any)[hyperlink.ref] = hyperlink;
                   }
                 }
                 break;
@@ -268,12 +269,12 @@ class WorksheetReader extends EventEmitter {
             }
           }
         } else if (eventType === 'closetag') {
-          const node = value;
+          const node: any = value;
           if (emitSheet) {
             switch (node.name) {
               case 'cols':
                 inCols = false;
-                this._columns = Column.fromModel(cols);
+                this._columns = Column.fromModel(cols, this.options);
                 break;
               case 'sheetData':
                 inRows = false;
@@ -297,7 +298,7 @@ class WorksheetReader extends EventEmitter {
                   }
 
                   if (c.f) {
-                    const cellValue = {
+                    const cellValue: any = {
                       formula: c.f.text,
                     };
                     if (c.v) {
@@ -348,7 +349,7 @@ class WorksheetReader extends EventEmitter {
                     }
                   }
                   if (hyperlinks) {
-                    const hyperlink = hyperlinks[c.ref];
+                    const hyperlink = (hyperlinks as any)[c.ref];
                     if (hyperlink) {
                       cell.text = cell.value;
                       cell.value = undefined;

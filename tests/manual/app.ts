@@ -1,0 +1,72 @@
+import fs from 'fs';
+import http from 'http';
+import path from 'path';
+import ExcelJS from '../../src/exceljs.nodejs';
+import StreamBuf from '../../src/utils/stream-buf';
+
+console.log('Copying bundle.js to public folder');
+fs.createReadStream(path.join(__dirname, '../../dist/exceljs.min.js')).pipe(
+  fs.createWriteStream(path.join(__dirname, 'public/exceljs.min.js'))
+);
+fs.createReadStream(path.join(__dirname, '../../dist/exceljs.js')).pipe(
+  fs.createWriteStream(path.join(__dirname, 'public/exceljs.js'))
+);
+
+const server = http.createServer((req, res) => {
+  if (req.method === 'POST' && req.url === '/api/upload') {
+    const wb = new ExcelJS.Workbook();
+
+    const stream = new StreamBuf();
+    stream.on('finish', () => {
+      const base64 = stream.read();
+
+      wb.xlsx.load(base64, { base64: true }).then(() => {
+        const ws = wb.getWorksheet('blort');
+
+        console.log('XLSX uploaded:');
+        console.log('A1', ws.getCell('A1').value);
+        console.log('A2', ws.getCell('A2').value);
+
+        ws.getCell('A1').value = 'Hey Ho!';
+        ws.getCell('A2').value = 14;
+
+        const outStream = new StreamBuf();
+        wb.xlsx.write(outStream).then(() => {
+          const b = outStream.read();
+          const s = b.toString('base64');
+          res.write(s);
+          res.end();
+        });
+      });
+    });
+
+    req.pipe(stream);
+    return;
+  }
+
+  const safePath = path
+    .normalize(req.url === '/' ? '/index.html' : req.url || '/index.html')
+    .replace(/^(\.\.[/\\])+/, '');
+  const filePath = path.join(__dirname, 'public', safePath);
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('404 Not Found');
+      return;
+    }
+
+    const ext = path.extname(filePath);
+    let contentType = 'text/html';
+    if (ext === '.js') contentType = 'application/javascript';
+    else if (ext === '.css') contentType = 'text/css';
+    else if (ext === '.json') contentType = 'application/json';
+
+    res.writeHead(200, { 'Content-Type': contentType });
+    res.end(data);
+  });
+});
+
+server.listen(3003, () => {
+  console.log('Listening on port 3003');
+});

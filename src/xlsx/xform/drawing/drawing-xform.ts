@@ -12,7 +12,8 @@ function getAnchorType(model: any) {
 }
 
 class DrawingXform extends BaseXform {
-  constructor() {
+  static DRAWING_ATTRIBUTES: any;
+  constructor(_options?: any) {
     super();
 
     this.map = {
@@ -22,7 +23,7 @@ class DrawingXform extends BaseXform {
   }
 
   prepare(model: any) {
-    model.anchors.forEach((item, index) => {
+    model.anchors.forEach((item: any, index: any) => {
       item.anchorType = getAnchorType(item);
       const anchor = this.map[item.anchorType];
       anchor.prepare(item, { index });
@@ -37,7 +38,7 @@ class DrawingXform extends BaseXform {
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode(this.tag, DrawingXform.DRAWING_ATTRIBUTES);
 
-    model.anchors.forEach((item) => {
+    model.anchors.forEach((item: any) => {
       const anchor = this.map[item.anchorType];
       anchor.render(xmlStream, item);
     });
@@ -91,7 +92,7 @@ class DrawingXform extends BaseXform {
   }
 
   reconcile(model: any, options: any) {
-    model.anchors.forEach((anchor) => {
+    model.anchors.forEach((anchor: any) => {
       if (anchor.br) {
         this.map['xdr:twoCellAnchor'].reconcile(anchor, options);
       } else {

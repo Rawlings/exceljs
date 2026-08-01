@@ -2,6 +2,8 @@ import XmlStream from '../../../utils/xml-stream';
 import BaseXform from '../base-xform';
 
 class PivotTableXform extends BaseXform {
+  static PIVOT_TABLE_ATTRIBUTES: any;
+
   constructor() {
     super();
 
@@ -68,13 +70,13 @@ class PivotTableXform extends BaseXform {
         ${renderPivotFields(model)}
       </pivotFields>
       <rowFields count="${rows.length}">
-        ${rows.map((rowIndex) => `<field x="${rowIndex}" />`).join('\n    ')}
+        ${rows.map((rowIndex: any) => `<field x="${rowIndex}" />`).join('\n    ')}
       </rowFields>
       <rowItems count="1">
         <i t="grand"><x /></i>
       </rowItems>
       <colFields count="${columns.length}">
-        ${columns.map((columnIndex) => `<field x="${columnIndex}" />`).join('\n    ')}
+        ${columns.map((columnIndex: any) => `<field x="${columnIndex}" />`).join('\n    ')}
       </colFields>
       <colItems count="1">
         <i t="grand"><x /></i>
@@ -142,7 +144,7 @@ class PivotTableXform extends BaseXform {
 function renderPivotFields(pivotTable: any) {
   /* eslint-disable no-nested-ternary */
   return pivotTable.cacheFields
-    .map((cacheField, fieldIndex) => {
+    .map((cacheField: any, fieldIndex: any) => {
       const fieldType =
         pivotTable.rows.indexOf(fieldIndex) >= 0
           ? 'row'
@@ -166,7 +168,7 @@ function renderPivotField(fieldType: any, sharedItems: any) {
     return `
       <pivotField axis="${axis}" ${defaultAttributes}>
         <items count="${sharedItems.length + 1}">
-          ${sharedItems.map((item, index) => `<item x="${index}" />`).join('\n              ')}
+          ${sharedItems.map((item: any, index: any) => `<item x="${index}" />`).join('\n              ')}
         </items>
       </pivotField>
     `;

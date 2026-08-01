@@ -4,6 +4,8 @@ import CompositeXform from '../../composite-xform';
 import CfvoXform from './cfvo-xform';
 
 class IconSetXform extends CompositeXform {
+  cfvoXform: any;
+
   constructor() {
     super();
 
@@ -23,7 +25,7 @@ class IconSetXform extends CompositeXform {
       showValue: BaseXform.toBoolAttribute(model.showValue, true),
     });
 
-    model.cfvo.forEach((cfvo) => {
+    model.cfvo.forEach((cfvo: any) => {
       this.cfvoXform.render(xmlStream, cfvo);
     });
 

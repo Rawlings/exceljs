@@ -155,7 +155,7 @@ class ReadWriteBuf {
 
 // Note: Not sure why but StreamBuf does not like JS "class" sugar. It fails the
 // integration tests
-const StreamBuf = function (this: any, options: any) {
+const StreamBuf = function (this: any, options?: any) {
   options = options || {};
   this.bufSize = options.bufSize || 1024 * 1024;
   this.buffers = [];
@@ -180,7 +180,7 @@ const StreamBuf = function (this: any, options: any) {
   this.encoding = null;
 };
 
-utils.inherits(StreamBuf, Stream.Duplex, {
+utils.inherits(StreamBuf, Stream.Duplex, null, {
   toBuffer() {
     switch (this.buffers.length) {
       case 0:
@@ -188,7 +188,7 @@ utils.inherits(StreamBuf, Stream.Duplex, {
       case 1:
         return this.buffers[0].toBuffer();
       default:
-        return Buffer.concat(this.buffers.map((rwBuf) => rwBuf.toBuffer()));
+        return Buffer.concat(this.buffers.map((rwBuf: any) => rwBuf.toBuffer()));
     }
   },
 
@@ -213,7 +213,7 @@ utils.inherits(StreamBuf, Stream.Duplex, {
 
   async _pipe(chunk: any) {
     const write = function (pipe: any) {
-      return new Promise((resolve) => {
+      return new Promise<void>((resolve) => {
         pipe.write(chunk.toBuffer(), () => {
           resolve();
         });
@@ -293,12 +293,12 @@ utils.inherits(StreamBuf, Stream.Duplex, {
     this._flush();
   },
   end(chunk: any, encoding: any, callback: any) {
-    const writeComplete = (error) => {
+    const writeComplete = (error?: any) => {
       if (error) {
         callback(error);
       } else {
         this._flush();
-        this.pipes.forEach((pipe) => {
+        this.pipes.forEach((pipe: any) => {
           pipe.end();
         });
         this.emit('finish');
@@ -334,7 +334,7 @@ utils.inherits(StreamBuf, Stream.Duplex, {
       return Buffer.concat(buffers);
     }
 
-    buffers = this.buffers.map((buf) => buf.toBuffer()).filter(Boolean);
+    buffers = this.buffers.map((buf: any) => buf.toBuffer()).filter(Boolean);
     this.buffers = [];
     return Buffer.concat(buffers);
   },
@@ -360,7 +360,7 @@ utils.inherits(StreamBuf, Stream.Duplex, {
   },
   unpipe(destination: any) {
     // remove destination from pipe list
-    this.pipes = this.pipes.filter((pipe) => pipe !== destination);
+    this.pipes = this.pipes.filter((pipe: any) => pipe !== destination);
   },
   unshift() {
     // some numpty has read some data that's not for them and they want to put it back!

@@ -5,7 +5,7 @@ class CellMatrix {
   template: any;
   sheets: any;
 
-  constructor(template: any) {
+  constructor(template?: any) {
     this.template = template;
     this.sheets = {};
   }

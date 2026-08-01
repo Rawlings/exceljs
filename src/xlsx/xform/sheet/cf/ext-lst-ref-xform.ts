@@ -25,6 +25,8 @@ class X14IdXform extends BaseXform {
 }
 
 class ExtXform extends CompositeXform {
+  idXform: any;
+
   constructor() {
     super();
 

@@ -43,6 +43,10 @@ function getEffectiveCellType(cell: any) {
 }
 
 class CellXform extends BaseXform {
+  richTextXForm: any;
+  t: any;
+  currentNode: any;
+
   constructor() {
     super();
 
@@ -235,7 +239,7 @@ class CellXform extends BaseXform {
         } else if (model.value && model.value.richText) {
           xmlStream.addAttribute('t', 'inlineStr');
           xmlStream.openNode('is');
-          model.value.richText.forEach((text) => {
+          model.value.richText.forEach((text: any) => {
             this.richTextXForm.render(xmlStream, text);
           });
           xmlStream.closeNode('is');

@@ -6,6 +6,7 @@ import VmlShapeXform from './vml-shape-xform';
 // This class is (currently) single purposed to insert the triangle
 // drawing icons on commented cells
 class VmlNotesXform extends BaseXform {
+  static DRAWING_ATTRIBUTES: any;
   constructor() {
     super();
     this.map = {
@@ -35,7 +36,7 @@ class VmlNotesXform extends BaseXform {
     xmlStream.leafNode('v:path', { gradientshapeok: 't', 'o:connecttype': 'rect' });
     xmlStream.closeNode();
 
-    model.comments.forEach((item, index) => {
+    model.comments.forEach((item: any, index: any) => {
       this.map['v:shape'].render(xmlStream, item, index);
     });
 
@@ -88,7 +89,7 @@ class VmlNotesXform extends BaseXform {
   }
 
   reconcile(model: any, options: any) {
-    model.anchors.forEach((anchor) => {
+    model.anchors.forEach((anchor: any) => {
       if (anchor.br) {
         this.map['xdr:twoCellAnchor'].reconcile(anchor, options);
       } else {

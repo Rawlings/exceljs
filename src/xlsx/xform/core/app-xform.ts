@@ -6,6 +6,10 @@ import AppHeadingPairsXform from './app-heading-pairs-xform';
 import AppTitleOfPartsXform from './app-titles-of-parts-xform';
 
 class AppXform extends BaseXform {
+  static PROPERTY_ATTRIBUTES: any;
+  static DateFormat: any;
+  static DateAttrs: any;
+
   constructor() {
     super();
 

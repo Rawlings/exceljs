@@ -21,7 +21,7 @@ utils.inherits(
     },
   },
   {
-    render(xmlStream, model) {
+    render(xmlStream: any, model: any) {
       model = model || this.model;
       xmlStream.openXml(XmlStream.StdDocAttributes);
       xmlStream.openNode('comments', CommentsXform.COMMENTS_ATTRIBUTES);
@@ -34,7 +34,7 @@ utils.inherits(
 
       // comments
       xmlStream.openNode('commentList');
-      model.comments.forEach((comment) => {
+      model.comments.forEach((comment: any) => {
         this.map.comment.render(xmlStream, comment);
       });
       xmlStream.closeNode();

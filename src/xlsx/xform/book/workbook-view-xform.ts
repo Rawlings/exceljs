@@ -2,7 +2,15 @@ import BaseXform from '../base-xform';
 
 class WorkbookViewXform extends BaseXform {
   render(xmlStream: any, model: any) {
-    const attributes = {
+    const attributes: {
+      xWindow: any;
+      yWindow: any;
+      windowWidth: any;
+      windowHeight: any;
+      firstSheet: any;
+      activeTab: any;
+      visibility?: any;
+    } = {
       xWindow: model.x || 0,
       yWindow: model.y || 0,
       windowWidth: model.width || 12000,
@@ -18,7 +26,7 @@ class WorkbookViewXform extends BaseXform {
 
   parseOpen(node: any) {
     if (node.name === 'workbookView') {
-      const model = (this.model = {});
+      const model = (this.model = {} as Record<string, any>);
       const addS = function (name: any, value: any, dflt: any) {
         const s = value !== undefined ? (model[name] = value) : dflt;
         if (s !== undefined) {

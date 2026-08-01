@@ -1,6 +1,8 @@
 import BaseXform from '../../base-xform';
 
 class VmlPositionXform extends BaseXform {
+  declare _model: any;
+
   constructor(model: any) {
     super();
     this._model = model;

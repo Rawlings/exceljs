@@ -28,9 +28,13 @@ class Workbook {
   _definedNames: any;
   _xlsx: any;
   _csv: any;
+  _themes: any;
   creator: any;
   lastModifiedBy: any;
   lastPrinted: any;
+  language: any;
+  revision: any;
+  contentStatus: any;
 
   constructor() {
     this.category = '';
@@ -223,9 +227,9 @@ class Workbook {
     this.properties = value.properties;
     this.calcProperties = value.calcProperties;
     this._worksheets = [];
-    value.worksheets.forEach((worksheetModel) => {
+    value.worksheets.forEach((worksheetModel: any) => {
       const { id, name, state } = worksheetModel;
-      const orderNo = value.sheets && value.sheets.findIndex((ws) => ws.id === id);
+      const orderNo = value.sheets && value.sheets.findIndex((ws: any) => ws.id === id);
       const worksheet = (this._worksheets[id] = new Worksheet({
         id,
         name,

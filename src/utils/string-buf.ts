@@ -38,7 +38,7 @@ class StringBuf {
     return this._buffer;
   }
 
-  reset(position: any) {
+  reset(position?: any) {
     position = position || 0;
     this._buffer = undefined;
     this._inPos = position;

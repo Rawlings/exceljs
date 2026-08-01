@@ -2,6 +2,10 @@ import BaseXform from '../base-xform';
 import colCache from '../../../utils/col-cache';
 
 class DefinedNamesXform extends BaseXform {
+  _parsedName: any;
+  _parsedLocalSheetId: any;
+  _parsedText: any;
+
   render(xmlStream: any, model: any) {
     // <definedNames>
     //   <definedName name="name">name.ranges.join(',')</definedName>
@@ -53,10 +57,10 @@ function isValidRange(range: any) {
 }
 
 function extractRanges(parsedText: any) {
-  const ranges = [];
+  const ranges: any[] = [];
   let quotesOpened = false;
   let last = '';
-  parsedText.split(',').forEach((item) => {
+  parsedText.split(',').forEach((item: any) => {
     if (!item) {
       return;
     }

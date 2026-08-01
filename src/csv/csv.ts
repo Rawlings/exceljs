@@ -190,7 +190,7 @@ export class CSV {
       if (typeof stream.end === 'function') {
         stream.end();
       }
-      resolve();
+      resolve(undefined);
     });
   }
 
@@ -203,7 +203,7 @@ export class CSV {
   }
 
   async writeBuffer(options: any = {}): Promise<any> {
-    const stream = new StreamBuf();
+    const stream = new (StreamBuf as unknown as new (options?: any) => any)();
     await this.write(stream, options);
     return stream.read();
   }

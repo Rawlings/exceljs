@@ -4,11 +4,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    setupFiles: ['./tests/config/setup-vitest.js'],
     include: [
-      'tests/unit/**/*.spec.js',
-      'tests/integration/**/*.spec.js',
-      'tests/end-to-end/**/*.spec.js',
+      'tests/unit/**/*.spec.ts',
+      'tests/integration/**/*.spec.ts',
+      'tests/end-to-end/**/*.spec.ts',
       'tests/typescript/**/*.spec.ts',
     ],
     testTimeout: 30000,

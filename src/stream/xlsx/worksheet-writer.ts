@@ -14,7 +14,7 @@ import SheetRelsWriter from './sheet-rels-writer';
 import SheetCommentsWriter from './sheet-comments-writer';
 import DataValidations from '../../doc/data-validations';
 
-const xmlBuffer = new StringBuf();
+const xmlBuffer = new StringBuf(undefined);
 
 // ============================================================================================
 // Xforms
@@ -60,7 +60,7 @@ class WorksheetWriter {
   id: any;
   name: string;
   state: any;
-  _rows: any[];
+  _rows: any;
   _columns: any;
   _keys: any;
   _merges: any;
@@ -72,6 +72,24 @@ class WorksheetWriter {
   rowBreaks: any[];
   _rowBreaks: any;
   dataValidations: any;
+  _rowZero: any;
+  committed: any;
+  _formulae: any;
+  _siFormulae: any;
+  conditionalFormatting: any;
+  properties: any;
+  headerFooter: any;
+  pageSetup: any;
+  useSharedStrings: any;
+  _workbook: any;
+  hasComments: any;
+  _views: any;
+  _media: any;
+  sheetProtection: any;
+  startedData: any;
+  _stream: any;
+  _background: any;
+  _headerRowCount: any;
 
   constructor(options?: any) {
     // in a workbook, each sheet will have a number
@@ -233,7 +251,7 @@ class WorksheetWriter {
       return;
     }
     // commit all rows
-    this._rows.forEach((cRow) => {
+    this._rows.forEach((cRow: any) => {
       if (cRow) {
         // write the row to the stream
         this._writeRow(cRow);
@@ -298,15 +316,15 @@ class WorksheetWriter {
   // Note: any headers defined will overwrite existing values.
   set columns(value: any) {
     // calculate max header row count
-    this._headerRowCount = value.reduce((pv, cv) => {
+    this._headerRowCount = value.reduce((pv: any, cv: any) => {
       const headerCount = (cv.header && 1) || (cv.headers && cv.headers.length) || 0;
       return Math.max(pv, headerCount);
     }, 0);
 
     // construct Column objects
     let count = 1;
-    const columns = (this._columns = []);
-    value.forEach((defn) => {
+    const columns: any[] = (this._columns = []);
+    value.forEach((defn: any) => {
       const column = new Column(this, count++, false);
       columns.push(column);
       column.defn = defn;
@@ -370,7 +388,7 @@ class WorksheetWriter {
         iteratee(this.getRow(i), i);
       }
     } else {
-      this._rows.forEach((row) => {
+      this._rows.forEach((row: any) => {
         if (row.hasValues) {
           iteratee(row, row.number);
         }
@@ -449,7 +467,7 @@ class WorksheetWriter {
     const dimensions = new Dimensions(cells);
 
     // check cells aren't already merged
-    this._merges.forEach((merge) => {
+    this._merges.forEach((merge: any) => {
       if (merge.intersects(dimensions)) {
         throw new Error('Cannot merge already merged cells');
       }
@@ -502,7 +520,7 @@ class WorksheetWriter {
   protect(password: any, options: any) {
     // TODO: make this function truly async
     // perhaps marshal to worker thread or something
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       this.sheetProtection = {
         sheet: true,
       };
@@ -541,7 +559,7 @@ class WorksheetWriter {
   // ================================================================================
 
   _write(text: any) {
-    xmlBuffer.reset();
+    xmlBuffer.reset(undefined);
     xmlBuffer.addText(text);
     this.stream.write(xmlBuffer);
   }
@@ -570,15 +588,15 @@ class WorksheetWriter {
           outlineLevelRow: properties.outlineLevelRow,
         }
       : undefined;
-    if (properties.defaultColWidth) {
-      sheetFormatPropertiesModel.defaultColWidth = properties.defaultColWidth;
+    if (sheetFormatPropertiesModel && properties.defaultColWidth) {
+      (sheetFormatPropertiesModel as any).defaultColWidth = properties.defaultColWidth;
     }
 
     xmlBuf.addText(xform.sheetFormatProperties.toXml(sheetFormatPropertiesModel));
   }
 
   _writeOpenWorksheet() {
-    xmlBuffer.reset();
+    xmlBuffer.reset(undefined);
 
     xmlBuffer.addText('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
     xmlBuffer.addText(
@@ -644,9 +662,9 @@ class WorksheetWriter {
 
   _writeMergeCells() {
     if (this._merges.length) {
-      xmlBuffer.reset();
+      xmlBuffer.reset(undefined);
       xmlBuffer.addText(`<mergeCells count="${this._merges.length}">`);
-      this._merges.forEach((merge) => {
+      this._merges.forEach((merge: any) => {
         xmlBuffer.addText(`<mergeCell ref="${merge}"/>`);
       });
       xmlBuffer.addText('</mergeCells>');
@@ -716,7 +734,7 @@ class WorksheetWriter {
 
   _writeLegacyData() {
     if (this.hasComments) {
-      xmlBuffer.reset();
+      xmlBuffer.reset(undefined);
       xmlBuffer.addText(`<legacyDrawing r:id="${this._sheetCommentsWriter.vmlRelId}"/>`);
       this.stream.write(xmlBuffer);
     }

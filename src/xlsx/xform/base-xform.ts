@@ -6,9 +6,17 @@ import XmlStream from '../../utils/xml-stream';
 
 // Base class for Xforms
 class BaseXform {
-  model: any;
+  _model: any;
   map: any;
   parser: any;
+
+  get model() {
+    return this._model;
+  }
+
+  set model(val: any) {
+    this._model = val;
+  }
   get tag(): any {
     return undefined;
   }

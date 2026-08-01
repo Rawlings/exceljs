@@ -174,7 +174,7 @@ class Table {
     // tableRef is a range that includes optional headers and totals
     table.tableRef = colCache.encode(row, col, row + tableHeight - 1, col + width - 1);
 
-    table.columns.forEach((column, i) => {
+    table.columns.forEach((column: any, i: any) => {
       assert(column.name, `Column ${i} must have a name`);
       if (i === 0) {
         assign(column, 'totalsRowLabel', 'Total');
@@ -201,16 +201,16 @@ class Table {
     let count = 0;
     if (table.headerRow) {
       const r = worksheet.getRow(row + count++);
-      table.columns.forEach((column, j) => {
+      table.columns.forEach((column: any, j: any) => {
         const { style, name } = column;
         const cell = r.getCell(col + j);
         cell.value = name;
         assignStyle(cell, style);
       });
     }
-    table.rows.forEach((data) => {
+    table.rows.forEach((data: any) => {
       const r = worksheet.getRow(row + count++);
-      data.forEach((value, j) => {
+      data.forEach((value: any, j: any) => {
         const cell = r.getCell(col + j);
         cell.value = value;
 
@@ -220,7 +220,7 @@ class Table {
 
     if (table.totalsRow) {
       const r = worksheet.getRow(row + count++);
-      table.columns.forEach((column, j) => {
+      table.columns.forEach((column: any, j: any) => {
         const cell = r.getCell(col + j);
         if (j === 0) {
           cell.value = column.totalsRowLabel;
@@ -248,14 +248,14 @@ class Table {
     let count = 0;
     if (table.headerRow) {
       const r = worksheet.getRow(row + count++);
-      table.columns.forEach((column, j) => {
+      table.columns.forEach((column: any, j: any) => {
         const cell = r.getCell(col + j);
         cell.value = column.name;
       });
     }
-    table.rows.forEach((data) => {
+    table.rows.forEach((data: any) => {
       const r = worksheet.getRow(row + count++);
-      data.forEach((value, j) => {
+      data.forEach((value: any, j: any) => {
         const cell = r.getCell(col + j);
         cell.value = value;
       });
@@ -263,7 +263,7 @@ class Table {
 
     if (table.totalsRow) {
       const r = worksheet.getRow(row + count++);
-      table.columns.forEach((column, j) => {
+      table.columns.forEach((column: any, j: any) => {
         const cell = r.getCell(col + j);
         if (j === 0) {
           cell.value = column.totalsRowLabel;
@@ -371,12 +371,12 @@ class Table {
 
     if (colIndex === undefined) {
       this.table.columns.push(column);
-      this.table.rows.forEach((row, i) => {
+      this.table.rows.forEach((row: any, i: any) => {
         row.push(values[i]);
       });
     } else {
       this.table.columns.splice(colIndex, 0, column);
-      this.table.rows.forEach((row, i) => {
+      this.table.rows.forEach((row: any, i: any) => {
         row.splice(colIndex, 0, values[i]);
       });
     }
@@ -387,7 +387,7 @@ class Table {
     this.cacheState();
 
     this.table.columns.splice(colIndex, count);
-    this.table.rows.forEach((row) => {
+    this.table.rows.forEach((row: any) => {
       row.splice(colIndex, count);
     });
   }

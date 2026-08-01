@@ -10,13 +10,13 @@ class VmlTextboxXform extends BaseXform {
   }
 
   reverseConversionUnit(inset: any) {
-    return (inset || '').split(',').map((margin) => {
+    return (inset || '').split(',').map((margin: any) => {
       return Number(parseFloat(this.conversionUnit(parseFloat(margin), 0.1, '')).toFixed(2));
     });
   }
 
   render(xmlStream: any, model: any) {
-    const attributes = {
+    const attributes: { style: string; inset?: any } = {
       style: 'mso-direction-alt:auto',
     };
     if (model && model.note) {

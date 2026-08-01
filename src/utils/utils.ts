@@ -52,7 +52,7 @@ const utils = {
     });
   },
   inherits,
-  dateToExcel(d: any, date1904: any) {
+  dateToExcel(d: any, date1904?: any) {
     // eslint-disable-next-line no-mixed-operators
     return 25569 + d.getTime() / (24 * 3600 * 1000) - (date1904 ? 1462 : 0);
   },

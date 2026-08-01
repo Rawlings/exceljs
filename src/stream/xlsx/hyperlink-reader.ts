@@ -53,21 +53,21 @@ class HyperlinkReader extends EventEmitter {
         for (const { eventType, value } of events) {
           if (eventType === 'opentag') {
             const node = value;
-            if (node.name === 'Relationship') {
-              const rId = node.attributes.Id;
-              switch (node.attributes.Type) {
+            if ((node as any).name === 'Relationship') {
+              const rId = (node as any).attributes.Id;
+              switch ((node as any).attributes.Type) {
                 case RelType.Hyperlink:
                   {
                     const relationship = {
                       type: Enums.RelationshipType.Styles,
                       rId,
-                      target: node.attributes.Target,
-                      targetMode: node.attributes.TargetMode,
+                      target: (node as any).attributes.Target,
+                      targetMode: (node as any).attributes.TargetMode,
                     };
                     if (emitHyperlinks) {
                       this.emit('hyperlink', relationship);
                     } else {
-                      hyperlinks[relationship.rId] = relationship;
+                      (hyperlinks as Record<string, any>)[relationship.rId] = relationship;
                     }
                   }
                   break;

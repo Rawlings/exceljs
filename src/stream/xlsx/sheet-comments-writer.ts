@@ -5,6 +5,16 @@ import CommentXform from '../../xlsx/xform/comment/comment-xform';
 import VmlShapeXform from '../../xlsx/xform/comment/vml-shape-xform';
 
 class SheetCommentsWriter {
+  id: any;
+  count: any;
+  _worksheet: any;
+  _workbook: any;
+  _sheetRelsWriter: any;
+  _commentsStream: any;
+  _vmlStream: any;
+  startedData: any;
+  vmlRelId: any;
+
   constructor(worksheet: any, sheetRelsWriter: any, options: any) {
     // in a workbook, each sheet will have a number
     this.id = options.id;
@@ -98,11 +108,11 @@ class SheetCommentsWriter {
         this.startedData = true;
       }
 
-      comments.forEach((item) => {
+      comments.forEach((item: any) => {
         item.refAddress = colCache.decodeAddress(item.ref);
       });
 
-      comments.forEach((comment) => {
+      comments.forEach((comment: any) => {
         this._writeComment(comment, this.count);
         this.count += 1;
       });

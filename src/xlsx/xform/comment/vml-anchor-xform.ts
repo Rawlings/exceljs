@@ -2,6 +2,8 @@ import BaseXform from '../base-xform';
 
 // render the triangle in the cell for the comment
 class VmlAnchorXform extends BaseXform {
+  text: any;
+
   get tag() {
     return 'x:Anchor';
   }

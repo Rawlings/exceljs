@@ -4,8 +4,8 @@ import defaultNumFormats from '../../defaultnumformats';
 import BaseXform from '../base-xform';
 
 function hashDefaultFormats() {
-  const hash = {};
-  _.each(defaultNumFormats, (dnf, id) => {
+  const hash: any = {};
+  _.each(defaultNumFormats, (dnf: any, id: any) => {
     if (dnf.f) {
       hash[dnf.f] = parseInt(id, 10);
     }
@@ -13,7 +13,7 @@ function hashDefaultFormats() {
   });
   return hash;
 }
-const defaultFmtHash = hashDefaultFormats();
+const defaultFmtHash: any = hashDefaultFormats();
 
 // NumFmt encapsulates translation between number format and xlsx
 class NumFmtXform extends BaseXform {

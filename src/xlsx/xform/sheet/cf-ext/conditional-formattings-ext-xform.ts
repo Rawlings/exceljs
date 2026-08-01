@@ -4,6 +4,8 @@ import CfRuleExtXform from './cf-rule-ext-xform';
 import ConditionalFormattingExtXform from './conditional-formatting-ext-xform';
 
 class ConditionalFormattingsExtXform extends CompositeXform {
+  cfXform: any;
+
   constructor() {
     super();
 
@@ -18,13 +20,13 @@ class ConditionalFormattingsExtXform extends CompositeXform {
 
   hasContent(model: any) {
     if (model.hasExtContent === undefined) {
-      model.hasExtContent = model.some((cf) => cf.rules.some(CfRuleExtXform.isExt));
+      model.hasExtContent = model.some((cf: any) => cf.rules.some(CfRuleExtXform.isExt));
     }
     return model.hasExtContent;
   }
 
   prepare(model: any, options: any) {
-    model.forEach((cf) => {
+    model.forEach((cf: any) => {
       this.cfXform.prepare(cf, options);
     });
   }
@@ -32,7 +34,7 @@ class ConditionalFormattingsExtXform extends CompositeXform {
   render(xmlStream: any, model: any) {
     if (this.hasContent(model)) {
       xmlStream.openNode(this.tag);
-      model.forEach((cf) => this.cfXform.render(xmlStream, cf));
+      model.forEach((cf: any) => this.cfXform.render(xmlStream, cf));
       xmlStream.closeNode();
     }
   }

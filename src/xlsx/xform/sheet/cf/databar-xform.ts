@@ -4,6 +4,9 @@ import ColorXform from '../../style/color-xform';
 import CfvoXform from './cfvo-xform';
 
 class DatabarXform extends CompositeXform {
+  cfvoXform: any;
+  colorXform: any;
+
   constructor() {
     super();
 
@@ -20,7 +23,7 @@ class DatabarXform extends CompositeXform {
   render(xmlStream: any, model: any) {
     xmlStream.openNode(this.tag);
 
-    model.cfvo.forEach((cfvo) => {
+    model.cfvo.forEach((cfvo: any) => {
       this.cfvoXform.render(xmlStream, cfvo);
     });
     this.colorXform.render(xmlStream, model.color);

@@ -69,7 +69,7 @@ class NativeZipReader {
       this.files[fileName] = {
         name: fileName,
         dir: fileName.endsWith('/'),
-        async: async (type) => {
+        async: async (type: any) => {
           if (type === 'string' || type === 'utf8') return content.toString('utf8');
           return content;
         },
@@ -111,7 +111,7 @@ class NativeZipReader {
   async generateAsync(_options: any = {}) {
     const writer = new NativeZipWriter();
     for (const [name, file] of Object.entries(this.files)) {
-      const data = await file.async('nodebuffer');
+      const data = await (file as any).async('nodebuffer');
       writer.append(data, { name });
     }
     return writer.generateSync();

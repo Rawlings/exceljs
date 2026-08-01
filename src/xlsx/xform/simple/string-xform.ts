@@ -4,7 +4,7 @@ class StringXform extends BaseXform {
   _tag: any;
   attr: any;
   attrs: any;
-  text: any[];
+  text: any[] = [];
 
   override get tag(): any {
     return this._tag;

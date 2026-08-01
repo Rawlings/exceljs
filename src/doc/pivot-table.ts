@@ -32,13 +32,13 @@ function makePivotTable(worksheet: any, model: any) {
   // names can then be accessed via `pivotTable.cacheFields[index].name`.
   // *Note*: Using `reduce` as `Object.fromEntries` requires Node 12+;
   // ExcelJS is >=8.3.0 (as of 2023-10-08).
-  const nameToIndex = cacheFields.reduce((result, cacheField, index) => {
+  const nameToIndex = cacheFields.reduce((result: Record<string, any>, cacheField, index) => {
     result[cacheField.name] = index;
     return result;
   }, {});
-  rows = rows.map((row) => nameToIndex[row]);
-  columns = columns.map((column) => nameToIndex[column]);
-  values = values.map((value) => nameToIndex[value]);
+  rows = rows.map((row: any) => nameToIndex[row]);
+  columns = columns.map((column: any) => nameToIndex[column]);
+  values = values.map((value: any) => nameToIndex[value]);
 
   // form pivot table object
   return {
@@ -117,7 +117,7 @@ function makeCacheFields(worksheet: any, fieldNamesWithSharedItems: any) {
   const names = worksheet.getRow(1).values;
   const nameToHasSharedItems = objectFromProps(fieldNamesWithSharedItems, true);
 
-  const aggregate = (columnIndex) => {
+  const aggregate = (columnIndex: any) => {
     const columnValues = worksheet.getColumn(columnIndex).values.splice(2);
     const columnValuesAsSet = new Set(columnValues);
     return toSortedArray(columnValuesAsSet);

@@ -13,7 +13,7 @@ import XmlStream from '../../utils/xml-stream';
 function build(xmlStream: any, model: any) {
   xmlStream.openNode(model.tag, model.$);
   if (model.c) {
-    model.c.forEach((child) => {
+    model.c.forEach((child: any) => {
       build(xmlStream, child);
     });
   }
@@ -24,7 +24,7 @@ function build(xmlStream: any, model: any) {
 }
 
 class StaticXform extends BaseXform {
-  _model: any;
+  declare _model: any;
   _xml: any;
 
   constructor(model?: any) {

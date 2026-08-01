@@ -3,6 +3,8 @@ import utils from '../../utils/utils';
 import RelType from '../../xlsx/rel-type';
 
 class HyperlinksProxy {
+  writer: any;
+
   constructor(sheetRelsWriter: any) {
     this.writer = sheetRelsWriter;
   }
@@ -13,6 +15,13 @@ class HyperlinksProxy {
 }
 
 class SheetRelsWriter {
+  id: any;
+  count: any;
+  _hyperlinks: any;
+  _workbook: any;
+  _stream: any;
+  _hyperlinksProxy: any;
+
   constructor(options: any) {
     // in a workbook, each sheet will have a number
     this.id = options.id;

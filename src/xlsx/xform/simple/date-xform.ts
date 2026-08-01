@@ -6,7 +6,7 @@ class DateXform extends BaseXform {
   attrs: any;
   _format: any;
   _parse: any;
-  text: any[];
+  text: any[] = [];
 
   override get tag(): any {
     return this._tag;

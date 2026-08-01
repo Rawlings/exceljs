@@ -4,6 +4,9 @@ import BaseXform from '../base-xform';
 import RelationshipXform from './relationship-xform';
 
 class RelationshipsXform extends BaseXform {
+  _values: any;
+  static RELATIONSHIPS_ATTRIBUTES: any;
+
   constructor() {
     super();
 
@@ -17,7 +20,7 @@ class RelationshipsXform extends BaseXform {
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode('Relationships', RelationshipsXform.RELATIONSHIPS_ATTRIBUTES);
 
-    model.forEach((relationship) => {
+    model.forEach((relationship: any) => {
       this.map.Relationship.render(xmlStream, relationship);
     });
 

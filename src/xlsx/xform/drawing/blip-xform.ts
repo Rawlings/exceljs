@@ -14,7 +14,7 @@ class BlipXform extends BaseXform {
     // TODO: handle children (e.g. a:extLst=>a:ext=>a14:useLocalDpi
   }
 
-  parseOpen(node) {
+  parseOpen(node: any) {
     switch (node.name) {
       case this.tag:
         this.model = {

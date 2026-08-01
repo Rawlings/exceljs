@@ -4,6 +4,9 @@ import SqRefExtXform from './sqref-ext-xform';
 import CfRuleExtXform from './cf-rule-ext-xform';
 
 class ConditionalFormattingExtXform extends CompositeXform {
+  sqRef: any;
+  cfRule: any;
+
   constructor() {
     super();
 
@@ -18,7 +21,7 @@ class ConditionalFormattingExtXform extends CompositeXform {
   }
 
   prepare(model: any, options: any) {
-    model.rules.forEach((rule) => {
+    model.rules.forEach((rule: any) => {
       this.cfRule.prepare(rule, options);
     });
   }
@@ -32,7 +35,9 @@ class ConditionalFormattingExtXform extends CompositeXform {
       'xmlns:xm': 'http://schemas.microsoft.com/office/excel/2006/main',
     });
 
-    model.rules.filter(CfRuleExtXform.isExt).forEach((rule) => this.cfRule.render(xmlStream, rule));
+    model.rules
+      .filter(CfRuleExtXform.isExt)
+      .forEach((rule: any) => this.cfRule.render(xmlStream, rule));
 
     // for some odd reason, Excel needs the <xm:sqref> node to be after the rules
     this.sqRef.render(xmlStream, model.ref);
