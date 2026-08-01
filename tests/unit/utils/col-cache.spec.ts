@@ -35,7 +35,7 @@ describe('colCache', () => {
       'Y',
       'Z',
     ];
-    dic.forEach((letter, index) => {
+    dic.forEach((letter: any, index: any) => {
       expect(colCache._l2n[letter]).to.equal(index + 1);
       expect(colCache._n2l[index + 1]).to.equal(letter);
     });

@@ -6,7 +6,7 @@ describe('github issues', () => {
   it('issue 1364 - Incorrect Worksheet Name on Streaming XLSX Reader', async () => {
     const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader(TEST_XLSX_FILE_NAME, {});
     workbookReader.read();
-    workbookReader.on('worksheet', (worksheet) => {
+    workbookReader.on('worksheet', (worksheet: any) => {
       expect(worksheet.name).to.equal('Sum Worksheet');
     });
   });

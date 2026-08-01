@@ -33,7 +33,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           testUtils.checkTestBook(wb2, 'xlsx');
         });
     });
@@ -61,7 +61,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('Hello');
           expect(ws2.getCell('A1').value).to.deep.equal({
             formula: 'ROW()+COLUMN()',
@@ -107,7 +107,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('Hello');
           expect(ws2.autoFilter).to.equal('A1:B1');
         });
@@ -126,7 +126,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           testUtils.checkTestBook(wb2, 'xlsx', undefined, {
             checkStyles: false,
           });
@@ -167,9 +167,9 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('blort');
-          ['A1', 'B1', 'C1', 'A2', 'B2', 'C2', 'A3', 'B3', 'C3'].forEach((address) => {
+          ['A1', 'B1', 'C1', 'A2', 'B2', 'C2', 'A3', 'B3', 'C3'].forEach((address: any) => {
             expect(ws2.getCell(address).value).to.equal(address);
           });
           expect(ws2.getCell('B1').font).to.deep.equal(testUtils.styles.fonts.comicSansUdB16);
@@ -226,7 +226,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('Hello');
           expect(ws2.getCell('A1').value).to.deep.equal({
             richText: [
@@ -263,7 +263,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           for (i = 1; i <= numSheets; i++) {
             const ws2 = wb2.getWorksheet(`sheet${i}`);
             expect(ws2).to.be.ok;
@@ -314,7 +314,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('blort');
           expect(ws2.getCell('A1').name).to.equal('five');
 
@@ -344,7 +344,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('blort');
           expect(ws2.getCell('A1').value).to.equal(xmlCharacters);
         });
@@ -362,7 +362,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           testUtils.checkTestBook(wb2, 'xlsx', ['dataValidations']);
         });
     });
@@ -385,7 +385,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           testUtils.checkTestBook(wb2, 'xlsx', ['dataValidations']);
         });
     });
@@ -556,7 +556,7 @@ describe('WorkbookWriter', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           testUtils.checkTestBook(wb2, 'xlsx', ['conditionalFormatting']);
         });
     });
@@ -579,7 +579,7 @@ describe('WorkbookWriter', () => {
       const [cf2] = ws2.conditionalFormattings;
 
       // verify that rules from generated file contain styles with valid numFmt
-      cf2.rules.forEach((rule) => {
+      cf2.rules.forEach((rule: any) => {
         expect(rule.style.numFmt).to.exist;
         expect(rule.style.numFmt.id).to.be.a('number');
         expect(rule.style.numFmt.formatCode).to.be.a('string');

@@ -261,9 +261,9 @@ describe('Worksheet', () => {
         [, 1, 'John Doe', dateValue1],
         [, 2, 'Jane Doe', dateValue2],
       ];
-      ws.eachRow((row, rowNumber) => {
+      ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(values[rowNumber]);
-        row.eachCell((cell, colNumber) => {
+        row.eachCell((cell: any, colNumber: any) => {
           expect(cell.value).to.equal(values[rowNumber][colNumber]);
         });
       });
@@ -317,7 +317,7 @@ describe('Worksheet', () => {
       row3[3] = 'Sam';
       row3[5] = dateValue1;
       rows.push(row3);
-      rows.forEach((row) => {
+      rows.forEach((row: any) => {
         if (row) {
           ws.addRow(row);
         }
@@ -339,9 +339,9 @@ describe('Worksheet', () => {
       expect(ws.getRow(2).values).to.deep.equal(rows[2]);
       expect(ws.getRow(3).values).to.deep.equal(rows[3]);
 
-      ws.eachRow((row, rowNumber) => {
+      ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(rows[rowNumber]);
-        row.eachCell((cell, colNumber) => {
+        row.eachCell((cell: any, colNumber: any) => {
           expect(cell.value).to.equal(rows[rowNumber][colNumber]);
         });
       });
@@ -411,9 +411,9 @@ describe('Worksheet', () => {
         [, 3, 'Other Doe', dateValue3],
         [, 2, 'Jane Doe', dateValue2],
       ];
-      ws.eachRow((row, rowNumber) => {
+      ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(values[rowNumber]);
-        row.eachCell((cell, colNumber) => {
+        row.eachCell((cell: any, colNumber: any) => {
           expect(cell.value).to.equal(values[rowNumber][colNumber]);
         });
       });
@@ -479,7 +479,7 @@ describe('Worksheet', () => {
       row3[3] = 'Other Doe';
       row3[5] = dateValue3;
       rows.push(row3);
-      rows.forEach((row) => {
+      rows.forEach((row: any) => {
         if (row) {
           // insert on row 1 every time and thus finally reversed order
           ws.insertRow(1, row);
@@ -498,9 +498,9 @@ describe('Worksheet', () => {
       expect(ws.getCell('B3').value).to.equal('John Doe');
       expect(ws.getCell('D3').value).to.equal(dateValue1);
 
-      ws.eachRow((row, rowNumber) => {
+      ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(rows[rows.length - rowNumber]);
-        row.eachCell((cell, colNumber) => {
+        row.eachCell((cell: any, colNumber: any) => {
           expect(cell.value).to.equal(rows[rows.length - rowNumber][colNumber]);
         });
       });
@@ -589,13 +589,13 @@ describe('Worksheet', () => {
       ws.getCell('B2').value = 2;
       ws.getCell('D4').value = 4;
       ws.getCell('F6').value = 6;
-      ws.eachRow((row, rowNumber) => {
+      ws.eachRow((row: any, rowNumber: any) => {
         expect(rowNumber).not.to.equal(3);
         expect(rowNumber).not.to.equal(5);
       });
 
       let count = 1;
-      ws.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+      ws.eachRow({ includeEmpty: true }, (row: any, rowNumber: any) => {
         expect(rowNumber).to.equal(count++);
       });
     });
@@ -609,14 +609,14 @@ describe('Worksheet', () => {
       ws.getCell('A4').value = 4;
       ws.getCell('A6').value = 6;
       const colA = ws.getColumn('A');
-      colA.eachCell((cell, rowNumber) => {
+      colA.eachCell((cell: any, rowNumber: any) => {
         expect(rowNumber).not.to.equal(3);
         expect(rowNumber).not.to.equal(5);
         expect(cell.value).to.equal(rowNumber);
       });
 
       let count = 1;
-      colA.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+      colA.eachCell({ includeEmpty: true }, (cell: any, rowNumber: any) => {
         expect(rowNumber).to.equal(count++);
       });
       expect(count).to.equal(7);
@@ -1042,7 +1042,7 @@ describe('Worksheet', () => {
     it('Should not break when importing a .numbers file', () =>
       new ExcelJS.Workbook().xlsx
         .readFile(path.resolve(__dirname, 'data', 'numbers.numbers'))
-        .then((workbook) => {
+        .then((workbook: any) => {
           expect(workbook).to.have.property('worksheets');
           expect(workbook.worksheets).to.have.length(0);
         }));
@@ -1051,7 +1051,7 @@ describe('Worksheet', () => {
   it('Should not break when importing an Excel file that contains a chartsheet', () =>
     new ExcelJS.Workbook().xlsx
       .readFile(path.resolve(__dirname, 'data', 'chart-sheet.xlsx'))
-      .then((workbook) => {
+      .then((workbook: any) => {
         expect(workbook).to.have.property('worksheets');
         expect(workbook.worksheets).to.have.length(1);
       }));
@@ -1064,7 +1064,7 @@ describe('Worksheet', () => {
     ];
 
     for (const file of fileList) {
-      it(`Should set hidden attribute correctly (${file})`, (done) => {
+      it(`Should set hidden attribute correctly (${file})`, (done: any) => {
         const wb = new ExcelJS.Workbook();
         wb.xlsx
           .readFile(path.resolve(__dirname, 'data', 'hidden-test', `${file}.xlsx`))
@@ -1083,7 +1083,7 @@ describe('Worksheet', () => {
 
             done();
           })
-          .catch((error) => {
+          .catch((error: any) => {
             done(error);
           });
       });

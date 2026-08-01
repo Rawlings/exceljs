@@ -5,7 +5,7 @@ describe('github issues: Date field with cache style', () => {
   const rows = [];
   beforeEach(
     () =>
-      new Promise((resolve, reject) => {
+      new Promise((resolve: any, reject: any) => {
         const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader(
           fs.createReadStream('./spec/integration/data/dateIssue.xlsx'),
           {
@@ -17,8 +17,8 @@ describe('github issues: Date field with cache style', () => {
           }
         );
         workbookReader.read();
-        workbookReader.on('worksheet', (worksheet) =>
-          worksheet.on('row', (row) => rows.push(row.values[1]))
+        workbookReader.on('worksheet', (worksheet: any) =>
+          worksheet.on('row', (row: any) => rows.push(row.values[1]))
         );
         workbookReader.on('end', resolve);
         workbookReader.on('error', reject);

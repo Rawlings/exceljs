@@ -5,7 +5,7 @@ describe('Workbook Writer', () => {
   it('generates valid xml even when there is no data', () =>
     // issue: https://github.com/guyonroche/exceljs/issues/99
     // PR: https://github.com/guyonroche/exceljs/pull/255
-    new Promise((resolve, reject) => {
+    new Promise((resolve: any, reject: any) => {
       const mockWorkbook = {
         _openStream() {
           return this.stream;

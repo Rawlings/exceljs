@@ -73,7 +73,7 @@ const utilsModule: any = {
 
     workbook.views = [{ x: 1, y: 2, width: 10000, height: 20000, firstSheet: 0, activeTab: 0 }];
 
-    sheets.forEach((sheet) => {
+    sheets.forEach((sheet: any) => {
       const testSheet = _.get(testSheets, sheet);
       testSheet.addSheet(workbook, options);
     });
@@ -101,7 +101,7 @@ const utilsModule: any = {
       ]);
     }
 
-    sheets.forEach((sheet) => {
+    sheets.forEach((sheet: any) => {
       const testSheet = _.get(testSheets, sheet);
       testSheet.checkSheet(workbook, options);
     });
@@ -165,7 +165,7 @@ const utilsModule: any = {
             f(this.getRow(i), i);
           }
         } else {
-          this.rows.forEach((r, i) => {
+          this.rows.forEach((r: any, i: any) => {
             if (r) {
               f(r, i + 1);
             }

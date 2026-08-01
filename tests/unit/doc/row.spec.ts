@@ -46,7 +46,7 @@ describe('Row', () => {
     expect(row1.dimensions).to.deep.equal({ min: 1, max: 4 });
 
     let count = 0;
-    row1.eachCell((cell, colNumber) => {
+    row1.eachCell((cell: any, colNumber: any) => {
       expect(cell.type).to.not.equal(Enums.ValueType.Null);
       switch (cell.type) {
         case Enums.ValueType.Hyperlink:
@@ -226,14 +226,14 @@ describe('Row', () => {
     row1.getCell(2).value = 2;
     row1.getCell(4).value = 4;
     row1.getCell(6).value = 6;
-    row1.eachCell((cell, colNumber) => {
+    row1.eachCell((cell: any, colNumber: any) => {
       expect(colNumber).to.not.equal(3);
       expect(colNumber).to.not.equal(5);
       expect(cell.value).to.equal(colNumber);
     });
 
     let count = 1;
-    row1.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    row1.eachCell({ includeEmpty: true }, (cell: any, colNumber: any) => {
       expect(colNumber).to.equal(count++);
     });
     expect(count).to.equal(7);

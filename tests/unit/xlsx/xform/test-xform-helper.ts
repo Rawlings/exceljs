@@ -20,10 +20,10 @@ function getExpectation(expectation, name: string) {
 //  parse:  xml => parsedModel
 //  reconcile: parsedModel => reconciledModel
 
-const its: Record<string, (expectation) => void> = {
+const its: Record<string, (expectation: any) => void> = {
   prepare(expectation: any) {
     it('Prepare Model', () =>
-      new Promise<void>((resolve) => {
+      new Promise<void>((resolve: any) => {
         const model = getExpectation(expectation, 'initialModel');
         const result = getExpectation(expectation, 'preparedModel');
 
@@ -36,7 +36,7 @@ const its: Record<string, (expectation) => void> = {
 
   render(expectation: any) {
     it('Render to XML', () =>
-      new Promise<void>((resolve) => {
+      new Promise<void>((resolve: any) => {
         const model = getExpectation(expectation, 'preparedModel');
         const result = getExpectation(expectation, 'xml');
 
@@ -51,7 +51,7 @@ const its: Record<string, (expectation) => void> = {
 
   'prepare-render': function (expectation: any) {
     it('Prepare and Render to XML', () =>
-      new Promise<void>((resolve) => {
+      new Promise<void>((resolve: any) => {
         const model = getExpectation(expectation, 'initialModel');
         const result = getExpectation(expectation, 'xml');
 
@@ -68,7 +68,7 @@ const its: Record<string, (expectation) => void> = {
 
   renderIn(expectation: any) {
     it('Render in Composite to XML ', () =>
-      new Promise<void>((resolve) => {
+      new Promise<void>((resolve: any) => {
         const model = {
           pre: true,
           child: getExpectation(expectation, 'preparedModel'),
@@ -101,7 +101,7 @@ const its: Record<string, (expectation) => void> = {
 
   parseIn(expectation: any) {
     it('Parse within composite', () =>
-      new Promise<void>((resolve, reject) => {
+      new Promise<void>((resolve: any, reject: any) => {
         const xml = `<compy><pre/>${getExpectation(expectation, 'xml')}<post/></compy>`;
         const childXform = expectation.create();
         const result: any = { pre: true };
@@ -126,7 +126,7 @@ const its: Record<string, (expectation) => void> = {
         stream.end();
         xform
           .parse(parseSax(stream))
-          .then((model) => {
+          .then((model: any) => {
             const clone = cloneDeep(model, false);
             expect(clone).to.deep.equal(result);
             resolve(undefined as any);
@@ -137,7 +137,7 @@ const its: Record<string, (expectation) => void> = {
 
   parse(expectation: any) {
     it('Parse to Model', () =>
-      new Promise<void>((resolve, reject) => {
+      new Promise<void>((resolve: any, reject: any) => {
         const xml = getExpectation(expectation, 'xml');
         const result = getExpectation(expectation, 'parsedModel');
 
@@ -148,7 +148,7 @@ const its: Record<string, (expectation) => void> = {
         stream.end();
         xform
           .parse(parseSax(stream))
-          .then((model) => {
+          .then((model: any) => {
             const clone = cloneDeep(model, false);
             expect(clone).to.deep.equal(result);
             resolve(undefined as any);
@@ -159,7 +159,7 @@ const its: Record<string, (expectation) => void> = {
 
   reconcile(expectation: any) {
     it('Reconcile Model', () =>
-      new Promise<void>((resolve) => {
+      new Promise<void>((resolve: any) => {
         const model = getExpectation(expectation, 'parsedModel');
         const result = getExpectation(expectation, 'reconciledModel');
 
@@ -175,7 +175,7 @@ const its: Record<string, (expectation) => void> = {
 };
 
 function testXform(expectations: any[]) {
-  each(expectations, (expectation) => {
+  each(expectations, (expectation: any) => {
     const tests = getExpectation(expectation, 'tests');
     describe(expectation.title, () => {
       each(tests, (test: string) => {

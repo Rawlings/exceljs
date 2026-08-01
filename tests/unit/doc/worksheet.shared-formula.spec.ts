@@ -145,7 +145,7 @@ describe('Worksheet', () => {
       const wb = new Excel.Workbook();
       const ws = wb.addWorksheet();
 
-      ws.fillFormula('A1:B2', 'ROW()+COLUMN()', (r, c) => r + c);
+      ws.fillFormula('A1:B2', 'ROW()+COLUMN()', (r: any, c: any) => r + c);
       expect(ws.getCell('A1').value).to.deep.equal({
         formula: 'ROW()+COLUMN()',
         shareType: 'shared',

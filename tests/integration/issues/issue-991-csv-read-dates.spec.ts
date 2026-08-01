@@ -3,7 +3,7 @@ import ExcelJS from '../../../src/exceljs.nodejs';
 describe('github issues', () => {
   it('issue 991 - differentiates between strings with leading numbers and dates when reading csv files', () => {
     const wb = new ExcelJS.Workbook();
-    return wb.csv.readFile('./spec/integration/data/test-issue-991.csv').then((worksheet) => {
+    return wb.csv.readFile('./spec/integration/data/test-issue-991.csv').then((worksheet: any) => {
       expect(worksheet.getCell('A1').value.toString()).to.equal(
         new Date('2019-11-04T00:00:00').toString()
       );

@@ -23,7 +23,7 @@ describe('github issues', () => {
 
     await workbook.commit();
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve: any, reject: any) => {
       const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader('./test.xlsx', {
         entries: 'emit',
         hyperlinks: 'cache',
@@ -32,8 +32,8 @@ describe('github issues', () => {
         worksheets: 'emit',
       });
 
-      workbookReader.on('worksheet', (worksheet) =>
-        worksheet.on('row', (row) => {
+      workbookReader.on('worksheet', (worksheet: any) =>
+        worksheet.on('row', (row: any) => {
           expect(row.values[1]).to.eql(rowData[0]);
           expect(row.values[2]).to.equal(rowData[1]);
 

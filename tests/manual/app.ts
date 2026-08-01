@@ -12,7 +12,7 @@ fs.createReadStream(path.join(__dirname, '../../dist/exceljs.js')).pipe(
   fs.createWriteStream(path.join(__dirname, 'public/exceljs.js'))
 );
 
-const server = http.createServer((req, res) => {
+const server = http.createServer((req: any, res: any) => {
   if (req.method === 'POST' && req.url === '/api/upload') {
     const wb = new ExcelJS.Workbook();
 
@@ -49,7 +49,7 @@ const server = http.createServer((req, res) => {
     .replace(/^(\.\.[/\\])+/, '');
   const filePath = path.join(__dirname, 'public', safePath);
 
-  fs.readFile(filePath, (err, data) => {
+  fs.readFile(filePath, (err: any, data: any) => {
     if (err) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('404 Not Found');

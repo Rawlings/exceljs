@@ -311,8 +311,8 @@ const self: any = {
         wsSquare.addRow(['3,1', '3,2', '3,3', '3,4']);
         wsSquare.addRow(['4,1', '4,2', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3, 4].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3, 4].forEach((row: any) => {
             wsSquare.getCell(col + row).name = 'square';
           });
         });
@@ -325,8 +325,8 @@ const self: any = {
         wsSingles.getCell('D1').value = '1,4';
         wsSingles.getCell('D4').value = '4,4';
 
-        ['A', 'D'].forEach((col) => {
-          [1, 4].forEach((row) => {
+        ['A', 'D'].forEach((col: any) => {
+          [1, 4].forEach((row: any) => {
             wsSingles.getCell(col + row).name = `single-${col}${row}`;
           });
         });
@@ -341,8 +341,8 @@ const self: any = {
         expect(wsSquare.getRow(1).values).to.deep.equal([, '1,1', '1,2', '1,3', '1,4']);
         expect(wsSquare.getRow(2).values).to.deep.equal([, '4,1', '4,2', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3].forEach((row: any) => {
             if (row === 3) {
               expect(wsSquare.getCell(col + row).name).to.be.undefined;
             } else {
@@ -371,8 +371,8 @@ const self: any = {
         wsSquare.addRow(['3,1', '3,2', '3,3', '3,4']);
         wsSquare.addRow(['4,1', '4,2', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3, 4].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3, 4].forEach((row: any) => {
             wsSquare.getCell(col + row).name = 'square';
           });
         });
@@ -385,8 +385,8 @@ const self: any = {
         wsSingles.getCell('D1').value = '1,4';
         wsSingles.getCell('D4').value = '4,4';
 
-        ['A', 'D'].forEach((col) => {
-          [1, 4].forEach((row) => {
+        ['A', 'D'].forEach((col: any) => {
+          [1, 4].forEach((row: any) => {
             wsSingles.getCell(col + row).name = `single-${col}${row}`;
           });
         });
@@ -404,8 +404,8 @@ const self: any = {
         expect(wsSquare.getRow(4).values).to.deep.equal([, '3,1', '3,2', '3,3', '3,4']);
         expect(wsSquare.getRow(5).values).to.deep.equal([, '4,1', '4,2', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3, 4, 5].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3, 4, 5].forEach((row: any) => {
             if (row === 3) {
               expect(wsSquare.getCell(col + row).name).to.be.undefined;
             } else {
@@ -434,8 +434,8 @@ const self: any = {
         wsSquare.addRow(['3,1', '3,2', '3,3', '3,4']);
         wsSquare.addRow(['4,1', '4,2', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3, 4].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3, 4].forEach((row: any) => {
             wsSquare.getCell(col + row).name = 'square';
           });
         });
@@ -448,8 +448,8 @@ const self: any = {
         wsSingles.getCell('D1').value = '1,4';
         wsSingles.getCell('D4').value = '4,4';
 
-        ['A', 'D'].forEach((col) => {
-          [1, 4].forEach((row) => {
+        ['A', 'D'].forEach((col: any) => {
+          [1, 4].forEach((row: any) => {
             wsSingles.getCell(col + row).name = `single-${col}${row}`;
           });
         });
@@ -466,8 +466,8 @@ const self: any = {
         expect(wsSquare.getRow(3).values).to.deep.equal([, '3,1', '3,2', '3,3', '3,4']);
         expect(wsSquare.getRow(4).values).to.deep.equal([, '4,1', '4,2', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3, 4].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3, 4].forEach((row: any) => {
             if (row === 2) {
               expect(wsSquare.getCell(col + row).name).to.be.undefined;
             } else {
@@ -814,8 +814,8 @@ const self: any = {
         wsSquare.addRow(['3,1', '3,2', '3,3', '3,4']);
         wsSquare.addRow(['4,1', '4,2', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3, 4].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3, 4].forEach((row: any) => {
             wsSquare.getCell(col + row).name = 'square';
           });
         });
@@ -828,8 +828,8 @@ const self: any = {
         wsSingles.getCell('D1').value = '1,4';
         wsSingles.getCell('D4').value = '4,4';
 
-        ['A', 'D'].forEach((col) => {
-          [1, 4].forEach((row) => {
+        ['A', 'D'].forEach((col: any) => {
+          [1, 4].forEach((row: any) => {
             wsSingles.getCell(col + row).name = `single-${col}${row}`;
           });
         });
@@ -846,8 +846,8 @@ const self: any = {
         expect(wsSquare.getRow(3).values).to.deep.equal([, '3,1', '3,4']);
         expect(wsSquare.getRow(4).values).to.deep.equal([, '4,1', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3].forEach((row: any) => {
             if (['C', 'D'].includes(col)) {
               expect(wsSquare.getCell(col + row).name).to.be.undefined;
             } else {
@@ -876,8 +876,8 @@ const self: any = {
         wsSquare.addRow(['3,1', '3,2', '3,3', '3,4']);
         wsSquare.addRow(['4,1', '4,2', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3, 4].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3, 4].forEach((row: any) => {
             wsSquare.getCell(col + row).name = 'square';
           });
         });
@@ -890,8 +890,8 @@ const self: any = {
         wsSingles.getCell('D1').value = '1,4';
         wsSingles.getCell('D4').value = '4,4';
 
-        ['A', 'D'].forEach((col) => {
-          [1, 4].forEach((row) => {
+        ['A', 'D'].forEach((col: any) => {
+          [1, 4].forEach((row: any) => {
             wsSingles.getCell(col + row).name = `single-${col}${row}`;
           });
         });
@@ -908,8 +908,8 @@ const self: any = {
         expect(wsSquare.getRow(3).values).to.deep.equal([, '3,1', '3,2', 'baz', '3,3', '3,4']);
         expect(wsSquare.getRow(4).values).to.deep.equal([, '4,1', '4,2', 'qux', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D', 'E'].forEach((col) => {
-          [1, 2, 3, 4].forEach((row) => {
+        ['A', 'B', 'C', 'D', 'E'].forEach((col: any) => {
+          [1, 2, 3, 4].forEach((row: any) => {
             if (col === 'C') {
               expect(wsSquare.getCell(col + row).name).to.be.undefined;
             } else {
@@ -938,8 +938,8 @@ const self: any = {
         wsSquare.addRow(['3,1', '3,2', '3,3', '3,4']);
         wsSquare.addRow(['4,1', '4,2', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3, 4].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3, 4].forEach((row: any) => {
             wsSquare.getCell(col + row).name = 'square';
           });
         });
@@ -952,8 +952,8 @@ const self: any = {
         wsSingles.getCell('D1').value = '1,4';
         wsSingles.getCell('D4').value = '4,4';
 
-        ['A', 'D'].forEach((col) => {
-          [1, 4].forEach((row) => {
+        ['A', 'D'].forEach((col: any) => {
+          [1, 4].forEach((row: any) => {
             wsSingles.getCell(col + row).name = `single-${col}${row}`;
           });
         });
@@ -970,8 +970,8 @@ const self: any = {
         expect(wsSquare.getRow(3).values).to.deep.equal([, '3,1', 'baz', '3,3', '3,4']);
         expect(wsSquare.getRow(4).values).to.deep.equal([, '4,1', 'qux', '4,3', '4,4']);
 
-        ['A', 'B', 'C', 'D'].forEach((col) => {
-          [1, 2, 3, 4].forEach((row) => {
+        ['A', 'B', 'C', 'D'].forEach((col: any) => {
+          [1, 2, 3, 4].forEach((row: any) => {
             if (col === 'B') {
               expect(wsSquare.getCell(col + row).name).to.be.undefined;
             } else {

@@ -153,7 +153,7 @@ describe('Worksheet', () => {
       table.removeColumns(1);
       table.commit();
 
-      const newValues = values.map((rVals) => spliceArray(rVals, 1, 1));
+      const newValues = values.map((rVals: any) => spliceArray(rVals, 1, 1));
       checkTable('A1', ws, newValues);
     });
 
@@ -176,7 +176,7 @@ describe('Worksheet', () => {
       table.commit();
 
       const colValues = ['Letter', 'a', 'b', 'c', 'd', { formula: 'ROW()', result: 6 }];
-      const newValues = values.map((rVals, i) => spliceArray(rVals, 2, 0, colValues[i]));
+      const newValues = values.map((rVals: any, i: any) => spliceArray(rVals, 2, 0, colValues[i]));
       checkTable('A1', ws, newValues);
     });
 

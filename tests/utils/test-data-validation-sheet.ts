@@ -83,10 +83,10 @@ const self: any = {
     };
 
     // two rows of the same validation to test dataValidation optimisation
-    ['A22', 'A23'].forEach((address) => {
+    ['A22', 'A23'].forEach((address: any) => {
       ws.getCell(address).value = tools.concatenateFormula('Five Numbers');
     });
-    ['B22', 'C22', 'D22', 'E22', 'F22', 'B23', 'C23', 'D23', 'E23', 'F23'].forEach((address) => {
+    ['B22', 'C22', 'D22', 'E22', 'F22', 'B23', 'C23', 'D23', 'E23', 'F23'].forEach((address: any) => {
       ws.getCell(address).dataValidation = JSON.parse(JSON.stringify(self.dataValidations.shared));
     });
   },
@@ -117,7 +117,7 @@ const self: any = {
     expect(ws.getCell('B19').dataValidation).to.deep.equal(self.dataValidations.B19);
 
     // two rows of the same validation to test dataValidation optimisation
-    ['B22', 'C22', 'D22', 'E22', 'F22', 'B23', 'C23', 'D23', 'E23', 'F23'].forEach((address) => {
+    ['B22', 'C22', 'D22', 'E22', 'F22', 'B23', 'C23', 'D23', 'E23', 'F23'].forEach((address: any) => {
       expect(ws.getCell(address).dataValidation).to.deep.equal(self.dataValidations.shared);
     });
   },

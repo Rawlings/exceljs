@@ -36,7 +36,7 @@ class CompyXform extends BaseXform {
   }
 
   prepare(model, options: any) {
-    this.children.forEach((child) => {
+    this.children.forEach((child: any) => {
       if (child.tag) {
         child.xform.prepare(model[child.tag], options);
       }
@@ -45,7 +45,7 @@ class CompyXform extends BaseXform {
 
   render(xmlStream, model: any) {
     xmlStream.openNode(this.tag, this.attrs);
-    this.children.forEach((child) => {
+    this.children.forEach((child: any) => {
       if (child.name) {
         child.xform.render(xmlStream, model[child.name]);
       }
@@ -92,7 +92,7 @@ class CompyXform extends BaseXform {
   }
 
   reconcile(model, options: any) {
-    this.children.forEach((child) => {
+    this.children.forEach((child: any) => {
       if (child.tag) {
         child.xform.prepare(model[child.tag], options);
       }

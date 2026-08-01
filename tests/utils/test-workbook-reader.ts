@@ -31,11 +31,11 @@ const self: any = {
     const wb = new ExcelJS.stream.xlsx.WorkbookReader();
     const dateAccuracy = 0.00001;
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve: any, reject: any) => {
       let rowCount = 0;
 
-      wb.on('worksheet', (ws) => {
-        ws.on('row', (row) => {
+      wb.on('worksheet', (ws: any) => {
+        ws.on('row', (row: any) => {
           rowCount++;
           try {
             switch (row.number) {

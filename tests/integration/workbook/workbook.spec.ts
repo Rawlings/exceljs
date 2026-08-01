@@ -19,7 +19,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           testUtils.checkTestBook(wb2, 'xlsx');
         });
     });
@@ -40,7 +40,7 @@ describe('Workbook', () => {
             const wb2 = new ExcelJS.Workbook();
             return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
           })
-          .then((wb2) => {
+          .then((wb2: any) => {
             testUtils.checkTestBook(wb2, 'xlsx');
           });
       });
@@ -58,7 +58,7 @@ describe('Workbook', () => {
             const wb2 = new ExcelJS.Workbook();
             return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
           })
-          .then((wb2) => {
+          .then((wb2: any) => {
             testUtils.checkTestBook(wb2, 'xlsx');
           });
       });
@@ -79,7 +79,7 @@ describe('Workbook', () => {
             const wb2 = new ExcelJS.Workbook();
             return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
           })
-          .then((wb2) => {
+          .then((wb2: any) => {
             testUtils.checkTestBook(wb2, 'xlsx');
           });
       });
@@ -97,7 +97,7 @@ describe('Workbook', () => {
             const wb2 = new ExcelJS.Workbook();
             return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
           })
-          .then((wb2) => {
+          .then((wb2: any) => {
             testUtils.checkTestBook(wb2, 'xlsx');
           });
       });
@@ -120,7 +120,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           expect(wb2.getWorksheet('Hello, World!')).to.be.ok;
           expect(wb2.getWorksheet('This & That')).to.be.ok;
         });
@@ -140,7 +140,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           expect(wb2.creator).to.equal(wb.creator);
           expect(wb2.lastModifiedBy).to.equal(wb.lastModifiedBy);
           expect(wb2.created).to.equalDate(wb.created);
@@ -166,7 +166,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('printHeader');
           expect(ws2.pageSetup.printTitlesRow).to.equal('1:2');
           expect(ws2.pageSetup.printTitlesColumn).to.be.undefined;
@@ -194,7 +194,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('printColumn');
           expect(ws2.pageSetup.printTitlesRow).to.be.undefined;
           expect(ws2.pageSetup.printTitlesColumn).to.equal('A:B');
@@ -237,7 +237,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('printHeaderAndColumn');
           expect(ws2.pageSetup.printTitlesRow).to.equal('1:2');
           expect(ws2.pageSetup.printTitlesColumn).to.equal('A:B');
@@ -257,7 +257,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('Hello');
           expect(ws2.getCell('A1').value).to.deep.equal({
             formula: 'ROW()+COLUMN()',
@@ -298,7 +298,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('Hello');
           expect(ws2.autoFilter).to.equal('A1:B1');
         });
@@ -316,7 +316,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           expect(wb2.company).to.equal(wb.company);
           expect(wb2.manager).to.equal(wb.manager);
         });
@@ -337,7 +337,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           expect(wb2.title).to.equal(wb.title);
           expect(wb2.subject).to.equal(wb.subject);
           expect(wb2.keywords).to.equal(wb.keywords);
@@ -359,7 +359,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           expect(wb2.language).to.equal(wb.language);
           expect(wb2.revision).to.equal(wb.revision);
           expect(wb2.contentStatus).to.equal(wb.contentStatus);
@@ -378,7 +378,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('Hello');
 
           expect(ws2.getCell('A1').value).to.equal('Foo');
@@ -396,7 +396,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           testUtils.checkTestBook(wb2, 'xlsx', ['dataValidations']);
         });
     });
@@ -432,7 +432,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           for (i = 1; i <= numSheets; i++) {
             const ws2 = wb2.getWorksheet(`sheet${i}`);
             expect(ws2).to.be.ok;
@@ -452,7 +452,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.csv.readFile(TEST_CSV_FILE_NAME).then(() => wb2);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           testUtils.checkTestBook(wb2, 'csv');
         });
     });
@@ -486,7 +486,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.csv.readFile(TEST_CSV_FILE_NAME, readOptions).then(() => wb2);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           testUtils.checkTestBook(wb2, 'csv', false, writeOptions);
         });
     });
@@ -543,7 +543,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2a = wb2.getWorksheet('blort');
           const ws2b = wb2.getWorksheet('foo');
 
@@ -622,7 +622,7 @@ describe('Workbook', () => {
               const wb2 = new ExcelJS.Workbook();
               return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
             })
-            .then((wb2) => {
+            .then((wb2: any) => {
               const ws2 = wb2.getWorksheet('duplicateTest');
 
               expect(ws2.getCell('A2').value).to.equal('OneInfo');
@@ -649,7 +649,7 @@ describe('Workbook', () => {
             const wb2 = new ExcelJS.Workbook();
             return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
           })
-          .then((wb2) => {
+          .then((wb2: any) => {
             const ws2 = wb2.getWorksheet('duplicateTest');
 
             expect(ws2.getCell('A1').value).to.equal('OneInfo');
@@ -674,7 +674,7 @@ describe('Workbook', () => {
             const wb2 = new ExcelJS.Workbook();
             return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
           })
-          .then((wb2) => {
+          .then((wb2: any) => {
             const ws2 = wb2.getWorksheet('duplicateTest');
 
             expect(ws2.getCell('A1').value).to.equal('OneInfo');
@@ -699,7 +699,7 @@ describe('Workbook', () => {
             const wb2 = new ExcelJS.Workbook();
             return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
           })
-          .then((wb2) => {
+          .then((wb2: any) => {
             const ws2 = wb2.getWorksheet('duplicateTest');
 
             expect(ws2.getCell('A1').value).to.equal('OneInfo');
@@ -726,7 +726,7 @@ describe('Workbook', () => {
             const wb2 = new ExcelJS.Workbook();
             return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
           })
-          .then((wb2) => {
+          .then((wb2: any) => {
             const ws2 = wb2.getWorksheet('blort');
 
             expect(ws2.getCell('B2').value).to.equal('B2');
@@ -763,7 +763,7 @@ describe('Workbook', () => {
             const wb2 = new ExcelJS.Workbook();
             return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
           })
-          .then((wb2) => {
+          .then((wb2: any) => {
             const ws2 = wb2.getWorksheet('blort');
 
             expect(ws2.getCell('B2').font).to.deep.equal(
@@ -837,7 +837,7 @@ describe('Workbook', () => {
         const wb2 = new ExcelJS.Workbook();
         return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
       })
-      .then((wb2) => {
+      .then((wb2: any) => {
         testUtils.checkTestBook(wb2, 'xlsx', sheets, options);
       });
   });
@@ -910,7 +910,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('frozen');
           expect(ws2).to.be.ok;
           expect(ws2.getCell('A1').value).to.equal('Let it Snow!');
@@ -987,7 +987,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           const ws2 = wb2.getWorksheet('split');
           expect(ws2).to.be.ok;
           expect(ws2.getCell('A1').value).to.equal('Do the splits!');
@@ -1055,7 +1055,7 @@ describe('Workbook', () => {
           const wb2 = new ExcelJS.Workbook();
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
-        .then((wb2) => {
+        .then((wb2: any) => {
           expect(wb2.views).to.deep.equal(wb.views);
 
           const ws1b = wb2.getWorksheet('one');

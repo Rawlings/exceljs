@@ -27,7 +27,7 @@ describe('StreamBuf', () => {
     expect(chunk.toString('UTF8')).to.equal('Hello, World!');
   });
 
-  it('signals end', (done) => {
+  it('signals end', (done: any) => {
     const stream = new StreamBuf();
     stream.on('finish', () => {
       done();
@@ -37,7 +37,7 @@ describe('StreamBuf', () => {
   });
 
   it('handles buffers', () =>
-    new Promise((resolve, reject) => {
+    new Promise((resolve: any, reject: any) => {
       const s = fs.createReadStream(path.join(__dirname, 'data/image1.png'));
       const sb = new StreamBuf();
       sb.on('finish', () => {

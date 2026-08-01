@@ -31,7 +31,7 @@ describe('WorkbookReader', () => {
             () => {
               throw new Error('Promise unexpectedly fulfilled');
             },
-            (err) => {
+            (err: any) => {
               expect(err.message).to.equal('Max row count (10) exceeded');
             }
           );
@@ -44,7 +44,7 @@ describe('WorkbookReader', () => {
           () => {
             throw new Error('Promise unexpectedly fulfilled');
           },
-          (err) => {
+          (err: any) => {
             expect(err.message).to.equal('Max row count (100) exceeded');
           }
         );
@@ -68,7 +68,7 @@ describe('WorkbookReader', () => {
             () => {
               throw new Error('Promise unexpectedly fulfilled');
             },
-            (err) => {
+            (err: any) => {
               expect(err.message).to.equal('Max column count (15) exceeded');
             }
           );
@@ -81,7 +81,7 @@ describe('WorkbookReader', () => {
           () => {
             throw new Error('Promise unexpectedly fulfilled');
           },
-          (err) => {
+          (err: any) => {
             expect(err.message).to.equal('Max column count (10) exceeded');
           }
         );
@@ -107,7 +107,7 @@ describe('WorkbookReader', () => {
             () => {
               throw new Error('Promise unexpectedly fulfilled');
             },
-            (err) => {
+            (err: any) => {
               expect(err.message).to.equal('Max row count (10) exceeded');
             }
           );
@@ -131,7 +131,7 @@ describe('WorkbookReader', () => {
     it('edit styles of single row instead of all', function () {
       const ws = this.wb.getWorksheet(1);
 
-      ws.eachRow((row, rowNo) => {
+      ws.eachRow((row: any, rowNo: any) => {
         if (rowNo % 5 === 0) {
           row.font = { color: { argb: '00ff00' } };
         }
@@ -235,7 +235,7 @@ describe('WorkbookReader', () => {
           () => {
             throw new Error('Promise unexpectedly fulfilled');
           },
-          (err) => {
+          (err: any) => {
             expect(err.message).to.equal('3:1: text data outside of root node.');
             // Wait a tick before checking for an unhandled rejection
             return new Promise(setImmediate);
@@ -264,19 +264,19 @@ describe('WorkbookReader', () => {
 
     describe('with image`s tl anchor', () => {
       it('Should integer part of col equals nativeCol', function () {
-        this.worksheet.getImages().forEach((image) => {
+        this.worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.tl.col)).to.equal(image.range.tl.nativeCol);
         });
       });
       it('Should integer part of row equals nativeRow', function () {
-        this.worksheet.getImages().forEach((image) => {
+        this.worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.tl.row)).to.equal(image.range.tl.nativeRow);
         });
       });
       it('Should anchor width equals to column width when custom', function () {
         const ws = this.worksheet;
 
-        ws.getImages().forEach((image) => {
+        ws.getImages().forEach((image: any) => {
           const col = ws.getColumn(image.range.tl.nativeCol + 1);
 
           if (col.isCustomWidth) {
@@ -289,7 +289,7 @@ describe('WorkbookReader', () => {
       it('Should anchor height equals to row height', function () {
         const ws = this.worksheet;
 
-        ws.getImages().forEach((image) => {
+        ws.getImages().forEach((image: any) => {
           const row = ws.getRow(image.range.tl.nativeRow + 1);
 
           if (row.height) {
@@ -303,19 +303,19 @@ describe('WorkbookReader', () => {
 
     describe('with image`s br anchor', () => {
       it('Should integer part of col equals nativeCol', function () {
-        this.worksheet.getImages().forEach((image) => {
+        this.worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.br.col)).to.equal(image.range.br.nativeCol);
         });
       });
       it('Should integer part of row equals nativeRow', function () {
-        this.worksheet.getImages().forEach((image) => {
+        this.worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.br.row)).to.equal(image.range.br.nativeRow);
         });
       });
       it('Should anchor width equals to column width when custom', function () {
         const ws = this.worksheet;
 
-        ws.getImages().forEach((image) => {
+        ws.getImages().forEach((image: any) => {
           const col = ws.getColumn(image.range.br.nativeCol + 1);
 
           if (col.isCustomWidth) {
@@ -328,7 +328,7 @@ describe('WorkbookReader', () => {
       it('Should anchor height equals to row height', function () {
         const ws = this.worksheet;
 
-        ws.getImages().forEach((image) => {
+        ws.getImages().forEach((image: any) => {
           const row = ws.getRow(image.range.br.nativeRow + 1);
 
           if (row.height) {

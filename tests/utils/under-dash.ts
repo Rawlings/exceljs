@@ -35,7 +35,7 @@ const _ = Object.assign(
       } else {
         return obj;
       }
-      _.each(obj, (value, name) => {
+      _.each(obj, (value: any, name: any) => {
         if (value !== undefined) {
           clone[name] = _.cloneDeep(value, preserveUndefined);
         } else if (preserveUndefined) {

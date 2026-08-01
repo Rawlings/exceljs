@@ -13,7 +13,7 @@ const tools = {
     } else {
       return o;
     }
-    _.each(o, (value, name) => {
+    _.each(o, (value: any, name: any) => {
       if (value !== undefined) {
         clone[name] = tools.fix(value);
       }
@@ -22,7 +22,7 @@ const tools = {
   },
 
   concatenateFormula(...args: any[]) {
-    const values = args.map((value) => `"${value}"`);
+    const values = args.map((value: any) => `"${value}"`);
     return {
       formula: `CONCATENATE(${values.join(',')})`,
     };

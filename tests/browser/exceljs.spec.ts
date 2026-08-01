@@ -14,7 +14,7 @@ function unexpectedError(done) {
 }
 
 describe('ExcelJS', () => {
-  it('should read and write xlsx via binary buffer', (done) => {
+  it('should read and write xlsx via binary buffer', (done: any) => {
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('blort');
 
@@ -23,7 +23,7 @@ describe('ExcelJS', () => {
 
     wb.xlsx
       .writeBuffer()
-      .then((buffer) => {
+      .then((buffer: any) => {
         const wb2 = new ExcelJS.Workbook();
         return wb2.xlsx.load(buffer).then(() => {
           const ws2 = wb2.getWorksheet('blort');
@@ -34,12 +34,12 @@ describe('ExcelJS', () => {
           done();
         });
       })
-      .catch((error) => {
+      .catch((error: any) => {
         throw error;
       })
       .catch(unexpectedError(done));
   });
-  it('should read and write xlsx via base64 buffer', (done) => {
+  it('should read and write xlsx via base64 buffer', (done: any) => {
     const options = {
       base64: true,
     };
@@ -51,7 +51,7 @@ describe('ExcelJS', () => {
 
     wb.xlsx
       .writeBuffer(options)
-      .then((buffer) => {
+      .then((buffer: any) => {
         const wb2 = new ExcelJS.Workbook();
         return wb2.xlsx.load(buffer.toString('base64'), options).then(() => {
           const ws2 = wb2.getWorksheet('blort');
@@ -62,12 +62,12 @@ describe('ExcelJS', () => {
           done();
         });
       })
-      .catch((error) => {
+      .catch((error: any) => {
         throw error;
       })
       .catch(unexpectedError(done));
   });
-  it('should write csv via buffer', (done) => {
+  it('should write csv via buffer', (done: any) => {
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('blort');
 
@@ -78,11 +78,11 @@ describe('ExcelJS', () => {
 
     wb.csv
       .writeBuffer()
-      .then((buffer) => {
+      .then((buffer: any) => {
         expect(buffer.toString()).toEqual('"Hello, World!",What time is it?\n7,12pm');
         done();
       })
-      .catch((error) => {
+      .catch((error: any) => {
         throw error;
       })
       .catch(unexpectedError(done));

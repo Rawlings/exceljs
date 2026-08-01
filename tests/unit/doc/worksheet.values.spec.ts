@@ -259,9 +259,9 @@ describe('Worksheet', () => {
         [, 1, 'John Doe', dateValue1],
         [, 2, 'Jane Doe', dateValue2],
       ];
-      ws.eachRow((row, rowNumber) => {
+      ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(values[rowNumber]);
-        row.eachCell((cell, colNumber) => {
+        row.eachCell((cell: any, colNumber: any) => {
           expect(cell.value).to.equal(values[rowNumber][colNumber]);
         });
       });
@@ -301,7 +301,7 @@ describe('Worksheet', () => {
       row3[3] = 'Sam';
       row3[5] = dateValue1;
       rows.push(row3);
-      rows.forEach((row) => {
+      rows.forEach((row: any) => {
         if (row) {
           ws.addRow(row);
         }
@@ -323,9 +323,9 @@ describe('Worksheet', () => {
       expect(ws.getRow(2).values).to.deep.equal(rows[2]);
       expect(ws.getRow(3).values).to.deep.equal(rows[3]);
 
-      ws.eachRow((row, rowNumber) => {
+      ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(rows[rowNumber]);
-        row.eachCell((cell, colNumber) => {
+        row.eachCell((cell: any, colNumber: any) => {
           expect(cell.value).to.equal(rows[rowNumber][colNumber]);
         });
       });
@@ -424,15 +424,15 @@ describe('Worksheet', () => {
             { id: '123', name: 'Jack', dob: new Date(), age: 0 },
             { id: '124', name: 'Jill', dob: new Date(), age: 0 },
           ];
-          values.forEach((value) => {
+          values.forEach((value: any) => {
             ws.addRow(value);
           });
 
           ws.spliceColumns(2, 1, ['B1', 'B2'], ['C1', 'C2']);
 
-          values.forEach((rowValues, index) => {
+          values.forEach((rowValues: any, index: any) => {
             const row = ws.getRow(index + 1);
-            _.each(rowValues, (value, key) => {
+            _.each(rowValues, (value: any, key: any) => {
               if (key !== 'dob') {
                 expect(row.getCell(key).value).to.equal(value);
               }
@@ -626,13 +626,13 @@ describe('Worksheet', () => {
       ws.getCell('B2').value = 2;
       ws.getCell('D4').value = 4;
       ws.getCell('F6').value = 6;
-      ws.eachRow((row, rowNumber) => {
+      ws.eachRow((row: any, rowNumber: any) => {
         expect(rowNumber).not.to.equal(3);
         expect(rowNumber).not.to.equal(5);
       });
 
       let count = 1;
-      ws.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+      ws.eachRow({ includeEmpty: true }, (row: any, rowNumber: any) => {
         expect(rowNumber).to.equal(count++);
       });
     });
@@ -646,14 +646,14 @@ describe('Worksheet', () => {
       ws.getCell('A4').value = 4;
       ws.getCell('A6').value = 6;
       const colA = ws.getColumn('A');
-      colA.eachCell((cell, rowNumber) => {
+      colA.eachCell((cell: any, rowNumber: any) => {
         expect(rowNumber).not.to.equal(3);
         expect(rowNumber).not.to.equal(5);
         expect(cell.value).to.equal(rowNumber);
       });
 
       let count = 1;
-      colA.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+      colA.eachCell({ includeEmpty: true }, (cell: any, rowNumber: any) => {
         expect(rowNumber).to.equal(count++);
       });
       expect(count).to.equal(7);
