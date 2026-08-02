@@ -1,6 +1,10 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CNvPrXform from '#src/formats/xlsx/xml/drawing/c-nv-pr-xform';
+import CNvPrXform, { type CNvPrModel } from '#src/formats/xlsx/xml/drawing/c-nv-pr-xform';
 import CNvPicPrXform from '#src/formats/xlsx/xml/drawing/c-nv-pic-pr-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export type NvPicPrModel = CNvPrModel;
 
 class NvPicPrXform extends BaseXform {
   constructor() {
@@ -12,18 +16,18 @@ class NvPicPrXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'xdr:nvPicPr';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag);
+  override render(xmlStream: XmlStream, model: NvPicPrModel) {
+    xmlStream.openNode(this.tag as string);
     this.map['xdr:cNvPr'].render(xmlStream, model);
     this.map['xdr:cNvPicPr'].render(xmlStream, model);
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -43,9 +47,9 @@ class NvPicPrXform extends BaseXform {
     return true;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;

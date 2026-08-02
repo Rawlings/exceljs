@@ -1,7 +1,20 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface CellAnchorModel {
+  range: {
+    editAs: string;
+    tl?: unknown;
+    br?: unknown;
+    ext?: unknown;
+  };
+  picture?: unknown;
+  medium?: unknown;
+  anchorType?: string;
+}
 
 class BaseCellAnchorXform extends BaseXform {
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -11,7 +24,7 @@ class BaseCellAnchorXform extends BaseXform {
         this.reset();
         this.model = {
           range: {
-            editAs: node.attributes.editAs || 'oneCell',
+            editAs: (node.attributes as Record<string, string>).editAs || 'oneCell',
           },
         };
         break;
@@ -25,7 +38,7 @@ class BaseCellAnchorXform extends BaseXform {
     return true;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }

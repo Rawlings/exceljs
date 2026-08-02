@@ -1,14 +1,35 @@
 import utils from '#src/utils/helpers/utils';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface HeaderFooterModel {
+  differentFirst?: boolean;
+  differentOddEven?: boolean;
+  oddHeader?: string;
+  oddFooter?: string;
+  evenHeader?: string;
+  evenFooter?: string;
+  firstHeader?: string;
+  firstFooter?: string;
+}
+
+type NodeName =
+  | 'oddHeader'
+  | 'oddFooter'
+  | 'evenHeader'
+  | 'evenFooter'
+  | 'firstHeader'
+  | 'firstFooter';
 
 class HeaderFooterXform extends BaseXform {
-  currentNode: any;
+  currentNode: NodeName | undefined;
 
-  get tag() {
+  override get tag() {
     return 'headerFooter';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: HeaderFooterModel | undefined) {
     if (model) {
       xmlStream.addRollback();
 
@@ -24,27 +45,27 @@ class HeaderFooterXform extends BaseXform {
         createTag = true;
       }
       if (model.oddHeader && typeof model.oddHeader === 'string') {
-        xmlStream.leafNode('oddHeader', null, model.oddHeader);
+        xmlStream.leafNode('oddHeader', undefined, model.oddHeader);
         createTag = true;
       }
       if (model.oddFooter && typeof model.oddFooter === 'string') {
-        xmlStream.leafNode('oddFooter', null, model.oddFooter);
+        xmlStream.leafNode('oddFooter', undefined, model.oddFooter);
         createTag = true;
       }
       if (model.evenHeader && typeof model.evenHeader === 'string') {
-        xmlStream.leafNode('evenHeader', null, model.evenHeader);
+        xmlStream.leafNode('evenHeader', undefined, model.evenHeader);
         createTag = true;
       }
       if (model.evenFooter && typeof model.evenFooter === 'string') {
-        xmlStream.leafNode('evenFooter', null, model.evenFooter);
+        xmlStream.leafNode('evenFooter', undefined, model.evenFooter);
         createTag = true;
       }
       if (model.firstHeader && typeof model.firstHeader === 'string') {
-        xmlStream.leafNode('firstHeader', null, model.firstHeader);
+        xmlStream.leafNode('firstHeader', undefined, model.firstHeader);
         createTag = true;
       }
       if (model.firstFooter && typeof model.firstFooter === 'string') {
-        xmlStream.leafNode('firstFooter', null, model.firstFooter);
+        xmlStream.leafNode('firstFooter', undefined, model.firstFooter);
         createTag = true;
       }
 
@@ -57,17 +78,20 @@ class HeaderFooterXform extends BaseXform {
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     switch (node.name) {
-      case 'headerFooter':
-        this.model = {};
-        if (node.attributes.differentFirst) {
-          this.model.differentFirst = parseInt(node.attributes.differentFirst, 0) === 1;
+      case 'headerFooter': {
+        const attrs = node.attributes as Record<string, string>;
+        const model: HeaderFooterModel = {};
+        if (attrs.differentFirst) {
+          model.differentFirst = parseInt(attrs.differentFirst, 0) === 1;
         }
-        if (node.attributes.differentOddEven) {
-          this.model.differentOddEven = parseInt(node.attributes.differentOddEven, 0) === 1;
+        if (attrs.differentOddEven) {
+          model.differentOddEven = parseInt(attrs.differentOddEven, 0) === 1;
         }
+        this.model = model;
         return true;
+      }
 
       case 'oddHeader':
         this.currentNode = 'oddHeader';
@@ -98,31 +122,32 @@ class HeaderFooterXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
-    text = utils.xmlDecode(text);
+  override parseText(text: string) {
+    const decoded = utils.xmlDecode(text);
+    const model = this.model as HeaderFooterModel;
     switch (this.currentNode) {
       case 'oddHeader':
-        this.model.oddHeader = text;
+        model.oddHeader = decoded;
         break;
 
       case 'oddFooter':
-        this.model.oddFooter = text;
+        model.oddFooter = decoded;
         break;
 
       case 'evenHeader':
-        this.model.evenHeader = text;
+        model.evenHeader = decoded;
         break;
 
       case 'evenFooter':
-        this.model.evenFooter = text;
+        model.evenFooter = decoded;
         break;
 
       case 'firstHeader':
-        this.model.firstHeader = text;
+        model.firstHeader = decoded;
         break;
 
       case 'firstFooter':
-        this.model.firstFooter = text;
+        model.firstFooter = decoded;
         break;
 
       default:
@@ -130,7 +155,7 @@ class HeaderFooterXform extends BaseXform {
     }
   }
 
-  parseClose() {
+  override parseClose(): boolean {
     switch (this.currentNode) {
       case 'oddHeader':
       case 'oddFooter':

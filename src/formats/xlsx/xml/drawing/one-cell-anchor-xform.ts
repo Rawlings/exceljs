@@ -1,9 +1,14 @@
-import BaseCellAnchorXform from '#src/formats/xlsx/xml/drawing/base-cell-anchor-xform';
+import BaseCellAnchorXform, {
+  type CellAnchorModel,
+} from '#src/formats/xlsx/xml/drawing/base-cell-anchor-xform';
 import StaticXform from '#src/formats/xlsx/xml/static-xform';
 
 import CellPositionXform from '#src/formats/xlsx/xml/drawing/cell-position-xform';
 import ExtXform from '#src/formats/xlsx/xml/drawing/ext-xform';
-import PicXform from '#src/formats/xlsx/xml/drawing/pic-xform';
+import PicXform, { type PicModel } from '#src/formats/xlsx/xml/drawing/pic-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+
+export type OneCellAnchorModel = CellAnchorModel;
 
 class OneCellAnchorXform extends BaseCellAnchorXform {
   constructor() {
@@ -17,15 +22,15 @@ class OneCellAnchorXform extends BaseCellAnchorXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'xdr:oneCellAnchor';
   }
 
-  prepare(model: any, options: any) {
-    this.map['xdr:pic'].prepare(model.picture, options);
+  override prepare(model: OneCellAnchorModel, options: any) {
+    this.map['xdr:pic'].prepare(model.picture as PicModel, options);
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: OneCellAnchorModel) {
     xmlStream.openNode(this.tag, { editAs: model.range.editAs || 'oneCell' });
 
     this.map['xdr:from'].render(xmlStream, model.range.tl);
@@ -36,7 +41,7 @@ class OneCellAnchorXform extends BaseCellAnchorXform {
     xmlStream.closeNode();
   }
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;
@@ -55,7 +60,7 @@ class OneCellAnchorXform extends BaseCellAnchorXform {
     }
   }
 
-  reconcile(model: any, options: any) {
+  override reconcile(model: OneCellAnchorModel, options: any) {
     model.medium = this.reconcilePicture(model.picture, options);
   }
 }

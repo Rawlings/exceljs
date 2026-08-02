@@ -1,22 +1,55 @@
 import colCache from '#src/utils/data/col-cache';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
-const VIEW_STATES: any = {
+const VIEW_STATES: Record<string, string> = {
   frozen: 'frozen',
   frozenSplit: 'frozen',
   split: 'split',
 };
 
-class SheetViewXform extends BaseXform {
-  sheetView: any;
-  selections: any;
-  pane: any;
+export interface SheetViewModel {
+  workbookViewId?: number;
+  rightToLeft?: boolean;
+  tabSelected?: boolean;
+  showRuler?: boolean;
+  showGridLines?: boolean;
+  showRowColHeaders?: boolean;
+  zoomScale?: number;
+  zoomScaleNormal?: number;
+  style?: string;
+  state?: string;
+  xSplit?: number;
+  ySplit?: number;
+  topLeftCell?: string;
+  activePane?: string;
+  activeCell?: string;
+}
 
-  get tag() {
+interface PaneState {
+  xSplit: number;
+  ySplit: number;
+  topLeftCell?: string;
+  activePane: string;
+  state?: string;
+}
+
+interface SelectionState {
+  pane: string;
+  activeCell?: string;
+}
+
+class SheetViewXform extends BaseXform {
+  sheetView: SheetViewModel | undefined;
+  selections: Record<string, SelectionState> | undefined;
+  pane: PaneState | undefined;
+
+  override get tag() {
     return 'sheetView';
   }
 
-  prepare(model: any) {
+  override prepare(model: SheetViewModel) {
     switch (model.state) {
       case 'frozen':
       case 'split':
@@ -27,11 +60,11 @@ class SheetViewXform extends BaseXform {
     }
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: SheetViewModel) {
     xmlStream.openNode('sheetView', {
       workbookViewId: model.workbookViewId || 0,
     });
-    const add = function (name: any, value: any, included: any) {
+    const add = function (name: string, value: unknown, included: unknown) {
       if (included) {
         xmlStream.addAttribute(name, value);
       }
@@ -102,39 +135,44 @@ class SheetViewXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     switch (node.name) {
-      case 'sheetView':
+      case 'sheetView': {
+        const attrs = node.attributes as Record<string, string>;
         this.sheetView = {
-          workbookViewId: parseInt(node.attributes.workbookViewId, 10),
-          rightToLeft: node.attributes.rightToLeft === '1',
-          tabSelected: node.attributes.tabSelected === '1',
-          showRuler: !(node.attributes.showRuler === '0'),
-          showRowColHeaders: !(node.attributes.showRowColHeaders === '0'),
-          showGridLines: !(node.attributes.showGridLines === '0'),
-          zoomScale: parseInt(node.attributes.zoomScale || '100', 10),
-          zoomScaleNormal: parseInt(node.attributes.zoomScaleNormal || '100', 10),
-          style: node.attributes.view,
+          workbookViewId: parseInt(attrs.workbookViewId, 10),
+          rightToLeft: attrs.rightToLeft === '1',
+          tabSelected: attrs.tabSelected === '1',
+          showRuler: !(attrs.showRuler === '0'),
+          showRowColHeaders: !(attrs.showRowColHeaders === '0'),
+          showGridLines: !(attrs.showGridLines === '0'),
+          zoomScale: parseInt(attrs.zoomScale || '100', 10),
+          zoomScaleNormal: parseInt(attrs.zoomScaleNormal || '100', 10),
+          style: attrs.view,
         };
         this.pane = undefined;
         this.selections = {};
         return true;
+      }
 
-      case 'pane':
+      case 'pane': {
+        const attrs = node.attributes as Record<string, string>;
         this.pane = {
-          xSplit: parseInt(node.attributes.xSplit || '0', 10),
-          ySplit: parseInt(node.attributes.ySplit || '0', 10),
-          topLeftCell: node.attributes.topLeftCell,
-          activePane: node.attributes.activePane || 'topLeft',
-          state: node.attributes.state,
+          xSplit: parseInt(attrs.xSplit || '0', 10),
+          ySplit: parseInt(attrs.ySplit || '0', 10),
+          topLeftCell: attrs.topLeftCell,
+          activePane: attrs.activePane || 'topLeft',
+          state: attrs.state,
         };
         return true;
+      }
 
       case 'selection': {
-        const name = node.attributes.pane || 'topLeft';
-        this.selections[name] = {
+        const attrs = node.attributes as Record<string, string>;
+        const name = attrs.pane || 'topLeft';
+        (this.selections as Record<string, SelectionState>)[name] = {
           pane: name,
-          activeCell: node.attributes.activeCell,
+          activeCell: attrs.activeCell,
         };
         return true;
       }
@@ -144,59 +182,59 @@ class SheetViewXform extends BaseXform {
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
-    let model: any;
-    let selection: any;
+  override parseClose(name: string): boolean {
     switch (name) {
-      case 'sheetView':
-        if (this.sheetView && this.pane) {
-          const m: any = {
-            workbookViewId: this.sheetView.workbookViewId,
-            rightToLeft: this.sheetView.rightToLeft,
-            state: VIEW_STATES[this.pane.state] || 'split', // split is default
+      case 'sheetView': {
+        const sheetView = this.sheetView as SheetViewModel;
+        let model: SheetViewModel;
+        let selection: SelectionState | undefined;
+        if (sheetView && this.pane) {
+          model = this.model = {
+            workbookViewId: sheetView.workbookViewId,
+            rightToLeft: sheetView.rightToLeft,
+            state: VIEW_STATES[this.pane.state as string] || 'split', // split is default
             xSplit: this.pane.xSplit,
             ySplit: this.pane.ySplit,
             topLeftCell: this.pane.topLeftCell,
-            showRuler: this.sheetView.showRuler,
-            showRowColHeaders: this.sheetView.showRowColHeaders,
-            showGridLines: this.sheetView.showGridLines,
-            zoomScale: this.sheetView.zoomScale,
-            zoomScaleNormal: this.sheetView.zoomScaleNormal,
+            showRuler: sheetView.showRuler,
+            showRowColHeaders: sheetView.showRowColHeaders,
+            showGridLines: sheetView.showGridLines,
+            zoomScale: sheetView.zoomScale,
+            zoomScaleNormal: sheetView.zoomScaleNormal,
           };
-          model = this.model = m;
-          if (this.model.state === 'split') {
+          if (model.state === 'split') {
             model.activePane = this.pane.activePane;
           }
-          selection = this.selections[this.pane.activePane];
+          selection = (this.selections as Record<string, SelectionState>)[this.pane.activePane];
           if (selection && selection.activeCell) {
             model.activeCell = selection.activeCell;
           }
-          if (this.sheetView.style) {
-            model.style = this.sheetView.style;
+          if (sheetView.style) {
+            model.style = sheetView.style;
           }
         } else {
-          const m: any = {
-            workbookViewId: this.sheetView.workbookViewId,
-            rightToLeft: this.sheetView.rightToLeft,
+          model = this.model = {
+            workbookViewId: sheetView.workbookViewId,
+            rightToLeft: sheetView.rightToLeft,
             state: 'normal',
-            showRuler: this.sheetView.showRuler,
-            showRowColHeaders: this.sheetView.showRowColHeaders,
-            showGridLines: this.sheetView.showGridLines,
-            zoomScale: this.sheetView.zoomScale,
-            zoomScaleNormal: this.sheetView.zoomScaleNormal,
+            showRuler: sheetView.showRuler,
+            showRowColHeaders: sheetView.showRowColHeaders,
+            showGridLines: sheetView.showGridLines,
+            zoomScale: sheetView.zoomScale,
+            zoomScaleNormal: sheetView.zoomScaleNormal,
           };
-          model = this.model = m;
-          selection = this.selections.topLeft;
+          selection = (this.selections as Record<string, SelectionState>).topLeft;
           if (selection && selection.activeCell) {
             model.activeCell = selection.activeCell;
           }
-          if (this.sheetView.style) {
-            model.style = this.sheetView.style;
+          if (sheetView.style) {
+            model.style = sheetView.style;
           }
         }
         return false;
+      }
       default:
         return true;
     }

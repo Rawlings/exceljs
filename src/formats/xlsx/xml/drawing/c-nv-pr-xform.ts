@@ -1,6 +1,14 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import HlickClickXform from '#src/formats/xlsx/xml/drawing/hlink-click-xform';
+import HlickClickXform, {
+  type HLinkClickModel,
+} from '#src/formats/xlsx/xml/drawing/hlink-click-xform';
 import ExtLstXform from '#src/formats/xlsx/xml/drawing/ext-lst-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface CNvPrModel extends HLinkClickModel {
+  index: number;
+}
 
 class CNvPrXform extends BaseXform {
   constructor() {
@@ -12,12 +20,12 @@ class CNvPrXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'xdr:cNvPr';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  override render(xmlStream: XmlStream, model: CNvPrModel) {
+    xmlStream.openNode(this.tag as string, {
       id: model.index,
       name: `Picture ${model.index}`,
     });
@@ -26,7 +34,7 @@ class CNvPrXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -46,9 +54,9 @@ class CNvPrXform extends BaseXform {
     return true;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;

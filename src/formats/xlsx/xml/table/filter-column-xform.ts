@@ -1,8 +1,19 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
 import ListXform from '#src/formats/xlsx/xml/list-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
-import CustomFilterXform from '#src/formats/xlsx/xml/table/custom-filter-xform';
-import FilterXform from '#src/formats/xlsx/xml/table/filter-xform';
+import CustomFilterXform, {
+  type CustomFilterModel,
+} from '#src/formats/xlsx/xml/table/custom-filter-xform';
+import FilterXform, { type FilterModel } from '#src/formats/xlsx/xml/table/filter-xform';
+
+export interface FilterColumnModel {
+  colId?: string;
+  filterButton: boolean;
+  customFilters?: CustomFilterModel[];
+  filters?: FilterModel[];
+}
 
 class FilterColumnXform extends BaseXform {
   constructor() {
@@ -24,17 +35,17 @@ class FilterColumnXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'filterColumn';
   }
 
-  prepare(model: any, options: any) {
+  override prepare(model: FilterColumnModel, options: { index: number }) {
     model.colId = options.index.toString();
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: FilterColumnModel) {
     if (model.customFilters) {
-      xmlStream.openNode(this.tag, {
+      xmlStream.openNode(this.tag as string, {
         colId: model.colId,
         hiddenButton: model.filterButton ? '0' : '1',
       });
@@ -44,19 +55,19 @@ class FilterColumnXform extends BaseXform {
       xmlStream.closeNode();
       return true;
     }
-    xmlStream.leafNode(this.tag, {
+    xmlStream.leafNode(this.tag as string, {
       colId: model.colId,
       hiddenButton: model.filterButton ? '0' : '1',
     });
     return true;
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
     }
-    const { attributes } = node;
+    const attributes = node.attributes as Record<string, string>;
     switch (node.name) {
       case this.tag:
         this.model = {
@@ -73,9 +84,9 @@ class FilterColumnXform extends BaseXform {
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;
@@ -84,6 +95,9 @@ class FilterColumnXform extends BaseXform {
     }
     switch (name) {
       case this.tag:
+        // NB: pre-existing behavior only reconciles customFilters here; a
+        // parsed `filters` list (this.map.filters.model) is discarded even
+        // though the `filters` child xform is wired up in the map above.
         this.model.customFilters = this.map.customFilters.model;
         return false;
       default:

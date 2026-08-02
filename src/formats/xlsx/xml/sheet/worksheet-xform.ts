@@ -30,6 +30,7 @@ import RowBreaksXform from '#src/formats/xlsx/xml/sheet/row-breaks-xform';
 import HeaderFooterXform from '#src/formats/xlsx/xml/sheet/header-footer-xform';
 import ConditionalFormattingsXform from '#src/formats/xlsx/xml/sheet/cf/conditional-formattings-xform';
 import ExtListXform from '#src/formats/xlsx/xml/sheet/ext-lst-xform';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 const mergeRule = (rule: any, extRule: any) => {
   Object.keys(extRule).forEach((key) => {
@@ -89,9 +90,9 @@ const mergeConditionalFormattings = (model: any, extModel: any) => {
 };
 
 class WorkSheetXform extends BaseXform {
-  static WORKSHEET_ATTRIBUTES: any;
-  ignoreNodes: any;
-  preImageId: any;
+  static WORKSHEET_ATTRIBUTES: Record<string, string>;
+  ignoreNodes: string[];
+  preImageId: unknown;
 
   constructor(options?: any) {
     super();
@@ -147,7 +148,7 @@ class WorkSheetXform extends BaseXform {
     };
   }
 
-  prepare(model: any, options: any) {
+  override prepare(model: any, options: any) {
     options.merges = new Merges();
     model.hyperlinks = options.hyperlinks = [];
     model.comments = options.comments = [];
@@ -307,7 +308,7 @@ class WorkSheetXform extends BaseXform {
     this.map.extLst.prepare(model, options);
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: any) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode('worksheet', WorkSheetXform.WORKSHEET_ATTRIBUTES);
 
@@ -379,7 +380,7 @@ class WorkSheetXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -392,20 +393,20 @@ class WorkSheetXform extends BaseXform {
       return true;
     }
 
-    if (this.map[node.name] && !this.ignoreNodes.includes(node.name)) {
-      this.parser = this.map[node.name];
+    if (this.map[node.name as keyof WorkSheetXform['map']] && !this.ignoreNodes.includes(node.name)) {
+      this.parser = this.map[node.name as keyof WorkSheetXform['map']];
       this.parser.parseOpen(node);
     }
     return true;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;
@@ -471,7 +472,7 @@ class WorkSheetXform extends BaseXform {
     }
   }
 
-  reconcile(model: any, options: any) {
+  override reconcile(model: any, options: any) {
     // options.merges = new Merges();
     // options.merges.reconcile(model.mergeCells, model.rows);
     const rels = (model.relationships || []).reduce((h: any, rel: any) => {

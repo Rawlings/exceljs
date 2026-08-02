@@ -1,25 +1,33 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface CfIconExtModel {
+  iconSet: string;
+  iconId: number;
+}
 
 class CfIconExtXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'x14:cfIcon';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.leafNode(this.tag, {
+  override render(xmlStream: XmlStream, model: CfIconExtModel) {
+    xmlStream.leafNode(this.tag as string, {
       iconSet: model.iconSet,
       iconId: model.iconId,
     });
   }
 
-  parseOpen({ attributes }: any) {
+  override parseOpen(node: SaxNode) {
+    const attributes = node.attributes as Record<string, string>;
     this.model = {
       iconSet: attributes.iconSet,
       iconId: BaseXform.toIntValue(attributes.iconId),
     };
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string) {
     return name !== this.tag;
   }
 }

@@ -1,22 +1,47 @@
 import _ from '#src/utils/helpers/under-dash';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
-function booleanToXml(model: any, value: any) {
+export interface SheetProtectionModel {
+  sheet?: boolean;
+  objects?: boolean;
+  scenarios?: boolean;
+  selectLockedCells?: boolean;
+  selectUnlockedCells?: boolean;
+  formatCells?: boolean;
+  formatColumns?: boolean;
+  formatRows?: boolean;
+  insertColumns?: boolean;
+  insertRows?: boolean;
+  insertHyperlinks?: boolean;
+  deleteColumns?: boolean;
+  deleteRows?: boolean;
+  sort?: boolean;
+  autoFilter?: boolean;
+  pivotTables?: boolean;
+  algorithmName?: string;
+  hashValue?: string;
+  saltValue?: string;
+  spinCount?: number;
+}
+
+function booleanToXml(model: unknown, value: string) {
   return model ? value : undefined;
 }
 
-function xmlToBoolean(value: any, equals: any) {
+function xmlToBoolean(value: unknown, equals: string) {
   return value === equals ? true : undefined;
 }
 
 class SheetProtectionXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'sheetProtection';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: SheetProtectionModel | undefined) {
     if (model) {
-      const attributes: any = {};
+      const attributes: Record<string, unknown> = {};
       if (model.sheet) {
         attributes.algorithmName = model.algorithmName;
         attributes.hashValue = model.hashValue;
@@ -43,48 +68,51 @@ class SheetProtectionXform extends BaseXform {
         attributes.objects = booleanToXml(model.objects === false, '1');
         attributes.scenarios = booleanToXml(model.scenarios === false, '1');
       }
-      if (_.some(attributes, (value: any) => value !== undefined)) {
-        xmlStream.leafNode(this.tag, attributes);
+      if (_.some(attributes, (value) => value !== undefined)) {
+        xmlStream.leafNode(this.tag as string, attributes);
       }
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     switch (node.name) {
-      case this.tag:
-        this.model = {
-          sheet: xmlToBoolean(node.attributes.sheet, '1'),
-          objects: node.attributes.objects === '1' ? false : undefined,
-          scenarios: node.attributes.scenarios === '1' ? false : undefined,
-          selectLockedCells: node.attributes.selectLockedCells === '1' ? false : undefined,
-          selectUnlockedCells: node.attributes.selectUnlockedCells === '1' ? false : undefined,
-          formatCells: xmlToBoolean(node.attributes.formatCells, '0'),
-          formatColumns: xmlToBoolean(node.attributes.formatColumns, '0'),
-          formatRows: xmlToBoolean(node.attributes.formatRows, '0'),
-          insertColumns: xmlToBoolean(node.attributes.insertColumns, '0'),
-          insertRows: xmlToBoolean(node.attributes.insertRows, '0'),
-          insertHyperlinks: xmlToBoolean(node.attributes.insertHyperlinks, '0'),
-          deleteColumns: xmlToBoolean(node.attributes.deleteColumns, '0'),
-          deleteRows: xmlToBoolean(node.attributes.deleteRows, '0'),
-          sort: xmlToBoolean(node.attributes.sort, '0'),
-          autoFilter: xmlToBoolean(node.attributes.autoFilter, '0'),
-          pivotTables: xmlToBoolean(node.attributes.pivotTables, '0'),
+      case this.tag: {
+        const attrs = node.attributes as Record<string, string>;
+        const model: SheetProtectionModel = {
+          sheet: xmlToBoolean(attrs.sheet, '1'),
+          objects: attrs.objects === '1' ? false : undefined,
+          scenarios: attrs.scenarios === '1' ? false : undefined,
+          selectLockedCells: attrs.selectLockedCells === '1' ? false : undefined,
+          selectUnlockedCells: attrs.selectUnlockedCells === '1' ? false : undefined,
+          formatCells: xmlToBoolean(attrs.formatCells, '0'),
+          formatColumns: xmlToBoolean(attrs.formatColumns, '0'),
+          formatRows: xmlToBoolean(attrs.formatRows, '0'),
+          insertColumns: xmlToBoolean(attrs.insertColumns, '0'),
+          insertRows: xmlToBoolean(attrs.insertRows, '0'),
+          insertHyperlinks: xmlToBoolean(attrs.insertHyperlinks, '0'),
+          deleteColumns: xmlToBoolean(attrs.deleteColumns, '0'),
+          deleteRows: xmlToBoolean(attrs.deleteRows, '0'),
+          sort: xmlToBoolean(attrs.sort, '0'),
+          autoFilter: xmlToBoolean(attrs.autoFilter, '0'),
+          pivotTables: xmlToBoolean(attrs.pivotTables, '0'),
         };
-        if (node.attributes.algorithmName) {
-          this.model.algorithmName = node.attributes.algorithmName;
-          this.model.hashValue = node.attributes.hashValue;
-          this.model.saltValue = node.attributes.saltValue;
-          this.model.spinCount = parseInt(node.attributes.spinCount, 10);
+        if (attrs.algorithmName) {
+          model.algorithmName = attrs.algorithmName;
+          model.hashValue = attrs.hashValue;
+          model.saltValue = attrs.saltValue;
+          model.spinCount = parseInt(attrs.spinCount, 10);
         }
+        this.model = model;
         return true;
+      }
       default:
         return false;
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

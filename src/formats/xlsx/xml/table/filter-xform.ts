@@ -1,29 +1,35 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface FilterModel {
+  val: string;
+}
 
 class FilterXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'filter';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.leafNode(this.tag, {
+  override render(xmlStream: XmlStream, model: FilterModel) {
+    xmlStream.leafNode(this.tag as string, {
       val: model.val,
     });
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === this.tag) {
       this.model = {
-        val: node.attributes.val,
+        val: (node.attributes as Record<string, string>).val,
       };
       return true;
     }
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

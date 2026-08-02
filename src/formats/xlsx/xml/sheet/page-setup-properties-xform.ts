@@ -1,13 +1,19 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface PageSetupPropertiesModel {
+  fitToPage?: boolean;
+}
 
 class PageSetupPropertiesXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'pageSetUpPr';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: PageSetupPropertiesModel | undefined) {
     if (model && model.fitToPage) {
-      xmlStream.leafNode(this.tag, {
+      xmlStream.leafNode(this.tag as string, {
         fitToPage: model.fitToPage ? '1' : undefined,
       });
       return true;
@@ -15,19 +21,19 @@ class PageSetupPropertiesXform extends BaseXform {
     return false;
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === this.tag) {
       this.model = {
-        fitToPage: node.attributes.fitToPage === '1',
+        fitToPage: (node.attributes as Record<string, string>).fitToPage === '1',
       };
       return true;
     }
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

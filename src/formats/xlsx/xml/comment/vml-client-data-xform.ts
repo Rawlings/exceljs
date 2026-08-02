@@ -3,10 +3,20 @@ import BaseXform from '#src/formats/xlsx/xml/base-xform';
 import VmlAnchorXform from '#src/formats/xlsx/xml/comment/vml-anchor-xform';
 import VmlProtectionXform from '#src/formats/xlsx/xml/comment/style/vml-protection-xform';
 import VmlPositionXform from '#src/formats/xlsx/xml/comment/style/vml-position-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 const POSITION_TYPE = ['twoCells', 'oneCells', 'absolute'];
 
 class VmlClientDataXform extends BaseXform {
+  override map: {
+    'x:Anchor': VmlAnchorXform;
+    'x:Locked': VmlProtectionXform;
+    'x:LockText': VmlProtectionXform;
+    'x:SizeWithCells': VmlPositionXform;
+    'x:MoveWithCells': VmlPositionXform;
+  };
+
   constructor() {
     super();
     this.map = {
@@ -18,25 +28,25 @@ class VmlClientDataXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'x:ClientData';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: any) {
     const { protection, editAs } = model.note;
     xmlStream.openNode(this.tag, { ObjectType: 'Note' });
     this.map['x:MoveWithCells'].render(xmlStream, editAs, POSITION_TYPE);
     this.map['x:SizeWithCells'].render(xmlStream, editAs, POSITION_TYPE);
     this.map['x:Anchor'].render(xmlStream, model);
     this.map['x:Locked'].render(xmlStream, protection.locked);
-    xmlStream.leafNode('x:AutoFill', null, 'False');
+    xmlStream.leafNode('x:AutoFill', undefined, 'False');
     this.map['x:LockText'].render(xmlStream, protection.lockText);
-    xmlStream.leafNode('x:Row', null, model.refAddress.row - 1);
-    xmlStream.leafNode('x:Column', null, model.refAddress.col - 1);
+    xmlStream.leafNode('x:Row', undefined, model.refAddress.row - 1);
+    xmlStream.leafNode('x:Column', undefined, model.refAddress.col - 1);
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     switch (node.name) {
       case this.tag:
         this.reset();
@@ -47,7 +57,7 @@ class VmlClientDataXform extends BaseXform {
         };
         break;
       default:
-        this.parser = this.map[node.name];
+        this.parser = this.map[node.name as keyof VmlClientDataXform['map']];
         if (this.parser) {
           this.parser.parseOpen(node);
         }
@@ -56,13 +66,13 @@ class VmlClientDataXform extends BaseXform {
     return true;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;

@@ -2,12 +2,14 @@ import BaseXform from '#src/formats/xlsx/xml/base-xform';
 import utils from '#src/utils/helpers/utils';
 
 import CellXform from '#src/formats/xlsx/xml/sheet/cell-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 class RowXform extends BaseXform {
-  maxItems: any;
-  numRowsSeen: any;
+  maxItems: number | undefined;
+  numRowsSeen: number | undefined;
 
-  constructor(options?: any) {
+  constructor(options?: { maxItems?: number }) {
     super();
 
     this.maxItems = options && options.maxItems;
@@ -16,11 +18,11 @@ class RowXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'row';
   }
 
-  prepare(model: any, options: any) {
+  override prepare(model: any, options: any) {
     const styleId = options.styles.addStyleModel(model.style);
     if (styleId) {
       model.styleId = styleId;
@@ -31,7 +33,7 @@ class RowXform extends BaseXform {
     });
   }
 
-  render(xmlStream: any, model: any, options: any) {
+  override render(xmlStream: XmlStream, model: any, options: any) {
     xmlStream.openNode('row');
     xmlStream.addAttribute('r', model.number);
     if (model.height) {
@@ -64,44 +66,45 @@ class RowXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
     }
+    const attrs = node.attributes as Record<string, string>;
     if (node.name === 'row') {
-      this.numRowsSeen += 1;
-      const spans = node.attributes.spans
-        ? node.attributes.spans.split(':').map((span: any) => parseInt(span, 10))
+      this.numRowsSeen = (this.numRowsSeen as number) + 1;
+      const spans = attrs.spans
+        ? attrs.spans.split(':').map((span: string) => parseInt(span, 10))
         : [undefined, undefined];
       const model: any = (this.model = {
-        number: parseInt(node.attributes.r, 10),
+        number: parseInt(attrs.r, 10),
         min: spans[0],
         max: spans[1],
         cells: [],
       });
-      if (node.attributes.s) {
-        model.styleId = parseInt(node.attributes.s, 10);
+      if (attrs.s) {
+        model.styleId = parseInt(attrs.s, 10);
       }
-      if (utils.parseBoolean(node.attributes.hidden)) {
+      if (utils.parseBoolean(attrs.hidden)) {
         model.hidden = true;
       }
-      if (utils.parseBoolean(node.attributes.bestFit)) {
+      if (utils.parseBoolean(attrs.bestFit)) {
         model.bestFit = true;
       }
-      if (node.attributes.ht) {
-        model.height = parseFloat(node.attributes.ht);
+      if (attrs.ht) {
+        model.height = parseFloat(attrs.ht);
       }
-      if (node.attributes.outlineLevel) {
-        model.outlineLevel = parseInt(node.attributes.outlineLevel, 10);
+      if (attrs.outlineLevel) {
+        model.outlineLevel = parseInt(attrs.outlineLevel, 10);
       }
-      if (utils.parseBoolean(node.attributes.collapsed)) {
+      if (utils.parseBoolean(attrs.collapsed)) {
         model.collapsed = true;
       }
       return true;
     }
 
-    this.parser = this.map[node.name];
+    this.parser = this.map[node.name as keyof RowXform['map']];
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -109,13 +112,13 @@ class RowXform extends BaseXform {
     return false;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.model.cells.push(this.parser.model);
@@ -129,7 +132,7 @@ class RowXform extends BaseXform {
     return false;
   }
 
-  reconcile(model: any, options: any) {
+  override reconcile(model: any, options: any) {
     model.style = model.styleId ? options.styles.getStyleModel(model.styleId) : {};
     if (model.styleId !== undefined) {
       model.styleId = undefined;

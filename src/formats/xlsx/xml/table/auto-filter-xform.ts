@@ -1,6 +1,15 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
-import FilterColumnXform from '#src/formats/xlsx/xml/table/filter-column-xform';
+import FilterColumnXform, {
+  type FilterColumnModel,
+} from '#src/formats/xlsx/xml/table/filter-column-xform';
+
+export interface AutoFilterModel {
+  autoFilterRef?: string;
+  columns: FilterColumnModel[];
+}
 
 class AutoFilterXform extends BaseXform {
   constructor() {
@@ -11,20 +20,20 @@ class AutoFilterXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'autoFilter';
   }
 
-  prepare(model: any) {
-    model.columns.forEach((column: any, index: any) => {
+  override prepare(model: AutoFilterModel) {
+    model.columns.forEach((column, index) => {
       this.map.filterColumn.prepare(column, { index });
     });
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, { ref: model.autoFilterRef });
+  override render(xmlStream: XmlStream, model: AutoFilterModel) {
+    xmlStream.openNode(this.tag as string, { ref: model.autoFilterRef });
 
-    model.columns.forEach((column: any) => {
+    model.columns.forEach(column => {
       this.map.filterColumn.render(xmlStream, column);
     });
 
@@ -32,7 +41,7 @@ class AutoFilterXform extends BaseXform {
     return true;
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -40,7 +49,7 @@ class AutoFilterXform extends BaseXform {
     switch (node.name) {
       case this.tag:
         this.model = {
-          autoFilterRef: node.attributes.ref,
+          autoFilterRef: (node.attributes as Record<string, string>).ref,
           columns: [],
         };
         return true;
@@ -55,13 +64,13 @@ class AutoFilterXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.model.columns.push(this.parser.model);

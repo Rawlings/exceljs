@@ -1,16 +1,25 @@
 import _ from '#src/utils/helpers/under-dash';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
-function booleanToXml(model: any) {
+export interface PrintOptionsModel {
+  showRowColHeaders?: boolean;
+  showGridLines?: boolean;
+  horizontalCentered?: boolean;
+  verticalCentered?: boolean;
+}
+
+function booleanToXml(model: unknown) {
   return model ? '1' : undefined;
 }
 
 class PrintOptionsXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'printOptions';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: PrintOptionsModel | undefined) {
     if (model) {
       const attributes = {
         headings: booleanToXml(model.showRowColHeaders),
@@ -18,30 +27,32 @@ class PrintOptionsXform extends BaseXform {
         horizontalCentered: booleanToXml(model.horizontalCentered),
         verticalCentered: booleanToXml(model.verticalCentered),
       };
-      if (_.some(attributes, (value: any) => value !== undefined)) {
-        xmlStream.leafNode(this.tag, attributes);
+      if (_.some(attributes, (value) => value !== undefined)) {
+        xmlStream.leafNode(this.tag as string, attributes);
       }
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     switch (node.name) {
-      case this.tag:
+      case this.tag: {
+        const attrs = node.attributes as Record<string, string>;
         this.model = {
-          showRowColHeaders: node.attributes.headings === '1',
-          showGridLines: node.attributes.gridLines === '1',
-          horizontalCentered: node.attributes.horizontalCentered === '1',
-          verticalCentered: node.attributes.verticalCentered === '1',
+          showRowColHeaders: attrs.headings === '1',
+          showGridLines: attrs.gridLines === '1',
+          horizontalCentered: attrs.horizontalCentered === '1',
+          verticalCentered: attrs.verticalCentered === '1',
         };
         return true;
+      }
       default:
         return false;
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

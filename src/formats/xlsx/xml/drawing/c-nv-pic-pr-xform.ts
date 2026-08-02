@@ -1,19 +1,21 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 class CNvPicPrXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'xdr:cNvPicPr';
   }
 
-  render(xmlStream: any) {
-    xmlStream.openNode(this.tag);
+  override render(xmlStream: XmlStream) {
+    xmlStream.openNode(this.tag as string);
     xmlStream.leafNode('a:picLocks', {
       noChangeAspect: '1',
     });
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     switch (node.name) {
       case this.tag:
         return true;
@@ -22,9 +24,9 @@ class CNvPicPrXform extends BaseXform {
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     switch (name) {
       case this.tag:
         return false;

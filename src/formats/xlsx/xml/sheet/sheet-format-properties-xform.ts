@@ -1,14 +1,24 @@
 import _ from '#src/utils/helpers/under-dash';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface SheetFormatPropertiesModel {
+  defaultRowHeight?: number;
+  defaultColWidth?: number;
+  outlineLevelRow?: number;
+  outlineLevelCol?: number;
+  dyDescent?: number;
+}
 
 class SheetFormatPropertiesXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'sheetFormatPr';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: SheetFormatPropertiesModel | undefined) {
     if (model) {
-      const attributes: any = {
+      const attributes: Record<string, unknown> = {
         defaultRowHeight: model.defaultRowHeight,
         defaultColWidth: model.defaultColWidth,
         customHeight: !model.defaultRowHeight || model.defaultRowHeight !== 15 ? '1' : undefined,
@@ -17,31 +27,33 @@ class SheetFormatPropertiesXform extends BaseXform {
         'x14ac:dyDescent': model.dyDescent,
       };
 
-      if (_.some(attributes, (value: any) => value !== undefined)) {
+      if (_.some(attributes, (value) => value !== undefined)) {
         xmlStream.leafNode('sheetFormatPr', attributes);
       }
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === 'sheetFormatPr') {
-      this.model = {
-        defaultRowHeight: parseFloat(node.attributes.defaultRowHeight || '0'),
-        dyDescent: parseFloat(node.attributes['x14ac:dyDescent'] || '0'),
-        outlineLevelRow: parseInt(node.attributes.outlineLevelRow || '0', 10),
-        outlineLevelCol: parseInt(node.attributes.outlineLevelCol || '0', 10),
+      const attrs = node.attributes as Record<string, string>;
+      const model: SheetFormatPropertiesModel = {
+        defaultRowHeight: parseFloat(attrs.defaultRowHeight || '0'),
+        dyDescent: parseFloat(attrs['x14ac:dyDescent'] || '0'),
+        outlineLevelRow: parseInt(attrs.outlineLevelRow || '0', 10),
+        outlineLevelCol: parseInt(attrs.outlineLevelCol || '0', 10),
       };
-      if (node.attributes.defaultColWidth) {
-        this.model.defaultColWidth = parseFloat(node.attributes.defaultColWidth);
+      if (attrs.defaultColWidth) {
+        model.defaultColWidth = parseFloat(attrs.defaultColWidth);
       }
+      this.model = model;
       return true;
     }
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

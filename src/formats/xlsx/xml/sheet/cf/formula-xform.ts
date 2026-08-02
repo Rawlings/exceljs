@@ -1,23 +1,24 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
 
 class FormulaXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'formula';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.leafNode(this.tag, null, model);
+  override render(xmlStream: XmlStream, model: string) {
+    xmlStream.leafNode(this.tag as string, undefined, model);
   }
 
-  parseOpen() {
+  override parseOpen() {
     this.model = '';
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     this.model += text;
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string) {
     return name !== this.tag;
   }
 }

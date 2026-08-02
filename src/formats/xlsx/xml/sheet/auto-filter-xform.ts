@@ -1,18 +1,32 @@
 import colCache from '#src/utils/data/col-cache';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface AutoFilterAddress {
+  row: number;
+  column: number;
+}
+
+export interface AutoFilterRangeModel {
+  from: string | AutoFilterAddress;
+  to: string | AutoFilterAddress;
+}
+
+export type AutoFilterModel = string | AutoFilterRangeModel;
 
 class AutoFilterXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'autoFilter';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: AutoFilterModel | undefined) {
     if (model) {
       if (typeof model === 'string') {
         // assume range
         xmlStream.leafNode('autoFilter', { ref: model });
       } else {
-        const getAddress = function (addr: any) {
+        const getAddress = function (addr: string | AutoFilterAddress) {
           if (typeof addr === 'string') {
             return addr;
           }
@@ -28,9 +42,9 @@ class AutoFilterXform extends BaseXform {
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === 'autoFilter') {
-      this.model = node.attributes.ref;
+      this.model = (node.attributes as Record<string, string>).ref;
     }
   }
 }

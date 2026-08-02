@@ -1,17 +1,29 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface TableColumnModel {
+  id?: number;
+  name: string;
+  totalsRowLabel?: string;
+  totalsRowFunction?: string;
+  dxfId?: string;
+  filterButton?: boolean;
+  style?: unknown;
+}
 
 class TableColumnXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'tableColumn';
   }
 
-  prepare(model: any, options: any) {
+  override prepare(model: TableColumnModel, options: { index: number }) {
     model.id = options.index + 1;
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.leafNode(this.tag, {
-      id: model.id.toString(),
+  override render(xmlStream: XmlStream, model: TableColumnModel) {
+    xmlStream.leafNode(this.tag as string, {
+      id: (model.id as number).toString(),
       name: model.name,
       totalsRowLabel: model.totalsRowLabel,
       totalsRowFunction: model.totalsRowFunction,
@@ -20,23 +32,22 @@ class TableColumnXform extends BaseXform {
     return true;
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === this.tag) {
-      const { attributes } = node;
-      this.model = { name: attributes.name };
-      if (attributes.totalsRowLabel !== undefined)
-        this.model.totalsRowLabel = attributes.totalsRowLabel;
-      if (attributes.totalsRowFunction !== undefined)
-        this.model.totalsRowFunction = attributes.totalsRowFunction;
-      if (attributes.dxfId !== undefined) this.model.dxfId = attributes.dxfId;
+      const attrs = node.attributes as Record<string, string>;
+      const model: TableColumnModel = { name: attrs.name };
+      if (attrs.totalsRowLabel !== undefined) model.totalsRowLabel = attrs.totalsRowLabel;
+      if (attrs.totalsRowFunction !== undefined) model.totalsRowFunction = attrs.totalsRowFunction;
+      if (attrs.dxfId !== undefined) model.dxfId = attrs.dxfId;
+      this.model = model;
       return true;
     }
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

@@ -1,5 +1,26 @@
 import _ from '#src/utils/helpers/under-dash';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface PageSetupModel {
+  paperSize?: number;
+  orientation?: string;
+  horizontalDpi?: number;
+  verticalDpi?: number;
+  pageOrder?: string;
+  blackAndWhite?: boolean;
+  draft?: boolean;
+  cellComments?: string;
+  errors?: string;
+  scale?: number;
+  fitToWidth?: number;
+  fitToHeight?: number;
+  firstPageNumber?: number;
+  useFirstPageNumber?: boolean;
+  usePrinterDefaults?: boolean;
+  copies?: number;
+}
 
 function booleanToXml(model: any) {
   return model ? '1' : undefined;
@@ -36,11 +57,11 @@ function pageSizeToModel(value: any) {
 }
 
 class PageSetupXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'pageSetup';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: PageSetupModel | undefined) {
     if (model) {
       const attributes = {
         paperSize: model.paperSize,
@@ -61,41 +82,43 @@ class PageSetupXform extends BaseXform {
         copies: model.copies,
       };
       if (_.some(attributes, (value: any) => value !== undefined)) {
-        xmlStream.leafNode(this.tag, attributes);
+        xmlStream.leafNode(this.tag as string, attributes);
       }
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     switch (node.name) {
-      case this.tag:
+      case this.tag: {
+        const attrs = node.attributes as Record<string, string>;
         this.model = {
-          paperSize: pageSizeToModel(node.attributes.paperSize),
-          orientation: node.attributes.orientation || 'portrait',
-          horizontalDpi: parseInt(node.attributes.horizontalDpi || '4294967295', 10),
-          verticalDpi: parseInt(node.attributes.verticalDpi || '4294967295', 10),
-          pageOrder: node.attributes.pageOrder || 'downThenOver',
-          blackAndWhite: node.attributes.blackAndWhite === '1',
-          draft: node.attributes.draft === '1',
-          cellComments: node.attributes.cellComments || 'None',
-          errors: node.attributes.errors || 'displayed',
-          scale: parseInt(node.attributes.scale || '100', 10),
-          fitToWidth: parseInt(node.attributes.fitToWidth || '1', 10),
-          fitToHeight: parseInt(node.attributes.fitToHeight || '1', 10),
-          firstPageNumber: parseInt(node.attributes.firstPageNumber || '1', 10),
-          useFirstPageNumber: node.attributes.useFirstPageNumber === '1',
-          usePrinterDefaults: node.attributes.usePrinterDefaults === '1',
-          copies: parseInt(node.attributes.copies || '1', 10),
+          paperSize: pageSizeToModel(attrs.paperSize),
+          orientation: attrs.orientation || 'portrait',
+          horizontalDpi: parseInt(attrs.horizontalDpi || '4294967295', 10),
+          verticalDpi: parseInt(attrs.verticalDpi || '4294967295', 10),
+          pageOrder: attrs.pageOrder || 'downThenOver',
+          blackAndWhite: attrs.blackAndWhite === '1',
+          draft: attrs.draft === '1',
+          cellComments: attrs.cellComments || 'None',
+          errors: attrs.errors || 'displayed',
+          scale: parseInt(attrs.scale || '100', 10),
+          fitToWidth: parseInt(attrs.fitToWidth || '1', 10),
+          fitToHeight: parseInt(attrs.fitToHeight || '1', 10),
+          firstPageNumber: parseInt(attrs.firstPageNumber || '1', 10),
+          useFirstPageNumber: attrs.useFirstPageNumber === '1',
+          usePrinterDefaults: attrs.usePrinterDefaults === '1',
+          copies: parseInt(attrs.copies || '1', 10),
         };
         return true;
+      }
       default:
         return false;
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

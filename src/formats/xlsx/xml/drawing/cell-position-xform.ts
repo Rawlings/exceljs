@@ -1,10 +1,23 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
 import IntegerXform from '#src/formats/xlsx/xml/simple/integer-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface CellPositionXformOptions {
+  tag: string;
+}
+
+export interface CellPositionModel {
+  nativeCol: number;
+  nativeColOff: number;
+  nativeRow: number;
+  nativeRowOff: number;
+}
 
 class CellPositionXform extends BaseXform {
   _tag: string;
 
-  constructor(options: any) {
+  constructor(options: CellPositionXformOptions) {
     super();
 
     this._tag = options.tag;
@@ -20,7 +33,7 @@ class CellPositionXform extends BaseXform {
     return this._tag;
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: CellPositionModel) {
     xmlStream.openNode(this.tag);
 
     this.map['xdr:col'].render(xmlStream, model.nativeCol);
@@ -32,7 +45,7 @@ class CellPositionXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -51,13 +64,13 @@ class CellPositionXform extends BaseXform {
     return true;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;

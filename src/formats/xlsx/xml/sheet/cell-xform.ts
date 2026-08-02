@@ -4,6 +4,8 @@ import Range from '#src/core/range';
 import Enums from '#src/core/enums';
 
 import RichTextXform from '#src/formats/xlsx/xml/strings/rich-text-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 function getValueType(v: any) {
   if (v === null || v === undefined) {
@@ -43,9 +45,9 @@ function getEffectiveCellType(cell: any) {
 }
 
 class CellXform extends BaseXform {
-  richTextXForm: any;
-  t: any;
-  currentNode: any;
+  richTextXForm: RichTextXform;
+  t: string | undefined;
+  currentNode: string | undefined;
 
   constructor() {
     super();
@@ -53,11 +55,11 @@ class CellXform extends BaseXform {
     this.richTextXForm = new RichTextXform();
   }
 
-  get tag() {
+  override get tag() {
     return 'c';
   }
 
-  prepare(model: any, options: any) {
+  override prepare(model: any, options: any) {
     const styleId = options.styles.addStyleModel(model.style || {}, getEffectiveCellType(model));
     if (styleId) {
       model.styleId = styleId;
@@ -131,8 +133,8 @@ class CellXform extends BaseXform {
     }
   }
 
-  renderFormula(xmlStream: any, model: any) {
-    let attrs = null;
+  renderFormula(xmlStream: XmlStream, model: any) {
+    let attrs: Record<string, unknown> | undefined;
     switch (model.shareType) {
       case 'shared':
         attrs = {
@@ -168,29 +170,29 @@ class CellXform extends BaseXform {
         // oddly, formula results don't ever use shared strings
         xmlStream.addAttribute('t', 'str');
         xmlStream.leafNode('f', attrs, model.formula);
-        xmlStream.leafNode('v', null, model.result);
+        xmlStream.leafNode('v', undefined, model.result);
         break;
 
       case Enums.ValueType.Number:
         xmlStream.leafNode('f', attrs, model.formula);
-        xmlStream.leafNode('v', null, model.result);
+        xmlStream.leafNode('v', undefined, model.result);
         break;
 
       case Enums.ValueType.Boolean:
         xmlStream.addAttribute('t', 'b');
         xmlStream.leafNode('f', attrs, model.formula);
-        xmlStream.leafNode('v', null, model.result ? 1 : 0);
+        xmlStream.leafNode('v', undefined, model.result ? 1 : 0);
         break;
 
       case Enums.ValueType.Error:
         xmlStream.addAttribute('t', 'e');
         xmlStream.leafNode('f', attrs, model.formula);
-        xmlStream.leafNode('v', null, model.result.error);
+        xmlStream.leafNode('v', undefined, model.result.error);
         break;
 
       case Enums.ValueType.Date:
         xmlStream.leafNode('f', attrs, model.formula);
-        xmlStream.leafNode('v', null, utils.dateToExcel(model.result, model.date1904));
+        xmlStream.leafNode('v', undefined, utils.dateToExcel(model.result, model.date1904));
         break;
 
       // case Enums.ValueType.Hyperlink: // ??
@@ -200,7 +202,7 @@ class CellXform extends BaseXform {
     }
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: any) {
     if (model.type === Enums.ValueType.Null && !model.styleId) {
       // if null and no style, exit
       return;
@@ -218,48 +220,48 @@ class CellXform extends BaseXform {
         break;
 
       case Enums.ValueType.Number:
-        xmlStream.leafNode('v', null, model.value);
+        xmlStream.leafNode('v', undefined, model.value);
         break;
 
       case Enums.ValueType.Boolean:
         xmlStream.addAttribute('t', 'b');
-        xmlStream.leafNode('v', null, model.value ? '1' : '0');
+        xmlStream.leafNode('v', undefined, model.value ? '1' : '0');
         break;
 
       case Enums.ValueType.Error:
         xmlStream.addAttribute('t', 'e');
-        xmlStream.leafNode('v', null, model.value.error);
+        xmlStream.leafNode('v', undefined, model.value.error);
         break;
 
       case Enums.ValueType.String:
       case Enums.ValueType.RichText:
         if (model.ssId !== undefined) {
           xmlStream.addAttribute('t', 's');
-          xmlStream.leafNode('v', null, model.ssId);
+          xmlStream.leafNode('v', undefined, model.ssId);
         } else if (model.value && model.value.richText) {
           xmlStream.addAttribute('t', 'inlineStr');
           xmlStream.openNode('is');
           model.value.richText.forEach((text: any) => {
             this.richTextXForm.render(xmlStream, text);
           });
-          xmlStream.closeNode('is');
+          xmlStream.closeNode();
         } else {
           xmlStream.addAttribute('t', 'str');
-          xmlStream.leafNode('v', null, model.value);
+          xmlStream.leafNode('v', undefined, model.value);
         }
         break;
 
       case Enums.ValueType.Date:
-        xmlStream.leafNode('v', null, utils.dateToExcel(model.value, model.date1904));
+        xmlStream.leafNode('v', undefined, utils.dateToExcel(model.value, model.date1904));
         break;
 
       case Enums.ValueType.Hyperlink:
         if (model.ssId !== undefined) {
           xmlStream.addAttribute('t', 's');
-          xmlStream.leafNode('v', null, model.ssId);
+          xmlStream.leafNode('v', undefined, model.ssId);
         } else {
           xmlStream.addAttribute('t', 'str');
-          xmlStream.leafNode('v', null, model.text);
+          xmlStream.leafNode('v', undefined, model.text);
         }
         break;
 
@@ -278,28 +280,29 @@ class CellXform extends BaseXform {
     xmlStream.closeNode(); // </c>
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
     }
+    const attrs = node.attributes as Record<string, string>;
     switch (node.name) {
       case 'c':
         // const address = colCache.decodeAddress(node.attributes.r);
         this.model = {
-          address: node.attributes.r,
+          address: attrs.r,
         };
-        this.t = node.attributes.t;
-        if (node.attributes.s) {
-          this.model.styleId = parseInt(node.attributes.s, 10);
+        this.t = attrs.t;
+        if (attrs.s) {
+          this.model.styleId = parseInt(attrs.s, 10);
         }
         return true;
 
       case 'f':
         this.currentNode = 'f';
-        this.model.si = node.attributes.si;
-        this.model.shareType = node.attributes.t;
-        this.model.ref = node.attributes.ref;
+        this.model.si = attrs.si;
+        this.model.shareType = attrs.t;
+        this.model.ref = attrs.ref;
         return true;
 
       case 'v':
@@ -320,7 +323,7 @@ class CellXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
       return;
@@ -344,7 +347,7 @@ class CellXform extends BaseXform {
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     switch (name) {
       case 'c': {
         const { model } = this;
@@ -429,7 +432,7 @@ class CellXform extends BaseXform {
     }
   }
 
-  reconcile(model: any, options: any) {
+  override reconcile(model: any, options: any) {
     const style = model.styleId && options.styles && options.styles.getStyleModel(model.styleId);
     if (style) {
       model.style = style;

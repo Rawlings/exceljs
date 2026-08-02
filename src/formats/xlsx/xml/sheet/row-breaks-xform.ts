@@ -3,6 +3,7 @@
 import PageBreaksXform from '#src/formats/xlsx/xml/sheet/page-breaks-xform';
 
 import ListXform from '#src/formats/xlsx/xml/list-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
 
 class RowBreaksXform extends ListXform {
   constructor() {
@@ -16,7 +17,7 @@ class RowBreaksXform extends ListXform {
 
   // get tag() { return 'rowBreaks'; }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: unknown[] | undefined) {
     if (model && model.length) {
       xmlStream.openNode(this.tag, this.$);
       if (this.count) {
@@ -25,7 +26,7 @@ class RowBreaksXform extends ListXform {
       }
 
       const { childXform } = this;
-      model.forEach((childModel: any) => {
+      model.forEach((childModel) => {
         childXform.render(xmlStream, childModel);
       });
 

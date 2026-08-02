@@ -1,39 +1,41 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 class VmlPositionXform extends BaseXform {
-  declare _model: any;
+  declare _model: { tag: string } | undefined;
 
-  constructor(model: any) {
+  constructor(model: { tag: string } | undefined) {
     super();
     this._model = model;
   }
 
-  get tag() {
+  override get tag() {
     return this._model && this._model.tag;
   }
 
-  render(xmlStream: any, model: any, type: any) {
+  override render(xmlStream: XmlStream, model: unknown, type: unknown[]) {
     if (model === type[2]) {
-      xmlStream.leafNode(this.tag);
+      xmlStream.leafNode(this.tag as string);
     } else if (this.tag === 'x:SizeWithCells' && model === type[1]) {
-      xmlStream.leafNode(this.tag);
+      xmlStream.leafNode(this.tag as string);
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     switch (node.name) {
       case this.tag:
         this.model = {};
-        this.model[this.tag] = true;
+        this.model[this.tag as string] = true;
         return true;
       default:
         return false;
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

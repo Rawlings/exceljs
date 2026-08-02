@@ -1,11 +1,20 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface HyperlinkModel {
+  address?: string;
+  rId?: string;
+  tooltip?: string;
+  target?: string;
+}
 
 class HyperlinkXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'hyperlink';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: HyperlinkModel) {
     if (this.isInternalLink(model)) {
       xmlStream.leafNode('hyperlink', {
         ref: model.address,
@@ -22,32 +31,34 @@ class HyperlinkXform extends BaseXform {
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === 'hyperlink') {
-      this.model = {
-        address: node.attributes.ref,
-        rId: node.attributes['r:id'],
-        tooltip: node.attributes.tooltip,
+      const attrs = node.attributes as Record<string, string>;
+      const model: HyperlinkModel = {
+        address: attrs.ref,
+        rId: attrs['r:id'],
+        tooltip: attrs.tooltip,
       };
 
       // This is an internal link
-      if (node.attributes.location) {
-        this.model.target = node.attributes.location;
+      if (attrs.location) {
+        model.target = attrs.location;
       }
+      this.model = model;
       return true;
     }
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 
-  isInternalLink(model: any) {
+  isInternalLink(model: HyperlinkModel): boolean {
     // @example: Sheet2!D3, return true
-    return model.target && /^[^!]+![a-zA-Z]+[\d]+$/.test(model.target);
+    return !!(model.target && /^[^!]+![a-zA-Z]+[\d]+$/.test(model.target));
   }
 }
 

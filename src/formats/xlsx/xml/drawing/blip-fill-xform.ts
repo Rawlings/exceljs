@@ -1,5 +1,9 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import BlipXform from '#src/formats/xlsx/xml/drawing/blip-xform';
+import BlipXform, { type BlipModel } from '#src/formats/xlsx/xml/drawing/blip-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export type BlipFillModel = BlipModel;
 
 class BlipFillXform extends BaseXform {
   constructor() {
@@ -10,12 +14,12 @@ class BlipFillXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'xdr:blipFill';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag);
+  override render(xmlStream: XmlStream, model: BlipFillModel) {
+    xmlStream.openNode(this.tag as string);
 
     this.map['a:blip'].render(xmlStream, model);
 
@@ -27,7 +31,7 @@ class BlipFillXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -48,9 +52,9 @@ class BlipFillXform extends BaseXform {
     return true;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;

@@ -1,12 +1,18 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface BlipModel {
+  rId: string;
+}
 
 class BlipXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'a:blip';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.leafNode(this.tag, {
+  override render(xmlStream: XmlStream, model: BlipModel) {
+    xmlStream.leafNode(this.tag as string, {
       'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
       'r:embed': model.rId,
       cstate: 'print',
@@ -14,11 +20,11 @@ class BlipXform extends BaseXform {
     // TODO: handle children (e.g. a:extLst=>a:ext=>a14:useLocalDpi
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     switch (node.name) {
       case this.tag:
         this.model = {
-          rId: node.attributes['r:embed'],
+          rId: (node.attributes as Record<string, string>)['r:embed'],
         };
         return true;
       default:
@@ -26,9 +32,9 @@ class BlipXform extends BaseXform {
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     switch (name) {
       case this.tag:
         return false;
