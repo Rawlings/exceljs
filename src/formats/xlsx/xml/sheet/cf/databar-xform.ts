@@ -43,7 +43,7 @@ class DatabarXform extends CompositeXform {
     };
   }
 
-  override onParserClose(name: string, parser: { model: any }) {
+  override onParserClose(name: string, parser: { model: unknown }) {
     switch (name) {
       case 'cfvo':
         this.model.cfvo.push(parser.model);

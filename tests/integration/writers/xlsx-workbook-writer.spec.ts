@@ -1,15 +1,20 @@
-const fs = require('fs');
-const { promisify } = require('util');
+const fs = require('node:fs');
+const { promisify } = require('node:util');
 
 import testUtils from '../../helpers/index';
 
 import ExcelJS from '../../../src/index';
 
-const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
+let TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
+let fileSeq = 0;
 const IMAGE_FILENAME = `${__dirname}/../../../fixtures/images/image.png`;
 const fsReadFileAsync = promisify(fs.readFile);
 
 describe('WorkbookWriter', () => {
+  beforeEach(() => {
+    TEST_XLSX_FILE_NAME = `./fixtures/out/wb.writer-${++fileSeq}-${Date.now()}-${Math.random().toString(36).substring(2)}.xlsx`;
+  });
+
   it('creates sheets with correct names', () => {
     const wb = new ExcelJS.stream.xlsx.WorkbookWriter();
     const ws1 = wb.addWorksheet('Hello, World!');

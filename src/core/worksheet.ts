@@ -145,17 +145,17 @@ export interface RowBreak {
 }
 
 export interface WorksheetProperties {
-  tabColor?: Partial<Color>;
+  tabColor: Partial<Color>;
   outlineLevelCol: number;
   outlineLevelRow: number;
-  outlineProperties?: {
+  outlineProperties: {
     summaryBelow?: boolean;
     summaryRight?: boolean;
   };
   defaultRowHeight: number;
   defaultColWidth?: number;
   dyDescent: number;
-  showGridLines?: boolean;
+  showGridLines: boolean;
 }
 
 export type WorksheetState = 'visible' | 'hidden' | 'veryHidden';
@@ -280,7 +280,7 @@ export class Worksheet implements WorksheetLike {
         outlineLevelRow: 0,
       },
       options.properties
-    );
+    ) as WorksheetProperties;
 
     // for all things printing
     this.pageSetup = Object.assign(

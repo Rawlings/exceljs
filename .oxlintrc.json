@@ -8,10 +8,24 @@
   "rules": {
     "no-console": "error",
     "eqeqeq": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-caller": "error",
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
     "no-sparse-arrays": "off",
     "no-underscore-dangle": "off",
     "no-unused-expressions": "off",
-    "typescript/no-explicit-any": "error"
+    "typescript/no-explicit-any": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/no-extra-non-null-assertion": "error",
+    "typescript/no-misused-new": "error",
+    "typescript/no-this-alias": "error",
+    "unicorn/prefer-node-protocol": "error",
+    "import/no-duplicates": "error"
   },
   "env": {
     "node": true,

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 const uuidv4 = () => crypto.randomUUID();
 import BaseXform from '../../base-xform';
 import CompositeXform from '../../composite-xform';

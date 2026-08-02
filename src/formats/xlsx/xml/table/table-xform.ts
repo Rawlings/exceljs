@@ -4,7 +4,7 @@ import type { SaxNode } from '../base-xform';
 import BaseXform from '../base-xform';
 import ListXform from '../list-xform';
 
-import AutoFilterXform, { type AutoFilterModel } from './auto-filter-xform';
+import AutoFilterXform from './auto-filter-xform';
 import TableColumnXform, { type TableColumnModel } from './table-column-xform';
 import TableStyleInfoXform, { type TableStyleInfoModel } from './table-style-info-xform';
 
@@ -39,7 +39,7 @@ class TableXform extends BaseXform {
     };
   }
 
-  override prepare(model: TableModel, options: any) {
+  override prepare(model: TableModel, options: unknown) {
     this.map.autoFilter.prepare(model);
     this.map.tableColumns.prepare(model.columns, options);
   }
@@ -129,11 +129,14 @@ class TableXform extends BaseXform {
     }
   }
 
-  override reconcile(model: TableModel, options: any) {
+  override reconcile(
+    model: TableModel,
+    options: { styles: { getDxfStyle(id: number): unknown } }
+  ) {
     // fetch the dfxs from styles
     model.columns.forEach((column) => {
       if (column.dxfId !== undefined) {
-        column.style = options.styles.getDxfStyle(column.dxfId);
+        column.style = options.styles.getDxfStyle(column.dxfId as unknown as number);
       }
     });
   }

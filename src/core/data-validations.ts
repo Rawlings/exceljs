@@ -10,6 +10,8 @@ export type DataValidationOperator =
 
 export interface DataValidation {
   type: 'list' | 'whole' | 'decimal' | 'date' | 'textLength' | 'custom';
+  // any[]: matches the public API contract in fixtures/parity.d.ts
+  // oxlint-disable-next-line typescript/no-explicit-any
   formulae: any[];
   allowBlank?: boolean;
   operator?: DataValidationOperator;

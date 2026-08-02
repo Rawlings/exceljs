@@ -47,7 +47,7 @@ class ColorScaleXform extends CompositeXform {
     };
   }
 
-  override onParserClose(name: string, parser: { model: any }) {
+  override onParserClose(name: string, parser: { model: unknown }) {
     this.model[name].push(parser.model);
   }
 }

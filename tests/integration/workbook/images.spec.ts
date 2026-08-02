@@ -1,5 +1,5 @@
-const fs = require('fs');
-const { promisify } = require('util');
+const fs = require('node:fs');
+const { promisify } = require('node:util');
 
 import ExcelJS from '../../../src/index';
 

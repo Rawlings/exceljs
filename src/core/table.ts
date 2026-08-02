@@ -39,6 +39,8 @@ export interface TableProperties {
   totalsRow?: boolean;
   style?: TableStyleProperties;
   columns: TableColumnProperties[];
+  // any[][]: matches the public API contract in fixtures/parity.d.ts (rows are heterogeneous cell values)
+  // oxlint-disable-next-line typescript/no-explicit-any
   rows: any[][];
   tl?: { row: number; col: number };
   autoFilterRef?: string;

@@ -74,7 +74,7 @@ class PivotCacheDefinitionXform extends BaseXform {
     // TK
   }
 
-  override reconcile(_model?: PivotCacheDefinitionModel, _options?: any) {
+  override reconcile(_model?: PivotCacheDefinitionModel, _options?: unknown) {
     // TK
   }
 }

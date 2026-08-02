@@ -32,7 +32,7 @@ class PivotTableXform extends BaseXform {
 
   override render(xmlStream: XmlStream, model: PivotTableModel) {
     // eslint-disable-next-line no-unused-vars
-    const { rows, columns, values, metric, cacheFields, cacheId } = model;
+    const { rows, columns, values, metric: _metric, cacheFields, cacheId } = model;
 
     // Examples
     // --------
@@ -145,7 +145,7 @@ class PivotTableXform extends BaseXform {
     // TK
   }
 
-  override reconcile(_model?: PivotTableModel, _options?: any) {
+  override reconcile(_model?: PivotTableModel, _options?: unknown) {
     // TK
   }
 }
@@ -185,7 +185,7 @@ function renderPivotField(
     return `
       <pivotField axis="${axis}" ${defaultAttributes}>
         <items count="${items.length + 1}">
-          ${items.map((item, index) => `<item x="${index}" />`).join('\n              ')}
+          ${items.map((_item, index) => `<item x="${index}" />`).join('\n              ')}
         </items>
       </pivotField>
     `;

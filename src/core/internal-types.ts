@@ -1,3 +1,4 @@
+/* oxlint-disable typescript/no-explicit-any */
 // Forward-declared shapes for the circular Cell <-> Row <-> Column <-> Worksheet
 // <-> Workbook reference graph. These are intentionally minimal — only the
 // members actually called by the *consuming* class are declared. As each real

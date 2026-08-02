@@ -3,6 +3,11 @@ import RelType from '../formats/xlsx/rel-type';
 import colCache from '../utils/data/col-cache';
 import CommentXform from '../formats/xlsx/xml/comment/comment-xform';
 import VmlShapeXform from '../formats/xlsx/xml/comment/vml-shape-xform';
+import type { VmlShapeModel } from '../formats/xlsx/xml/comment/vml-shape-xform';
+
+interface CommentsWorksheetLike {
+  comments?: unknown[];
+}
 
 interface CommentsWriterStream {
   write(text: string): void;
@@ -21,7 +26,7 @@ interface CommentsSheetRelsWriter {
 class SheetCommentsWriter {
   id: number;
   count: number;
-  _worksheet: any;
+  _worksheet: CommentsWorksheetLike;
   _workbook: CommentsWorkbook;
   _sheetRelsWriter: CommentsSheetRelsWriter;
   _commentsStream: CommentsWriterStream | undefined;
@@ -30,7 +35,7 @@ class SheetCommentsWriter {
   vmlRelId: string | undefined;
 
   constructor(
-    worksheet: any,
+    worksheet: CommentsWorksheetLike,
     sheetRelsWriter: CommentsSheetRelsWriter,
     options: { id: number; workbook: CommentsWorkbook }
   ) {
@@ -105,7 +110,7 @@ class SheetCommentsWriter {
 
     const vmlShapeXform = new VmlShapeXform();
     const vmlXmlStream = new XmlStream();
-    vmlShapeXform.render(vmlXmlStream, comment as any, index);
+    vmlShapeXform.render(vmlXmlStream, comment as unknown as VmlShapeModel, index);
     this.vmlStream.write(vmlXmlStream.xml);
   }
 

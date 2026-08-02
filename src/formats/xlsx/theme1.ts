@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // theme1.xml fixture loader
 const theme1Path = path.resolve(process.cwd(), 'fixtures/theme1.xml');

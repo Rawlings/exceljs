@@ -99,7 +99,7 @@ class PivotCacheRecordsXform extends BaseXform {
     // TK
   }
 
-  override reconcile(_model?: PivotCacheRecordsModel, _options?: any) {
+  override reconcile(_model?: PivotCacheRecordsModel, _options?: unknown) {
     // TK
   }
 }

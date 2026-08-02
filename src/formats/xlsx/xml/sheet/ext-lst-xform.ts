@@ -89,7 +89,7 @@ class ExtLstXform extends CompositeXform {
     return {};
   }
 
-  override onParserClose(name: string, parser: { model: unknown }) {
+  override onParserClose(_name: string, parser: { model: unknown }) {
     Object.assign(this.model, parser.model);
   }
 }

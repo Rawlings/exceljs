@@ -272,9 +272,11 @@ class StylesXform extends BaseXform {
         } as StylesIndex;
         if (this.model.numFmts) {
           const numFmtIndex = this.index.numFmt;
-          (this.model.numFmts as Record<string, any>[]).forEach((numFmt: Record<string, any>) => {
-            numFmtIndex[numFmt.id] = numFmt.formatCode;
-          });
+          (this.model.numFmts as Array<{ id: string | number; formatCode: string }>).forEach(
+            (numFmt) => {
+              numFmtIndex[numFmt.id] = numFmt.formatCode;
+            }
+          );
         }
 
         return false;

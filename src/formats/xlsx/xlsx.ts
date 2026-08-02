@@ -1,7 +1,7 @@
-import fs from 'fs';
-import type { PathLike } from 'fs';
+import fs from 'node:fs';
+import type { PathLike } from 'node:fs';
 import { unzip, ZipWriter } from '../../utils/stream/zip';
-import { PassThrough, type Readable } from 'stream';
+import { PassThrough, type Readable } from 'node:stream';
 
 import XmlStream from '../../utils/stream/xml-stream';
 
@@ -24,13 +24,13 @@ import PivotCacheRecordsXform from './xml/pivot-table/pivot-cache-records-xform'
 import PivotCacheDefinitionXform from './xml/pivot-table/pivot-cache-definition-xform';
 import PivotTableXform from './xml/pivot-table/pivot-table-xform';
 import CommentsXform from './xml/comment/comments-xform';
+import type { CommentsModel } from './xml/comment/comments-xform';
 import VmlNotesXform from './xml/comment/vml-notes-xform';
 import type { VmlNotesModel } from './xml/comment/vml-notes-xform';
 import RelType from './rel-type';
 import type Workbook from '../../core/workbook';
 import type { WorkbookModel } from '../../core/workbook';
 
-// @ts-ignore
 import theme1Xml from './theme1';
 
 function fsReadFileAsync(
@@ -196,7 +196,7 @@ export class XLSX {
     const drawingXform = new DrawingXform();
     const tableXform = new TableXform();
 
-    workbookXform.reconcile(model);
+    workbookXform.reconcile(model as unknown as Parameters<typeof workbookXform.reconcile>[0]);
 
     // reconcile drawings with their rels
     interface DrawingHyperlinks {
@@ -238,7 +238,7 @@ export class XLSX {
       styles: model.styles,
     };
     Object.values(model.tables).forEach((table) => {
-      tableXform.reconcile(table, tableOptions);
+      tableXform.reconcile(table, tableOptions as { styles: { getDxfStyle(id: number): unknown } });
     });
 
     const sheetOptions = {
@@ -828,7 +828,7 @@ export class XLSX {
 
       if (worksheet.comments.length > 0) {
         xmlStream = new XmlStream();
-        commentsXform.render(xmlStream, worksheet);
+        commentsXform.render(xmlStream, worksheet as unknown as CommentsModel);
         zip.append(xmlStream.xml, { name: `xl/comments${worksheet.id}.xml` });
 
         xmlStream = new XmlStream();

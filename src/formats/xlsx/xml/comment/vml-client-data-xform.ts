@@ -8,6 +8,13 @@ import type { SaxNode } from '../base-xform';
 
 const POSITION_TYPE = ['twoCells', 'oneCells', 'absolute'];
 
+interface VmlClientDataModel {
+  note?: { protection?: { locked?: unknown; lockText?: unknown }; editAs?: string };
+  protection?: { locked?: unknown; lockText?: unknown };
+  editAs?: string;
+  refAddress: { row: number; col: number };
+}
+
 class VmlClientDataXform extends BaseXform {
   override map: {
     'x:Anchor': VmlAnchorXform;
@@ -32,7 +39,7 @@ class VmlClientDataXform extends BaseXform {
     return 'x:ClientData';
   }
 
-  override render(xmlStream: XmlStream, model: any) {
+  override render(xmlStream: XmlStream, model: VmlClientDataModel) {
     const note = typeof model.note === 'object' ? model.note : model;
     const protection = note?.protection || {};
     const editAs = note?.editAs || 'twoCells';

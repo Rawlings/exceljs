@@ -240,7 +240,7 @@ class SheetViewXform extends BaseXform {
     }
   }
 
-  reconcile() {}
+  override reconcile() {}
 }
 
 export default SheetViewXform;

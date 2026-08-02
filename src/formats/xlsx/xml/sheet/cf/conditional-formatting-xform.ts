@@ -48,7 +48,7 @@ class ConditionalFormattingXform extends CompositeXform {
     };
   }
 
-  override onParserClose(_name: string, parser: { model: any }) {
+  override onParserClose(_name: string, parser: { model: unknown }) {
     this.model.rules.push(parser.model);
   }
 }

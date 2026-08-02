@@ -59,7 +59,7 @@ class ExtXform extends CompositeXform {
     return {};
   }
 
-  override onParserClose(name: string, parser: BaseXform) {
+  override onParserClose(_name: string, parser: BaseXform) {
     this.model.x14Id = parser.model;
   }
 }

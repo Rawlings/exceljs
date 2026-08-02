@@ -40,12 +40,11 @@ class SheetPropertiesXform extends BaseXform {
       xmlStream.addRollback();
       xmlStream.openNode('sheetPr');
 
-      let inner = false;
-      inner = this.map.tabColor.render(xmlStream, model.tabColor) || inner;
-      inner = this.map.pageSetUpPr.render(xmlStream, model.pageSetup) || inner;
-      inner = this.map.outlinePr.render(xmlStream, model.outlineProperties) || inner;
-
-      if (inner) {
+      const hasContent = Boolean(model.tabColor || model.pageSetup || model.outlineProperties);
+      if (hasContent) {
+        this.map.tabColor.render(xmlStream, model.tabColor);
+        this.map.pageSetUpPr.render(xmlStream, model.pageSetup);
+        this.map.outlinePr.render(xmlStream, model.outlineProperties);
         xmlStream.closeNode();
         xmlStream.commit();
       } else {

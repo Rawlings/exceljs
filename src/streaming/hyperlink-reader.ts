@@ -123,7 +123,7 @@ class HyperlinkReader extends EventEmitter {
       }
 
       this.emit('finished');
-    } catch (error: any) {
+    } catch (error) {
       this.emit('error', error);
     }
   }

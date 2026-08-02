@@ -1,4 +1,7 @@
 import { describe, test, expectTypeOf } from 'vitest';
+import type {
+  WorkbookWriter,
+  WorkbookReader} from '../../src/index';
 import ExcelJS, {
   Workbook,
   Worksheet,
@@ -12,8 +15,6 @@ import ExcelJS, {
   RelationshipType,
   DocumentType,
   ReadingOrder,
-  WorkbookWriter,
-  WorkbookReader,
   type Style,
   type Font,
   type Fill,

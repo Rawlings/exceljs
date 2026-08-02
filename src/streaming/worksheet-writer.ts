@@ -7,7 +7,7 @@ import Encryptor from '../utils/crypto/encryptor';
 import Dimensions from '../core/range';
 import Row from '../core/row';
 import Column from '../core/column';
-import type { WorksheetLike, CellLike } from '../core/internal-types';
+import type { CellLike } from '../core/internal-types';
 import type WorkbookWriter from './workbook-writer';
 
 import SheetRelsWriter from './sheet-rels-writer';
@@ -114,6 +114,7 @@ class WorksheetWriter {
   _views: unknown[];
   _media: unknown[];
   sheetProtection: Record<string, unknown> | null;
+  startedHeader: boolean;
   startedData: boolean;
   _stream: NodeJS.WritableStream | undefined;
   _background: { imageId?: number; rId?: string } | undefined;
@@ -152,7 +153,7 @@ class WorksheetWriter {
     );
 
     this._sheetCommentsWriter = new SheetCommentsWriter(
-      this,
+      this as unknown as { comments?: unknown[] },
       this._sheetRelsWriter,
       options as {
         id: number;
@@ -259,10 +260,15 @@ class WorksheetWriter {
     // worksheet protection
     this.sheetProtection = null;
 
-    // start writing to stream now
-    this._writeOpenWorksheet();
-
+    this.startedHeader = false;
     this.startedData = false;
+  }
+
+  _ensureOpenWorksheet() {
+    if (!this.startedHeader) {
+      this.startedHeader = true;
+      this._writeOpenWorksheet();
+    }
   }
 
   get workbook() {
@@ -294,6 +300,7 @@ class WorksheetWriter {
     if (this.committed) {
       return;
     }
+    this._ensureOpenWorksheet();
     // commit all rows
     (this._rows as (Row | undefined | null)[]).forEach((cRow) => {
       if (cRow) {
@@ -306,7 +313,9 @@ class WorksheetWriter {
     this._rows = null;
 
     if (!this.startedData) {
+      this._writeColumns();
       this._writeOpenSheetData();
+      this.startedData = true;
     }
     this._writeCloseSheetData();
     this._writeSheetProtection();
@@ -685,6 +694,7 @@ class WorksheetWriter {
   }
 
   _writeRow(row: Row) {
+    this._ensureOpenWorksheet();
     if (!this.startedData) {
       this._writeColumns();
       this._writeOpenSheetData();
@@ -750,7 +760,7 @@ class WorksheetWriter {
     };
     xform.conditionalFormattings.prepare(
       this.conditionalFormatting as ConditionalFormattingModel[],
-      options as any
+      options as { styles: { addDxfStyle(style: Record<string, unknown>): number } }
     );
     (this.stream as { write(t: string): void }).write(
       xform.conditionalFormattings.toXml(this.conditionalFormatting)

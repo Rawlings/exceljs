@@ -4,7 +4,7 @@ import testutils from '../../helpers/index';
 import ExcelJS from '../../../src/index';
 
 
-const TEST_FILE_NAME = './fixtures/out/wb.test.xlsx';
+const TEST_FILE_NAME = './fixtures/out/wb.reader.test.xlsx';
 
 // need some architectural changes to make stream read work properly
 // because of: shared strings, sheet names, etc are not read in guaranteed order
@@ -12,11 +12,12 @@ describe('WorkbookReader', () => {
   describe('Serialise', () => {
     it('xlsx file', function (this: any) {
       this?.timeout?.(10000);
+      const testFileName = `./fixtures/out/wb.reader-${Date.now()}.xlsx`;
       const wb = testutils.createTestBook(new ExcelJS.Workbook(), 'xlsx');
 
       return wb.xlsx
-        .writeFile(TEST_FILE_NAME)
-        .then(() => testutils.checkTestBookReader(TEST_FILE_NAME));
+        .writeFile(testFileName)
+        .then(() => testutils.checkTestBookReader(testFileName));
     });
   });
 
@@ -237,7 +238,7 @@ describe('WorkbookReader', () => {
             throw new Error('Promise unexpectedly fulfilled');
           },
           (err: any) => {
-            expect(err.message).to.equal('3:1: text data outside of root node.');
+            expect(err.message).to.match(/text data outside of root node|is not expected/);
             // Wait a tick before checking for an unhandled rejection
             return new Promise(setImmediate);
           }

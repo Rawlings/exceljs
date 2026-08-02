@@ -2,13 +2,20 @@ import testUtils from '../../helpers/index';
 
 import ExcelJS from '../../../src/index';
 
-const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
-const TEST_CSV_FILE_NAME = './fixtures/out/wb.test.csv';
+let TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
+let TEST_CSV_FILE_NAME = './fixtures/out/wb.test.csv';
+let wbFileSeq = 0;
 
 // =============================================================================
 // Tests
 
 describe('Workbook', () => {
+  beforeEach(() => {
+    const id = ++wbFileSeq;
+    const tag = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    TEST_XLSX_FILE_NAME = `./fixtures/out/wb.book-${id}-${tag}.xlsx`;
+    TEST_CSV_FILE_NAME = `./fixtures/out/wb.book-${id}-${tag}.csv`;
+  });
   describe('Serialise', () => {
     it('xlsx file', () => {
       const wb = testUtils.createTestBook(new ExcelJS.Workbook(), 'xlsx');

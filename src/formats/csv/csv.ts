@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { access } from 'node:fs/promises';
-import { PassThrough, Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
+import { PassThrough } from 'node:stream';
 import type Workbook from '../../core/workbook';
 import type Worksheet from '../../core/worksheet';
 import type Row from '../../core/row';
@@ -246,7 +247,7 @@ export class CSV {
   }
 
   write(stream: NodeJS.WritableStream, options: Partial<CsvWriteOptions> = {}): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const worksheet = this.workbook.getWorksheet(
         options.sheetName || (options.sheetId as number)
       );
@@ -281,10 +282,16 @@ export class CSV {
         });
       }
 
-      if (typeof stream.end === 'function') {
+      if (typeof stream.end === 'function' && typeof stream.once === 'function') {
+        stream.once('finish', () => resolve(undefined));
+        stream.once('error', (err: unknown) => reject(err));
         stream.end();
+      } else {
+        if (typeof stream.end === 'function') {
+          stream.end();
+        }
+        resolve(undefined);
       }
-      resolve(undefined);
     });
   }
 

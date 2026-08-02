@@ -3,7 +3,7 @@ import srcUnderDash from '../../src/utils/helpers/under-dash';
 const _ = Object.assign(
   {
     get(obj: any, path: any, dflt?: any) {
-      let parts = typeof path === 'string' ? path.split('.') : [...path];
+      const parts = typeof path === 'string' ? path.split('.') : [...path];
       while (obj && parts.length) {
         obj = obj[parts.shift()];
       }

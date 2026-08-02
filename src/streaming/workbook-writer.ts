@@ -25,7 +25,6 @@ import type {
   HeaderFooter,
 } from '../core/worksheet';
 
-// @ts-ignore
 import theme1Xml from '../formats/xlsx/theme1';
 
 export interface WorkbookWriterOptions {
@@ -129,7 +128,7 @@ export class WorkbookWriter {
       try {
         await bufPromise;
         await appendPromise;
-      } catch (err) {
+      } catch {
         // ignore or handle error
       }
       stream.emit('zipped');
@@ -410,8 +409,9 @@ export class WorkbookWriter {
 
     return new Promise((resolve) => {
       const xform = new WorkbookXform();
-      xform.prepare(model);
-      zip.append(xform.toXml(model), { name: 'xl/workbook.xml' });
+      const xformModel = model as unknown as Parameters<typeof xform.prepare>[0];
+      xform.prepare(xformModel);
+      zip.append(xform.toXml(xformModel), { name: 'xl/workbook.xml' });
       resolve(undefined);
     });
   }

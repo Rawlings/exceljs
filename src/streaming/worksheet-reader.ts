@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { XMLParser } from 'fast-xml-parser';
 
 import _ from '../utils/helpers/under-dash';
@@ -26,6 +26,9 @@ function decodeChunk(chunk: unknown): string {
 /** Extract text content from a fast-xml-parser node value. */
 function getNodeText(val: unknown): string {
   if (val === undefined || val === null) return '';
+  if (Array.isArray(val)) {
+    return getNodeText(val[0]);
+  }
   if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
     return String(val);
   }
@@ -261,36 +264,50 @@ export class WorksheetReader extends EventEmitter {
     // Rows & cells
     // -----------------------------------------------------------------------
     if (emitSheet && ws.sheetData?.row) {
-      for (const rowNode of ws.sheetData.row) {
+      const rowNodes = Array.isArray(ws.sheetData.row)
+        ? ws.sheetData.row
+        : [ws.sheetData.row];
+      for (const rowNode of rowNodes) {
         const worksheetEvents: WorksheetEvent[] = [];
 
-        const r = parseInt(rowNode.r as string, 10);
+        const rAttrs = (rowNode[':@'] as Record<string, string>) || rowNode;
+        const r = parseInt((rAttrs.r || rowNode.r) as string, 10);
         const row = new Row(this as unknown as WorksheetLike, r);
 
-        if (rowNode.ht) {
-          row.height = parseFloat(rowNode.ht as string);
+        const ht = rAttrs.ht || rowNode.ht;
+        if (ht) {
+          row.height = parseFloat(ht as string);
         }
-        if (rowNode.s) {
-          const styleId = parseInt(rowNode.s as string, 10);
+        const rowStyle = rAttrs.s || rowNode.s;
+        if (rowStyle) {
+          const styleId = parseInt(rowStyle as string, 10);
           const style = styles?.getStyleModel(styleId);
           if (style) {
             row.style = style;
           }
         }
 
-        for (const cellNode of (rowNode.c as Record<string, unknown>[]) || []) {
-          const address = colCache.decodeAddress(cellNode.r as string);
+        const cellNodes = Array.isArray(rowNode.c)
+          ? rowNode.c
+          : rowNode.c
+            ? [rowNode.c]
+            : [];
+        for (const cellNode of cellNodes) {
+          const cAttrs = (cellNode[':@'] as Record<string, string>) || cellNode;
+          const cellRef = (cAttrs.r || cellNode.r) as string;
+          const address = colCache.decodeAddress(cellRef);
           const cell = row.getCell(address.col);
 
           // Cell style
-          if (cellNode.s) {
-            const style = styles?.getStyleModel(parseInt(cellNode.s as string, 10));
+          const cellStyle = cAttrs.s || cellNode.s;
+          if (cellStyle) {
+            const style = styles?.getStyleModel(parseInt(cellStyle as string, 10));
             if (style) {
               cell.style = style;
             }
           }
 
-          const cellType: string | undefined = cellNode.t as string | undefined;
+          const cellType: string | undefined = (cAttrs.t || cellNode.t) as string | undefined;
           const fNode = cellNode.f;
           const vNode = cellNode.v;
 

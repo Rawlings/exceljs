@@ -4,7 +4,7 @@ import CommentXform from './comment-xform';
 import type { CommentModel } from './comment-xform';
 import type { SaxNode } from '../base-xform';
 
-interface CommentsModel {
+export interface CommentsModel {
   comments: CommentModel[];
 }
 
@@ -24,8 +24,8 @@ export default class CommentsXform extends BaseXform {
     };
   }
 
-  override render(xmlStream: XmlStream, model: any) {
-    model = model || this.model;
+  override render(xmlStream: XmlStream, modelInput?: CommentsModel) {
+    const model: CommentsModel = modelInput || this.model;
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode('comments', CommentsXform.COMMENTS_ATTRIBUTES);
 
@@ -37,7 +37,7 @@ export default class CommentsXform extends BaseXform {
 
     // comments
     xmlStream.openNode('commentList');
-    model.comments.forEach((comment: any) => {
+    model.comments.forEach((comment) => {
       this.map.comment.render(xmlStream, comment);
     });
     xmlStream.closeNode();

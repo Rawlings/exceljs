@@ -66,11 +66,15 @@ export interface ConditionalFormattingBaseRule {
 
 export interface ExpressionRuleType extends ConditionalFormattingBaseRule {
   type: 'expression';
+  // any[]: matches the public API contract in fixtures/parity.d.ts
+  // oxlint-disable-next-line typescript/no-explicit-any
   formulae?: any[];
 }
 
 export interface CellIsRuleType extends ConditionalFormattingBaseRule {
   type: 'cellIs';
+  // any[]: matches the public API contract in fixtures/parity.d.ts
+  // oxlint-disable-next-line typescript/no-explicit-any
   formulae?: any[];
   operator?: CellIsOperators;
 }

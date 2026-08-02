@@ -288,7 +288,8 @@ export class WorkbookReader extends EventEmitter {
     if (!sst || !sst.si) return;
 
     let index = 0;
-    for (const si of sst.si) {
+    const items = Array.isArray(sst.si) ? sst.si : [sst.si];
+    for (const si of items) {
       let text: string | null = null;
       const richText: { font: Record<string, unknown> | null; text: string | null }[] = [];
 
