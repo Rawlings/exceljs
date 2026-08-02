@@ -93,10 +93,8 @@ export class Row implements RowLike {
     }
 
     if (typeof col === 'string') {
-      const colOption = (
-        this._worksheet as { getColumn(key: number | string): { number: number } }
-      ).getColumn(col);
-      if (colOption) {
+      const colOption = this._worksheet?.getColumn?.(col) as { number?: number } | undefined;
+      if (colOption && typeof colOption.number === 'number') {
         return this.getCell(colOption.number);
       }
       const address = colCache.decodeAddress(col);

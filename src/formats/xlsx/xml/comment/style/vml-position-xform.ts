@@ -3,21 +3,21 @@ import type XmlStream from '../../../../../utils/stream/xml-stream';
 import type { SaxNode } from '../../base-xform';
 
 class VmlPositionXform extends BaseXform {
-  declare _model: { tag: string } | undefined;
+  private _tag: string | undefined;
 
   constructor(model: { tag: string } | undefined) {
     super();
-    this._model = model;
+    this._tag = model?.tag;
   }
 
   override get tag() {
-    return this._model && this._model.tag;
+    return this._tag;
   }
 
   override render(xmlStream: XmlStream, model: unknown, type: unknown[]) {
-    if (model === type[2]) {
-      xmlStream.leafNode(this.tag as string);
-    } else if (this.tag === 'x:SizeWithCells' && model === type[1]) {
+    if (this.tag === 'x:MoveWithCells' && (model === type[0] || model === type[1])) {
+      xmlStream.leafNode(this.tag);
+    } else if (this.tag === 'x:SizeWithCells' && model === type[0]) {
       xmlStream.leafNode(this.tag);
     }
   }

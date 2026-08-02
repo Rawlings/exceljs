@@ -32,19 +32,22 @@ import PageSetupXform from '../formats/xlsx/xml/sheet/page-setup-xform';
 import AutoFilterXform from '../formats/xlsx/xml/sheet/auto-filter-xform';
 import PictureXform from '../formats/xlsx/xml/sheet/picture-xform';
 import ConditionalFormattingsXform from '../formats/xlsx/xml/sheet/cf/conditional-formattings-xform';
+import type { ConditionalFormattingModel } from '../formats/xlsx/xml/sheet/cf/conditional-formatting-xform';
 import HeaderFooterXform from '../formats/xlsx/xml/sheet/header-footer-xform';
 import RowBreaksXform from '../formats/xlsx/xml/sheet/row-breaks-xform';
 import PrintOptionsXform from '../formats/xlsx/xml/sheet/print-options-xform';
+import type { RowXformModel } from '../formats/xlsx/xml/sheet/row-xform';
+import type { CellXformOptions } from '../formats/xlsx/xml/sheet/cell-xform';
 
 // since prepare and render are functional, we can use singletons
 const xform = {
   dataValidations: new DataValidationsXform(),
   sheetProperties: new SheetPropertiesXform(),
   sheetFormatProperties: new SheetFormatPropertiesXform(),
-  columns: new ListXform({ tag: 'cols', length: false, childXform: new ColXform() }),
+  columns: new ListXform({ tag: 'cols', count: false, childXform: new ColXform() }),
   row: new RowXform(),
-  hyperlinks: new ListXform({ tag: 'hyperlinks', length: false, childXform: new HyperlinkXform() }),
-  sheetViews: new ListXform({ tag: 'sheetViews', length: false, childXform: new SheetViewXform() }),
+  hyperlinks: new ListXform({ tag: 'hyperlinks', count: false, childXform: new HyperlinkXform() }),
+  sheetViews: new ListXform({ tag: 'sheetViews', count: false, childXform: new SheetViewXform() }),
   sheetProtection: new SheetProtectionXform(),
   printOptions: new PrintOptionsXform(),
   pageMargins: new PageMarginsXform(),
@@ -276,7 +279,7 @@ class WorksheetWriter {
       )._openStream(`xl/worksheets/sheet${this.id}.xml`);
 
       // pause stream to prevent 'data' events
-      (this._stream).pause();
+      (this._stream as unknown as { pause(): void }).pause();
     }
     return this._stream;
   }
@@ -688,7 +691,7 @@ class WorksheetWriter {
       this.startedData = true;
     }
 
-    if (row.hasValues || row.height) {
+    if ((row.hasValues || row.height) && row.model) {
       const { model } = row;
       const options = {
         styles: (this._workbook as { styles: unknown }).styles,
@@ -701,7 +704,14 @@ class WorksheetWriter {
         siFormulae: this._siFormulae,
         comments: [],
       };
-      xform.row.prepare(model, options);
+      // RowModel (src/core/row.ts) and RowXformModel describe the same
+      // runtime object from two different vantage points (public model vs.
+      // xform working model); neither has an index signature so they aren't
+      // structurally assignable despite being compatible in practice.
+      xform.row.prepare(
+        model as unknown as RowXformModel,
+        options as unknown as CellXformOptions
+      );
       (this.stream as { write(t: string): void }).write(xform.row.toXml(model));
 
       if (options.comments.length) {
@@ -738,7 +748,10 @@ class WorksheetWriter {
     const options = {
       styles: (this._workbook as { styles: unknown }).styles,
     };
-    xform.conditionalFormattings.prepare(this.conditionalFormatting, options);
+    xform.conditionalFormattings.prepare(
+      this.conditionalFormatting as ConditionalFormattingModel[],
+      options as any
+    );
     (this.stream as { write(t: string): void }).write(
       xform.conditionalFormattings.toXml(this.conditionalFormatting)
     );

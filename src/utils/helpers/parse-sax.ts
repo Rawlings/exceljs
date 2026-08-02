@@ -1,4 +1,4 @@
-import { XMLParser } from 'fast-xml-parser';
+import { XMLParser, XMLValidator } from 'fast-xml-parser';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -19,7 +19,7 @@ interface CloseTagEvent {
   value: { name: string };
 }
 
-type SaxEvent = OpenTagEvent | TextEvent | CloseTagEvent;
+export type SaxEvent = OpenTagEvent | TextEvent | CloseTagEvent;
 
 // ---------------------------------------------------------------------------
 // Chunk collection
@@ -40,13 +40,13 @@ interface SaxStreamLike {
   resume?(): void;
   readableEnded?: boolean;
   _readableState?: { ended?: boolean };
+  autodrain?: () => void;
 }
 
 async function readAllChunks(
   iterableInput: SaxStreamLike | AsyncIterable<unknown>
 ): Promise<string> {
   if (typeof (iterableInput as SaxStreamLike).on !== 'function') {
-    // Async iterable (not a Node.js EventEmitter stream)
     const parts: string[] = [];
     for await (const chunk of iterableInput as AsyncIterable<unknown>) {
       parts.push(decodeChunk(chunk));
@@ -69,7 +69,6 @@ async function readAllChunks(
     return chunks.join('');
   }
 
-  // Live stream — collect via event listeners.
   return new Promise<string>((resolve, reject) => {
     const onData = (chunk: unknown) => chunks.push(decodeChunk(chunk));
     const onEnd = () => {
@@ -155,6 +154,12 @@ export default async function* parseSax(
 ): AsyncGenerator<SaxEvent[]> {
   const xml = typeof iterable === 'string' ? iterable : await readAllChunks(iterable);
   if (!xml) return;
+
+  const validation = XMLValidator.validate(xml);
+  if (validation !== true && typeof validation === 'object') {
+    const { line, col, msg } = (validation as { err: { line: number; col: number; msg: string } }).err;
+    throw new Error(`${line}:${col}: ${msg}`);
+  }
 
   const tree = xmlParser.parse(xml);
   const events = Array.from(walkNodes(tree));

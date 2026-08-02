@@ -45,7 +45,7 @@ class DatabarExtXform extends CompositeXform {
     };
   }
 
-  static isExt(rule: any) {
+  static isExt(rule: { gradient?: boolean }) {
     // not all databars need ext
     // TODO: refine this
     return !rule.gradient;
@@ -106,12 +106,12 @@ class DatabarExtXform extends CompositeXform {
     };
   }
 
-  override onParserClose(name: string, parser: { model: any }) {
+  override onParserClose(name: string, parser: { model: unknown }) {
     const [, prop] = name.split(':');
     const model = this.model;
     switch (prop) {
       case 'cfvo':
-        model.cfvo.push(parser.model);
+        model.cfvo.push(parser.model as CfvoExtModel);
         break;
 
       default:

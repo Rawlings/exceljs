@@ -1,4 +1,5 @@
 import BaseXform from './base-xform';
+import type { SaxNode } from './base-xform';
 
 /* 'virtual' methods used as a form of documentation */
 /* eslint-disable class-methods-use-this */
@@ -6,11 +7,11 @@ import BaseXform from './base-xform';
 // base class for xforms that are composed of other xforms
 // offers some default implementations
 class CompositeXform extends BaseXform {
-  createNewModel(_node: any) {
+  createNewModel(_node?: SaxNode): unknown {
     return {};
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     // Typical pattern for composite xform
     this.parser = this.parser || this.map[node.name];
     if (this.parser) {
@@ -26,20 +27,20 @@ class CompositeXform extends BaseXform {
     return false;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     // Default implementation. Send text to child parser
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  onParserClose(name: any, parser: any) {
+  onParserClose(name: string, parser: BaseXform) {
     // parseClose has seen a child parser close
     // now need to incorporate into this.model somehow
     this.model[name] = parser.model;
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     // Default implementation
     if (this.parser) {
       if (!this.parser.parseClose(name)) {

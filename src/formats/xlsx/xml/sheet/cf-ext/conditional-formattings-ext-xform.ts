@@ -6,7 +6,7 @@ import ConditionalFormattingExtXform, {
 } from './conditional-formatting-ext-xform';
 import type XmlStream from '../../../../../utils/stream/xml-stream';
 
-type ConditionalFormattingsExtModel = ConditionalFormattingExtModel[] & {
+export type ConditionalFormattingsExtModel = ConditionalFormattingExtModel[] & {
   hasExtContent?: boolean;
 };
 
@@ -32,7 +32,7 @@ class ConditionalFormattingsExtXform extends CompositeXform {
     return model.hasExtContent;
   }
 
-  override prepare(model: ConditionalFormattingsExtModel, options: any) {
+  override prepare(model: ConditionalFormattingsExtModel, options: unknown) {
     model.forEach((cf) => {
       this.cfXform.prepare(cf, options);
     });
@@ -50,7 +50,7 @@ class ConditionalFormattingsExtXform extends CompositeXform {
     return [];
   }
 
-  override onParserClose(_name: string, parser: { model: any }) {
+  override onParserClose(_name: string, parser: { model: unknown }) {
     // model is array of conditional formatting objects
     this.model.push(parser.model);
   }

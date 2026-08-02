@@ -53,14 +53,21 @@ class BaseCellAnchorXform extends BaseXform {
     }
   }
 
-  reconcilePicture(model: any, options: any) {
-    if (model && model.rId) {
+  reconcilePicture(
+    model: { rId?: string } | undefined,
+    options: {
+      rels?: Record<string, { Target: string }>;
+      mediaIndex?: Record<string, number>;
+      media?: unknown[];
+    }
+  ) {
+    if (model && model.rId && options.rels) {
       const rel = options.rels[model.rId];
       const match = rel.Target.match(/.*\/media\/(.+[.][a-zA-Z]{3,4})/);
       if (match) {
         const name = match[1];
-        const mediaId = options.mediaIndex[name];
-        return options.media[mediaId];
+        const mediaId = options.mediaIndex?.[name] as number;
+        return options.media?.[mediaId];
       }
     }
     return undefined;

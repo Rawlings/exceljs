@@ -39,9 +39,11 @@ export interface CfRuleModel extends Partial<ExtModel> {
   // dataBar / colorScale / iconSet shapes merged onto this model when the
   // corresponding child xform closes; kept loose since their `cfvo`/`color`
   // fields collide in shape across the three variants.
-  cfvo?: any[];
-  color?: any;
+  cfvo?: unknown[];
+  color?: unknown;
   iconSet?: string;
+  // set by ConditionalFormattingsXform.prepare()/reconcile() (dxfId <-> style)
+  style?: Record<string, unknown>;
   reverse?: boolean;
   showValue?: boolean;
   minLength?: number;
@@ -325,7 +327,7 @@ class CfRuleXform extends CompositeXform {
     };
   }
 
-  override onParserClose(name: string, parser: { model: any }) {
+  override onParserClose(name: string, parser: { model: unknown }) {
     const model = this.model;
     switch (name) {
       case 'dataBar':
@@ -339,7 +341,7 @@ class CfRuleXform extends CompositeXform {
       case 'formula':
         // except - formula is a string and appends to formulae
         model.formulae = model.formulae || [];
-        model.formulae.push(parser.model);
+        model.formulae.push(parser.model as string);
         break;
     }
   }

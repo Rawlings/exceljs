@@ -7,7 +7,7 @@ import table11 from '#fixtures/json/table.1.1.json' with { type: 'json' };
 import table13 from '#fixtures/json/table.1.3.json' with { type: 'json' };
 
 function readXml(name: string): string {
-  return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8');
+  return readFileSync(new URL(`../../../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8');
 }
 
 const expectations = [

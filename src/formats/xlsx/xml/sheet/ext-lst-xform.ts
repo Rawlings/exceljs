@@ -2,11 +2,12 @@
 import CompositeXform from '../composite-xform';
 
 import ConditionalFormattingsExt from './cf-ext/conditional-formattings-ext-xform';
+import type { ConditionalFormattingsExtModel } from './cf-ext/conditional-formattings-ext-xform';
 import type XmlStream from '../../../../utils/stream/xml-stream';
 
 export interface ExtLstModel {
-  conditionalFormattings?: any;
-  [key: string]: any;
+  conditionalFormattings?: ConditionalFormattingsExtModel;
+  [key: string]: unknown;
 }
 
 class ExtXform extends CompositeXform {
@@ -24,11 +25,11 @@ class ExtXform extends CompositeXform {
   }
 
   hasContent(model: ExtLstModel) {
-    return this.conditionalFormattings.hasContent(model?.conditionalFormattings);
+    return this.conditionalFormattings.hasContent(model?.conditionalFormattings || []);
   }
 
-  override prepare(model: ExtLstModel, options: any) {
-    this.conditionalFormattings.prepare(model?.conditionalFormattings, options);
+  override prepare(model: ExtLstModel, options: unknown) {
+    this.conditionalFormattings.prepare(model?.conditionalFormattings || [], options);
   }
 
   override render(xmlStream: XmlStream, model: ExtLstModel) {
@@ -37,7 +38,7 @@ class ExtXform extends CompositeXform {
       'xmlns:x14': 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
     });
 
-    this.conditionalFormattings.render(xmlStream, model?.conditionalFormattings);
+    this.conditionalFormattings.render(xmlStream, model?.conditionalFormattings || []);
 
     xmlStream.closeNode();
   }
@@ -46,7 +47,7 @@ class ExtXform extends CompositeXform {
     return {};
   }
 
-  override onParserClose(name: string, parser: any) {
+  override onParserClose(name: string, parser: { model: unknown }) {
     this.model[name] = parser.model;
   }
 }
@@ -66,7 +67,7 @@ class ExtLstXform extends CompositeXform {
     return 'extLst';
   }
 
-  override prepare(model: ExtLstModel, options: any) {
+  override prepare(model: ExtLstModel, options: unknown) {
     this.ext.prepare(model, options);
   }
 
@@ -88,7 +89,7 @@ class ExtLstXform extends CompositeXform {
     return {};
   }
 
-  override onParserClose(name: string, parser: any) {
+  override onParserClose(name: string, parser: { model: unknown }) {
     Object.assign(this.model, parser.model);
   }
 }

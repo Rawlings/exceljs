@@ -26,7 +26,7 @@ class ConditionalFormattingExtXform extends CompositeXform {
     return 'x14:conditionalFormatting';
   }
 
-  override prepare(model: ConditionalFormattingExtModel, options: any) {
+  override prepare(model: ConditionalFormattingExtModel, options: unknown) {
     model.rules.forEach((rule) => {
       this.cfRule.prepare(rule, options);
     });
@@ -55,15 +55,15 @@ class ConditionalFormattingExtXform extends CompositeXform {
     };
   }
 
-  override onParserClose(name: string, parser: { model: any }) {
+  override onParserClose(name: string, parser: { model: unknown }) {
     const model = this.model;
     switch (name) {
       case 'xm:sqref':
-        model.ref = parser.model;
+        model.ref = parser.model as string;
         break;
 
       case 'x14:cfRule':
-        model.rules.push(parser.model);
+        model.rules.push(parser.model as CfRuleExtModel);
         break;
     }
   }

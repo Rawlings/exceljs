@@ -257,7 +257,7 @@ export interface CellValueImpl {
 }
 
 export class Cell {
-  static Types: Record<string, number> = {};
+  static Types: Record<string, number> = { ...Enums.ValueType, JSON: 11 };
   _row: RowLike;
   _column: ColumnLike;
   _address: string;
@@ -326,26 +326,26 @@ export class Cell {
   }
 
   get font() {
-    return this.style.font || {};
+    return this.style.font;
   }
 
-  set font(value: Partial<Font>) {
+  set font(value: Partial<Font> | undefined) {
     this.style.font = value;
   }
 
   get alignment() {
-    return this.style.alignment || {};
+    return this.style.alignment;
   }
 
-  set alignment(value: Partial<Alignment>) {
+  set alignment(value: Partial<Alignment> | undefined) {
     this.style.alignment = value;
   }
 
   get border() {
-    return this.style.border || {};
+    return this.style.border;
   }
 
-  set border(value: Partial<Borders>) {
+  set border(value: Partial<Borders> | undefined) {
     this.style.border = value;
   }
 
@@ -353,15 +353,15 @@ export class Cell {
     return this.style.fill || { type: 'pattern', pattern: 'none' };
   }
 
-  set fill(value: Fill) {
+  set fill(value: Fill | undefined) {
     this.style.fill = value;
   }
 
   get protection() {
-    return this.style.protection || {};
+    return this.style.protection;
   }
 
-  set protection(value: Partial<Protection>) {
+  set protection(value: Partial<Protection> | undefined) {
     this.style.protection = value;
   }
 
@@ -1430,7 +1430,7 @@ const Value = {
     if (v.richText) {
       return Cell.Types.RichText;
     }
-    if (v.sharedString) {
+    if (v.sharedString !== undefined) {
       return Cell.Types.SharedString;
     }
     if (v.error) {

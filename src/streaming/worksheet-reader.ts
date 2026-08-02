@@ -329,7 +329,7 @@ export class WorksheetReader extends EventEmitter {
             switch (cellType) {
               case 's': {
                 const index = parseInt(vText, 10);
-                if (sharedStrings) {
+                if (sharedStrings && sharedStrings[index] !== undefined) {
                   cell.value = sharedStrings[index];
                 } else {
                   cell.value = { sharedString: index };

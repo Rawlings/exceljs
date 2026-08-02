@@ -4,10 +4,72 @@ import Range from '../../../../core/range';
 import Enums from '../../../../core/enums';
 
 import RichTextXform from '../strings/rich-text-xform';
+import type { RichTextRunModel } from '../strings/rich-text-xform';
 import type XmlStream from '../../../../utils/stream/xml-stream';
 import type { SaxNode } from '../base-xform';
 
-function getValueType(v: any) {
+// Mirrors the runtime shape of a cell as it flows through prepare/render/
+// reconcile: fields get added, mutated and deleted as the value type is
+// pinned down, so this stays a flexible bag rather than a discriminated
+// union (CellValue in src/core/cell.ts is the real, precise public type).
+export interface CellXformModel {
+  [key: string]: unknown;
+  address?: string;
+  type?: number;
+  value?: unknown;
+  result?: unknown;
+  formula?: string;
+  sharedFormula?: string;
+  shareType?: string;
+  si?: number;
+  ref?: string;
+  range?: { range?: unknown; expandToAddress(address: string): void; address?: string } | Range;
+  style?: Record<string, unknown>;
+  styleId?: number;
+  ssId?: number;
+  date1904?: boolean;
+  comment?: Record<string, unknown>;
+  hyperlink?: string;
+  text?: unknown;
+  tooltip?: string;
+}
+
+interface StyleManagerLike {
+  addStyleModel(style: Record<string, unknown>, effectiveType?: unknown): number;
+  getStyleModel(id: number): Record<string, unknown>;
+}
+
+interface SharedStringsLike {
+  add(value: unknown): number;
+  getString(id: number): unknown;
+}
+
+export interface CellXformOptions {
+  [key: string]: unknown;
+  styles?: StyleManagerLike;
+  comments?: Record<string, unknown>[];
+  sharedStrings?: SharedStringsLike;
+  date1904?: boolean;
+  hyperlinks?: Record<string, unknown>[];
+  merges?: { add(model: unknown): void };
+  formulae?: Record<string, CellXformModel>;
+  siFormulae: number;
+}
+
+// reconcile() is called from the opposite end of the pipeline (read path,
+// see WorksheetReconcileOptions in worksheet-xform.ts) with a differently
+// shaped `formulae` (si -> address, not address -> model).
+export interface CellReconcileOptions {
+  [key: string]: unknown;
+  styles?: { getStyleModel(id: number): Record<string, unknown> & { numFmt?: string } };
+  sharedStrings?: SharedStringsLike;
+  date1904?: boolean;
+  formulae?: Record<string, string>;
+  hyperlinkMap?: Record<string, string>;
+  commentsMap?: Record<string, Record<string, unknown>>;
+}
+
+function getValueType(v: unknown) {
   if (v === null || v === undefined) {
     return Enums.ValueType.Null;
   }
@@ -23,19 +85,20 @@ function getValueType(v: any) {
   if (v instanceof Date) {
     return Enums.ValueType.Date;
   }
-  if (v.text && v.hyperlink) {
+  const obj = v as Record<string, unknown>;
+  if (obj.text && obj.hyperlink) {
     return Enums.ValueType.Hyperlink;
   }
-  if (v.formula) {
+  if (obj.formula) {
     return Enums.ValueType.Formula;
   }
-  if (v.error) {
+  if (obj.error) {
     return Enums.ValueType.Error;
   }
   throw new Error('I could not understand type of value');
 }
 
-function getEffectiveCellType(cell: any) {
+function getEffectiveCellType(cell: CellXformModel) {
   switch (cell.type) {
     case Enums.ValueType.Formula:
       return getValueType(cell.result);
@@ -59,14 +122,17 @@ class CellXform extends BaseXform {
     return 'c';
   }
 
-  override prepare(model: any, options: any) {
-    const styleId = options.styles.addStyleModel(model.style || {}, getEffectiveCellType(model));
+  override prepare(model: CellXformModel, options: CellXformOptions) {
+    const styleId = options.styles!.addStyleModel(
+      model.style || {},
+      getEffectiveCellType(model)
+    );
     if (styleId) {
       model.styleId = styleId;
     }
 
     if (model.comment) {
-      options.comments.push({ ...model.comment, ref: model.address });
+      options.comments!.push({ ...model.comment, ref: model.address });
     }
 
     switch (model.type) {
@@ -87,7 +153,7 @@ class CellXform extends BaseXform {
         if (options.sharedStrings && model.text !== undefined && model.text !== null) {
           model.ssId = options.sharedStrings.add(model.text);
         }
-        options.hyperlinks.push({
+        options.hyperlinks!.push({
           address: model.address,
           target: model.hyperlink,
           tooltip: model.tooltip,
@@ -95,7 +161,7 @@ class CellXform extends BaseXform {
         break;
 
       case Enums.ValueType.Merge:
-        options.merges.add(model);
+        options.merges!.add(model);
         break;
 
       case Enums.ValueType.Formula:
@@ -109,9 +175,9 @@ class CellXform extends BaseXform {
         }
 
         if (model.formula) {
-          options.formulae[model.address] = model;
+          options.formulae![model.address as string] = model;
         } else if (model.sharedFormula) {
-          const master = options.formulae[model.sharedFormula];
+          const master = options.formulae![model.sharedFormula];
           if (!master) {
             throw new Error(
               `Shared Formula master must exist above and or left of clone for cell ${model.address}`
@@ -120,9 +186,9 @@ class CellXform extends BaseXform {
           if (master.si === undefined) {
             master.shareType = 'shared';
             master.si = options.siFormulae++;
-            master.range = new Range(master.address, model.address);
+            master.range = new Range(master.address as string, model.address as string);
           } else if (master.range) {
-            master.range.expandToAddress(model.address);
+            (master.range as Range).expandToAddress(model.address as string);
           }
           model.si = master.si;
         }
@@ -133,13 +199,13 @@ class CellXform extends BaseXform {
     }
   }
 
-  renderFormula(xmlStream: XmlStream, model: any) {
+  renderFormula(xmlStream: XmlStream, model: CellXformModel) {
     let attrs: Record<string, unknown> | undefined;
     switch (model.shareType) {
       case 'shared':
         attrs = {
           t: 'shared',
-          ref: model.ref || model.range.range,
+          ref: model.ref || model.range?.range,
           si: model.si,
         };
         break;
@@ -187,12 +253,16 @@ class CellXform extends BaseXform {
       case Enums.ValueType.Error:
         xmlStream.addAttribute('t', 'e');
         xmlStream.leafNode('f', attrs, model.formula);
-        xmlStream.leafNode('v', undefined, model.result.error);
+        xmlStream.leafNode('v', undefined, (model.result as { error?: unknown }).error);
         break;
 
       case Enums.ValueType.Date:
         xmlStream.leafNode('f', attrs, model.formula);
-        xmlStream.leafNode('v', undefined, utils.dateToExcel(model.result, model.date1904));
+        xmlStream.leafNode(
+          'v',
+          undefined,
+          utils.dateToExcel(model.result as Date, model.date1904)
+        );
         break;
 
       // case Enums.ValueType.Hyperlink: // ??
@@ -202,7 +272,7 @@ class CellXform extends BaseXform {
     }
   }
 
-  override render(xmlStream: XmlStream, model: any) {
+  override render(xmlStream: XmlStream, model: CellXformModel) {
     if (model.type === Enums.ValueType.Null && !model.styleId) {
       // if null and no style, exit
       return;
@@ -230,18 +300,19 @@ class CellXform extends BaseXform {
 
       case Enums.ValueType.Error:
         xmlStream.addAttribute('t', 'e');
-        xmlStream.leafNode('v', undefined, model.value.error);
+        xmlStream.leafNode('v', undefined, (model.value as { error?: unknown }).error);
         break;
 
       case Enums.ValueType.String:
-      case Enums.ValueType.RichText:
+      case Enums.ValueType.RichText: {
+        const richValue = model.value as { richText?: RichTextRunModel[] } | undefined;
         if (model.ssId !== undefined) {
           xmlStream.addAttribute('t', 's');
           xmlStream.leafNode('v', undefined, model.ssId);
-        } else if (model.value && model.value.richText) {
+        } else if (richValue && richValue.richText) {
           xmlStream.addAttribute('t', 'inlineStr');
           xmlStream.openNode('is');
-          model.value.richText.forEach((text: any) => {
+          richValue.richText.forEach((text) => {
             this.richTextXForm.render(xmlStream, text);
           });
           xmlStream.closeNode();
@@ -250,9 +321,14 @@ class CellXform extends BaseXform {
           xmlStream.leafNode('v', undefined, model.value);
         }
         break;
+      }
 
       case Enums.ValueType.Date:
-        xmlStream.leafNode('v', undefined, utils.dateToExcel(model.value, model.date1904));
+        xmlStream.leafNode(
+          'v',
+          undefined,
+          utils.dateToExcel(model.value as Date, model.date1904)
+        );
         break;
 
       case Enums.ValueType.Hyperlink:
@@ -432,8 +508,11 @@ class CellXform extends BaseXform {
     }
   }
 
-  override reconcile(model: any, options: any) {
-    const style = model.styleId && options.styles && options.styles.getStyleModel(model.styleId);
+  override reconcile(model: CellXformModel, options: CellReconcileOptions) {
+    const style =
+      model.styleId !== undefined && options.styles
+        ? options.styles.getStyleModel(model.styleId)
+        : undefined;
     if (style) {
       model.style = style;
     }
@@ -448,29 +527,29 @@ class CellXform extends BaseXform {
             model.value = options.sharedStrings.getString(model.value);
           }
         }
-        if (model.value.richText) {
+        if ((model.value as { richText?: unknown })?.richText) {
           model.type = Enums.ValueType.RichText;
         }
         break;
 
       case Enums.ValueType.Number:
-        if (style && utils.isDateFmt(style.numFmt)) {
+        if (style && utils.isDateFmt(style.numFmt || '')) {
           model.type = Enums.ValueType.Date;
-          model.value = utils.excelToDate(model.value, options.date1904);
+          model.value = utils.excelToDate(model.value as number, options.date1904);
         }
         break;
 
       case Enums.ValueType.Formula:
-        if (model.result !== undefined && style && utils.isDateFmt(style.numFmt)) {
-          model.result = utils.excelToDate(model.result, options.date1904);
+        if (model.result !== undefined && style && utils.isDateFmt(style.numFmt || '')) {
+          model.result = utils.excelToDate(model.result as number, options.date1904);
         }
         if (model.shareType === 'shared') {
           if (model.ref) {
             // master
-            options.formulae[model.si] = model.address;
+            options.formulae![model.si as number] = model.address as string;
           } else {
             // slave
-            model.sharedFormula = options.formulae[model.si];
+            model.sharedFormula = options.formulae![model.si as number];
             delete model.shareType;
           }
           delete model.si;
@@ -482,7 +561,7 @@ class CellXform extends BaseXform {
     }
 
     // look for hyperlink
-    const hyperlink = options.hyperlinkMap[model.address];
+    const hyperlink = options.hyperlinkMap?.[model.address as string];
     if (hyperlink) {
       if (model.type === Enums.ValueType.Formula) {
         model.text = model.result;
@@ -495,7 +574,7 @@ class CellXform extends BaseXform {
       model.hyperlink = hyperlink;
     }
 
-    const comment = options.commentsMap && options.commentsMap[model.address];
+    const comment = options.commentsMap && options.commentsMap[model.address as string];
     if (comment) {
       model.comment = comment;
     }

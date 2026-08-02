@@ -27,7 +27,7 @@ import sheet70 from '#fixtures/json/sheet.7.0.json' with { type: 'json' };
 import sheet71 from '#fixtures/json/sheet.7.1.json' with { type: 'json' };
 
 function readXml(name: string): string {
-  return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8');
+  return readFileSync(new URL(`../../../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8');
 }
 
 const fakeStyles = {

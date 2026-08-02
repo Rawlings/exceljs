@@ -25,6 +25,7 @@ import PivotCacheDefinitionXform from './xml/pivot-table/pivot-cache-definition-
 import PivotTableXform from './xml/pivot-table/pivot-table-xform';
 import CommentsXform from './xml/comment/comments-xform';
 import VmlNotesXform from './xml/comment/vml-notes-xform';
+import type { VmlNotesModel } from './xml/comment/vml-notes-xform';
 import RelType from './rel-type';
 import type Workbook from '../../core/workbook';
 import type { WorkbookModel } from '../../core/workbook';
@@ -831,7 +832,7 @@ export class XLSX {
         zip.append(xmlStream.xml, { name: `xl/comments${worksheet.id}.xml` });
 
         xmlStream = new XmlStream();
-        vmlNotesXform.render(xmlStream, worksheet);
+        vmlNotesXform.render(xmlStream, worksheet as unknown as VmlNotesModel);
         zip.append(xmlStream.xml, { name: `xl/drawings/vmlDrawing${worksheet.id}.vml` });
       }
     });

@@ -113,7 +113,7 @@ export class Image {
         const r = range as ImageRangeInput;
         this.range = {
           tl: new Anchor(this.worksheet, r.tl, 0),
-          br: r.br ? new Anchor(this.worksheet, r.br, 0) : undefined,
+          br: r.br ? new Anchor(this.worksheet, r.br, 0) : (undefined as unknown as Anchor),
           ext: r.ext,
           editAs: r.editAs,
           hyperlinks: hyperlinks || r.hyperlinks,

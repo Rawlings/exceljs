@@ -41,10 +41,10 @@ class CfvoExtXform extends CompositeXform {
     };
   }
 
-  override onParserClose(name: string, parser: { model: any }) {
+  override onParserClose(name: string, parser: { model: unknown }) {
     switch (name) {
       case 'xm:f':
-        this.model.value = parser.model ? parseFloat(parser.model) : 0;
+        this.model.value = parser.model ? parseFloat(parser.model as string) : 0;
         break;
     }
   }

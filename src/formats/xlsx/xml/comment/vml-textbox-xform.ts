@@ -1,28 +1,29 @@
 import BaseXform from '../base-xform';
 import type XmlStream from '../../../../utils/stream/xml-stream';
 import type { SaxNode } from '../base-xform';
+import type { VmlShapeModel } from './vml-shape-xform';
 
 class VmlTextboxXform extends BaseXform {
   override get tag() {
     return 'v:textbox';
   }
 
-  conversionUnit(value: any, multiple: any, unit: any) {
-    return `${parseFloat(value) * multiple.toFixed(2)}${unit}`;
+  conversionUnit(value: number, multiple: number, unit: string) {
+    return `${(value * multiple).toFixed(2)}${unit}`;
   }
 
-  reverseConversionUnit(inset: any) {
-    return (inset || '').split(',').map((margin: any) => {
+  reverseConversionUnit(inset: string) {
+    return (inset || '').split(',').map((margin) => {
       return Number(parseFloat(this.conversionUnit(parseFloat(margin), 0.1, '')).toFixed(2));
     });
   }
 
-  override render(xmlStream: XmlStream, model: any) {
-    const attributes: { style: string; inset?: any } = {
+  override render(xmlStream: XmlStream, model: VmlShapeModel) {
+    const attributes: { style: string; inset?: string | number[] } = {
       style: 'mso-direction-alt:auto',
     };
     if (model && model.note) {
-      let { inset } = model.note && model.note.margins;
+      let { inset } = model.note && model.note.margins || {};
       if (Array.isArray(inset)) {
         inset = inset
           .map((margin) => {

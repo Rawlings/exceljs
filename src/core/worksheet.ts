@@ -145,17 +145,17 @@ export interface RowBreak {
 }
 
 export interface WorksheetProperties {
-  tabColor: Partial<Color>;
+  tabColor?: Partial<Color>;
   outlineLevelCol: number;
   outlineLevelRow: number;
-  outlineProperties: {
+  outlineProperties?: {
     summaryBelow?: boolean;
     summaryRight?: boolean;
   };
   defaultRowHeight: number;
   defaultColWidth?: number;
   dyDescent: number;
-  showGridLines: boolean;
+  showGridLines?: boolean;
 }
 
 export type WorksheetState = 'visible' | 'hidden' | 'veryHidden';
@@ -534,7 +534,7 @@ export class Worksheet implements WorksheetLike {
       }
     }
     for (let i = start; i < start + inserts.length; i++) {
-      (this.getColumn(i)).defn = null;
+      (this.getColumn(i)).defn = undefined;
     }
 
     // account for defined names
@@ -763,14 +763,13 @@ export class Worksheet implements WorksheetLike {
               const cellToBeMerged = this.getRow(cellAny._row._number + nInserts).getCell(
                 colNumber
               ) as CellLike;
-              const prevMaster = cellAny._value._master as {
-                _row: { _number: number };
-                _column: { _number: number };
-              };
-              const newMaster = this.getRow(prevMaster._row._number + nInserts).getCell(
-                prevMaster._column._number
-              );
-              cellToBeMerged.merge?.(newMaster);
+              const prevMaster = (cellAny._value as unknown as { _master?: { _row: { _number: number }; _column: { _number: number } } })._master;
+              if (prevMaster?._row && prevMaster?._column) {
+                const newMaster = this.getRow(prevMaster._row._number + nInserts).getCell(
+                  prevMaster._column._number
+                );
+                cellToBeMerged.merge?.(newMaster);
+              }
             }
           });
         } else {
@@ -1216,7 +1215,10 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
 
     this._parseMergeCells(value as { mergeCells?: unknown[] | Record<string, unknown> });
     this.dataValidations = new DataValidations(value.dataValidations as never);
-    this.properties = value.properties as unknown as WorksheetProperties;
+    this.properties = Object.assign(
+      { defaultRowHeight: 15, dyDescent: 55, outlineLevelCol: 0, outlineLevelRow: 0 },
+      value.properties
+    ) as unknown as WorksheetProperties;
     this.pageSetup = value.pageSetup;
     this.headerFooter = value.headerFooter;
     this.views = value.views as Array<Partial<WorksheetView>>;

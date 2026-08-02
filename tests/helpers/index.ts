@@ -3,6 +3,7 @@ import tools from './tools';
 import _ from './under-dash';
 import Row from '../../src/core/row';
 import Column from '../../src/core/column';
+import colCache from '../../src/utils/data/col-cache';
 import testWorkbookReader from './test-workbook-reader';
 
 import dataValidationsSheet from './test-data-validation-sheet';
@@ -125,8 +126,13 @@ const utilsModule: any = {
         this.columns[colNumber - 1] = newColumn;
         return newColumn;
       },
-      getColumn(colNumber: number) {
-        let column = this.columns[colNumber - 1] || this._keys[colNumber];
+      getColumn(colNumber: number | string) {
+        if (typeof colNumber === 'string') {
+          const colByKey = this._keys[colNumber];
+          if (colByKey) return colByKey;
+          colNumber = colCache.l2n(colNumber);
+        }
+        let column = this.columns[colNumber - 1];
         if (!column) {
           column = this.columns[colNumber - 1] = new Column(this, colNumber);
         }

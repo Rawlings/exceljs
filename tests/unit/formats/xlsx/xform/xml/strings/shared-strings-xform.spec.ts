@@ -12,7 +12,7 @@ const expectations = [
       return new SharedStringsXform();
     },
     preparedModel: sharedStringsData,
-    xml: readFileSync(new URL('../../../../../fixtures/xml/sharedStrings.xml', import.meta.url), 'utf8'),
+    xml: readFileSync(new URL('../../../../../../../fixtures/xml/sharedStrings.xml', import.meta.url), 'utf8'),
     get parsedModel() {
       return this.preparedModel;
     },

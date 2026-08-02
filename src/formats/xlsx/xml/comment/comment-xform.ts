@@ -1,12 +1,20 @@
 import RichTextXform from '../strings/rich-text-xform';
+import type { RichTextRunModel } from '../strings/rich-text-xform';
 import BaseXform from '../base-xform';
 import type XmlStream from '../../../../utils/stream/xml-stream';
 import type { SaxNode } from '../base-xform';
 
+export interface CommentModel {
+  ref?: string;
+  type?: string;
+  note?: { texts: RichTextRunModel[] };
+  [key: string]: unknown;
+}
+
 export default class CommentXform extends BaseXform {
   _richTextXform: RichTextXform | undefined;
 
-  constructor(model?: any) {
+  constructor(model?: CommentModel) {
     super();
     this.model = model;
   }
@@ -22,8 +30,8 @@ export default class CommentXform extends BaseXform {
     return this._richTextXform;
   }
 
-  override render(xmlStream: XmlStream, model: any) {
-    model = model || this.model;
+  override render(xmlStream: XmlStream, modelInput?: CommentModel) {
+    const model: CommentModel = modelInput || this.model;
 
     xmlStream.openNode('comment', {
       ref: model.ref,
@@ -31,7 +39,7 @@ export default class CommentXform extends BaseXform {
     });
     xmlStream.openNode('text');
     if (model && model.note && model.note.texts) {
-      model.note.texts.forEach((text: any) => {
+      model.note.texts.forEach((text) => {
         this.richTextXform.render(xmlStream, text);
       });
     }

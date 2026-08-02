@@ -12,7 +12,7 @@ const expectations = [
       return new RelationshipsXform();
     },
     preparedModel: worksheetRels1,
-    xml: readFileSync(new URL('../../../../../fixtures/xml/worksheet.rels.xml', import.meta.url), 'utf8').replace(/\r\n/g, '\n'),
+    xml: readFileSync(new URL('../../../../../../../fixtures/xml/worksheet.rels.xml', import.meta.url), 'utf8').replace(/\r\n/g, '\n'),
     get parsedModel() {
       return this.preparedModel;
     },

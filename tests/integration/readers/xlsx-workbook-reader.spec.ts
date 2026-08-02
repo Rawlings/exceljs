@@ -123,13 +123,14 @@ describe('WorkbookReader', () => {
   });
 
   describe('edit styles in existing file', () => {
-    beforeEach(function (this: any) {
-      this.wb = new ExcelJS.Workbook();
-      return this.wb.xlsx.readFile('./fixtures/xlsx/test-row-styles.xlsx');
+    let wb: any;
+    beforeEach(async () => {
+      wb = new ExcelJS.Workbook();
+      await wb.xlsx.readFile('./fixtures/xlsx/test-row-styles.xlsx');
     });
 
-    it('edit styles of single row instead of all', function (this: any) {
-      const ws = this.wb.getWorksheet(1);
+    it('edit styles of single row instead of all', () => {
+      const ws = wb.getWorksheet(1);
 
       ws.eachRow((row: any, rowNo: any) => {
         if (rowNo % 5 === 0) {
@@ -256,26 +257,25 @@ describe('WorkbookReader', () => {
 
   describe('with a spreadsheet that contains images', () => {
     let worksheet: any;
-    beforeAll(async function (this: any) {
+    beforeAll(async () => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.read(fs.createReadStream('./fixtures/xlsx/images.xlsx'));
       worksheet = workbook.getWorksheet();
-      this.worksheet = worksheet;
     });
 
     describe('with image`s tl anchor', () => {
-      it('Should integer part of col equals nativeCol', function (this: any) {
-        this.worksheet.getImages().forEach((image: any) => {
+      it('Should integer part of col equals nativeCol', () => {
+        worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.tl.col)).to.equal(image.range.tl.nativeCol);
         });
       });
-      it('Should integer part of row equals nativeRow', function (this: any) {
-        this.worksheet.getImages().forEach((image: any) => {
+      it('Should integer part of row equals nativeRow', () => {
+        worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.tl.row)).to.equal(image.range.tl.nativeRow);
         });
       });
-      it('Should anchor width equals to column width when custom', function (this: any) {
-        const ws = this.worksheet;
+      it('Should anchor width equals to column width when custom', () => {
+        const ws = worksheet;
 
         ws.getImages().forEach((image: any) => {
           const col = ws.getColumn(image.range.tl.nativeCol + 1);
@@ -287,8 +287,8 @@ describe('WorkbookReader', () => {
           }
         });
       });
-      it('Should anchor height equals to row height', function (this: any) {
-        const ws = this.worksheet;
+      it('Should anchor height equals to row height', () => {
+        const ws = worksheet;
 
         ws.getImages().forEach((image: any) => {
           const row = ws.getRow(image.range.tl.nativeRow + 1);
@@ -303,18 +303,18 @@ describe('WorkbookReader', () => {
     });
 
     describe('with image`s br anchor', () => {
-      it('Should integer part of col equals nativeCol', function (this: any) {
-        this.worksheet.getImages().forEach((image: any) => {
+      it('Should integer part of col equals nativeCol', () => {
+        worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.br.col)).to.equal(image.range.br.nativeCol);
         });
       });
-      it('Should integer part of row equals nativeRow', function (this: any) {
-        this.worksheet.getImages().forEach((image: any) => {
+      it('Should integer part of row equals nativeRow', () => {
+        worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.br.row)).to.equal(image.range.br.nativeRow);
         });
       });
-      it('Should anchor width equals to column width when custom', function (this: any) {
-        const ws = this.worksheet;
+      it('Should anchor width equals to column width when custom', () => {
+        const ws = worksheet;
 
         ws.getImages().forEach((image: any) => {
           const col = ws.getColumn(image.range.br.nativeCol + 1);
@@ -326,8 +326,8 @@ describe('WorkbookReader', () => {
           }
         });
       });
-      it('Should anchor height equals to row height', function (this: any) {
-        const ws = this.worksheet;
+      it('Should anchor height equals to row height', () => {
+        const ws = worksheet;
 
         ws.getImages().forEach((image: any) => {
           const row = ws.getRow(image.range.br.nativeRow + 1);

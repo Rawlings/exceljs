@@ -4,15 +4,24 @@ export function toU8(data: Uint8Array | ArrayBuffer | Buffer | string): Uint8Arr
   if (typeof data === 'string') {
     return fflate.strToU8(data);
   }
+  if (data instanceof Uint8Array) {
+    return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+  }
   if (data instanceof ArrayBuffer) {
     return new Uint8Array(data);
   }
-  const clean = new Uint8Array(data.byteLength);
-  clean.set(data);
-  return clean;
+  return new Uint8Array(0);
 }
 
 export function unzip(input: Uint8Array | Buffer | ArrayBuffer): Record<string, Buffer> {
+  if (
+    !input ||
+    (typeof input !== 'string' && !(input instanceof Uint8Array) && !(input instanceof ArrayBuffer))
+  ) {
+    throw new Error(
+      "Can't read the data of 'the loaded zip file'. Is it in a supported JavaScript type (String, Blob, ArrayBuffer, etc) ?"
+    );
+  }
   const u8 = toU8(input);
   const unzipped = fflate.unzipSync(u8);
   const result: Record<string, Buffer> = {};

@@ -63,19 +63,19 @@ class IconSetExtXform extends CompositeXform {
     };
   }
 
-  override onParserClose(name: string, parser: { model: any }) {
+  override onParserClose(name: string, parser: { model: unknown }) {
     const [, prop] = name.split(':');
     const model = this.model;
     switch (prop) {
       case 'cfvo':
-        model.cfvo.push(parser.model);
+        model.cfvo.push(parser.model as CfvoExtModel);
         break;
 
       case 'cfIcon':
         if (!model.icons) {
           model.icons = [];
         }
-        model.icons.push(parser.model);
+        model.icons.push(parser.model as CfIconExtModel);
         break;
 
       default:

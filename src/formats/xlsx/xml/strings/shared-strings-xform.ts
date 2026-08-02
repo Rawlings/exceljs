@@ -10,8 +10,8 @@ export interface SharedStringsModel {
 }
 
 class SharedStringsXform extends BaseXform {
-  hash: Record<string, number>;
-  rich: Record<string, number>;
+  hash: Map<string, number>;
+  rich: Map<string, number>;
   _sharedStringXform: SharedStringXform | undefined;
   _values: SharedStringsModel | undefined;
 
@@ -22,8 +22,8 @@ class SharedStringsXform extends BaseXform {
       values: [],
       count: 0,
     };
-    this.hash = Object.create(null);
-    this.rich = Object.create(null);
+    this.hash = new Map<string, number>();
+    this.rich = new Map<string, number>();
   }
 
   get sharedStringXform() {
@@ -54,10 +54,14 @@ class SharedStringsXform extends BaseXform {
 
   addText(value: string): number {
     const model = this.model;
-    let index = this.hash[value];
-    if (index === undefined) {
-      index = this.hash[value] = model.values.length;
+    const existing = this.hash.get(value);
+    let index: number;
+    if (existing === undefined) {
+      index = model.values.length;
+      this.hash.set(value, index);
       model.values.push(value);
+    } else {
+      index = existing;
     }
     model.count++;
     return index;
@@ -67,10 +71,14 @@ class SharedStringsXform extends BaseXform {
     // TODO: add WeakMap here
     const model = this.model;
     const xml = this.sharedStringXform.toXml(value);
-    let index = this.rich[xml];
-    if (index === undefined) {
-      index = this.rich[xml] = model.values.length;
+    const existing = this.rich.get(xml);
+    let index: number;
+    if (existing === undefined) {
+      index = model.values.length;
+      this.rich.set(xml, index);
       model.values.push(value);
+    } else {
+      index = existing;
     }
     model.count++;
     return index;

@@ -33,7 +33,9 @@ class VmlClientDataXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: any) {
-    const { protection, editAs } = model.note;
+    const note = typeof model.note === 'object' ? model.note : model;
+    const protection = note?.protection || {};
+    const editAs = note?.editAs || 'twoCells';
     xmlStream.openNode(this.tag, { ObjectType: 'Note' });
     this.map['x:MoveWithCells'].render(xmlStream, editAs, POSITION_TYPE);
     this.map['x:SizeWithCells'].render(xmlStream, editAs, POSITION_TYPE);
@@ -89,13 +91,15 @@ class VmlClientDataXform extends BaseXform {
   }
 
   normalizeModel() {
-    const position = Object.assign(
-      {},
-      this.map['x:MoveWithCells'].model,
-      this.map['x:SizeWithCells'].model
-    );
-    const len = Object.keys(position).length;
-    this.model.editAs = POSITION_TYPE[len];
+    const hasMove = !!this.map['x:MoveWithCells'].model;
+    const hasSize = !!this.map['x:SizeWithCells'].model;
+    if (hasMove && hasSize) {
+      this.model.editAs = 'twoCells';
+    } else if (hasMove) {
+      this.model.editAs = 'oneCells';
+    } else {
+      this.model.editAs = 'absolute';
+    }
     this.model.anchor = this.map['x:Anchor'].text;
     this.model.protection.locked = this.map['x:Locked'].text;
     this.model.protection.lockText = this.map['x:LockText'].text;

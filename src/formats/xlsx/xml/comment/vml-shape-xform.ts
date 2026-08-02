@@ -4,8 +4,16 @@ import VmlClientDataXform from './vml-client-data-xform';
 import type XmlStream from '../../../../utils/stream/xml-stream';
 import type { SaxNode } from '../base-xform';
 
+export interface VmlShapeModel {
+  note?: { margins?: { insetmode?: unknown; inset?: number[] | string } };
+  margins: { insetmode?: unknown; inset?: unknown };
+  anchor: unknown;
+  editAs: unknown;
+  protection: Record<string, unknown>;
+}
+
 class VmlShapeXform extends BaseXform {
-  static V_SHAPE_ATTRIBUTES: (model: any, index: any) => Record<string, unknown>;
+  static V_SHAPE_ATTRIBUTES: (model: VmlShapeModel, index: number) => Record<string, unknown>;
 
   override map: {
     'v:textbox': VmlTextboxXform;
@@ -24,7 +32,7 @@ class VmlShapeXform extends BaseXform {
     return 'v:shape';
   }
 
-  override render(xmlStream: XmlStream, model: any, index: any) {
+  override render(xmlStream: XmlStream, model: VmlShapeModel, index: number) {
     xmlStream.openNode('v:shape', VmlShapeXform.V_SHAPE_ATTRIBUTES(model, index));
 
     xmlStream.leafNode('v:fill', { color2: 'infoBackground [80]' });
@@ -91,14 +99,14 @@ class VmlShapeXform extends BaseXform {
   }
 }
 
-VmlShapeXform.V_SHAPE_ATTRIBUTES = (model: any, index: any) => ({
+VmlShapeXform.V_SHAPE_ATTRIBUTES = (model: VmlShapeModel, index: number) => ({
   id: `_x0000_s${1025 + index}`,
   type: '#_x0000_t202',
   style:
     'position:absolute; margin-left:105.3pt;margin-top:10.5pt;width:97.8pt;height:59.1pt;z-index:1;visibility:hidden',
   fillcolor: 'infoBackground [80]',
   strokecolor: 'none [81]',
-  'o:insetmode': model.note.margins && model.note.margins.insetmode,
+  'o:insetmode': model.note?.margins && model.note.margins.insetmode,
 });
 
 export default VmlShapeXform;

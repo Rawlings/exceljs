@@ -59,6 +59,9 @@ class DefinedNamesXform extends BaseXform {
 }
 
 function isValidRange(range: string): boolean {
+  if (/\$?\d+:\$?\d+/.test(range) || /\$?[A-Z]+:\$?[A-Z]+/.test(range)) {
+    return true;
+  }
   try {
     colCache.decodeEx(range);
     return true;

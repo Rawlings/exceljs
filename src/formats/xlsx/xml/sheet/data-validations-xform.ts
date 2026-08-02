@@ -61,7 +61,11 @@ function optimiseDataValidations(model: DataValidationsModel) {
     marked: false,
   })).sort((a, b) => _.strcmp(a.address, b.address));
   const dvMap = _.keyBy(dvList, 'address');
-  const matchCol = (addr: any, height: any, col: any) => {
+  const matchCol = (
+    addr: { row: number; col: number; address: string },
+    height: number,
+    col: number
+  ) => {
     for (let i = 0; i < height; i++) {
       const otherAddress = colCache.encodeAddress(addr.row + i, col);
       if (!model[otherAddress] || !_.isEqual(model[addr.address], model[otherAddress])) {
@@ -73,7 +77,7 @@ function optimiseDataValidations(model: DataValidationsModel) {
   return dvList
     .map((dv) => {
       if (!dv.marked) {
-        const addr = colCache.decodeEx(dv.address);
+        const addr = colCache.decodeEx(dv.address) as { row: number; col: number; dimensions?: string; address: string };
         if (addr.dimensions) {
           dvMap[addr.dimensions].marked = true;
           return {

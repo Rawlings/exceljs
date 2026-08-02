@@ -11,7 +11,7 @@ const expectations = [
       return new AppXform();
     },
     preparedModel: { worksheets: [{ name: 'Sheet1' }] },
-    xml: readFileSync(new URL('../../../../../fixtures/xml/app.01.xml', import.meta.url), 'utf8').replace(/\r\n/g, '\n'),
+    xml: readFileSync(new URL('../../../../../../../fixtures/xml/app.01.xml', import.meta.url), 'utf8').replace(/\r\n/g, '\n'),
     tests: ['render', 'renderIn'],
   },
   {
@@ -24,7 +24,7 @@ const expectations = [
       company: 'Cyber Sapiens, Ltd.',
       manager: 'Guyon Roche',
     },
-    xml: readFileSync(new URL('../../../../../fixtures/xml/app.02.xml', import.meta.url), 'utf8').replace(/\r\n/g, '\n'),
+    xml: readFileSync(new URL('../../../../../../../fixtures/xml/app.02.xml', import.meta.url), 'utf8').replace(/\r\n/g, '\n'),
     tests: ['render', 'renderIn'],
   },
 ];

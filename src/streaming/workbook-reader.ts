@@ -82,7 +82,7 @@ export class WorkbookReader extends EventEmitter {
   options: WorkbookStreamReaderOptions;
   styles: StyleManager;
   stream: Readable | undefined;
-  sharedStrings: unknown[];
+  sharedStrings: unknown[] | undefined;
   workbookRels: Record<string, unknown>[] | undefined;
   model: Record<string, unknown>;
   properties: unknown;
@@ -103,7 +103,7 @@ export class WorkbookReader extends EventEmitter {
 
     this.styles = new StyleManager();
     (this.styles as { init(): void }).init();
-    this.sharedStrings = [];
+    this.sharedStrings = undefined;
     this.model = {};
   }
 
@@ -197,8 +197,10 @@ export class WorkbookReader extends EventEmitter {
         default:
           if (entry.path.match(/xl\/worksheets\/sheet\d+[.]xml/)) {
             match = entry.path.match(/xl\/worksheets\/sheet(\d+)[.]xml/);
-            sheetNo = (match as RegExpMatchArray)[1];
-            if (this.sharedStrings && this.workbookRels) {
+            sheetNo = match ? match[1] : '';
+            const hasSharedStrings =
+              this.options.sharedStrings === 'ignore' || !!this.sharedStrings;
+            if (hasSharedStrings && this.workbookRels) {
               yield* this._parseWorksheet(iterateStream(entry), sheetNo);
             } else {
               // create temp file for each worksheet
@@ -361,7 +363,7 @@ export class WorkbookReader extends EventEmitter {
       const value = richText.length > 0 ? { richText } : text;
 
       if (this.options.sharedStrings === 'cache') {
-        this.sharedStrings.push(value);
+        this.sharedStrings?.push(value);
       } else if (this.options.sharedStrings === 'emit') {
         yield { index: index++, text: value };
       }

@@ -24,7 +24,7 @@ class OneCellAnchorXform extends BaseCellAnchorXform {
     return 'xdr:oneCellAnchor';
   }
 
-  override prepare(model: OneCellAnchorModel, options: any) {
+  override prepare(model: OneCellAnchorModel, options: { index: number }) {
     this.map['xdr:pic'].prepare(model.picture as PicModel, options);
   }
 
@@ -58,8 +58,11 @@ class OneCellAnchorXform extends BaseCellAnchorXform {
     }
   }
 
-  override reconcile(model: OneCellAnchorModel, options: any) {
-    model.medium = this.reconcilePicture(model.picture, options);
+  override reconcile(
+    model: OneCellAnchorModel,
+    options: Parameters<OneCellAnchorXform['reconcilePicture']>[1]
+  ) {
+    model.medium = this.reconcilePicture(model.picture as { rId?: string } | undefined, options);
   }
 }
 

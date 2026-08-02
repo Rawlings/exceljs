@@ -105,7 +105,7 @@ class SheetCommentsWriter {
 
     const vmlShapeXform = new VmlShapeXform();
     const vmlXmlStream = new XmlStream();
-    vmlShapeXform.render(vmlXmlStream, comment, index);
+    vmlShapeXform.render(vmlXmlStream, comment as any, index);
     this.vmlStream.write(vmlXmlStream.xml);
   }
 

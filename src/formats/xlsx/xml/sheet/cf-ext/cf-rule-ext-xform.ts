@@ -55,7 +55,7 @@ class CfRuleExtXform extends CompositeXform {
     return false;
   }
 
-  override prepare(model: CfRuleExtModel, _options?: any) {
+  override prepare(model: CfRuleExtModel, _options?: unknown) {
     if (CfRuleExtXform.isExt(model)) {
       model.x14Id = `{${uuidv4()}}`.toUpperCase();
     }
@@ -108,7 +108,7 @@ class CfRuleExtXform extends CompositeXform {
     };
   }
 
-  override onParserClose(_name: string, parser: { model: any }) {
+  override onParserClose(_name: string, parser: { model: unknown }) {
     Object.assign(this.model, parser.model);
   }
 }

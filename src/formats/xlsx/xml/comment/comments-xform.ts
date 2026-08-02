@@ -1,7 +1,12 @@
 import XmlStream from '../../../../utils/stream/xml-stream';
 import BaseXform from '../base-xform';
 import CommentXform from './comment-xform';
+import type { CommentModel } from './comment-xform';
 import type { SaxNode } from '../base-xform';
+
+interface CommentsModel {
+  comments: CommentModel[];
+}
 
 export default class CommentsXform extends BaseXform {
   static COMMENTS_ATTRIBUTES = {

@@ -2,7 +2,12 @@ import XmlStream from '../../../../utils/stream/xml-stream';
 
 import BaseXform from '../base-xform';
 import VmlShapeXform from './vml-shape-xform';
+import type { VmlShapeModel } from './vml-shape-xform';
 import type { SaxNode } from '../base-xform';
+
+export interface VmlNotesModel {
+  comments: VmlShapeModel[];
+}
 
 // This class is (currently) single purposed to insert the triangle
 // drawing icons on commented cells
@@ -24,7 +29,7 @@ class VmlNotesXform extends BaseXform {
     return 'xml';
   }
 
-  override render(xmlStream: XmlStream, model: any) {
+  override render(xmlStream: XmlStream, model: VmlNotesModel) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode(this.tag, VmlNotesXform.DRAWING_ATTRIBUTES);
 
@@ -42,7 +47,7 @@ class VmlNotesXform extends BaseXform {
     xmlStream.leafNode('v:path', { gradientshapeok: 't', 'o:connecttype': 'rect' });
     xmlStream.closeNode();
 
-    model.comments.forEach((item: any, index: any) => {
+    model.comments.forEach((item, index) => {
       this.map['v:shape'].render(xmlStream, item, index);
     });
 
@@ -96,13 +101,18 @@ class VmlNotesXform extends BaseXform {
 
   // NB: this.map only has a 'v:shape' entry — 'xdr:twoCellAnchor'/'xdr:oneCellAnchor'
   // don't exist on it, so this method throws at runtime if ever invoked. Pre-existing
-  // latent bug, left unchanged; using `as any` to preserve the exact runtime behavior.
-  override reconcile(model: any, options: any) {
-    model.anchors.forEach((anchor: any) => {
+  // latent bug, left unchanged; the cast below preserves the exact runtime behavior
+  // without an explicit `any`.
+  override reconcile(model: { anchors: Array<{ br?: unknown }> }, options: unknown) {
+    model.anchors.forEach((anchor) => {
+      const map = this.map as unknown as Record<
+        string,
+        { reconcile(anchor: unknown, options: unknown): void }
+      >;
       if (anchor.br) {
-        (this.map)['xdr:twoCellAnchor'].reconcile(anchor, options);
+        map['xdr:twoCellAnchor'].reconcile(anchor, options);
       } else {
-        (this.map)['xdr:oneCellAnchor'].reconcile(anchor, options);
+        map['xdr:oneCellAnchor'].reconcile(anchor, options);
       }
     });
   }

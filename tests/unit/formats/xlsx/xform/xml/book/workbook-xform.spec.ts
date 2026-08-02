@@ -8,7 +8,7 @@ import book13 from '#fixtures/json/book.1.3.json' with { type: 'json' };
 import book23 from '#fixtures/json/book.2.3.json' with { type: 'json' };
 
 function readXml(name: string): string {
-  return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+  return readFileSync(new URL(`../../../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 }
 
 const expectations = [

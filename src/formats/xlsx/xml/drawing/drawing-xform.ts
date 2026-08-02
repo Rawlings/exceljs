@@ -14,15 +14,15 @@ export interface DrawingModel {
 
 function getAnchorType(model: AnchorModel) {
   const range =
-    typeof model.range === 'string' ? colCache.decode(model.range) : (model.range);
+    typeof model.range === 'string' ? colCache.decode(model.range) : model.range;
 
-  return range.br ? 'xdr:twoCellAnchor' : 'xdr:oneCellAnchor';
+  return (range as { br?: unknown } | undefined)?.br ? 'xdr:twoCellAnchor' : 'xdr:oneCellAnchor';
 }
 
 class DrawingXform extends BaseXform {
   static DRAWING_ATTRIBUTES: Record<string, string>;
 
-  constructor(_options?: any) {
+  constructor(_options?: unknown) {
     super();
 
     this.map = {
@@ -100,9 +100,9 @@ class DrawingXform extends BaseXform {
     }
   }
 
-  override reconcile(model: DrawingModel, options: any) {
+  override reconcile(model: DrawingModel, options: unknown) {
     model.anchors.forEach((anchor: AnchorModel) => {
-      if ((anchor).br) {
+      if ((anchor as { br?: unknown }).br) {
         this.map['xdr:twoCellAnchor'].reconcile(anchor, options);
       } else {
         this.map['xdr:oneCellAnchor'].reconcile(anchor, options);

@@ -22,10 +22,10 @@ export interface PageSetupModel {
   copies?: number;
 }
 
-function booleanToXml(model: any) {
+function booleanToXml(model: unknown) {
   return model ? '1' : undefined;
 }
-function pageOrderToXml(model: any) {
+function pageOrderToXml(model: string | undefined) {
   switch (model) {
     case 'overThenDown':
       return model;
@@ -33,7 +33,7 @@ function pageOrderToXml(model: any) {
       return undefined;
   }
 }
-function cellCommentsToXml(model: any) {
+function cellCommentsToXml(model: string | undefined) {
   switch (model) {
     case 'atEnd':
     case 'asDisplyed':
@@ -42,7 +42,7 @@ function cellCommentsToXml(model: any) {
       return undefined;
   }
 }
-function errorsToXml(model: any) {
+function errorsToXml(model: string | undefined) {
   switch (model) {
     case 'dash':
     case 'blank':
@@ -52,7 +52,7 @@ function errorsToXml(model: any) {
       return undefined;
   }
 }
-function pageSizeToModel(value: any) {
+function pageSizeToModel(value: string | undefined) {
   return value !== undefined ? parseInt(value, 10) : undefined;
 }
 
@@ -81,7 +81,7 @@ class PageSetupXform extends BaseXform {
         usePrinterDefaults: booleanToXml(model.usePrinterDefaults),
         copies: model.copies,
       };
-      if (_.some(attributes, (value: any) => value !== undefined)) {
+      if (_.some(attributes, (value) => value !== undefined)) {
         xmlStream.leafNode(this.tag, attributes);
       }
     }

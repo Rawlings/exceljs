@@ -29,7 +29,7 @@ function normalizeXml(xml: string): string {
 }
 
 function readXml(name: string): string {
-  return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8');
+  return readFileSync(new URL(`../../../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8');
 }
 
 const expectations = [

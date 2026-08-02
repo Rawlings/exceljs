@@ -123,8 +123,15 @@ export class WorkbookWriter {
   _openStream(path: string): PassThrough {
     const cleanPath = typeof path === 'string' ? path.replace(/^\//, '') : path;
     const stream = new PassThrough();
-    this.zip.append(buffer(stream), { name: cleanPath });
-    stream.on('finish', () => {
+    const bufPromise = buffer(stream);
+    const appendPromise = this.zip.append(bufPromise, { name: cleanPath });
+    stream.on('finish', async () => {
+      try {
+        await bufPromise;
+        await appendPromise;
+      } catch (err) {
+        // ignore or handle error
+      }
       stream.emit('zipped');
     });
     return stream;
@@ -132,6 +139,9 @@ export class WorkbookWriter {
 
   _commitWorksheets() {
     const commitWorksheet = function (worksheet: WorksheetWriter) {
+      if (!worksheet) {
+        return Promise.resolve();
+      }
       if (!(worksheet as { committed: boolean }).committed) {
         return new Promise<void>((resolve) => {
           (worksheet as { stream: { on(e: string, cb: () => void): void } }).stream.on(

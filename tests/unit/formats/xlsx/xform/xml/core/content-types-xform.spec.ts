@@ -5,7 +5,7 @@ import testXformHelper from '../test-xform-helper';
 import ContentTypesXform from '../../../../../../../src/formats/xlsx/xml/core/content-types-xform';
 
 function readXml(name: string): string {
-  return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+  return readFileSync(new URL(`../../../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 }
 
 const expectations = [

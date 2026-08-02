@@ -1,19 +1,17 @@
 import BaseXform from './base-xform';
 import XmlStream from '../../../utils/stream/xml-stream';
 
-// const model = {
-//   tag: 'name',
-//   $: {attr: 'value'},
-//   c: [
-//     { tag: 'child' }
-//   ],
-//   t: 'some text'
-// };
+export interface StaticNode {
+  tag: string;
+  $?: Record<string, unknown>;
+  c?: StaticNode[];
+  t?: string;
+}
 
-function build(xmlStream: any, model: any) {
+function build(xmlStream: XmlStream, model: StaticNode) {
   xmlStream.openNode(model.tag, model.$);
   if (model.c) {
-    model.c.forEach((child: any) => {
+    model.c.forEach((child) => {
       build(xmlStream, child);
     });
   }
@@ -24,10 +22,10 @@ function build(xmlStream: any, model: any) {
 }
 
 class StaticXform extends BaseXform {
-  declare _model: any;
-  _xml: any;
+  declare _model: StaticNode | undefined;
+  _xml: string | undefined;
 
-  constructor(model?: any) {
+  constructor(model?: StaticNode) {
     super();
 
     // This class is an optimisation for static (unimportant and unchanging) xml
@@ -39,10 +37,10 @@ class StaticXform extends BaseXform {
     this._model = model;
   }
 
-  render(xmlStream: any) {
+  override render(xmlStream: XmlStream) {
     if (!this._xml) {
       const stream = new XmlStream();
-      build(stream, this._model);
+      build(stream, this._model as StaticNode);
       this._xml = stream.xml;
     }
     xmlStream.writeXml(this._xml);
@@ -57,15 +55,15 @@ class StaticXform extends BaseXform {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override set model(_val: any) {}
+  override set model(_val: unknown) {}
 
-  parseOpen() {
+  override parseOpen() {
     return true;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
+  override parseClose(name: string) {
     switch (name) {
       case this._model?.tag:
         return false;
