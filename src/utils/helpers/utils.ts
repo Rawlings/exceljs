@@ -133,8 +133,8 @@ const utils = {
 
   toSortedArray<T>(values: Iterable<T>): T[] {
     const result = Array.from(values);
-    if (result.every((item) => Number.isFinite(item as unknown as number))) {
-      return result.sort((a, b) => (a as unknown as number) - (b as unknown as number));
+    if (result.every((item) => Number.isFinite(item as number))) {
+      return result.sort((a, b) => (a as number) - (b as number));
     }
     return result.sort();
   },

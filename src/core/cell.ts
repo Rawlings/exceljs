@@ -5,7 +5,7 @@ import Enums from './enums';
 import { slideFormula } from '../utils/data/shared-formula';
 import Note from './note';
 import type { NoteModel } from './note';
-import type { RowLike, ColumnLike, FullAddress } from './internal-types';
+import type { RowLike, ColumnLike } from './internal-types';
 import type { DataValidation } from './data-validations';
 
 export type FillPatterns =
@@ -280,26 +280,30 @@ export class Cell {
     // TODO: lazy evaluation of this._value
     this._value = Value.create(Cell.Types.Null, this);
 
-    this.style = this._mergeStyle(row.style, column.style, {});
+    this.style = this._mergeStyle(
+      (row.style || {}) as Record<string, unknown>,
+      (column.style || {}) as Record<string, unknown>,
+      {}
+    );
 
     this._mergeCount = 0;
   }
 
   get worksheet() {
-    return (this._row as unknown as { worksheet: unknown }).worksheet;
+    return this._row.worksheet;
   }
 
   get workbook() {
-    return (this._row as unknown as { worksheet: { workbook: unknown } }).worksheet.workbook;
+    return this.worksheet.workbook;
   }
 
   get sheetName() {
-    return (this._row as unknown as { worksheet: { name: string } })?.worksheet?.name || '';
+    return this.worksheet.name;
   }
 
   // help GC by removing cyclic (and other) references
   destroy() {
-    const self = this as unknown as Record<string, unknown>;
+    const self = this as Record<string, unknown>;
     delete self.style;
     delete self._value;
     delete self._row;
@@ -402,7 +406,7 @@ export class Cell {
   }
 
   get $col$row() {
-    return `$${(this._column as unknown as { letter: string }).letter}$${this.row}`;
+    return `$${this._column.letter}$${this.row}`;
   }
 
   // =========================================================================
@@ -447,7 +451,11 @@ export class Cell {
     if (this.type === Cell.Types.Merge) {
       this._value.release();
       this._value = Value.create(Cell.Types.Null, this);
-      this.style = this._mergeStyle(this._row.style, this._column.style, {});
+      this.style = this._mergeStyle(
+        (this._row.style || {}) as Record<string, unknown>,
+        (this._column.style || {}) as Record<string, unknown>,
+        {}
+      );
     }
   }
 
@@ -537,7 +545,7 @@ export class Cell {
   // =========================================================================
   // Name stuff
   get fullAddress() {
-    const { worksheet } = this._row as unknown as { worksheet: { name: string } };
+    const { worksheet } = this._row;
     return {
       sheetName: worksheet.name,
       address: this.address,
@@ -555,20 +563,11 @@ export class Cell {
   }
 
   get names() {
-    return (
-      this.workbook as {
-        definedNames: { getNamesEx(address: FullAddress): string[] };
-      }
-    ).definedNames.getNamesEx(this.fullAddress);
+    return this.workbook.definedNames.getNamesEx(this.fullAddress);
   }
 
   set names(value: string[]) {
-    const { definedNames } = this.workbook as {
-      definedNames: {
-        removeAllNames(address: FullAddress): void;
-        addEx(address: FullAddress, name: string): void;
-      };
-    };
+    const { definedNames } = this.workbook;
     definedNames.removeAllNames(this.fullAddress);
     value.forEach((name: string) => {
       definedNames.addEx(this.fullAddress, name);
@@ -576,30 +575,21 @@ export class Cell {
   }
 
   addName(name: string) {
-    (
-      this.workbook as { definedNames: { addEx(a: FullAddress, n: string): void } }
-    ).definedNames.addEx(this.fullAddress, name);
+    this.workbook.definedNames.addEx(this.fullAddress, name);
   }
 
   removeName(name: string) {
-    (
-      this.workbook as { definedNames: { removeEx(a: FullAddress, n: string): void } }
-    ).definedNames.removeEx(this.fullAddress, name);
+    this.workbook.definedNames.removeEx(this.fullAddress, name);
   }
 
   removeAllNames() {
-    (
-      this.workbook as { definedNames: { removeAllNames(a: FullAddress): void } }
-    ).definedNames.removeAllNames(this.fullAddress);
+    this.workbook.definedNames.removeAllNames(this.fullAddress);
   }
 
   // =========================================================================
   // Data Validation stuff
   get _dataValidations() {
-    return (this.worksheet as { dataValidations: unknown }).dataValidations as {
-      find(address: string): unknown;
-      add(address: string, validation: unknown): unknown;
-    };
+    return this.worksheet.dataValidations;
   }
 
   get dataValidation() {
@@ -617,9 +607,9 @@ export class Cell {
     const { model } = this._value;
     model.style = this.style;
     if (this._comment) {
-      model.comment = (this._comment as unknown as { model: unknown }).model;
+      model.comment = this._comment.model;
     }
-    return model as unknown as CellModel;
+    return model;
   }
 
   set model(value: CellModel | CellValueModel) {
@@ -631,7 +621,7 @@ export class Cell {
       const comment = value.comment as { type: string };
       switch (comment.type) {
         case 'note':
-          this._comment = Note.fromModel(comment as unknown as NoteModel);
+          this._comment = Note.fromModel(comment as NoteModel);
           break;
       }
     }
@@ -643,7 +633,6 @@ export class Cell {
     }
   }
 }
-Cell.Types = Enums.ValueType as unknown as Record<string, number>;
 
 // =============================================================================
 // Internal Value Types
@@ -1197,7 +1186,7 @@ class FormulaValue implements CellValueImpl {
 
   _getTranslatedFormula(): string | undefined {
     if (!this._translatedFormula && this.model.sharedFormula) {
-      const { worksheet } = this.cell as unknown as {
+      const { worksheet } = this.cell as {
         worksheet: { findCell(address: string): { formula: string; address: string } | undefined };
       };
       const master = worksheet.findCell(this.model.sharedFormula as string);
@@ -1465,7 +1454,7 @@ const Value = {
     { t: Cell.Types.Boolean, f: BooleanValue },
     { t: Cell.Types.Error, f: ErrorValue },
   ].reduce((p: Record<string, ValueCtor>, t) => {
-    p[t.t as unknown as string] = t.f as unknown as ValueCtor;
+    p[t.t as unknown as string] = t.f as ValueCtor;
     return p;
   }, {}),
 

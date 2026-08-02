@@ -36,7 +36,7 @@ export interface StylesModel {
   fonts: (string | Record<string, unknown>)[];
   borders: (string | BorderModel)[];
   fills: (string | FillModel)[];
-  dxfs: unknown[];
+  dxfs?: unknown[];
 }
 
 interface StylesIndex {
@@ -267,8 +267,8 @@ class StylesXform extends BaseXform {
 
         // index numFmts
         this.index = {
-          model: [] as unknown as Record<number, Record<string, unknown>>,
-          numFmt: [] as unknown as Record<string | number, string | number>,
+          model: {} as Record<number, Record<string, unknown>>,
+          numFmt: {} as Record<string | number, string | number>,
         } as StylesIndex;
         if (this.model.numFmts) {
           const numFmtIndex = this.index.numFmt;
@@ -544,7 +544,7 @@ class StylesXformMock extends StylesXform {
         { type: 'pattern', pattern: 'none' },
         { type: 'pattern', pattern: 'gray125' },
       ],
-    } as unknown as StylesModel;
+    } as StylesModel;
   }
 
   // =========================================================================
@@ -574,7 +574,7 @@ class StylesXformMock extends StylesXform {
         numFmtId: NumFmtXform.getDefaultFmtId('mm-dd-yy'),
       };
       this._dateStyleId = this.model.styles.length;
-      this.model.styles.push(dateStyle as unknown as StyleXfModel);
+      this.model.styles.push(dateStyle as StyleXfModel);
     }
     return this._dateStyleId as number;
   }

@@ -40,14 +40,14 @@ interface HyperlinkRelationship {
 
 export interface HyperlinkReaderOptions {
   workbook?: unknown;
-  id?: number;
+  id?: number | string;
   iterator?: AsyncIterable<unknown>;
   options?: { hyperlinks?: string; [key: string]: unknown };
 }
 
 class HyperlinkReader extends EventEmitter {
   workbook: unknown;
-  id: number;
+  id: number | string;
   iterator: AsyncIterable<unknown>;
   options: { hyperlinks?: string; [key: string]: unknown };
   hyperlinks: Record<string, HyperlinkRelationship> | null;

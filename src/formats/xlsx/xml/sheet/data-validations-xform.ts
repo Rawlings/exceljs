@@ -19,6 +19,7 @@ export interface DataValidationModel {
   errorTitle?: string;
   error?: string;
   sqref?: string;
+  [key: string]: unknown;
 }
 
 export type DataValidationsModel = Record<string, DataValidationModel>;
@@ -198,25 +199,10 @@ class DataValidationsXform extends BaseXform {
         const dataValidation: DataValidationModel = { type: attrs.type || 'any', formulae: [] };
 
         if (attrs.type) {
-          assignBool(
-            dataValidation as unknown as Record<string, unknown>,
-            attrs,
-            'allowBlank',
-            undefined
-          );
+          assignBool(dataValidation as Record<string, unknown>, attrs, 'allowBlank', undefined);
         }
-        assignBool(
-          dataValidation as unknown as Record<string, unknown>,
-          attrs,
-          'showInputMessage',
-          undefined
-        );
-        assignBool(
-          dataValidation as unknown as Record<string, unknown>,
-          attrs,
-          'showErrorMessage',
-          undefined
-        );
+        assignBool(dataValidation as Record<string, unknown>, attrs, 'showInputMessage', undefined);
+        assignBool(dataValidation as Record<string, unknown>, attrs, 'showErrorMessage', undefined);
 
         switch (dataValidation.type) {
           case 'any':
@@ -224,34 +210,14 @@ class DataValidationsXform extends BaseXform {
           case 'custom':
             break;
           default:
-            assign(
-              dataValidation as unknown as Record<string, unknown>,
-              attrs,
-              'operator',
-              'between'
-            );
+            assign(dataValidation as Record<string, unknown>, attrs, 'operator', 'between');
             break;
         }
-        assign(
-          dataValidation as unknown as Record<string, unknown>,
-          attrs,
-          'promptTitle',
-          undefined
-        );
-        assign(dataValidation as unknown as Record<string, unknown>, attrs, 'prompt', undefined);
-        assign(
-          dataValidation as unknown as Record<string, unknown>,
-          attrs,
-          'errorStyle',
-          undefined
-        );
-        assign(
-          dataValidation as unknown as Record<string, unknown>,
-          attrs,
-          'errorTitle',
-          undefined
-        );
-        assign(dataValidation as unknown as Record<string, unknown>, attrs, 'error', undefined);
+        assign(dataValidation as Record<string, unknown>, attrs, 'promptTitle', undefined);
+        assign(dataValidation as Record<string, unknown>, attrs, 'prompt', undefined);
+        assign(dataValidation as Record<string, unknown>, attrs, 'errorStyle', undefined);
+        assign(dataValidation as Record<string, unknown>, attrs, 'errorTitle', undefined);
+        assign(dataValidation as Record<string, unknown>, attrs, 'error', undefined);
 
         this._dataValidation = dataValidation;
         return true;

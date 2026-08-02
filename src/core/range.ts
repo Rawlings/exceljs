@@ -36,7 +36,7 @@ export class Range {
         left: Math.min(tl.col, br.col),
         bottom: Math.max(tl.row, br.row),
         right: Math.max(tl.col, br.col),
-        sheetName: b as unknown as string | undefined,
+        sheetName: b as string | undefined,
       };
 
       this.setTLBR(tl.row, tl.col, br.row, br.col, s);

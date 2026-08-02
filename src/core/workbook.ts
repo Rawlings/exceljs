@@ -169,7 +169,9 @@ export class Workbook implements WorkbookLike {
   }
 
   removeWorksheetEx(worksheet: Worksheet | WorksheetLike) {
-    delete this._worksheets[worksheet.id];
+    if (worksheet.id !== undefined) {
+      delete this._worksheets[worksheet.id as unknown as number];
+    }
   }
 
   removeWorksheet(id: number | string) {
@@ -247,7 +249,7 @@ export class Workbook implements WorkbookLike {
         string,
         unknown
       >[],
-      definedNames: (this._definedNames as unknown as { model: unknown }).model,
+      definedNames: this._definedNames.model,
       views: this.views,
       company: this.company,
       manager: this.manager,
@@ -296,12 +298,12 @@ export class Workbook implements WorkbookLike {
         name,
         orderNo,
         state,
-        workbook: this as unknown as WorkbookLike,
+        workbook: this as WorkbookLike,
       }));
-      (worksheet as unknown as { model: unknown }).model = worksheetModel;
+      (worksheet as { model: unknown }).model = worksheetModel;
     });
 
-    (this._definedNames as unknown as { model: unknown }).model = value.definedNames;
+    (this._definedNames as { model: unknown }).model = value.definedNames;
     this.views = value.views;
     this._themes = value.themes;
     this.media = value.media || [];

@@ -102,7 +102,7 @@ export class WorkbookReader extends EventEmitter {
     };
 
     this.styles = new StyleManager();
-    (this.styles as unknown as { init(): void }).init();
+    (this.styles as { init(): void }).init();
     this.sharedStrings = [];
     this.model = {};
   }
@@ -166,7 +166,7 @@ export class WorkbookReader extends EventEmitter {
     })[] = [];
     for (const [path, buf] of Object.entries(files)) {
       if (path.endsWith('/')) continue;
-      const entry = Readable.from(buf) as unknown as Readable & { path: string };
+      const entry = Readable.from(buf) as Readable & { path: string };
       entry.path = path;
       entries.push(entry as never);
     }
@@ -216,7 +216,7 @@ export class WorkbookReader extends EventEmitter {
 
                 const tempStream = fs.createWriteStream(tempPath);
                 tempStream.on('error', reject);
-                (entry as unknown as { pipe(dst: unknown): void }).pipe(tempStream);
+                (entry as { pipe(dst: unknown): void }).pipe(tempStream);
                 return tempStream.on('finish', () => {
                   return resolve(undefined);
                 });
@@ -261,8 +261,8 @@ export class WorkbookReader extends EventEmitter {
     const workbook = new WorkbookXform();
     await workbook.parseStream(iterateStream(entry as AsyncIterable<unknown>));
 
-    this.properties = (workbook as unknown as { map: { workbookPr: unknown } }).map.workbookPr;
-    this.model = (workbook as unknown as { model: Record<string, unknown> }).model;
+    this.properties = (workbook as { map: { workbookPr: unknown } }).map.workbookPr;
+    this.model = (workbook as { model: Record<string, unknown> }).model;
   }
 
   async *_parseSharedStrings(entry: unknown) {
@@ -372,16 +372,16 @@ export class WorkbookReader extends EventEmitter {
     this._emitEntry({ type: 'styles' });
     if (this.options.styles === 'cache') {
       this.styles = new StyleManager();
-      await (
-        this.styles as unknown as { parseStream(i: AsyncIterable<unknown>): Promise<void> }
-      ).parseStream(iterateStream(entry as AsyncIterable<unknown>));
+      await (this.styles as { parseStream(i: AsyncIterable<unknown>): Promise<void> }).parseStream(
+        iterateStream(entry as AsyncIterable<unknown>)
+      );
     }
   }
 
   *_parseWorksheet(iterator: AsyncIterable<unknown>, sheetNo: string): Generator<ParseEvent> {
     this._emitEntry({ type: 'worksheet', id: sheetNo });
     const worksheetReader = new WorksheetReader({
-      workbook: this as unknown as WorksheetReaderOptions['workbook'],
+      workbook: this as WorksheetReaderOptions['workbook'],
       id: sheetNo,
       iterator,
       options: this.options,
@@ -409,7 +409,7 @@ export class WorkbookReader extends EventEmitter {
     this._emitEntry({ type: 'hyperlinks', id: sheetNo });
     const hyperlinksReader = new HyperlinkReader({
       workbook: this,
-      id: sheetNo as unknown as number,
+      id: sheetNo,
       iterator,
       options: this.options,
     });

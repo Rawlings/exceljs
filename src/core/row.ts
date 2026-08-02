@@ -31,7 +31,7 @@ export class Row implements RowLike {
   style: Partial<Style>;
   _hidden: boolean | undefined;
   _outlineLevel: number | undefined;
-  height: number | undefined;
+  _height: number | undefined;
 
   constructor(worksheet: WorksheetLike, number: number) {
     this._worksheet = worksheet;
@@ -53,12 +53,12 @@ export class Row implements RowLike {
   // Inform Streaming Writer that this row (and all rows before it) are complete
   // and ready to write. Has no effect on Worksheet document
   commit() {
-    (this._worksheet as unknown as { _commitRow(row: Row): void })._commitRow(this); // eslint-disable-line no-underscore-dangle
+    this._worksheet._commitRow?.(this); // eslint-disable-line no-underscore-dangle
   }
 
   // helps GC by breaking cyclic references
   destroy() {
-    const self = this as unknown as Record<string, unknown>;
+    const self = this as Record<string, unknown>;
     delete self._worksheet;
     delete self._cells;
     delete self.style;
@@ -72,11 +72,11 @@ export class Row implements RowLike {
   getCellEx(address: { col: number; row: number; address: string }): Cell {
     let cell = this._cells[address.col - 1];
     if (!cell) {
-      const column = this._worksheet.getColumn(address.col);
-      cell = new Cell(this, column, address.address) as unknown as CellLike;
+      const column = this._worksheet.getColumn?.(address.col);
+      cell = new Cell(this, column, address.address) as CellLike;
       this._cells[address.col - 1] = cell;
     }
-    return cell as unknown as Cell;
+    return cell as Cell;
   }
 
   // get cell by key, letter or column number
@@ -84,17 +84,17 @@ export class Row implements RowLike {
     if (typeof col === 'number') {
       let cell = this._cells[col - 1];
       if (!cell) {
-        const column = this._worksheet.getColumn(col);
+        const column = this._worksheet.getColumn?.(col);
         const address = colCache.encodeAddress(this._number, col);
-        cell = new Cell(this, column, address) as unknown as CellLike;
+        cell = new Cell(this, column, address) as CellLike;
         this._cells[col - 1] = cell;
       }
-      return cell as unknown as Cell;
+      return cell as Cell;
     }
 
     if (typeof col === 'string') {
       const colOption = (
-        this._worksheet as unknown as { getColumn(key: number | string): { number: number } }
+        this._worksheet as { getColumn(key: number | string): { number: number } }
       ).getColumn(col);
       if (colOption) {
         return this.getCell(colOption.number);
@@ -122,7 +122,7 @@ export class Row implements RowLike {
         if (cSrc) {
           cDst = this.getCell(i);
           cDst.value = cSrc.value;
-          cDst.style = cSrc.style;
+          cDst.style = cSrc.style as Partial<Style>;
           // eslint-disable-next-line no-underscore-dangle
           cDst._comment = cSrc._comment;
         } else if (cDst) {
@@ -139,7 +139,7 @@ export class Row implements RowLike {
         if (cSrc) {
           cDst = this.getCell(i + nExpand);
           cDst.value = cSrc.value;
-          cDst.style = cSrc.style;
+          cDst.style = cSrc.style as Partial<Style>;
           // eslint-disable-next-line no-underscore-dangle
           cDst._comment = cSrc._comment;
         } else {
@@ -232,7 +232,7 @@ export class Row implements RowLike {
       });
     } else {
       // assume object with column keys
-      this._worksheet.eachColumnKey((column, key) => {
+      this._worksheet.eachColumnKey?.((column, key) => {
         if (value[key] !== undefined) {
           this.getCellEx({
             address: colCache.encodeAddress(this._number, column.number),
@@ -242,6 +242,14 @@ export class Row implements RowLike {
         }
       });
     }
+  }
+
+  get height() {
+    return this._height;
+  }
+
+  set height(value: number | undefined) {
+    this._height = value;
   }
 
   // returns true if the row includes at least one cell with a value
@@ -292,7 +300,7 @@ export class Row implements RowLike {
     (this.style as Record<string, unknown>)[name] = value;
     this._cells.forEach((cell) => {
       if (cell) {
-        (cell as unknown as Record<string, unknown>)[name] = value;
+        (cell as Record<string, unknown>)[name] = value;
       }
     });
     return value;
@@ -364,7 +372,7 @@ export class Row implements RowLike {
 
   get collapsed() {
     return !!(
-      this._outlineLevel && this._outlineLevel >= this._worksheet.properties.outlineLevelRow
+      this._outlineLevel && this._outlineLevel >= (this._worksheet.properties?.outlineLevelRow ?? 0)
     );
   }
 
@@ -375,7 +383,7 @@ export class Row implements RowLike {
     let max = 0;
     this._cells.forEach((cell) => {
       if (cell) {
-        const cellModel = (cell as unknown as { model: Record<string, unknown> }).model;
+        const cellModel = cell.model;
         if (cellModel) {
           if (!min || min > cell.col) {
             min = cell.col;
@@ -411,7 +419,7 @@ export class Row implements RowLike {
     let previousAddress: { row: number; col: number; address: string } | undefined;
     value.cells.forEach((cellModel: Record<string, unknown>) => {
       switch (cellModel.type) {
-        case (Cell as unknown as { Types: Record<string, unknown> }).Types.Merge:
+        case (Cell as { Types: Record<string, unknown> }).Types.Merge:
           // special case - don't add this types
           break;
         default: {
@@ -428,11 +436,11 @@ export class Row implements RowLike {
               col,
               address: colCache.encodeAddress(row, col),
               $col$row: `$${colCache.n2l(col)}$${row}`,
-            } as unknown as { row: number; col: number; address: string };
+            } as { row: number; col: number; address: string };
           }
           previousAddress = address;
           const cell = this.getCellEx(address as { col: number; row: number; address: string });
-          (cell as unknown as { model: unknown }).model = cellModel;
+          (cell as { model: unknown }).model = cellModel;
           break;
         }
       }

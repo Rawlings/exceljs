@@ -378,9 +378,9 @@ export class WorksheetReader extends EventEmitter {
               // this assignment already throws a TypeError at runtime in the
               // original code too (classes are always strict mode); preserved
               // verbatim rather than silently fixed during a typing pass.
-              (cell as unknown as CellLike).text = cell.value;
+              (cell as CellLike).text = cell.value;
               cell.value = undefined;
-              (cell as unknown as CellLike).hyperlink = hyperlink;
+              (cell as CellLike).hyperlink = hyperlink;
             }
           }
         }

@@ -6,7 +6,7 @@ import type { SaxNode } from '../../base-xform';
 
 export interface CfvoExtModel {
   type: string;
-  value?: number;
+  value?: number | string;
 }
 
 class CfvoExtXform extends CompositeXform {
@@ -29,7 +29,7 @@ class CfvoExtXform extends CompositeXform {
       type: model.type,
     });
     if (model.value !== undefined) {
-      this.fExtXform.render(xmlStream, model.value as unknown as string);
+      this.fExtXform.render(xmlStream, String(model.value));
     }
     xmlStream.closeNode();
   }

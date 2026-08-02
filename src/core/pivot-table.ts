@@ -6,7 +6,7 @@ const { range, toSortedArray } = utils;
 // bug (calling makePivotTable/validate throws TypeError at runtime today).
 // Preserved verbatim rather than silently fixed during a typing-only pass.
 const objectFromProps: (props: unknown[], value: unknown) => Record<string, unknown> = (
-  utils as unknown as {
+  utils as {
     objectFromProps: (props: unknown[], value: unknown) => Record<string, unknown>;
   }
 ).objectFromProps;
@@ -48,7 +48,7 @@ function makePivotTable(worksheet: WorksheetLike, model: PivotTableModel) {
   validate(worksheet, model);
 
   const { sourceSheet } = model;
-  let { rows, columns, values } = model as unknown as {
+  let { rows, columns, values } = model as {
     rows: unknown[];
     columns: unknown[];
     values: unknown[];
@@ -83,7 +83,7 @@ function makePivotTable(worksheet: WorksheetLike, model: PivotTableModel) {
 }
 
 function validate(worksheet: WorksheetLike, model: PivotTableModel) {
-  if (worksheet.workbook.pivotTables.length === 1) {
+  if (worksheet.workbook?.pivotTables?.length === 1) {
     throw new Error(
       'A pivot table was already added. At this time, ExcelJS supports at most one pivot table per file.'
     );
@@ -93,7 +93,7 @@ function validate(worksheet: WorksheetLike, model: PivotTableModel) {
     throw new Error('Only the "sum" metric is supported at this time.');
   }
 
-  const headerNames = (model.sourceSheet as unknown as { getRow(n: number): { values: unknown[] } })
+  const headerNames = (model.sourceSheet as { getRow(n: number): { values: unknown[] } })
     .getRow(1)
     .values.slice(1);
   const isInHeaderNames = objectFromProps(headerNames, true);
@@ -147,15 +147,12 @@ function makeCacheFields(
   //    { name: 'E', sharedItems: null }
   //  ]
 
-  const names = (worksheet as unknown as { getRow(n: number): { values: unknown[] } }).getRow(
-    1
-  ).values;
+  const names = (worksheet as { getRow(n: number): { values: unknown[] } }).getRow(1).values;
   const nameToHasSharedItems = objectFromProps(fieldNamesWithSharedItems, true);
 
   const aggregate = (columnIndex: number) => {
-    const columnValues = (worksheet.getColumn(columnIndex) as { values: unknown[] }).values.splice(
-      2
-    );
+    const rawValues = (worksheet.getColumn?.(columnIndex) as { values?: unknown[] })?.values || [];
+    const columnValues = rawValues.slice(2);
     const columnValuesAsSet = new Set(columnValues);
     return toSortedArray(columnValuesAsSet);
   };

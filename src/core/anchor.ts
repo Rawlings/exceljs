@@ -84,7 +84,7 @@ export class Anchor implements IAnchor {
     // from `model`. Not fixing here; a typing pass must not change behavior.
     return model instanceof Anchor || model === null || model === undefined
       ? model
-      : new Anchor(model as unknown as AnchorWorksheet);
+      : new Anchor(model as AnchorWorksheet);
   }
 
   get col() {

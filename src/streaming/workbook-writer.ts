@@ -89,7 +89,7 @@ export class WorkbookWriter {
     // style manager
     this.styles = options.useStyles
       ? new StylesXform(true)
-      : new (StylesXform as unknown as { Mock: new (v: boolean) => StylesXform }).Mock(true);
+      : new (StylesXform as { Mock: new (v: boolean) => StylesXform }).Mock(true);
 
     // defined names
     this._definedNames = new DefinedNames();
@@ -132,9 +132,9 @@ export class WorkbookWriter {
 
   _commitWorksheets() {
     const commitWorksheet = function (worksheet: WorksheetWriter) {
-      if (!(worksheet as unknown as { committed: boolean }).committed) {
+      if (!(worksheet as { committed: boolean }).committed) {
         return new Promise<void>((resolve) => {
-          (worksheet as unknown as { stream: { on(e: string, cb: () => void): void } }).stream.on(
+          (worksheet as { stream: { on(e: string, cb: () => void): void } }).stream.on(
             'zipped',
             () => {
               resolve();
@@ -247,7 +247,7 @@ export class WorkbookWriter {
     }
     if (typeof id === 'string') {
       const byName = this._worksheets.find(
-        (worksheet) => worksheet && (worksheet as unknown as { name: string }).name === id
+        (worksheet) => worksheet && (worksheet as { name: string }).name === id
       );
       if (byName) return byName;
       const num = parseInt(id, 10);
@@ -260,7 +260,7 @@ export class WorkbookWriter {
 
   addStyles() {
     return new Promise<void>((resolve) => {
-      this.zip.append((this.styles as unknown as { xml: unknown }).xml, { name: 'xl/styles.xml' });
+      this.zip.append((this.styles as { xml: unknown }).xml, { name: 'xl/styles.xml' });
       resolve();
     });
   }
@@ -372,11 +372,11 @@ export class WorkbookWriter {
     }
     this._worksheets.forEach((worksheet) => {
       if (worksheet) {
-        (worksheet as unknown as { rId: string }).rId = `rId${count++}`;
+        worksheet.rId = `rId${count++}`;
         relationships.push({
-          Id: (worksheet as unknown as { rId: string }).rId,
+          Id: worksheet.rId,
           Type: RelType.Worksheet,
-          Target: `worksheets/sheet${(worksheet as unknown as { id: number }).id}.xml`,
+          Target: `worksheets/sheet${worksheet.id}.xml`,
         });
       }
     });
@@ -392,7 +392,7 @@ export class WorkbookWriter {
     const { zip } = this;
     const model = {
       worksheets: this._worksheets.filter(Boolean),
-      definedNames: (this._definedNames as unknown as { model: unknown }).model,
+      definedNames: (this._definedNames as { model: unknown }).model,
       views: this.views,
       properties: {},
       calcProperties: {},
@@ -408,9 +408,9 @@ export class WorkbookWriter {
 
   async _finalize() {
     const zipBuffer = await this.zip.generateAsync();
-    if (typeof (this.stream as unknown as { write?: unknown }).write === 'function') {
+    if (typeof (this.stream as { write?: unknown }).write === 'function') {
       await new Promise<void>((resolve, reject) => {
-        const stream = this.stream as unknown as {
+        const stream = this.stream as {
           once(e: 'finish', cb: () => void): void;
           once(e: 'error', cb: (err?: unknown) => void): void;
           write(b: unknown): void;

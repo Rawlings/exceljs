@@ -158,7 +158,7 @@ export class CellMatrix {
     if (create && row) {
       return (row[col] = this.template
         ? (Object.assign(address, structuredClone(this.template)) as MatrixCell)
-        : (address as unknown as MatrixCell));
+        : (address as MatrixCell));
     }
     return undefined;
   }

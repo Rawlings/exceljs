@@ -7,11 +7,12 @@ export interface RelationshipModel {
   Type: string;
   Target: string;
   TargetMode?: string;
+  [key: string]: unknown;
 }
 
 class RelationshipXform extends BaseXform {
   override render(xmlStream: XmlStream, model: RelationshipModel) {
-    xmlStream.leafNode('Relationship', model as unknown as Record<string, unknown>);
+    xmlStream.leafNode('Relationship', model);
   }
 
   override parseOpen(node: SaxNode) {

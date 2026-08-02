@@ -19,7 +19,7 @@ import type {
 } from './internal-types';
 
 import type { ColumnDefinition } from './column';
-import type { Media, ImageRange, ImagePosition, ImageModel, ImageRangeInput } from './image';
+import type { Media, ImageRange, ImagePosition, ImageModel } from './image';
 import type { TableProperties } from './table';
 import type { PivotTableModel } from './pivot-table';
 import type { ConditionalFormattingOptions } from './conditional-formatting';
@@ -396,10 +396,13 @@ export class Worksheet implements WorksheetLike {
       name = name.substring(0, 31);
     }
 
+    const finalName: string = name as string;
     if (
-      this._workbook._worksheets.find((ws) => ws && ws.name.toLowerCase() === name.toLowerCase())
+      this._workbook._worksheets?.find(
+        (ws) => ws && ws.name?.toLowerCase() === finalName.toLowerCase()
+      )
     ) {
-      throw new Error(`Worksheet name already exists: ${name}`);
+      throw new Error(`Worksheet name already exists: ${finalName}`);
     }
 
     this._name = name;
@@ -411,7 +414,7 @@ export class Worksheet implements WorksheetLike {
 
   // when you're done with this worksheet, call this to remove from workbook
   destroy() {
-    this._workbook.removeWorksheetEx(this);
+    this._workbook.removeWorksheetEx?.(this);
   }
 
   // Get the bounding range of the cells in this worksheet
@@ -451,7 +454,7 @@ export class Worksheet implements WorksheetLike {
     value.forEach((defn) => {
       const column = new Column(this, count++, false);
       columns.push(column);
-      column.defn = defn as unknown as ColumnDefinition;
+      column.defn = defn as ColumnDefinition;
     });
   }
 
@@ -506,13 +509,13 @@ export class Worksheet implements WorksheetLike {
         });
         const row = this.getRow(i + 1);
         // eslint-disable-next-line prefer-spread
-        (row as unknown as { splice(...args: unknown[]): void }).splice.apply(row, rowArguments);
+        (row as { splice(...args: unknown[]): void }).splice.apply(row, rowArguments);
       }
     } else {
       // nothing to insert, so just splice all rows
       this._rows.forEach((r) => {
         if (r) {
-          (r as unknown as { splice(start: number, count: number): void }).splice(start, count);
+          (r as { splice(start: number, count: number): void }).splice(start, count);
         }
       });
     }
@@ -523,23 +526,19 @@ export class Worksheet implements WorksheetLike {
     const nEnd = (this._columns as ColumnLike[]).length;
     if (nExpand < 0) {
       for (let i = start + inserts.length; i <= nEnd; i++) {
-        (this.getColumn(i) as unknown as { defn: unknown }).defn = (
-          this.getColumn(i - nExpand) as unknown as { defn: unknown }
-        ).defn;
+        (this.getColumn(i) as any).defn = (this.getColumn(i - nExpand) as any).defn;
       }
     } else if (nExpand > 0) {
       for (let i = nEnd; i >= nKeep; i--) {
-        (this.getColumn(i + nExpand) as unknown as { defn: unknown }).defn = (
-          this.getColumn(i) as unknown as { defn: unknown }
-        ).defn;
+        (this.getColumn(i + nExpand) as any).defn = (this.getColumn(i) as any).defn;
       }
     }
     for (let i = start; i < start + inserts.length; i++) {
-      (this.getColumn(i) as unknown as { defn: unknown }).defn = null;
+      (this.getColumn(i) as any).defn = null;
     }
 
     // account for defined names
-    this.workbook.definedNames.spliceColumns(this.name, start, count, inserts.length);
+    this.workbook.definedNames?.spliceColumns?.(this.name, start, count, inserts.length);
   }
 
   get lastColumn() {
@@ -559,7 +558,7 @@ export class Worksheet implements WorksheetLike {
     const counts: boolean[] = [];
     let count = 0;
     this.eachRow((row) => {
-      row.eachCell(({ col }: CellLike) => {
+      row.eachCell(({ col }: { col: number }) => {
         if (!counts[col]) {
           counts[col] = true;
           count++;
@@ -759,16 +758,11 @@ export class Worksheet implements WorksheetLike {
             rDst.getCell(colNumber).style = cell.style;
 
             // remerge cells accounting for insert offset
-            const cellAny = cell as unknown as {
-              _value: { constructor: { name: string }; _master: unknown };
-              _row: { _number: number };
-              _column: { _number: number };
-              merge(master: CellLike): void;
-            };
-            if (cellAny._value.constructor.name === 'MergeValue') {
+            const cellAny = cell as any;
+            if (cellAny._value?.constructor?.name === 'MergeValue') {
               const cellToBeMerged = this.getRow(cellAny._row._number + nInserts).getCell(
                 colNumber
-              ) as unknown as CellLike;
+              ) as CellLike;
               const prevMaster = cellAny._value._master as {
                 _row: { _number: number };
                 _column: { _number: number };
@@ -776,7 +770,7 @@ export class Worksheet implements WorksheetLike {
               const newMaster = this.getRow(prevMaster._row._number + nInserts).getCell(
                 prevMaster._column._number
               );
-              (cellToBeMerged as unknown as { merge(m: unknown): void }).merge(newMaster);
+              cellToBeMerged.merge?.(newMaster);
             }
           });
         } else {
@@ -793,7 +787,7 @@ export class Worksheet implements WorksheetLike {
     }
 
     // account for defined names
-    this.workbook.definedNames.spliceRows(this.name, start, count, nInserts);
+    this.workbook.definedNames?.spliceRows?.(this.name, start, count, nInserts);
   }
 
   // iterate over every row in the worksheet, including maybe empty rows
@@ -880,9 +874,10 @@ export class Worksheet implements WorksheetLike {
       for (let j = dimensions.left; j <= dimensions.right; j++) {
         // merge all but the master cell
         if (i > dimensions.top || j > dimensions.left) {
-          (
-            this.getCell(i, j) as unknown as { merge(m: unknown, ignoreStyle?: boolean): void }
-          ).merge(master, ignoreStyle);
+          (this.getCell(i, j) as { merge(m: unknown, ignoreStyle?: boolean): void }).merge(
+            master,
+            ignoreStyle
+          );
         }
       }
     }
@@ -897,7 +892,7 @@ export class Worksheet implements WorksheetLike {
     if (merge) {
       for (let i = merge.top; i <= merge.bottom; i++) {
         for (let j = merge.left; j <= merge.right; j++) {
-          (this.getCell(i, j) as unknown as { unmerge(): void }).unmerge();
+          this.getCell(i, j).unmerge?.();
         }
       }
       delete this._merges[master.address];
@@ -922,7 +917,7 @@ export class Worksheet implements WorksheetLike {
         if (cell) {
           if (cell.type === Enums.ValueType.Merge) {
             // this cell merges to another master
-            this._unMergeMaster((cell as unknown as { master: CellLike }).master);
+            this._unMergeMaster((cell as any).master);
           } else if (this._merges[cell.address]) {
             // this cell is a master
             this._unMergeMaster(cell);
@@ -1001,7 +996,7 @@ export class Worksheet implements WorksheetLike {
   }
 
   getImages(): Image[] {
-    return this._media.filter((m) => (m as unknown as { type: string }).type === 'image');
+    return this._media.filter((m) => (m as { type: string }).type === 'image');
   }
 
   addBackgroundImage(imageId: number) {
@@ -1013,8 +1008,8 @@ export class Worksheet implements WorksheetLike {
   }
 
   getBackgroundImageId(): number | undefined {
-    const image = this._media.find((m) => (m as unknown as { type: string }).type === 'background');
-    return image && (image as unknown as { imageId: number }).imageId;
+    const image = this._media.find((m) => (m as { type: string }).type === 'background');
+    return image && (image as { imageId: number }).imageId;
   }
 
   // =========================================================================
@@ -1090,7 +1085,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     const pivotTable = makePivotTable(this, model);
 
     this.pivotTables.push(pivotTable);
-    this.workbook.pivotTables.push(pivotTable);
+    this.workbook.pivotTables?.push(pivotTable);
 
     return pivotTable;
   }
@@ -1144,11 +1139,9 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
       rowBreaks: this.rowBreaks,
       views: this.views,
       autoFilter: this.autoFilter,
-      media: this._media.map((medium) => (medium as unknown as { model: unknown }).model),
+      media: this._media.map((medium) => (medium as { model: unknown }).model),
       sheetProtection: this.sheetProtection,
-      tables: Object.values(this.tables).map(
-        (table) => (table as unknown as { model: unknown }).model
-      ),
+      tables: Object.values(this.tables).map((table) => (table as { model: unknown }).model),
       pivotTables: this.pivotTables,
       conditionalFormattings: this.conditionalFormattings,
     };
@@ -1163,8 +1156,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     const dimensions = (model.dimensions = new Range());
     this._rows.forEach((row) => {
       const rowModel =
-        row &&
-        (row as unknown as { model: { number: number; min: number; max: number } | null }).model;
+        row && (row as { model: { number: number; min: number; max: number } | null }).model;
       if (rowModel) {
         dimensions.expand(rowModel.number, rowModel.min, rowModel.number, rowModel.max);
         rows.push(rowModel);
@@ -1186,7 +1178,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     model.rows.forEach((rowModel) => {
       const row = new Row(this, rowModel.number);
       this._rows[row.number - 1] = row;
-      (row as unknown as { model: unknown }).model = rowModel;
+      (row as { model: unknown }).model = rowModel;
     });
   }
 

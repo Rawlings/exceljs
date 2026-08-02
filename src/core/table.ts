@@ -67,7 +67,7 @@ class Column {
 
   _set(name: keyof TableColumnProperties, value: unknown) {
     this.table.cacheState();
-    (this.column as unknown as Record<string, unknown>)[name] = value;
+    (this.column as Record<string, unknown>)[name] = value;
   }
 
   /* eslint-disable lines-between-class-members */
@@ -250,7 +250,7 @@ export class Table {
     const assignStyle = (cell: CellLike, style: Record<string, unknown> | undefined) => {
       if (style) {
         Object.keys(style).forEach((key) => {
-          cell.style[key] = style[key];
+          cell.style![key] = style[key];
         });
       }
     };
@@ -259,7 +259,7 @@ export class Table {
     const { row, col } = table.tl as { row: number; col: number };
     let count = 0;
     if (table.headerRow) {
-      const r = worksheet.getRow(row + count++);
+      const r = worksheet.getRow!(row + count++);
       table.columns.forEach((column, j) => {
         const { style, name } = column;
         const cell = r.getCell(col + j);
@@ -268,7 +268,7 @@ export class Table {
       });
     }
     table.rows.forEach((data) => {
-      const r = worksheet.getRow(row + count++);
+      const r = worksheet.getRow!(row + count++);
       data.forEach((value, j) => {
         const cell = r.getCell(col + j);
         cell.value = value;
@@ -278,7 +278,7 @@ export class Table {
     });
 
     if (table.totalsRow) {
-      const r = worksheet.getRow(row + count++);
+      const r = worksheet.getRow!(row + count++);
       table.columns.forEach((column, j) => {
         const cell = r.getCell(col + j);
         if (j === 0) {
@@ -306,14 +306,14 @@ export class Table {
     const { row, col } = table.tl as { row: number; col: number };
     let count = 0;
     if (table.headerRow) {
-      const r = worksheet.getRow(row + count++);
+      const r = worksheet.getRow!(row + count++);
       table.columns.forEach((column, j) => {
         const cell = r.getCell(col + j);
         cell.value = column.name;
       });
     }
     table.rows.forEach((data) => {
-      const r = worksheet.getRow(row + count++);
+      const r = worksheet.getRow!(row + count++);
       data.forEach((value, j) => {
         const cell = r.getCell(col + j);
         cell.value = value;
@@ -321,7 +321,7 @@ export class Table {
     });
 
     if (table.totalsRow) {
-      const r = worksheet.getRow(row + count++);
+      const r = worksheet.getRow!(row + count++);
       table.columns.forEach((column, j) => {
         const cell = r.getCell(col + j);
         if (j === 0) {
@@ -372,7 +372,7 @@ export class Table {
     if (this.ref !== this._cache.ref) {
       // wipe out whole table footprint at previous location
       for (let i = 0; i < this._cache.tableHeight; i++) {
-        const row = this.worksheet.getRow(ref.row + i);
+        const row = this.worksheet.getRow!(ref.row + i);
         for (let j = 0; j < this._cache.width; j++) {
           const cell = row.getCell(ref.col + j);
           cell.value = null;
@@ -381,7 +381,7 @@ export class Table {
     } else {
       // clear out below table if it has shrunk
       for (let i = this.tableHeight; i < this._cache.tableHeight; i++) {
-        const row = this.worksheet.getRow(ref.row + i);
+        const row = this.worksheet.getRow!(ref.row + i);
         for (let j = 0; j < this._cache.width; j++) {
           const cell = row.getCell(ref.col + j);
           cell.value = null;
@@ -390,7 +390,7 @@ export class Table {
 
       // clear out to right of table if it has lost columns
       for (let i = 0; i < this.tableHeight; i++) {
-        const row = this.worksheet.getRow(ref.row + i);
+        const row = this.worksheet.getRow!(ref.row + i);
         for (let j = this.width; j < this._cache.width; j++) {
           const cell = row.getCell(ref.col + j);
           cell.value = null;

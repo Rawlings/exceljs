@@ -99,7 +99,7 @@ export class Column implements ColumnLike {
     if (value !== undefined) {
       this._header = value;
       this.headers.forEach((text, index) => {
-        this._worksheet.getCell(index + 1, this.number).value = text;
+        this._worksheet.getCell!(index + 1, this.number).value = text;
       });
     } else {
       this._header = undefined;
@@ -111,14 +111,14 @@ export class Column implements ColumnLike {
   }
 
   set key(value: string | undefined) {
-    const column = this._key && this._worksheet.getColumnKey(this._key);
-    if (column === (this as unknown as ColumnLike)) {
-      this._worksheet.deleteColumnKey(this._key as string);
+    const column = this._key && this._worksheet.getColumnKey?.(this._key);
+    if (column === (this as ColumnLike)) {
+      this._worksheet.deleteColumnKey?.(this._key as string);
     }
 
     this._key = value;
     if (value) {
-      this._worksheet.setColumnKey(value, this);
+      this._worksheet.setColumnKey?.(value, this);
     }
   }
 
@@ -140,7 +140,7 @@ export class Column implements ColumnLike {
 
   get collapsed() {
     return !!(
-      this._outlineLevel && this._outlineLevel >= this._worksheet.properties.outlineLevelCol
+      this._outlineLevel && this._outlineLevel >= (this._worksheet.properties?.outlineLevelCol ?? 0)
     );
   }
 
@@ -196,7 +196,7 @@ export class Column implements ColumnLike {
       iteratee = options as (cell: CellLike, rowNumber: number) => void;
       options = null;
     }
-    this._worksheet.eachRow(
+    this._worksheet.eachRow?.(
       options as EachRowOptions | null,
       (row: { getCell(n: number): CellLike }, rowNumber: number) => {
         iteratee(row.getCell(colNumber), rowNumber);
@@ -225,7 +225,7 @@ export class Column implements ColumnLike {
       offset = 1;
     }
     v.forEach((value, index) => {
-      this._worksheet.getCell(index + offset, colNumber).value = value;
+      this._worksheet.getCell!(index + offset, colNumber).value = value;
     });
   }
 
@@ -234,7 +234,7 @@ export class Column implements ColumnLike {
   _applyStyle(name: string, value: unknown) {
     (this.style as Record<string, unknown>)[name] = value;
     this.eachCell((cell: CellLike) => {
-      (cell as unknown as Record<string, unknown>)[name] = value;
+      (cell as Record<string, unknown>)[name] = value;
     });
     return value;
   }
@@ -300,7 +300,7 @@ export class Column implements ColumnLike {
           if (col) {
             col = null;
           }
-        } else if (!col || !column.equivalentTo(col as unknown as ColumnLike)) {
+        } else if (!col || !column.equivalentTo(col as ColumnLike)) {
           col = {
             min: index + 1,
             max: index + 1,
@@ -339,7 +339,7 @@ export class Column implements ColumnLike {
         columns.push(new Column(worksheet, count++));
       }
       while (count <= col.max) {
-        columns.push(new Column(worksheet, count++, col as unknown as ColumnDefinition));
+        columns.push(new Column(worksheet, count++, col as ColumnDefinition));
       }
     }
     return columns.length ? columns : null;
