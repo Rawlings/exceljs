@@ -1,81 +1,122 @@
 /* eslint-disable max-classes-per-file */
 import colCache from '#src/utils/data/col-cache';
+import type { WorksheetLike, CellLike } from '#src/models/internal-types';
+
+export interface TableColumnModel {
+  name: string;
+  filterButton?: boolean;
+  style?: Record<string, unknown>;
+  totalsRowLabel?: string;
+  totalsRowFunction?: string;
+  totalsRowResult?: unknown;
+  totalsRowFormula?: string;
+}
+
+export interface TableModel {
+  name: string;
+  displayName?: string;
+  ref: string;
+  tl?: { row: number; col: number };
+  headerRow?: boolean;
+  totalsRow?: boolean;
+  style?: {
+    theme?: string;
+    name?: string;
+    showFirstColumn?: boolean;
+    showLastColumn?: boolean;
+    showRowStripes?: boolean;
+    showColumnStripes?: boolean;
+  };
+  columns: TableColumnModel[];
+  rows: unknown[][];
+  autoFilterRef?: string;
+  tableRef?: string;
+}
+
+interface TableCacheState {
+  ref: string;
+  width: number;
+  tableHeight: number;
+}
 
 class Column {
   // wrapper around column model, allowing access and manipulation
-  table: any;
-  column: any;
-  index: any;
+  table: Table;
+  column: TableColumnModel;
+  index: number;
 
-  constructor(table: any, column: any, index: any) {
+  constructor(table: Table, column: TableColumnModel, index: number) {
     this.table = table;
     this.column = column;
     this.index = index;
   }
 
-  _set(name: any, value: any) {
+  _set(name: keyof TableColumnModel, value: unknown) {
     this.table.cacheState();
-    this.column[name] = value;
+    (this.column as unknown as Record<string, unknown>)[name] = value;
   }
 
   /* eslint-disable lines-between-class-members */
-  get name() {
+  get name(): string {
     return this.column.name;
   }
-  set name(value: any) {
+  set name(value: string) {
     this._set('name', value);
   }
 
-  get filterButton() {
+  get filterButton(): boolean | undefined {
     return this.column.filterButton;
   }
-  set filterButton(value: any) {
+  set filterButton(value: boolean | undefined) {
     this.column.filterButton = value;
   }
 
-  get style() {
+  get style(): Record<string, unknown> | undefined {
     return this.column.style;
   }
-  set style(value: any) {
+  set style(value: Record<string, unknown> | undefined) {
     this.column.style = value;
   }
 
-  get totalsRowLabel() {
+  get totalsRowLabel(): string | undefined {
     return this.column.totalsRowLabel;
   }
-  set totalsRowLabel(value: any) {
+  set totalsRowLabel(value: string | undefined) {
     this._set('totalsRowLabel', value);
   }
 
-  get totalsRowFunction() {
+  get totalsRowFunction(): string | undefined {
     return this.column.totalsRowFunction;
   }
-  set totalsRowFunction(value: any) {
+  set totalsRowFunction(value: string | undefined) {
     this._set('totalsRowFunction', value);
   }
 
-  get totalsRowResult() {
+  get totalsRowResult(): unknown {
     return this.column.totalsRowResult;
   }
-  set totalsRowResult(value: any) {
+  set totalsRowResult(value: unknown) {
     this._set('totalsRowResult', value);
   }
 
-  get totalsRowFormula() {
+  get totalsRowFormula(): string | undefined {
     return this.column.totalsRowFormula;
   }
-  set totalsRowFormula(value: any) {
+  set totalsRowFormula(value: string | undefined) {
     this._set('totalsRowFormula', value);
   }
   /* eslint-enable lines-between-class-members */
 }
 
 class Table {
-  worksheet: any;
-  table: any;
-  _cache: any;
+  worksheet: WorksheetLike;
+  // only assigned when a model is passed to the constructor — matches
+  // original loose-typed behavior where callers are trusted to follow up
+  // with `.model = ...` if they didn't pass one initially.
+  table!: TableModel;
+  _cache: TableCacheState | undefined;
 
-  constructor(worksheet: any, table: any) {
+  constructor(worksheet: WorksheetLike, table?: TableModel) {
     this.worksheet = worksheet;
     if (table) {
       this.table = table;
@@ -86,7 +127,7 @@ class Table {
     }
   }
 
-  getFormula(column: any) {
+  getFormula(column: TableColumnModel): string | null {
     // get the correct formula to apply to the totals row
     switch (column.totalsRowFunction) {
       case 'none':
@@ -108,28 +149,28 @@ class Table {
       case 'sum':
         return `SUBTOTAL(109,${this.table.name}[${column.name}])`;
       case 'custom':
-        return column.totalsRowFormula;
+        return column.totalsRowFormula as string;
       default:
         throw new Error(`Invalid Totals Row Function: ${column.totalsRowFunction}`);
     }
   }
 
-  get width() {
+  get width(): number {
     // width of the table
     return this.table.columns.length;
   }
 
-  get height() {
+  get height(): number {
     // height of the table data
     return this.table.rows.length;
   }
 
-  get filterHeight() {
+  get filterHeight(): number {
     // height of the table data plus optional header row
     return this.height + (this.table.headerRow ? 1 : 0);
   }
 
-  get tableHeight() {
+  get tableHeight(): number {
     // full height of the table on the sheet
     return this.filterHeight + (this.table.totalsRow ? 1 : 0);
   }
@@ -137,22 +178,23 @@ class Table {
   validate() {
     const { table } = this;
     // set defaults and check is valid
-    const assign = (o: any, name: any, dflt: any) => {
+    const assign = (o: Record<string, unknown>, name: string, dflt: unknown) => {
       if (o[name] === undefined) {
         o[name] = dflt;
       }
     };
-    assign(table, 'headerRow', true);
-    assign(table, 'totalsRow', false);
+    assign(table as unknown as Record<string, unknown>, 'headerRow', true);
+    assign(table as unknown as Record<string, unknown>, 'totalsRow', false);
 
-    assign(table, 'style', {});
-    assign(table.style, 'theme', 'TableStyleMedium2');
-    assign(table.style, 'showFirstColumn', false);
-    assign(table.style, 'showLastColumn', false);
-    assign(table.style, 'showRowStripes', false);
-    assign(table.style, 'showColumnStripes', false);
+    assign(table as unknown as Record<string, unknown>, 'style', {});
+    const style = table.style as Record<string, unknown>;
+    assign(style, 'theme', 'TableStyleMedium2');
+    assign(style, 'showFirstColumn', false);
+    assign(style, 'showLastColumn', false);
+    assign(style, 'showRowStripes', false);
+    assign(style, 'showColumnStripes', false);
 
-    const assert = (test: any, message: any) => {
+    const assert = (test: unknown, message: string) => {
       if (!test) {
         throw new Error(message);
       }
@@ -175,13 +217,13 @@ class Table {
     // tableRef is a range that includes optional headers and totals
     table.tableRef = colCache.encode(row, col, row + tableHeight - 1, col + width - 1);
 
-    table.columns.forEach((column: any, i: any) => {
+    table.columns.forEach((column, i) => {
       assert(column.name, `Column ${i} must have a name`);
       if (i === 0) {
-        assign(column, 'totalsRowLabel', 'Total');
+        assign(column as unknown as Record<string, unknown>, 'totalsRowLabel', 'Total');
       } else {
-        assign(column, 'totalsRowFunction', 'none');
-        column.totalsRowFormula = this.getFormula(column);
+        assign(column as unknown as Record<string, unknown>, 'totalsRowFunction', 'none');
+        column.totalsRowFormula = this.getFormula(column) as string;
       }
     });
   }
@@ -189,29 +231,29 @@ class Table {
   store() {
     // where the table needs to store table data, headers, footers in
     // the sheet...
-    const assignStyle = (cell: any, style: any) => {
+    const assignStyle = (cell: CellLike, style: Record<string, unknown> | undefined) => {
       if (style) {
         Object.keys(style).forEach((key) => {
-          cell.style[key] = style[key];
+          (cell.style as Record<string, unknown>)[key] = style[key];
         });
       }
     };
 
     const { worksheet, table } = this;
-    const { row, col } = table.tl;
+    const { row, col } = table.tl as { row: number; col: number };
     let count = 0;
     if (table.headerRow) {
       const r = worksheet.getRow(row + count++);
-      table.columns.forEach((column: any, j: any) => {
+      table.columns.forEach((column, j) => {
         const { style, name } = column;
         const cell = r.getCell(col + j);
         cell.value = name;
         assignStyle(cell, style);
       });
     }
-    table.rows.forEach((data: any) => {
+    table.rows.forEach((data) => {
       const r = worksheet.getRow(row + count++);
-      data.forEach((value: any, j: any) => {
+      data.forEach((value, j) => {
         const cell = r.getCell(col + j);
         cell.value = value;
 
@@ -221,7 +263,7 @@ class Table {
 
     if (table.totalsRow) {
       const r = worksheet.getRow(row + count++);
-      table.columns.forEach((column: any, j: any) => {
+      table.columns.forEach((column, j) => {
         const cell = r.getCell(col + j);
         if (j === 0) {
           cell.value = column.totalsRowLabel;
@@ -242,21 +284,21 @@ class Table {
     }
   }
 
-  load(worksheet: any) {
+  load(worksheet: WorksheetLike) {
     // where the table will read necessary features from a loaded sheet
     const { table } = this;
-    const { row, col } = table.tl;
+    const { row, col } = table.tl as { row: number; col: number };
     let count = 0;
     if (table.headerRow) {
       const r = worksheet.getRow(row + count++);
-      table.columns.forEach((column: any, j: any) => {
+      table.columns.forEach((column, j) => {
         const cell = r.getCell(col + j);
         cell.value = column.name;
       });
     }
-    table.rows.forEach((data: any) => {
+    table.rows.forEach((data) => {
       const r = worksheet.getRow(row + count++);
-      data.forEach((value: any, j: any) => {
+      data.forEach((value, j) => {
         const cell = r.getCell(col + j);
         cell.value = value;
       });
@@ -264,7 +306,7 @@ class Table {
 
     if (table.totalsRow) {
       const r = worksheet.getRow(row + count++);
-      table.columns.forEach((column: any, j: any) => {
+      table.columns.forEach((column, j) => {
         const cell = r.getCell(col + j);
         if (j === 0) {
           cell.value = column.totalsRowLabel;
@@ -281,11 +323,11 @@ class Table {
     }
   }
 
-  get model() {
+  get model(): TableModel {
     return this.table;
   }
 
-  set model(value: any) {
+  set model(value: TableModel) {
     this.table = value;
   }
 
@@ -343,7 +385,7 @@ class Table {
     this.store();
   }
 
-  addRow(values: any, rowNumber: any) {
+  addRow(values: unknown[], rowNumber?: number) {
     // Add a row of data, either insert at rowNumber or append
     this.cacheState();
 
@@ -354,119 +396,123 @@ class Table {
     }
   }
 
-  removeRows(rowIndex: any, count: any = 1) {
+  removeRows(rowIndex: number, count: number = 1) {
     // Remove a rows of data
     this.cacheState();
     this.table.rows.splice(rowIndex, count);
   }
 
-  getColumn(colIndex: any) {
+  getColumn(colIndex: number): Column {
     const column = this.table.columns[colIndex];
     return new Column(this, column, colIndex);
   }
 
-  addColumn(column: any, values: any, colIndex: any) {
+  addColumn(column: TableColumnModel, values: unknown[], colIndex?: number) {
     // Add a new column, including column defn and values
     // Inserts at colNumber or adds to the right
     this.cacheState();
 
     if (colIndex === undefined) {
       this.table.columns.push(column);
-      this.table.rows.forEach((row: any, i: any) => {
+      this.table.rows.forEach((row, i) => {
         row.push(values[i]);
       });
     } else {
       this.table.columns.splice(colIndex, 0, column);
-      this.table.rows.forEach((row: any, i: any) => {
+      this.table.rows.forEach((row, i) => {
         row.splice(colIndex, 0, values[i]);
       });
     }
   }
 
-  removeColumns(colIndex: any, count: any = 1) {
+  removeColumns(colIndex: number, count: number = 1) {
     // Remove a column with data
     this.cacheState();
 
     this.table.columns.splice(colIndex, count);
-    this.table.rows.forEach((row: any) => {
+    this.table.rows.forEach((row) => {
       row.splice(colIndex, count);
     });
   }
 
-  _assign(target: any, prop: any, value: any) {
+  _assign(target: Record<string, unknown>, prop: string, value: unknown) {
     this.cacheState();
     target[prop] = value;
   }
 
   /* eslint-disable lines-between-class-members */
-  get ref() {
+  get ref(): string {
     return this.table.ref;
   }
-  set ref(value: any) {
-    this._assign(this.table, 'ref', value);
+  set ref(value: string) {
+    this._assign(this.table as unknown as Record<string, unknown>, 'ref', value);
   }
 
-  get name() {
+  get name(): string {
     return this.table.name;
   }
-  set name(value: any) {
+  set name(value: string) {
     this.table.name = value;
   }
 
-  get displayName() {
-    return this.table.displyName || this.table.name;
+  // NB: preserves two original bugs verbatim — the getter reads the typo'd
+  // `displyName` (not `displayName`), and the setter is named
+  // `displayNamename` (not `displayName`), so `table.displayName = x` never
+  // actually invokes it. A typing pass must not silently fix behavior.
+  get displayName(): string {
+    return (this.table as unknown as Record<string, unknown>).displyName as string || this.table.name;
   }
-  set displayNamename(value: any) {
+  set displayNamename(value: string) {
     this.table.displayName = value;
   }
 
-  get headerRow() {
+  get headerRow(): boolean | undefined {
     return this.table.headerRow;
   }
-  set headerRow(value: any) {
-    this._assign(this.table, 'headerRow', value);
+  set headerRow(value: boolean | undefined) {
+    this._assign(this.table as unknown as Record<string, unknown>, 'headerRow', value);
   }
 
-  get totalsRow() {
+  get totalsRow(): boolean | undefined {
     return this.table.totalsRow;
   }
-  set totalsRow(value: any) {
-    this._assign(this.table, 'totalsRow', value);
+  set totalsRow(value: boolean | undefined) {
+    this._assign(this.table as unknown as Record<string, unknown>, 'totalsRow', value);
   }
 
-  get theme() {
-    return this.table.style.name;
+  get theme(): string | undefined {
+    return (this.table.style as Record<string, unknown>).name as string | undefined;
   }
-  set theme(value: any) {
-    this.table.style.name = value;
-  }
-
-  get showFirstColumn() {
-    return this.table.style.showFirstColumn;
-  }
-  set showFirstColumn(value: any) {
-    this.table.style.showFirstColumn = value;
+  set theme(value: string | undefined) {
+    (this.table.style as Record<string, unknown>).name = value;
   }
 
-  get showLastColumn() {
-    return this.table.style.showLastColumn;
+  get showFirstColumn(): boolean | undefined {
+    return (this.table.style as Record<string, unknown>).showFirstColumn as boolean | undefined;
   }
-  set showLastColumn(value: any) {
-    this.table.style.showLastColumn = value;
-  }
-
-  get showRowStripes() {
-    return this.table.style.showRowStripes;
-  }
-  set showRowStripes(value: any) {
-    this.table.style.showRowStripes = value;
+  set showFirstColumn(value: boolean | undefined) {
+    (this.table.style as Record<string, unknown>).showFirstColumn = value;
   }
 
-  get showColumnStripes() {
-    return this.table.style.showColumnStripes;
+  get showLastColumn(): boolean | undefined {
+    return (this.table.style as Record<string, unknown>).showLastColumn as boolean | undefined;
   }
-  set showColumnStripes(value: any) {
-    this.table.style.showColumnStripes = value;
+  set showLastColumn(value: boolean | undefined) {
+    (this.table.style as Record<string, unknown>).showLastColumn = value;
+  }
+
+  get showRowStripes(): boolean | undefined {
+    return (this.table.style as Record<string, unknown>).showRowStripes as boolean | undefined;
+  }
+  set showRowStripes(value: boolean | undefined) {
+    (this.table.style as Record<string, unknown>).showRowStripes = value;
+  }
+
+  get showColumnStripes(): boolean | undefined {
+    return (this.table.style as Record<string, unknown>).showColumnStripes as boolean | undefined;
+  }
+  set showColumnStripes(value: boolean | undefined) {
+    (this.table.style as Record<string, unknown>).showColumnStripes = value;
   }
   /* eslint-enable lines-between-class-members */
 }

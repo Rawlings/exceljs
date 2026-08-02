@@ -102,7 +102,7 @@ class WorkbookReader extends EventEmitter {
     throw new Error(`Could not recognise input: ${input}`);
   }
 
-  async read(input: any, options: any) {
+  async read(input?: any, options?: any) {
     try {
       for await (const item of this.parse(input, options)) {
         const { eventType, value }: any = item;

@@ -1066,7 +1066,7 @@ describe('Worksheet', () => {
       it(`Should set hidden attribute correctly (${file})`, async () => {
         const wb = new ExcelJS.Workbook();
         await wb.xlsx.readFile(`./fixtures/xlsx/${file}.xlsx`);
-        const ws = wb.getWorksheet(1);
+        const ws = wb.getWorksheet(1)!;
 
         //  Check rows
         expect(ws.getRow(1).hidden, `${file} : Row 1`).to.equal(false);

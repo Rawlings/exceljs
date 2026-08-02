@@ -19,28 +19,52 @@ import WorksheetWriter from '#src/stream/xlsx/worksheet-writer';
 // @ts-ignore
 import theme1Xml from '#src/xlsx/theme1';
 
-class WorkbookWriter {
-  created: any;
-  modified: any;
-  creator: any;
-  lastModifiedBy: any;
-  lastPrinted: any;
-  useSharedStrings: boolean;
-  sharedStrings: any;
-  styles: any;
-  _definedNames: any;
-  _worksheets: any[];
-  views: any[];
-  zipOptions: any;
-  stream: any;
-  zip: any;
-  media: any[];
-  mediaIndex: any;
-  tables: any[] = [];
-  commentRefs: any;
-  promise: any;
+export interface WorkbookWriterOptions {
+  created?: Date;
+  modified?: Date;
+  creator?: string;
+  lastModifiedBy?: string;
+  lastPrinted?: Date;
+  useSharedStrings?: boolean;
+  useStyles?: boolean;
+  zip?: Record<string, unknown>;
+  stream?: NodeJS.WritableStream;
+  filename?: string;
+  [key: string]: unknown;
+}
 
-  constructor(options?: any) {
+interface MediaItem {
+  type: string;
+  name?: string;
+  filename?: string;
+  buffer?: unknown;
+  base64?: string;
+  extension?: string;
+  [key: string]: unknown;
+}
+
+class WorkbookWriter {
+  created: Date;
+  modified: Date;
+  creator: string;
+  lastModifiedBy: string;
+  lastPrinted: Date | undefined;
+  useSharedStrings: boolean;
+  sharedStrings: SharedStrings;
+  styles: StylesXform;
+  _definedNames: DefinedNames;
+  _worksheets: (WorksheetWriter | undefined)[];
+  views: unknown[];
+  zipOptions: Record<string, unknown> | undefined;
+  stream: NodeJS.WritableStream & { write?: unknown };
+  zip: ZipWriter;
+  media: MediaItem[];
+  mediaIndex: unknown;
+  tables: unknown[] = [];
+  commentRefs: unknown[];
+  promise: Promise<unknown>;
+
+  constructor(options?: WorkbookWriterOptions) {
     options = options || {};
 
     this.created = options.created || new Date();
@@ -54,7 +78,9 @@ class WorkbookWriter {
     this.sharedStrings = new SharedStrings();
 
     // style manager
-    this.styles = options.useStyles ? new StylesXform(true) : new (StylesXform as any).Mock(true);
+    this.styles = options.useStyles
+      ? new StylesXform(true)
+      : new (StylesXform as unknown as { Mock: new (v: boolean) => StylesXform }).Mock(true);
 
     // defined names
     this._definedNames = new DefinedNames();
@@ -81,11 +107,11 @@ class WorkbookWriter {
     this.promise = Promise.all([this.addThemes(), this.addOfficeRels()]);
   }
 
-  get definedNames() {
+  get definedNames(): DefinedNames {
     return this._definedNames;
   }
 
-  _openStream(path: any) {
+  _openStream(path: string): PassThrough {
     const cleanPath = typeof path === 'string' ? path.replace(/^\//, '') : path;
     const stream = new PassThrough();
     this.zip.append(stream, { name: cleanPath });
@@ -96,19 +122,22 @@ class WorkbookWriter {
   }
 
   _commitWorksheets() {
-    const commitWorksheet = function (worksheet: any) {
-      if (!worksheet.committed) {
+    const commitWorksheet = function (worksheet: WorksheetWriter) {
+      if (!(worksheet as unknown as { committed: boolean }).committed) {
         return new Promise<void>((resolve) => {
-          worksheet.stream.on('zipped', () => {
-            resolve();
-          });
+          (worksheet as unknown as { stream: { on(e: string, cb: () => void): void } }).stream.on(
+            'zipped',
+            () => {
+              resolve();
+            }
+          );
           worksheet.commit();
         });
       }
       return Promise.resolve();
     };
     // if there are any uncommitted worksheets, commit them now and wait
-    const promises = this._worksheets.map(commitWorksheet);
+    const promises = (this._worksheets as WorksheetWriter[]).map(commitWorksheet);
     if (promises.length) {
       return Promise.all(promises);
     }
@@ -132,7 +161,7 @@ class WorkbookWriter {
     return this._finalize();
   }
 
-  get nextId() {
+  get nextId(): number {
     // find the next unique spot to add worksheet
     let i;
     for (i = 1; i < this._worksheets.length; i++) {
@@ -143,21 +172,21 @@ class WorkbookWriter {
     return this._worksheets.length || 1;
   }
 
-  addImage(image: any) {
+  addImage(image: { extension?: string; [key: string]: unknown }): number {
     const id = this.media.length;
     const medium = Object.assign({}, image, {
       type: 'image',
       name: `image${id}.${image.extension}`,
-    });
+    }) as MediaItem;
     this.media.push(medium);
     return id;
   }
 
-  getImage(id: any) {
+  getImage(id: number): MediaItem {
     return this.media[id];
   }
 
-  addWorksheet(name?: any, options?: any) {
+  addWorksheet(name?: string, options?: Record<string, unknown>): WorksheetWriter {
     // it's possible to add a worksheet with different than default
     // shared string handling
     // in fact, it's even possible to switch it mid-sheet
@@ -196,7 +225,7 @@ class WorkbookWriter {
     return worksheet;
   }
 
-  getWorksheet(id: any) {
+  getWorksheet(id?: number | string): WorksheetWriter | undefined {
     if (id === undefined) {
       return this._worksheets.find(Boolean);
     }
@@ -204,14 +233,16 @@ class WorkbookWriter {
       return this._worksheets[id];
     }
     if (typeof id === 'string') {
-      return this._worksheets.find((worksheet) => worksheet && worksheet.name === id);
+      return this._worksheets.find(
+        (worksheet) => worksheet && (worksheet as unknown as { name: string }).name === id
+      );
     }
     return undefined;
   }
 
   addStyles() {
     return new Promise<void>((resolve) => {
-      this.zip.append(this.styles.xml, { name: 'xl/styles.xml' });
+      this.zip.append((this.styles as unknown as { xml: unknown }).xml, { name: 'xl/styles.xml' });
       resolve();
     });
   }
@@ -308,7 +339,7 @@ class WorkbookWriter {
 
   addWorkbookRels() {
     let count = 1;
-    const relationships: any[] = [
+    const relationships: Record<string, unknown>[] = [
       { Id: `rId${count++}`, Type: RelType.Styles, Target: 'styles.xml' },
       { Id: `rId${count++}`, Type: RelType.Theme, Target: 'theme/theme1.xml' },
     ];
@@ -319,13 +350,13 @@ class WorkbookWriter {
         Target: 'sharedStrings.xml',
       });
     }
-    this._worksheets.forEach((worksheet: any) => {
+    this._worksheets.forEach((worksheet) => {
       if (worksheet) {
-        worksheet.rId = `rId${count++}`;
+        (worksheet as unknown as { rId: string }).rId = `rId${count++}`;
         relationships.push({
-          Id: worksheet.rId,
+          Id: (worksheet as unknown as { rId: string }).rId,
           Type: RelType.Worksheet,
-          Target: `worksheets/sheet${worksheet.id}.xml`,
+          Target: `worksheets/sheet${(worksheet as unknown as { id: number }).id}.xml`,
         });
       }
     });
@@ -341,7 +372,7 @@ class WorkbookWriter {
     const { zip } = this;
     const model = {
       worksheets: this._worksheets.filter(Boolean),
-      definedNames: this._definedNames.model,
+      definedNames: (this._definedNames as unknown as { model: unknown }).model,
       views: this.views,
       properties: {},
       calcProperties: {},
@@ -357,12 +388,18 @@ class WorkbookWriter {
 
   async _finalize() {
     const zipBuffer = await this.zip.generateAsync();
-    if (typeof this.stream.write === 'function') {
+    if (typeof (this.stream as unknown as { write?: unknown }).write === 'function') {
       await new Promise<void>((resolve, reject) => {
-        this.stream.once('finish', resolve);
-        this.stream.once('error', reject);
-        this.stream.write(zipBuffer);
-        this.stream.end();
+        const stream = this.stream as unknown as {
+          once(e: 'finish', cb: () => void): void;
+          once(e: 'error', cb: (err?: unknown) => void): void;
+          write(b: unknown): void;
+          end(): void;
+        };
+        stream.once('finish', resolve);
+        stream.once('error', reject);
+        stream.write(zipBuffer);
+        stream.end();
       });
     }
     return this;

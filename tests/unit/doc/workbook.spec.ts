@@ -82,7 +82,7 @@ describe('Workbook', () => {
 
   it('assigns cell types properly', () => {
     const wb = createSimpleWorkbook();
-    const ws = wb.getWorksheet('blort');
+    const ws = wb.getWorksheet('blort')!;
 
     expect(ws.getCell('A1').type).to.equal(Excel.ValueType.Number);
     expect(ws.getCell('B1').type).to.equal(Excel.ValueType.String);

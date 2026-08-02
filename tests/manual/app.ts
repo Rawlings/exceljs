@@ -23,7 +23,7 @@ const server = http.createServer((req: any, res: any) => {
       const base64 = Buffer.concat(chunks);
 
       wb.xlsx.load(base64).then(() => {
-        const ws = wb.getWorksheet('blort');
+        const ws = wb.getWorksheet('blort')!;
 
         console.log('XLSX uploaded:');
         console.log('A1', ws.getCell('A1').value);

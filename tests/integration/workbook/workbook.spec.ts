@@ -352,7 +352,7 @@ describe('Workbook', () => {
       ws.getCell('A1').value = 'World!';
       wb.language = 'Klingon';
       wb.revision = 2;
-      wb.contentStauts = 'Final';
+      wb.contentStatus = 'Final';
       return wb.xlsx
         .writeFile(TEST_XLSX_FILE_NAME)
         .then(() => {
@@ -610,7 +610,7 @@ describe('Workbook', () => {
         const fileDuplicateRowTestFile = './fixtures/xlsx/duplicateRowTest.xlsx';
         const wb = new ExcelJS.Workbook();
         return wb.xlsx.readFile(fileDuplicateRowTestFile).then(() => {
-          const ws = wb.getWorksheet('duplicateTest');
+          const ws = wb.getWorksheet('duplicateTest')!;
 
           ws.getCell('A1').value = 'OneInfo';
           ws.getCell('A2').value = 'TwoInfo';

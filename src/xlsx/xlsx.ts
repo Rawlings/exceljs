@@ -324,12 +324,15 @@ class XLSX {
         stream.end();
         const keyName = entryName.replace(/^\//, '');
         switch (keyName) {
-          case '_rels/.rels':
-            model.globalRels = await this.parseRels(stream);
+          case '_rels/.rels': {
+            const relsXform = new RelationshipsXform();
+            model.globalRels = await relsXform.parseStream(stream);
             break;
+          }
 
           case 'xl/workbook.xml': {
-            const workbook = await this.parseWorkbook(stream);
+            const workbookXform = new WorkbookXform();
+            const workbook = await workbookXform.parseStream(stream);
             model.sheets = workbook.sheets;
             model.definedNames = workbook.definedNames;
             model.views = workbook.views;
@@ -338,9 +341,11 @@ class XLSX {
             break;
           }
 
-          case 'xl/_rels/workbook.xml.rels':
-            model.workbookRels = await this.parseRels(stream);
+          case 'xl/_rels/workbook.xml.rels': {
+            const relsXform = new RelationshipsXform();
+            model.workbookRels = await relsXform.parseStream(stream);
             break;
+          }
 
           case 'xl/sharedStrings.xml':
             model.sharedStrings = new SharedStringsXform();

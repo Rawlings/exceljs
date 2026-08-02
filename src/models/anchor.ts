@@ -16,12 +16,13 @@ export interface AnchorAddressInput {
   nativeRowOff?: number;
 }
 
-// The minimal worksheet surface Anchor needs — the full Worksheet class
-// is typed in a later phase; this forward-declared shape avoids a circular
-// import while still typing the two calls Anchor actually makes.
+// The minimal worksheet surface Anchor needs. Worksheet is now fully typed
+// and satisfies this structurally (getColumn/getRow never actually return
+// undefined — they create missing columns/rows — but the union is kept
+// since callers only need read access to these two members).
 export interface AnchorWorksheet {
-  getColumn(number: number): { isCustomWidth: boolean; width: number } | undefined;
-  getRow(number: number): { height: number } | undefined;
+  getColumn(number: number): { isCustomWidth: boolean; width: number | undefined } | undefined;
+  getRow(number: number): { height: number | undefined } | undefined;
 }
 
 export class Anchor {
@@ -101,7 +102,11 @@ export class Anchor {
 
   get colWidth(): number {
     const column = this.worksheet && this.worksheet.getColumn(this.nativeCol + 1);
-    return column && column.isCustomWidth ? Math.floor(column.width * 10000) : 640000;
+    // NB: matches original — if width is undefined here (shouldn't happen
+    // when isCustomWidth is true), this yields NaN, same as untyped original.
+    return column && column.isCustomWidth
+      ? Math.floor((column.width as number) * 10000)
+      : 640000;
   }
 
   get rowHeight(): number {

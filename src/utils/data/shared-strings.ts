@@ -1,5 +1,5 @@
 class SharedStrings {
-  private _values: any[];
+  private _values: unknown[];
   private _totalRefs: number;
   private _hash: Record<string, number>;
 
@@ -13,7 +13,7 @@ class SharedStrings {
     return this._values.length;
   }
 
-  get values(): any[] {
+  get values(): unknown[] {
     return this._values;
   }
 
@@ -21,11 +21,11 @@ class SharedStrings {
     return this._totalRefs;
   }
 
-  getString(index: number): any {
+  getString(index: number): unknown {
     return this._values[index];
   }
 
-  add(value: any): number {
+  add(value: unknown): number {
     const key = typeof value === 'object' ? JSON.stringify(value) : String(value);
     let index = this._hash[key];
     if (index === undefined) {

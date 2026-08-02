@@ -817,10 +817,10 @@ class Worksheet implements WorksheetLike {
   // =========================================================================
   // Images
   addImage(imageId: number, range: unknown) {
-    const model = {
+    const model: import('#src/models/image').ImageModel = {
       type: 'image',
       imageId,
-      range,
+      range: range as import('#src/models/image').ImageRangeInput | string,
     };
     this._media.push(new Image(this, model));
   }
@@ -830,7 +830,7 @@ class Worksheet implements WorksheetLike {
   }
 
   addBackgroundImage(imageId: number) {
-    const model = {
+    const model: import('#src/models/image').ImageModel = {
       type: 'background',
       imageId,
     };
@@ -885,7 +885,7 @@ class Worksheet implements WorksheetLike {
 
   // =========================================================================
   // Tables
-  addTable(model: { name: string }): Table {
+  addTable(model: import('#src/models/table').TableModel): Table {
     const table = new Table(this, model);
     this.tables[model.name] = table;
     return table;
@@ -905,7 +905,7 @@ class Worksheet implements WorksheetLike {
 
   // =========================================================================
   // Pivot Tables
-  addPivotTable(model: unknown) {
+  addPivotTable(model: import('#src/models/pivot-table').PivotTableModel) {
     // eslint-disable-next-line no-console
     console.warn(
       `Warning: Pivot Table support is experimental.
@@ -1036,7 +1036,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     autoFilter: unknown;
     media: unknown[];
     sheetProtection: Record<string, unknown> | null;
-    tables: { name: string }[];
+    tables: import('#src/models/table').TableModel[];
     pivotTables: unknown[];
     conditionalFormattings: unknown[];
   }) {
@@ -1057,7 +1057,9 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     this.headerFooter = value.headerFooter;
     this.views = value.views;
     this.autoFilter = value.autoFilter;
-    this._media = value.media.map((medium) => new Image(this, medium));
+    this._media = value.media.map(
+      (medium) => new Image(this, medium as import('#src/models/image').ImageModel)
+    );
     this.sheetProtection = value.sheetProtection;
     this.tables = value.tables.reduce((tables: Record<string, Table>, table) => {
       const t = new Table(this, table);

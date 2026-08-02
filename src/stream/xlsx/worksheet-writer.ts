@@ -7,7 +7,8 @@ import Encryptor from '#src/utils/crypto/encryptor';
 import Dimensions from '#src/models/range';
 import Row from '#src/models/row';
 import Column from '#src/models/column';
-import type { WorksheetLike } from '#src/models/internal-types';
+import type { WorksheetLike, CellLike } from '#src/models/internal-types';
+import type WorkbookWriter from '#src/stream/xlsx/workbook-writer';
 
 import SheetRelsWriter from '#src/stream/xlsx/sheet-rels-writer';
 import SheetCommentsWriter from '#src/stream/xlsx/sheet-comments-writer';
@@ -54,42 +55,55 @@ const xform = {
 
 // ============================================================================================
 
-class WorksheetWriter {
-  id: any;
-  name: string;
-  state: any;
-  _rows: any;
-  _columns: any;
-  _keys: any;
-  _merges: any;
-  _sheetRelsWriter: any;
-  _sheetCommentsWriter: any;
-  _dimensions: any;
-  autoFilter: any;
-  _headerFooter: any;
-  rowBreaks: any[];
-  _rowBreaks: any;
-  dataValidations: any;
-  _rowZero: any;
-  committed: any;
-  _formulae: any;
-  _siFormulae: any;
-  conditionalFormatting: any;
-  properties: any;
-  headerFooter: any;
-  pageSetup: any;
-  useSharedStrings: any;
-  _workbook: any;
-  hasComments: any;
-  _views: any;
-  _media: any;
-  sheetProtection: any;
-  startedData: any;
-  _stream: any;
-  _background: any;
-  _headerRowCount: any;
+export interface WorksheetWriterOptions {
+  id: number;
+  name?: string;
+  workbook: WorkbookWriter;
+  useSharedStrings?: boolean;
+  properties?: Record<string, unknown>;
+  state?: string;
+  pageSetup?: Record<string, unknown>;
+  views?: unknown[];
+  autoFilter?: unknown;
+  headerFooter?: Record<string, unknown>;
+}
 
-  constructor(options?: any) {
+class WorksheetWriter {
+  id: number;
+  name: string;
+  state: string;
+  _rows: (Row | undefined | null)[] | null;
+  _columns: Column[] | null;
+  _keys: Record<string, Column>;
+  _merges: Dimensions[] & { add?: () => void };
+  _sheetRelsWriter: SheetRelsWriter;
+  _sheetCommentsWriter: SheetCommentsWriter;
+  _dimensions: Dimensions;
+  autoFilter: unknown;
+  _headerFooter: unknown;
+  rowBreaks: unknown[];
+  _rowBreaks: unknown;
+  dataValidations: DataValidations;
+  _rowZero: number;
+  committed: boolean;
+  _formulae: Record<string, unknown>;
+  _siFormulae: number;
+  conditionalFormatting: unknown[];
+  properties: Record<string, unknown>;
+  headerFooter: Record<string, unknown>;
+  pageSetup: Record<string, unknown>;
+  useSharedStrings: boolean;
+  _workbook: WorkbookWriter;
+  hasComments: boolean;
+  _views: unknown[];
+  _media: unknown[];
+  sheetProtection: Record<string, unknown> | null;
+  startedData: boolean;
+  _stream: NodeJS.WritableStream | undefined;
+  _background: { imageId?: number; rId?: string } | undefined;
+  _headerRowCount: number | undefined;
+
+  constructor(options: WorksheetWriterOptions) {
     // in a workbook, each sheet will have a number
     this.id = options.id;
 
@@ -110,13 +124,17 @@ class WorksheetWriter {
     this._keys = {};
 
     // keep a record of all row and column pageBreaks
-    this._merges = [];
+    this._merges = [] as unknown as Dimensions[] & { add?: () => void };
     this._merges.add = function () {}; // ignore cell instruction
 
     // keep record of all hyperlinks
-    this._sheetRelsWriter = new SheetRelsWriter(options);
+    this._sheetRelsWriter = new SheetRelsWriter(options as unknown as { id: number; workbook: unknown });
 
-    this._sheetCommentsWriter = new SheetCommentsWriter(this, this._sheetRelsWriter, options);
+    this._sheetCommentsWriter = new SheetCommentsWriter(
+      this,
+      this._sheetRelsWriter,
+      options as unknown as { id: number; workbook: unknown }
+    );
 
     // keep a record of dimensions
     this._dimensions = new Dimensions();
@@ -177,8 +195,9 @@ class WorksheetWriter {
         verticalDpi: 4294967295,
         fitToPage: !!(
           options.pageSetup &&
-          (options.pageSetup.fitToWidth || options.pageSetup.fitToHeight) &&
-          !options.pageSetup.scale
+          ((options.pageSetup as Record<string, unknown>).fitToWidth ||
+            (options.pageSetup as Record<string, unknown>).fitToHeight) &&
+          !(options.pageSetup as Record<string, unknown>).scale
         ),
         pageOrder: 'downThenOver',
         blackAndWhite: false,
@@ -223,17 +242,19 @@ class WorksheetWriter {
     this.startedData = false;
   }
 
-  get workbook() {
+  get workbook(): WorkbookWriter {
     return this._workbook;
   }
 
-  get stream() {
+  get stream(): NodeJS.WritableStream {
     if (!this._stream) {
       // eslint-disable-next-line no-underscore-dangle
-      this._stream = this._workbook._openStream(`xl/worksheets/sheet${this.id}.xml`);
+      this._stream = (
+        this._workbook as unknown as { _openStream(path: string): NodeJS.WritableStream & { pause(): void } }
+      )._openStream(`xl/worksheets/sheet${this.id}.xml`);
 
       // pause stream to prevent 'data' events
-      this._stream.pause();
+      (this._stream as unknown as { pause(): void }).pause();
     }
     return this._stream;
   }
@@ -249,7 +270,7 @@ class WorksheetWriter {
       return;
     }
     // commit all rows
-    this._rows.forEach((cRow: any) => {
+    (this._rows as (Row | undefined | null)[]).forEach((cRow) => {
       if (cRow) {
         // write the row to the stream
         this._writeRow(cRow);
@@ -283,7 +304,7 @@ class WorksheetWriter {
 
     this._writeCloseWorksheet();
     // signal end of stream to workbook
-    this.stream.end();
+    (this.stream as unknown as { end(): void }).end();
 
     this._sheetCommentsWriter.commit();
     // also commit the hyperlinks if any
@@ -293,15 +314,15 @@ class WorksheetWriter {
   }
 
   // return the current dimensions of the writer
-  get dimensions() {
+  get dimensions(): Dimensions {
     return this._dimensions;
   }
 
-  get views() {
+  get views(): unknown[] {
     return this._views;
   }
 
-  set views(value: any) {
+  set views(value: unknown[]) {
     this._views = value;
   }
 
@@ -309,48 +330,48 @@ class WorksheetWriter {
   // Columns
 
   // get the current columns array.
-  get columns() {
+  get columns(): Column[] | null {
     return this._columns;
   }
 
   // set the columns from an array of column definitions.
   // Note: any headers defined will overwrite existing values.
-  set columns(value: any) {
+  set columns(value: Record<string, unknown>[]) {
     // calculate max header row count
-    this._headerRowCount = value.reduce((pv: any, cv: any) => {
-      const headerCount = (cv.header && 1) || (cv.headers && cv.headers.length) || 0;
-      return Math.max(pv, headerCount);
+    this._headerRowCount = value.reduce((pv: number, cv: Record<string, unknown>) => {
+      const headerCount = (cv.header && 1) || ((cv.headers as unknown[])?.length ?? 0) || 0;
+      return Math.max(pv, headerCount as number);
     }, 0);
 
     // construct Column objects
     let count = 1;
-    const columns: any[] = (this._columns = []);
-    value.forEach((defn: any) => {
+    const columns: Column[] = (this._columns = []);
+    value.forEach((defn) => {
       const column = new Column(this as unknown as WorksheetLike, count++, false);
       columns.push(column);
-      column.defn = defn;
+      column.defn = defn as unknown as import('#src/models/column').ColumnDefinition;
     });
   }
 
-  getColumnKey(key: any) {
+  getColumnKey(key: string): Column | undefined {
     return this._keys[key];
   }
 
-  setColumnKey(key: any, value: any) {
+  setColumnKey(key: string, value: Column) {
     this._keys[key] = value;
   }
 
-  deleteColumnKey(key: any) {
+  deleteColumnKey(key: string) {
     delete this._keys[key];
   }
 
-  eachColumnKey(f: any) {
+  eachColumnKey(f: (column: Column, key: string) => void) {
     _.each(this._keys, f);
   }
 
   // get a single column by col number. If it doesn't exist, it and any gaps before it
   // are created.
-  getColumn(c: any) {
+  getColumn(c: number | string): Column {
     if (typeof c === 'string') {
       // if it matches a key'd column, return that
       const col = this._keys[c];
@@ -373,35 +394,39 @@ class WorksheetWriter {
 
   // =========================================================================
   // Rows
-  get _nextRow() {
-    return this._rowZero + this._rows.length;
+  get _nextRow(): number {
+    return this._rowZero + (this._rows as unknown[]).length;
   }
 
   // iterate over every uncommitted row in the worksheet, including maybe empty rows
-  eachRow(options: any, iteratee: any) {
+  eachRow(
+    options: { includeEmpty?: boolean } | ((row: Row, rowNumber: number) => void),
+    iteratee?: (row: Row, rowNumber: number) => void
+  ) {
     if (!iteratee) {
-      iteratee = options;
-      options = undefined;
+      iteratee = options as (row: Row, rowNumber: number) => void;
+      options = undefined as unknown as { includeEmpty?: boolean };
     }
-    if (options && options.includeEmpty) {
+    if (options && (options as { includeEmpty?: boolean }).includeEmpty) {
       const n = this._nextRow;
       for (let i = this._rowZero; i < n; i++) {
         iteratee(this.getRow(i), i);
       }
     } else {
-      this._rows.forEach((row: any) => {
-        if (row.hasValues) {
-          iteratee(row, row.number);
+      (this._rows as (Row | undefined | null)[]).forEach((row) => {
+        if (row && row.hasValues) {
+          (iteratee as (row: Row, rowNumber: number) => void)(row, row.number);
         }
       });
     }
   }
 
-  _commitRow(cRow: any) {
+  _commitRow(cRow: Row) {
     // since rows must be written in order, we commit all rows up till and including cRow
     let found = false;
-    while (this._rows.length && !found) {
-      const row = this._rows.shift();
+    const rows = this._rows as (Row | undefined | null)[];
+    while (rows.length && !found) {
+      const row = rows.shift();
       this._rowZero++;
       if (row) {
         this._writeRow(row);
@@ -411,38 +436,40 @@ class WorksheetWriter {
     }
   }
 
-  get lastRow() {
+  get lastRow(): Row | undefined | null {
     // returns last uncommitted row
-    if (this._rows.length) {
-      return this._rows[this._rows.length - 1];
+    const rows = this._rows as (Row | undefined | null)[];
+    if (rows.length) {
+      return rows[rows.length - 1];
     }
     return undefined;
   }
 
   // find a row (if exists) by row number
-  findRow(rowNumber: any) {
+  findRow(rowNumber: number): Row | undefined | null {
     const index = rowNumber - this._rowZero;
-    return this._rows[index];
+    return (this._rows as (Row | undefined | null)[])[index];
   }
 
-  getRow(rowNumber: any) {
+  getRow(rowNumber: number): Row {
     const index = rowNumber - this._rowZero;
 
     // may fail if rows have been comitted
     if (index < 0) {
       throw new Error('Out of bounds: this row has been committed');
     }
-    let row = this._rows[index];
+    const rows = this._rows as (Row | undefined | null)[];
+    let row = rows[index];
     if (!row) {
-      this._rows[index] = row = new Row(this as unknown as WorksheetLike, rowNumber);
+      rows[index] = row = new Row(this as unknown as WorksheetLike, rowNumber);
     }
     return row;
   }
 
-  addRow(value: any) {
+  addRow(value: unknown): Row {
     const row = new Row(this as unknown as WorksheetLike, this._nextRow);
-    this._rows[row.number - this._rowZero] = row;
-    row.values = value;
+    (this._rows as (Row | undefined | null)[])[row.number - this._rowZero] = row;
+    row.values = value as unknown[] | Record<string, unknown> | undefined | null;
     return row;
   }
 
@@ -450,26 +477,26 @@ class WorksheetWriter {
   // Cells
 
   // returns the cell at [r,c] or address given by r. If not found, return undefined
-  findCell(r: any, c: any) {
+  findCell(r: number | string, c?: number): CellLike | undefined {
     const address = colCache.getAddress(r, c);
     const row = this.findRow(address.row);
     return row ? row.findCell(address.col) : undefined;
   }
 
   // return the cell at [r,c] or address given by r. If not found, create a new one.
-  getCell(r: any, c?: any) {
+  getCell(r: number | string, c?: number): CellLike {
     const address = colCache.getAddress(r, c);
     const row = this.getRow(address.row);
     return row.getCellEx(address);
   }
 
-  mergeCells(...cells: any) {
+  mergeCells(...cells: unknown[]) {
     // may fail if rows have been comitted
     const dimensions = new Dimensions(cells);
 
     // check cells aren't already merged
-    this._merges.forEach((merge: any) => {
-      if (merge.intersects(dimensions)) {
+    this._merges.forEach((merge) => {
+      if (merge.intersects(dimensions.model)) {
         throw new Error('Cannot merge already merged cells');
       }
     });
@@ -479,7 +506,7 @@ class WorksheetWriter {
     for (let i = dimensions.top; i <= dimensions.bottom; i++) {
       for (let j = dimensions.left; j <= dimensions.right; j++) {
         if (i > dimensions.top || j > dimensions.left) {
-          this.getCell(i, j).merge(master);
+          (this.getCell(i, j) as unknown as { merge(m: unknown): void }).merge(master);
         }
       }
     }
@@ -490,11 +517,11 @@ class WorksheetWriter {
 
   // ===========================================================================
   // Conditional Formatting
-  addConditionalFormatting(cf: any) {
+  addConditionalFormatting(cf: unknown) {
     this.conditionalFormatting.push(cf);
   }
 
-  removeConditionalFormatting(filter: any) {
+  removeConditionalFormatting(filter: number | ((cf: unknown) => boolean)) {
     if (typeof filter === 'number') {
       this.conditionalFormatting.splice(filter, 1);
     } else if (filter instanceof Function) {
@@ -506,19 +533,19 @@ class WorksheetWriter {
 
   // =========================================================================
 
-  addBackgroundImage(imageId: any) {
+  addBackgroundImage(imageId: number) {
     this._background = {
       imageId,
     };
   }
 
-  getBackgroundImageId() {
+  getBackgroundImageId(): number | undefined {
     return this._background && this._background.imageId;
   }
 
   // =========================================================================
   // Worksheet Protection
-  protect(password: any, options: any) {
+  protect(password: string | undefined, options: Record<string, unknown> | undefined) {
     // TODO: make this function truly async
     // perhaps marshal to worker thread or something
     return new Promise<void>((resolve) => {
@@ -528,7 +555,7 @@ class WorksheetWriter {
       if (options && 'spinCount' in options) {
         // force spinCount to be integer >= 0
         options.spinCount = Number.isFinite(options.spinCount)
-          ? Math.round(Math.max(0, options.spinCount))
+          ? Math.round(Math.max(0, options.spinCount as number))
           : 100000;
       }
       if (password) {
@@ -539,8 +566,8 @@ class WorksheetWriter {
         this.sheetProtection.hashValue = Encryptor.convertPasswordToHash(
           password,
           'SHA512',
-          this.sheetProtection.saltValue,
-          this.sheetProtection.spinCount
+          this.sheetProtection.saltValue as string,
+          this.sheetProtection.spinCount as number
         );
       }
       if (options) {
@@ -559,11 +586,15 @@ class WorksheetWriter {
 
   // ================================================================================
 
-  _write(text: any) {
-    this.stream.write(text);
+  _write(text: string) {
+    (this.stream as unknown as { write(t: string): void }).write(text);
   }
 
-  _writeSheetProperties(parts: string[], properties: any, pageSetup: any) {
+  _writeSheetProperties(
+    parts: string[],
+    properties: Record<string, unknown> | undefined,
+    pageSetup: Record<string, unknown> | undefined
+  ) {
     const sheetPropertiesModel = {
       outlineProperties: properties && properties.outlineProperties,
       tabColor: properties && properties.tabColor,
@@ -578,7 +609,7 @@ class WorksheetWriter {
     parts.push(xform.sheetProperties.toXml(sheetPropertiesModel));
   }
 
-  _writeSheetFormatProperties(parts: string[], properties: any) {
+  _writeSheetFormatProperties(parts: string[], properties: Record<string, unknown> | undefined) {
     const sheetFormatPropertiesModel = properties
       ? {
           defaultRowHeight: properties.defaultRowHeight,
@@ -587,8 +618,9 @@ class WorksheetWriter {
           outlineLevelRow: properties.outlineLevelRow,
         }
       : undefined;
-    if (sheetFormatPropertiesModel && properties.defaultColWidth) {
-      (sheetFormatPropertiesModel as any).defaultColWidth = properties.defaultColWidth;
+    if (sheetFormatPropertiesModel && properties!.defaultColWidth) {
+      (sheetFormatPropertiesModel as Record<string, unknown>).defaultColWidth =
+        properties!.defaultColWidth;
     }
 
     parts.push(xform.sheetFormatProperties.toXml(sheetFormatPropertiesModel));
@@ -610,14 +642,14 @@ class WorksheetWriter {
 
     this._writeSheetFormatProperties(parts, this.properties);
 
-    this.stream.write(parts.join(''));
+    (this.stream as unknown as { write(t: string): void }).write(parts.join(''));
   }
 
   _writeColumns() {
-    const cols = Column.toModel(this.columns);
+    const cols = Column.toModel(this.columns as Column[]);
     if (cols) {
-      xform.columns.prepare(cols, { styles: this._workbook.styles });
-      this.stream.write(xform.columns.toXml(cols));
+      xform.columns.prepare(cols, { styles: (this._workbook as unknown as { styles: unknown }).styles });
+      (this.stream as unknown as { write(t: string): void }).write(xform.columns.toXml(cols));
     }
   }
 
@@ -625,7 +657,7 @@ class WorksheetWriter {
     this._write('<sheetData>');
   }
 
-  _writeRow(row: any) {
+  _writeRow(row: Row) {
     if (!this.startedData) {
       this._writeColumns();
       this._writeOpenSheetData();
@@ -635,16 +667,18 @@ class WorksheetWriter {
     if (row.hasValues || row.height) {
       const { model } = row;
       const options = {
-        styles: this._workbook.styles,
-        sharedStrings: this.useSharedStrings ? this._workbook.sharedStrings : undefined,
+        styles: (this._workbook as unknown as { styles: unknown }).styles,
+        sharedStrings: this.useSharedStrings
+          ? (this._workbook as unknown as { sharedStrings: unknown }).sharedStrings
+          : undefined,
         hyperlinks: this._sheetRelsWriter.hyperlinksProxy,
         merges: this._merges,
         formulae: this._formulae,
         siFormulae: this._siFormulae,
-        comments: [],
+        comments: [] as unknown[],
       };
       xform.row.prepare(model, options);
-      this.stream.write(xform.row.toXml(model));
+      (this.stream as unknown as { write(t: string): void }).write(xform.row.toXml(model));
 
       if (options.comments.length) {
         this.hasComments = true;
@@ -660,64 +694,86 @@ class WorksheetWriter {
   _writeMergeCells() {
     if (this._merges.length) {
       const parts = [`<mergeCells count="${this._merges.length}">`];
-      this._merges.forEach((merge: any) => {
+      this._merges.forEach((merge) => {
         parts.push(`<mergeCell ref="${merge}"/>`);
       });
       parts.push('</mergeCells>');
 
-      this.stream.write(parts.join(''));
+      (this.stream as unknown as { write(t: string): void }).write(parts.join(''));
     }
   }
 
   _writeHyperlinks() {
     // eslint-disable-next-line no-underscore-dangle
-    this.stream.write(xform.hyperlinks.toXml(this._sheetRelsWriter._hyperlinks));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.hyperlinks.toXml(this._sheetRelsWriter._hyperlinks)
+    );
   }
 
   _writeConditionalFormatting() {
     const options = {
-      styles: this._workbook.styles,
+      styles: (this._workbook as unknown as { styles: unknown }).styles,
     };
     xform.conditionalFormattings.prepare(this.conditionalFormatting, options);
-    this.stream.write(xform.conditionalFormattings.toXml(this.conditionalFormatting));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.conditionalFormattings.toXml(this.conditionalFormatting)
+    );
   }
 
   _writeSheetProtection() {
-    this.stream.write(xform.sheetProtection.toXml(this.sheetProtection));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.sheetProtection.toXml(this.sheetProtection)
+    );
   }
 
   _writeAutoFilter() {
-    this.stream.write(xform.autoFilter.toXml(this.autoFilter));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.autoFilter.toXml(this.autoFilter)
+    );
   }
 
   _writeRowBreaks() {
-    this.stream.write(xform.rowBreaks.toXml(this.rowBreaks));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.rowBreaks.toXml(this.rowBreaks)
+    );
   }
 
   _writeDataValidations() {
-    this.stream.write(xform.dataValidations.toXml(this.dataValidations.model));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.dataValidations.toXml(this.dataValidations.model)
+    );
   }
 
   _writePrintOptions() {
-    this.stream.write(xform.printOptions.toXml(this.pageSetup));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.printOptions.toXml(this.pageSetup)
+    );
   }
 
   _writePageMargins() {
-    this.stream.write(xform.pageMargins.toXml(this.pageSetup.margins));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.pageMargins.toXml((this.pageSetup as { margins: unknown }).margins)
+    );
   }
 
   _writePageSetup() {
-    this.stream.write(xform.pageSeteup.toXml(this.pageSetup));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.pageSeteup.toXml(this.pageSetup)
+    );
   }
 
   _writeHeaderFooter() {
-    this.stream.write(xform.headerFooter.toXml(this.headerFooter));
+    (this.stream as unknown as { write(t: string): void }).write(
+      xform.headerFooter.toXml(this.headerFooter)
+    );
   }
 
   _writeBackground() {
     if (this._background) {
       if (this._background.imageId !== undefined) {
-        const image = this._workbook.getImage(this._background.imageId);
+        const image = (
+          this._workbook as unknown as { getImage(id: number): { name: string } }
+        ).getImage(this._background.imageId);
         const pictureId = this._sheetRelsWriter.addMedia({
           Target: `../media/${image.name}`,
           Type: RelType.Image,
@@ -728,13 +784,17 @@ class WorksheetWriter {
           rId: pictureId,
         };
       }
-      this.stream.write(xform.picture.toXml({ rId: this._background.rId }));
+      (this.stream as unknown as { write(t: string): void }).write(
+        xform.picture.toXml({ rId: this._background.rId })
+      );
     }
   }
 
   _writeLegacyData() {
     if (this.hasComments) {
-      this.stream.write(`<legacyDrawing r:id="${this._sheetCommentsWriter.vmlRelId}"/>`);
+      (this.stream as unknown as { write(t: string): void }).write(
+        `<legacyDrawing r:id="${this._sheetCommentsWriter.vmlRelId}"/>`
+      );
     }
   }
 
