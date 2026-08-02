@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
-import parseSax from '#src/utils/parse-sax';
+import parseSax from '#src/utils/helpers/parse-sax';
 
-import _ from '#src/utils/under-dash';
-import utils from '#src/utils/utils';
-import colCache from '#src/utils/col-cache';
+import _ from '#src/utils/helpers/under-dash';
+import utils from '#src/utils/helpers/utils';
+import colCache from '#src/utils/data/col-cache';
 import Dimensions from '#src/doc/range';
 
 import Row from '#src/doc/row';

@@ -1,9 +1,9 @@
-import fs from 'fs';
-import { EventEmitter } from 'events';
-import { PassThrough, Readable } from 'stream';
-import { NativeZipReader as JSZip } from '#src/utils/native-zip';
-import iterateStream from '#src/utils/iterate-stream';
-import parseSax from '#src/utils/parse-sax';
+import fs from 'node:fs';
+import { EventEmitter } from 'node:events';
+import { PassThrough, Readable } from 'node:stream';
+import { NativeZipReader as JSZip } from '#src/utils/stream/native-zip';
+import iterateStream from '#src/utils/stream/iterate-stream';
+import parseSax from '#src/utils/helpers/parse-sax';
 
 import StyleManager from '#src/xlsx/xform/style/styles-xform';
 import WorkbookXform from '#src/xlsx/xform/book/workbook-xform';

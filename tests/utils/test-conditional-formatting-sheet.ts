@@ -1,5 +1,5 @@
 import tools from './tools';
-import conditionalFormattingData from './data/conditional-formatting.json';
+import conditionalFormattingData from '#fixtures/json/conditional-formatting.json';
 
 const self: any = {
   conditionalFormattings: tools.fix(conditionalFormattingData),

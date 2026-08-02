@@ -3,6 +3,8 @@ const path = require('path');
 const testutils = require('../utils/index');
 
 import ExcelJS from '#src/exceljs.nodejs';
+
+declare const context: any;
 import Range from '#src/doc/range';
 
 describe('Worksheet', () => {
@@ -264,7 +266,7 @@ describe('Worksheet', () => {
       ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(values[rowNumber]);
         row.eachCell((cell: any, colNumber: any) => {
-          expect(cell.value).to.equal(values[rowNumber][colNumber]);
+          expect(cell.value).to.equal(values[rowNumber]![colNumber]);
         });
       });
 
@@ -342,7 +344,7 @@ describe('Worksheet', () => {
       ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(rows[rowNumber]);
         row.eachCell((cell: any, colNumber: any) => {
-          expect(cell.value).to.equal(rows[rowNumber][colNumber]);
+          expect(cell.value).to.equal(rows[rowNumber]![colNumber]);
         });
       });
 
@@ -414,7 +416,7 @@ describe('Worksheet', () => {
       ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(values[rowNumber]);
         row.eachCell((cell: any, colNumber: any) => {
-          expect(cell.value).to.equal(values[rowNumber][colNumber]);
+          expect(cell.value).to.equal(values[rowNumber]![colNumber]);
         });
       });
 
@@ -501,7 +503,7 @@ describe('Worksheet', () => {
       ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(rows[rows.length - rowNumber]);
         row.eachCell((cell: any, colNumber: any) => {
-          expect(cell.value).to.equal(rows[rows.length - rowNumber][colNumber]);
+          expect(cell.value).to.equal(rows[rows.length - rowNumber]![colNumber]);
         });
       });
 
@@ -914,7 +916,7 @@ describe('Worksheet', () => {
       const wb = new ExcelJS.Workbook();
       const ws = wb.addWorksheet('blort');
 
-      const expectMaster = function (range, master) {
+      const expectMaster = function (range: any, master: any) {
         const d = new Range(range);
         for (let i = d.top; i <= d.bottom; i++) {
           for (let j = d.left; j <= d.right; j++) {

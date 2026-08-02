@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import BaseXform from '#src/xlsx/xform/base-xform';
-import utils from '#src/utils/utils';
+import utils from '#src/utils/helpers/utils';
 
 import ColorXform from '#src/xlsx/xform/style/color-xform';
 

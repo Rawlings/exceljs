@@ -2,9 +2,9 @@ import _ from './under-dash';
 
 const tools = {
   dtMatcher: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[.]\d{3}Z$/,
-  fix(o): any {
+  fix(o: any): any {
     let clone: any;
-    if (o instanceof Array) {
+    if (Array.isArray(o)) {
       clone = [];
     } else if (typeof o === 'object' && o !== null) {
       clone = {};
@@ -21,7 +21,7 @@ const tools = {
     return clone;
   },
 
-  concatenateFormula(...args: any[]) {
+  concatenateFormula(...args: any[]): { formula: string } {
     const values = args.map((value: any) => `"${value}"`);
     return {
       formula: `CONCATENATE(${values.join(',')})`,

@@ -1,4 +1,4 @@
-import XmlStream from '#src/utils/xml-stream';
+import XmlStream from '#src/utils/stream/xml-stream';
 import BaseXform from '#src/xlsx/xform/base-xform';
 import DateXform from '#src/xlsx/xform/simple/date-xform';
 import StringXform from '#src/xlsx/xform/simple/string-xform';

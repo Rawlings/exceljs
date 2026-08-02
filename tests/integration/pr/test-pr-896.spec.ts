@@ -1,6 +1,6 @@
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
 describe('pr related issues', () => {
   describe('pr 896 leading and trailing whitespace', () => {

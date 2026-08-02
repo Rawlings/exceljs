@@ -3,7 +3,7 @@ const fs = require('fs');
 import testXformHelper from '../test-xform-helper';
 
 import StylesXform from '#src/xlsx/xform/style/styles-xform';
-import XmlStream from '#src/utils/xml-stream';
+import XmlStream from '#src/utils/stream/xml-stream';
 
 const expectations = [
   {
@@ -31,7 +31,7 @@ describe('StylesXform', () => {
       const xmlStream = new XmlStream();
       stylesXform.render(xmlStream);
 
-      expect(xmlStream.xml).xml.to.equal(expectedXml);
+      expect(xmlStream.xml).to.equal(expectedXml);
     });
   });
 });

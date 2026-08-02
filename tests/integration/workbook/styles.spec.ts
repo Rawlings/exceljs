@@ -3,12 +3,12 @@ import testUtils from '../../utils/index';
 
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
 // =============================================================================
 // Sample Data
-import richTextSample from '../data/rich-text-sample';
-import richTextSampleA1 from '../data/rich-text-sample-a1.json';
+import richTextSampleA1 from '#fixtures/json/rich-text-sample-a1.json';
+const richTextSample = richTextSampleA1;
 
 // =============================================================================
 // Tests
@@ -75,7 +75,7 @@ describe('Workbook', () => {
 
     it('in-cell formats properly in xlsx file', () => {
       // Stream from input string
-      const testData = Buffer.from(richTextSample, 'base64');
+      const testData = Buffer.from(richTextSample as any, 'base64');
 
       // Initiate the source
       const bufferStream = new stream.PassThrough();

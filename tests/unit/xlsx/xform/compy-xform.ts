@@ -13,16 +13,15 @@ export interface CompyOptions {
 }
 
 class CompyXform extends BaseXform {
-  tag: string;
+  private _tag: string;
   attrs?: Record<string, any>;
   children: CompyChildOption[];
-  map: Record<string, CompyChildOption>;
-  parser?: CompyChildOption;
+  override map: Record<string, CompyChildOption>;
 
   constructor(options: CompyOptions) {
     super();
 
-    this.tag = options.tag;
+    this._tag = options.tag;
     this.attrs = options.attrs;
     this.children = options.children;
     this.map = this.children.reduce((map: Record<string, CompyChildOption>, child) => {
@@ -35,7 +34,11 @@ class CompyXform extends BaseXform {
     }, {});
   }
 
-  prepare(model, options: any) {
+  override get tag(): string {
+    return this._tag;
+  }
+
+  override prepare(model: any, options: any) {
     this.children.forEach((child: any) => {
       if (child.tag) {
         child.xform.prepare(model[child.tag], options);
@@ -43,8 +46,8 @@ class CompyXform extends BaseXform {
     });
   }
 
-  render(xmlStream, model: any) {
-    xmlStream.openNode(this.tag, this.attrs);
+  override render(xmlStream: any, model: any) {
+    xmlStream.openNode(this._tag, this.attrs);
     this.children.forEach((child: any) => {
       if (child.name) {
         child.xform.render(xmlStream, model[child.name]);
@@ -53,13 +56,13 @@ class CompyXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: any) {
     if (this.parser) {
       this.parser.xform.parseOpen(node);
       return true;
     }
     switch (node.name) {
-      case this.tag:
+      case this._tag:
         this.model = {};
         return true;
       default:
@@ -72,13 +75,13 @@ class CompyXform extends BaseXform {
     return false;
   }
 
-  parseText(text: string) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.xform.parseText(text);
     }
   }
 
-  parseClose(name: string) {
+  override parseClose(name: string) {
     if (this.parser) {
       if (!this.parser.xform.parseClose(name)) {
         if (this.parser.name) {
@@ -91,7 +94,7 @@ class CompyXform extends BaseXform {
     return false;
   }
 
-  reconcile(model, options: any) {
+  override reconcile(model: any, options: any) {
     this.children.forEach((child: any) => {
       if (child.tag) {
         child.xform.prepare(model[child.tag], options);

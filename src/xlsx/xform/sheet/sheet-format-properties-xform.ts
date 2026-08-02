@@ -1,4 +1,4 @@
-import _ from '#src/utils/under-dash';
+import _ from '#src/utils/helpers/under-dash';
 import BaseXform from '#src/xlsx/xform/base-xform';
 
 class SheetFormatPropertiesXform extends BaseXform {
@@ -11,7 +11,7 @@ class SheetFormatPropertiesXform extends BaseXform {
       const attributes: any = {
         defaultRowHeight: model.defaultRowHeight,
         defaultColWidth: model.defaultColWidth,
-        customHeight: (!model.defaultRowHeight || model.defaultRowHeight !== 15) ? '1' : undefined,
+        customHeight: !model.defaultRowHeight || model.defaultRowHeight !== 15 ? '1' : undefined,
         'x14ac:dyDescent': model.dyDescent,
         outlineLevelRow: model.outlineLevelRow,
         outlineLevelCol: model.outlineLevelCol,

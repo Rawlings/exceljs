@@ -3,14 +3,14 @@ const fs = require('fs');
 import testXformHelper from '../test-xform-helper';
 
 import Enums from '#src/doc/enums';
-import XmlStream from '#src/utils/xml-stream';
+import XmlStream from '#src/utils/stream/xml-stream';
 import WorksheetXform from '#src/xlsx/xform/sheet/worksheet-xform';
 
 import SharedStringsXform from '#src/xlsx/xform/strings/shared-strings-xform';
 import StylesXform from '#src/xlsx/xform/style/styles-xform';
 
 const fakeStyles = {
-  addStyleModel(style, cellType) {
+  addStyleModel(style: any, cellType: any) {
     if (cellType === Enums.ValueType.Date) {
       return 1;
     }
@@ -19,7 +19,7 @@ const fakeStyles = {
     }
     return 0;
   },
-  getStyleModel(id) {
+  getStyleModel(id: any) {
     switch (id) {
       case 1:
         return { numFmt: 'mm-dd-yy' };
@@ -44,7 +44,7 @@ const fakeHyperlinkMap = {
   B6: 'https://www.npmjs.com/package/exceljs',
 };
 
-function fixDate(model) {
+function fixDate(model: any) {
   model.rows[3].cells[1].value = new Date(model.rows[3].cells[1].value);
   return model;
 }

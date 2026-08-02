@@ -6,7 +6,7 @@ import IntegerXform from '#src/xlsx/xform/simple/integer-xform';
 import StringXform from '#src/xlsx/xform/simple/string-xform';
 import UnderlineXform from '#src/xlsx/xform/style/underline-xform';
 
-import _ from '#src/utils/under-dash';
+import _ from '#src/utils/helpers/under-dash';
 import BaseXform from '#src/xlsx/xform/base-xform';
 
 // Font encapsulates translation from font model to xlsx

@@ -1,7 +1,7 @@
-import _ from '#src/utils/under-dash';
+import _ from '#src/utils/helpers/under-dash';
 
 import Range from '#src/doc/range';
-import colCache from '#src/utils/col-cache';
+import colCache from '#src/utils/data/col-cache';
 import Enums from '#src/doc/enums';
 
 class Merges {
@@ -31,7 +31,7 @@ class Merges {
   reconcile(mergeCells: any, rows: any) {
     // reconcile merge list with merge cells
     _.each(mergeCells, (merge: any) => {
-      const dimensions = colCache.decode(merge);
+      const dimensions = colCache.decode(merge) as any;
       for (let i = dimensions.top; i <= dimensions.bottom; i++) {
         const row = rows[i - 1];
         for (let j = dimensions.left; j <= dimensions.right; j++) {

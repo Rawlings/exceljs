@@ -1,4 +1,4 @@
-import { slideFormula } from '#src/utils/shared-formula';
+import { slideFormula } from '#src/utils/data/shared-formula';
 
 describe('shared-formula', () => {
   describe('slideFormula', () => {
@@ -15,7 +15,7 @@ describe('shared-formula', () => {
     ];
     expectations.forEach(({ args, result }) => {
       it(`${args[0]} from ${args[1]} to ${args[2]}`, () => {
-        expect(slideFormula(...args)).to.equal(result);
+        expect(slideFormula(args[0], args[1], args[2])).to.equal(result);
       });
     });
   });

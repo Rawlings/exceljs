@@ -1,10 +1,5 @@
 import { PassThrough } from 'node:stream';
-import { cloneDeep, each } from '../../../utils/under-dash';
-import CompyXform from './compy-xform';
-
-import parseSax from '#src/utils/parse-sax';
-import XmlStream from '#src/utils/xml-stream';
-import BooleanXform from '#src/xlsx/xform/simple/boolean-xform';
+import XmlStream from '#src/utils/stream/xml-stream';
 
 function normalizeXml(xml: string): string {
   if (typeof xml !== 'string') return xml;
@@ -15,187 +10,73 @@ function normalizeXml(xml: string): string {
     .trim();
 }
 
-function getExpectation(expectation: any, name: string) {
-  if (!expectation.hasOwnProperty(name)) {
-    throw new Error(`Expectation missing required field: ${name}`);
-  }
-  const value = cloneDeep(expectation[name]);
-  if (name === 'xml' && typeof value === 'string') {
-    return normalizeXml(value);
-  }
-  return value;
+function expectXform(xform: any) {
+  return {
+    to: {
+      renderTo(
+        model: any,
+        result: string,
+        xmlStream?: XmlStream,
+        options?: any
+      ): Promise<void> {
+        return new Promise((resolve) => {
+          xmlStream = xmlStream || new XmlStream();
+          xform.render(xmlStream, model, 0, options);
+          expect(normalizeXml(xmlStream.xml)).toBe(result);
+          resolve();
+        });
+      },
+      parseTo(xml: string, result: any): Promise<void> {
+        return new Promise((resolve) => {
+          const stream = new PassThrough();
+          const parsePromise = xform.parseStream(stream);
+
+          stream.write(xml);
+          stream.end();
+
+          parsePromise
+            .then((model: any) => {
+              expect(model).toEqual(result);
+              resolve();
+            })
+            .catch((error: any) => {
+              expect(error).toBeNull();
+              resolve();
+            });
+        });
+      },
+      cloneTo(model: any, result: any, match?: boolean): Promise<void> {
+        return new Promise((resolve) => {
+          const xmlStream = new XmlStream();
+          xform.render(xmlStream, model, 0);
+
+          const stream = new PassThrough();
+          const parsePromise = xform.parseStream(stream);
+
+          stream.write(xmlStream.xml);
+          stream.end();
+
+          parsePromise
+            .then((parsedModel: any) => {
+              xform.reconcile(parsedModel, {});
+              if (match) {
+                expect(parsedModel).toMatchObject(result);
+              } else {
+                expect(parsedModel).toEqual(result);
+              }
+              resolve();
+            })
+            .catch((error: any) => {
+              expect(error).toBeNull();
+              resolve();
+            });
+        });
+      },
+    },
+  };
 }
 
-// ===============================================================================================================
-// provides boilerplate examples for the four transform steps: prepare, render,  parse and reconcile
-//  prepare: model => preparedModel
-//  render:  preparedModel => xml
-//  parse:  xml => parsedModel
-//  reconcile: parsedModel => reconciledModel
+(expectXform as any).normalizeXml = normalizeXml;
+(expectXform as any).expect = (expectXform as any);
 
-const its: Record<string, (expectation: any) => void> = {
-  prepare(expectation: any) {
-    it('Prepare Model', () =>
-      new Promise<void>((resolve: any) => {
-        const model = getExpectation(expectation, 'initialModel');
-        const result = getExpectation(expectation, 'preparedModel');
-
-        const xform = expectation.create();
-        xform.prepare(model, expectation.options);
-        expect(cloneDeep(model, false)).to.deep.equal(result);
-        resolve(undefined as any);
-      }));
-  },
-
-  render(expectation: any) {
-    it('Render to XML', () =>
-      new Promise<void>((resolve: any) => {
-        const model = getExpectation(expectation, 'preparedModel');
-        const result = getExpectation(expectation, 'xml');
-
-        const xform = expectation.create();
-        const xmlStream = new XmlStream();
-        xform.render(xmlStream, model, 0);
-
-        expect(normalizeXml(xmlStream.xml)).toBe(result);
-        resolve(undefined as any);
-      }));
-  },
-
-  'prepare-render': function (expectation: any) {
-    it('Prepare and Render to XML', () =>
-      new Promise<void>((resolve: any) => {
-        const model = getExpectation(expectation, 'initialModel');
-        const result = getExpectation(expectation, 'xml');
-
-        const xform = expectation.create();
-        const xmlStream = new XmlStream();
-
-        xform.prepare(model, expectation.options);
-        xform.render(xmlStream, model);
-
-        expect(normalizeXml(xmlStream.xml)).toBe(result);
-        resolve(undefined as any);
-      }));
-  },
-
-  renderIn(expectation: any) {
-    it('Render in Composite to XML ', () =>
-      new Promise<void>((resolve: any) => {
-        const model = {
-          pre: true,
-          child: getExpectation(expectation, 'preparedModel'),
-          post: true,
-        };
-        const result = `<compy><pre/>${getExpectation(expectation, 'xml')}<post/></compy>`;
-
-        const xform = new CompyXform({
-          tag: 'compy',
-          children: [
-            {
-              name: 'pre',
-              xform: new BooleanXform({ tag: 'pre', attr: 'val' }),
-            },
-            { name: 'child', xform: expectation.create() },
-            {
-              name: 'post',
-              xform: new BooleanXform({ tag: 'post', attr: 'val' }),
-            },
-          ],
-        });
-
-        const xmlStream = new XmlStream();
-        xform.render(xmlStream, model);
-
-        expect(normalizeXml(xmlStream.xml)).toBe(result);
-        resolve(undefined as any);
-      }));
-  },
-
-  parseIn(expectation: any) {
-    it('Parse within composite', () =>
-      new Promise<void>((resolve: any, reject: any) => {
-        const xml = `<compy><pre/>${getExpectation(expectation, 'xml')}<post/></compy>`;
-        const childXform = expectation.create();
-        const result: any = { pre: true };
-        result[childXform.tag] = getExpectation(expectation, 'parsedModel');
-        result.post = true;
-        const xform = new CompyXform({
-          tag: 'compy',
-          children: [
-            {
-              name: 'pre',
-              xform: new BooleanXform({ tag: 'pre', attr: 'val' }),
-            },
-            { name: childXform.tag, xform: childXform },
-            {
-              name: 'post',
-              xform: new BooleanXform({ tag: 'post', attr: 'val' }),
-            },
-          ],
-        });
-        const stream = new PassThrough();
-        stream.write(xml);
-        stream.end();
-        xform
-          .parse(parseSax(stream))
-          .then((model: any) => {
-            const clone = cloneDeep(model, false);
-            expect(clone).to.deep.equal(result);
-            resolve(undefined as any);
-          })
-          .catch(reject);
-      }));
-  },
-
-  parse(expectation: any) {
-    it('Parse to Model', () =>
-      new Promise<void>((resolve: any, reject: any) => {
-        const xml = getExpectation(expectation, 'xml');
-        const result = getExpectation(expectation, 'parsedModel');
-
-        const xform = expectation.create();
-
-        const stream = new PassThrough();
-        stream.write(xml);
-        stream.end();
-        xform
-          .parse(parseSax(stream))
-          .then((model: any) => {
-            const clone = cloneDeep(model, false);
-            expect(clone).to.deep.equal(result);
-            resolve(undefined as any);
-          })
-          .catch(reject);
-      }));
-  },
-
-  reconcile(expectation: any) {
-    it('Reconcile Model', () =>
-      new Promise<void>((resolve: any) => {
-        const model = getExpectation(expectation, 'parsedModel');
-        const result = getExpectation(expectation, 'reconciledModel');
-
-        const xform = expectation.create();
-        xform.reconcile(model, expectation.options);
-
-        const clone = cloneDeep(model, false);
-
-        expect(clone).to.deep.equal(result);
-        resolve(undefined as any);
-      }));
-  },
-};
-
-function testXform(expectations: any[]) {
-  each(expectations, (expectation: any) => {
-    const tests = getExpectation(expectation, 'tests');
-    describe(expectation.title, () => {
-      each(tests, (test: string) => {
-        (its as any)[test](expectation);
-      });
-    });
-  });
-}
-
-export default testXform;
+export default expectXform;

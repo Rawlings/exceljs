@@ -1,11 +1,11 @@
-import fs from 'fs';
-import { NativeZipWriter } from '#src/utils/native-zip';
+import fs from 'node:fs';
+import { NativeZipWriter } from '#src/utils/stream/native-zip';
 
-import StreamBuf from '#src/utils/stream-buf';
+import StreamBuf from '#src/utils/stream/stream-buf';
 
 import RelType from '#src/xlsx/rel-type';
 import StylesXform from '#src/xlsx/xform/style/styles-xform';
-import SharedStrings from '#src/utils/shared-strings';
+import SharedStrings from '#src/utils/data/shared-strings';
 import DefinedNames from '#src/doc/defined-names';
 
 import CoreXform from '#src/xlsx/xform/core/core-xform';

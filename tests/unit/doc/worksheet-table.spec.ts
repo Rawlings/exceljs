@@ -1,7 +1,7 @@
-import colCache from '#src/utils/col-cache';
+import colCache from '#src/utils/data/col-cache';
 import Excel from '#src/exceljs.nodejs';
 
-const spliceArray = (a, index, count, ...rest) => {
+const spliceArray = (a: any, index: any, count: any, ...rest: any[]) => {
   const clone = [...a];
   clone.splice(index, count, ...rest);
   return clone;
@@ -16,7 +16,7 @@ const values = [
   ['Totals', { formula: 'SUBTOTAL(104,TestTable[Id])', result: 4 }, null],
 ];
 
-function addTable(ref, ws) {
+function addTable(ref: any, ws: any) {
   return ws.addTable({
     name: 'TestTable',
     ref,
@@ -49,7 +49,7 @@ function addTable(ref, ws) {
   });
 }
 
-function checkTable(ref, ws, testValues) {
+function checkTable(ref: any, ws: any, testValues: any) {
   const a = colCache.decodeAddress(ref);
 
   for (let i = -1; i <= testValues.length + 1; i++) {
@@ -64,7 +64,7 @@ function checkTable(ref, ws, testValues) {
       if (!cellValue) continue;
 
       if (value instanceof Date) {
-        expect(cellValue).to.equalDate(value);
+        expect((cellValue as Date).getTime()).to.equal((value as Date).getTime());
       } else if (value === null) {
         expect(cellValue).to.be.null;
       } else if (typeof value === 'object') {

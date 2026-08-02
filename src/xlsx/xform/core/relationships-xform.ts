@@ -1,4 +1,4 @@
-import XmlStream from '#src/utils/xml-stream';
+import XmlStream from '#src/utils/stream/xml-stream';
 import BaseXform from '#src/xlsx/xform/base-xform';
 
 import RelationshipXform from '#src/xlsx/xform/core/relationship-xform';

@@ -1,5 +1,5 @@
 import BaseXform from '#src/xlsx/xform/base-xform';
-import XmlStream from '#src/utils/xml-stream';
+import XmlStream from '#src/utils/stream/xml-stream';
 
 // const model = {
 //   tag: 'name',

@@ -4,7 +4,7 @@ const verquire = require('../../../utils/verquire');
 const tools = require('../../../utils/tools');
 import Excel from '#src/exceljs.nodejs';
 
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 const RT_ARR = [
   { text: 'First Line:\n', font: { bold: true } },
   { text: 'Second Line\n' },

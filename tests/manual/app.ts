@@ -2,7 +2,7 @@ import fs from 'fs';
 import http from 'http';
 import path from 'path';
 import ExcelJS from '#src/exceljs.nodejs';
-import StreamBuf from '#src/utils/stream-buf';
+import StreamBuf from '#src/utils/stream/stream-buf';
 
 console.log('Copying bundle.js to public folder');
 fs.createReadStream(path.join(__dirname, '../../dist/exceljs.min.js')).pipe(

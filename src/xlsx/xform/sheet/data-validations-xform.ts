@@ -1,6 +1,6 @@
-import _ from '#src/utils/under-dash';
-import utils from '#src/utils/utils';
-import colCache from '#src/utils/col-cache';
+import _ from '#src/utils/helpers/under-dash';
+import utils from '#src/utils/helpers/utils';
+import colCache from '#src/utils/data/col-cache';
 import BaseXform from '#src/xlsx/xform/base-xform';
 import Range from '#src/doc/range';
 
@@ -43,7 +43,7 @@ function optimiseDataValidations(model: any) {
   return dvList
     .map((dv) => {
       if (!dv.marked) {
-        const addr = colCache.decodeEx(dv.address);
+        const addr = colCache.decodeEx(dv.address) as any;
         if (addr.dimensions) {
           dvMap[addr.dimensions].marked = true;
           return {

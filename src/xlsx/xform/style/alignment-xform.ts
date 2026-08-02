@@ -1,6 +1,6 @@
 import Enums from '#src/doc/enums';
 
-import utils from '#src/utils/utils';
+import utils from '#src/utils/helpers/utils';
 import BaseXform from '#src/xlsx/xform/base-xform';
 
 const validation: any = {

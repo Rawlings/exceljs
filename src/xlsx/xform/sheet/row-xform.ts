@@ -1,5 +1,5 @@
 import BaseXform from '#src/xlsx/xform/base-xform';
-import utils from '#src/utils/utils';
+import utils from '#src/utils/helpers/utils';
 
 import CellXform from '#src/xlsx/xform/sheet/cell-xform';
 

@@ -1,5 +1,5 @@
 import WorksheetWriter from '#src/stream/xlsx/worksheet-writer';
-import StreamBuf from '#src/utils/stream-buf';
+import StreamBuf from '#src/utils/stream/stream-buf';
 
 describe('Workbook Writer', () => {
   it('generates valid xml even when there is no data', () =>
@@ -15,7 +15,7 @@ describe('Workbook Writer', () => {
       mockWorkbook.stream.on('finish', () => {
         try {
           const xml = mockWorkbook.stream.read().toString();
-          expect(xml).xml.to.be.valid();
+          (expect(xml) as any).xml.to.be.valid();
           resolve(undefined as any);
         } catch (error) {
           reject(error);

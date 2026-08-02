@@ -1,13 +1,13 @@
 import ExcelJS from '#src/exceljs.nodejs';
 
 // this file to contain integration tests created from github issues
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
 describe('github issues', () => {
   describe('issue 219 - 1904 dates not supported', () => {
     it('Reading 1904.xlsx', () => {
       const wb = new ExcelJS.Workbook();
-      return wb.xlsx.readFile('./spec/integration/data/1904.xlsx').then(() => {
+      return wb.xlsx.readFile('./fixtures/xlsx/1904.xlsx').then(() => {
         expect(wb.properties.date1904).to.equal(true);
 
         const ws = wb.getWorksheet('Sheet1');

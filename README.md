@@ -16,44 +16,6 @@ Reverse engineered from Excel spreadsheet files as a project.
 npm install exceljs
 ```
 
-# New Features!
-
-* Merged [Add pivot table with limitations #2551](https://github.com/exceljs/exceljs/pull/2551). <br/> Many thanks to Protobi and <a href="https://github.com/mikez">Michael</a> for this contribution!
-* Merged [fix: styles rendering in case when "numFmt" is present in conditional formatting rules (resolves #1814) #1815](https://github.com/exceljs/exceljs/pull/1815). <br/> Many thanks to [@andreykrupskii](https://github.com/andreykrupskii) for this contribution!
-* Merged [inlineStr cell type support #1575 #1576](https://github.com/exceljs/exceljs/pull/1576). <br/> Many thanks to [@drdmitry](https://github.com/drdmitry) for this contribution!
-* Merged [Fix parsing of boolean attributes #1849](https://github.com/exceljs/exceljs/pull/1849). <br/> Many thanks to [@bno1](https://github.com/bno1) for this contribution!
-* Merged [add optional custom auto-filter to table #1670](https://github.com/exceljs/exceljs/pull/1670). <br/> Many thanks to [@thambley](https://github.com/thambley) for this contribution!
-* Merged [Deep copy inherited style #1850](https://github.com/exceljs/exceljs/pull/1850). <br/> Many thanks to [@ikzhr](https://github.com/ikzhr) for this contribution!
-* Merged [Upgrade actions/cache and actions/setup-node #1846](https://github.com/exceljs/exceljs/pull/1846). <br/> Many thanks to [@cclauss](https://github.com/cclauss) for this contribution!
-* Merged [Check object keys in isEqual #1831](https://github.com/exceljs/exceljs/pull/1831). <br/> Many thanks to [@bno1](https://github.com/bno1) for this contribution!
-* Merged [Add v17 to testing workflow #1856](https://github.com/exceljs/exceljs/pull/1856). <br/> Many thanks to [@Siemienik](https://github.com/Siemienik) for this contribution!
-* Merged [Upgrade jszip to its latest version to date. This version does not have any vulnerability found by Snyk so far #1895](https://github.com/exceljs/exceljs/pull/1895). <br/> Many thanks to [@ValerioSevilla](https://github.com/ValerioSevilla) for this contribution!
-* Merged [Update README.md #1677](https://github.com/exceljs/exceljs/pull/1677). <br/> Many thanks to [@xjrcode](https://github.com/xjrcode) for this contribution!
-* Merged [(docs): set prototype of RegExp correctly. #1700](https://github.com/exceljs/exceljs/pull/1700). <br/> Many thanks to [@joeldenning](https://github.com/joeldenning) for this contribution!
-* Merged [Added timeouts to github actions #1733](https://github.com/exceljs/exceljs/pull/1733). <br/> Many thanks to [@alexbjorlig](https://github.com/alexbjorlig) for this contribution!
-* Merged [fix issue 1676 #1701](https://github.com/exceljs/exceljs/pull/1701). <br/> Many thanks to [@skypesky](https://github.com/skypesky) for this contribution!
-* Merged [ExcelJS/ExcelJS#2237 : Update CI Tests, Drop support for Node v8  #2242](https://github.com/exceljs/exceljs/pull/2242). <br/> Many thanks to [@Siemienik](https://github.com/Siemienik) for this contribution!
-* Merged [Fix types for getWorksheet() #2223](https://github.com/exceljs/exceljs/pull/2223). <br/> Many thanks to [@hfhchan-plb](https://github.com/hfhchan-plb) for this contribution!
-* Merged [add characters cannot be used for worksheet name #2126](https://github.com/exceljs/exceljs/pull/2126). <br/> Many thanks to [@tkm-kj](https://github.com/tkm-kj) for this contribution!
-* Merged [Fix issue #1753 Reject promise when workbook reader is writing to temporary file stream and error occurs #1756](https://github.com/exceljs/exceljs/pull/1756). <br/> Many thanks to [@pauliusg](https://github.com/pauliusg) for this contribution!
-* Merged [README.md to have correct link for Streaming XLSX #2186](https://github.com/exceljs/exceljs/pull/2186). <br/> Many thanks to [@wulfsolter](https://github.com/wulfsolter) for this contribution!
-* Merged [Added a polyfill of promise.finally to support lower versions of Firefox. #1982](https://github.com/exceljs/exceljs/pull/1982). <br/> Many thanks to [@DemoJj](https://github.com/DemoJj) for this contribution!
-* Merged [Fix read this.worksheet before assign it #1934](https://github.com/exceljs/exceljs/pull/1934). <br/> Many thanks to [@ZyqGitHub1](https://github.com/ZyqGitHub1) for this contribution!
-* Merged [chore: upgrade jszip to ^3.10.1 #2211](https://github.com/exceljs/exceljs/pull/2211). <br/> Many thanks to [@jarrod-cocoon](https://github.com/jarrod-cocoon) for this contribution!
-* Merged [fixed spelling error in README.md file #2208](https://github.com/exceljs/exceljs/pull/2208). <br/> Many thanks to [@HugoP27](https://github.com/HugoP27) for this contribution!
-* Merged [fix: Fix xlsx.writeFile() not catching error when error occurs #2244](https://github.com/exceljs/exceljs/pull/2244). <br/> Many thanks to [@zurmokeeper](https://github.com/zurmokeeper) for this contribution!
-* Merged [Improve worksheets' naming validation logic. #2257](https://github.com/exceljs/exceljs/pull/2257). <br/> Many thanks to [@Siemienik](https://github.com/Siemienik) for this contribution!
-* Merged [fix issue 2125 - spliceRows remove last row #2140](https://github.com/exceljs/exceljs/pull/2140). <br/> Many thanks to [@babu-ch](https://github.com/babu-ch) for this contribution!
-* Merged [fix: fix the loss of column attributes due to incorrect column order #2222](https://github.com/exceljs/exceljs/pull/2222). <br/> Many thanks to [@cpaiyueyue](https://github.com/cpaiyueyue) for this contribution!
-* Merged [Fix: Sheet Properties Types #2327](https://github.com/exceljs/exceljs/pull/2327). <br/> Many thanks to [@albeniraouf](https://github.com/albeniraouf) for this contribution!
-* Merged [Use node 18 LTS for tsc, and benchmark. Add node 20. to test matrix. … #2354](https://github.com/exceljs/exceljs/pull/2354). <br/> Many thanks to [@Siemienik](https://github.com/Siemienik) for this contribution!
-* Merged [Add missing tooltip attribute to CellHyperlinkValue index.d.ts #2350](https://github.com/exceljs/exceljs/pull/2350). <br/> Many thanks to [@NiklasPor](https://github.com/NiklasPor) for this contribution!
-* Merged [Increase resilience to generating large workbooks #2320](https://github.com/exceljs/exceljs/pull/2320). <br/> Many thanks to [@hfhchan-plb](https://github.com/hfhchan-plb) for this contribution!
-* Merged [repair all 'c2fo.io' links ('c2fo.github.io') #2324](https://github.com/exceljs/exceljs/pull/2324). <br/> Many thanks to [@justintunev7](https://github.com/justintunev7) for this contribution!
-* Merged [fix: fix type definitions about last column, formula values and protection #2309](https://github.com/exceljs/exceljs/pull/2309). <br/> Many thanks to [@gltjk](https://github.com/gltjk) for this contribution!
-* Merged [fix: add spinCount field for WorksheetProtection type #2284](https://github.com/exceljs/exceljs/pull/2284). <br/> Many thanks to [@damingerdai](https://github.com/damingerdai) for this contribution!
-* Merged [Add type definition for WorksheetModel.merges #2281](https://github.com/exceljs/exceljs/pull/2281). <br/> Many thanks to [@ytjmt](https://github.com/ytjmt) for this contribution!
-
 # Contributions
 
 Contributions are very welcome! It helps me know what features are desired or what bugs are causing the most pain.
@@ -172,7 +134,6 @@ To be clear, all contributions added to this library will be included in the lib
   </li>
   <li><a href="#config">Config</a></li>
   <li><a href="#known-issues">Known Issues</a></li>
-  <li><a href="#release-history">Release History</a></li>
 </ul>
 
 # Importing[⬆](#contents)<!-- Link generated with jump2header -->
@@ -2801,38 +2762,6 @@ The current valid Error text values are:
 | Excel.ErrorValue.Null          | #NULL!      |
 | Excel.ErrorValue.Value         | #VALUE!     |
 | Excel.ErrorValue.Num           | #NUM!       |
-
-# Interface Changes[⬆](#contents)<!-- Link generated with jump2header -->
-
-Every effort is made to make a good consistent interface that doesn't break through the versions but regrettably, now and then some things have to change for the greater good.
-
-## 0.1.0[⬆](#contents)<!-- Link generated with jump2header -->
-
-### Worksheet.eachRow[⬆](#contents)<!-- Link generated with jump2header -->
-
-The arguments in the callback function to Worksheet.eachRow have been swapped and changed; it was function(rowNumber,rowValues), now it is function(row, rowNumber) which gives it a look and feel more like the underscore (_.each) function and priorities the row object over the row number.
-
-### Worksheet.getRow[⬆](#contents)<!-- Link generated with jump2header -->
-
-This function has changed from returning a sparse array of cell values to returning a Row object. This enables accessing row properties and will facilitate managing row styles and so on.
-
-The sparse array of cell values is still available via Worksheet.getRow(rowNumber).values;
-
-## 0.1.1[⬆](#contents)<!-- Link generated with jump2header -->
-
-### cell.model[⬆](#contents)<!-- Link generated with jump2header -->
-
-cell.styles renamed to cell.style
-
-## 0.2.44[⬆](#contents)<!-- Link generated with jump2header -->
-
-Promises returned from functions switched from Bluebird to native node Promise which can break calling code
- if they rely on Bluebird's extra features.
-
-To mitigate this the following two changes were added to 0.3.0:
-
-* A more fully featured and still browser compatible promise lib is used by default. This lib supports many of the features of Bluebird but with a much lower footprint.
-* An option to inject a different Promise implementation. See <a href="#config">Config</a> section for more details.
 
 # Config[⬆](#contents)<!-- Link generated with jump2header -->
 

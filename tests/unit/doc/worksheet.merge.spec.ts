@@ -58,7 +58,7 @@ describe('Worksheet', () => {
       const wb = new Excel.Workbook();
       const ws = wb.addWorksheet('blort');
 
-      const expectMaster = function (range, master) {
+      const expectMaster = function (range: any, master: any) {
         const d = new Dimensions(range);
         for (let i = d.top; i <= d.bottom; i++) {
           for (let j = d.left; j <= d.right; j++) {

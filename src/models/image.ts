@@ -1,0 +1,66 @@
+import colCache from '#src/utils/data/col-cache';
+import Anchor from '#src/doc/anchor';
+
+class Image {
+  worksheet: any;
+  type: any;
+  imageId: any;
+  range: any;
+
+  constructor(worksheet?: any, model?: any) {
+    this.worksheet = worksheet;
+    if (model) {
+      this.model = model;
+    }
+  }
+
+  get model() {
+    switch (this.type) {
+      case 'background':
+        return {
+          type: this.type,
+          imageId: this.imageId,
+        };
+      case 'image':
+        return {
+          type: this.type,
+          imageId: this.imageId,
+          hyperlinks: this.range.hyperlinks,
+          range: {
+            tl: this.range.tl.model,
+            br: this.range.br && this.range.br.model,
+            ext: this.range.ext,
+            editAs: this.range.editAs,
+          },
+        };
+      default:
+        throw new Error('Invalid Image Type');
+    }
+  }
+
+  set model({ type, imageId, range, hyperlinks }: any) {
+    this.type = type;
+    this.imageId = imageId;
+
+    if (type === 'image') {
+      if (typeof range === 'string') {
+        const decoded = colCache.decode(range) as any;
+        this.range = {
+          tl: new Anchor(this.worksheet, { col: decoded.left, row: decoded.top }, -1),
+          br: new Anchor(this.worksheet, { col: decoded.right, row: decoded.bottom }, 0),
+          editAs: 'oneCell',
+        };
+      } else {
+        this.range = {
+          tl: new Anchor(this.worksheet, range.tl, 0),
+          br: range.br && new Anchor(this.worksheet, range.br, 0),
+          ext: range.ext,
+          editAs: range.editAs,
+          hyperlinks: hyperlinks || range.hyperlinks,
+        };
+      }
+    }
+  }
+}
+
+export default Image;

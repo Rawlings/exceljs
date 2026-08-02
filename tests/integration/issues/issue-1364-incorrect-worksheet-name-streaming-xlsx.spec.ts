@@ -1,5 +1,5 @@
 import path from 'node:path';
-import ExcelJS from '../../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 const TEST_XLSX_FILE_NAME = path.resolve(__dirname, '../data/test-issue-1364.xlsx');
 

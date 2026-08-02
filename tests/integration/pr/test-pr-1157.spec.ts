@@ -1,11 +1,11 @@
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
 describe('github issues', () => {
   it('pull request 1204 - Read and write data validation should be successful', async () => {
     const wb = new ExcelJS.Workbook();
-    await wb.xlsx.readFile('./spec/integration/data/test-pr-1204.xlsx');
+    await wb.xlsx.readFile('./fixtures/xlsx/test-pr-1204.xlsx');
     const expected = {
       E1: {
         type: 'textLength',

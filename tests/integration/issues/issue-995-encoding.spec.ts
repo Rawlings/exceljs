@@ -1,10 +1,11 @@
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_CSV_FILE_NAME = './spec/out/issue-995-encoding.test.csv';
+const TEST_CSV_FILE_NAME = './fixtures/out/issue-995-encoding.test.csv';
 const HEBREW_TEST_STRING = 'משהו שכתוב בעברית';
 
 describe('github issues', () => {
-  it('issue 995 - encoding option works fine', () => {
+  it('issue 995 - encoding option works fine', function (this: any) {
+    this.timeout(6000);
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('wheee');
     ws.getCell('A1').value = HEBREW_TEST_STRING;
@@ -21,5 +22,5 @@ describe('github issues', () => {
       .then((ws2: any) => {
         expect(ws2.getCell('A1').value).to.equal(HEBREW_TEST_STRING);
       });
-  }).timeout(6000);
+  });
 });

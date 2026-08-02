@@ -1,9 +1,9 @@
 import tools from './tools';
-import sheetValuesData from './data/sheet-values.json';
-import stylesData from './data/styles.json';
-import sheetPropertiesData from './data/sheet-properties.json';
-import pageSetupData from './data/page-setup.json';
-import utils from '#src/utils/utils';
+import sheetValuesData from '#fixtures/json/sheet-values.json';
+import stylesData from '#fixtures/json/styles.json';
+import sheetPropertiesData from '#fixtures/json/sheet-properties.json';
+import pageSetupData from '#fixtures/json/page-setup.json';
+import utils from '#src/utils/helpers/utils';
 import ExcelJS from '#src/exceljs.nodejs';
 
 function fillFormula(f: any) {

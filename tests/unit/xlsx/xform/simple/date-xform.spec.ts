@@ -19,10 +19,10 @@ const expectations = [
       return new DateXform({
         tag: 'date',
         attr: 'val',
-        format(dt) {
+        format(dt: any) {
           return dt.toISOString().split('T')[0];
         },
-        parse(value) {
+        parse(value: any) {
           return new Date(value.replace('13', '14'));
         },
       });
@@ -46,7 +46,7 @@ const expectations = [
     create() {
       return new DateXform({ tag: 'date', attr: undefined });
     },
-    preparedModel: new Date(undefined),
+    preparedModel: new Date(NaN),
     xml: '<date />',
     tests: ['render'],
   },

@@ -1,9 +1,9 @@
 import tools from './tools';
-import sheetValuesData from './data/sheet-values.json';
-import stylesData from './data/styles.json';
-import sheetPropertiesData from './data/sheet-properties.json';
-import pageSetupData from './data/page-setup.json';
-import headerFooterData from './data/header-footer.json';
+import sheetValuesData from '#fixtures/json/sheet-values.json';
+import stylesData from '#fixtures/json/styles.json';
+import sheetPropertiesData from '#fixtures/json/sheet-properties.json';
+import pageSetupData from '#fixtures/json/page-setup.json';
+import headerFooterData from '#fixtures/json/header-footer.json';
 
 const self: any = {
   testValues: tools.fix(sheetValuesData),
@@ -12,7 +12,7 @@ const self: any = {
   pageSetup: tools.fix(pageSetupData),
   headerFooter: tools.fix(headerFooterData),
 
-  addSheet(wb, options: any) {
+  addSheet(wb: any, options: any) {
     options = options || {};
     const ws = wb.addWorksheet(options.sheetName || 'values');
 
@@ -104,7 +104,7 @@ const self: any = {
     ws.getRow(8).height = 40;
   },
 
-  checkSheet(wb, options: any) {
+  checkSheet(wb: any, options: any) {
     options = options || {};
     const ws = wb.getWorksheet(options.sheetName || 'values');
     expect(ws).toBeDefined();

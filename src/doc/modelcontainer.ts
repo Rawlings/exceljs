@@ -1,19 +1,4 @@
-import XLSX from '#src/xlsx/xlsx';
-
-export class ModelContainer {
-  model: any;
-  private _xlsx: any;
-
-  constructor(model: any) {
-    this.model = model;
-  }
-
-  get xlsx() {
-    if (!this._xlsx) {
-      this._xlsx = new XLSX(this);
-    }
-    return this._xlsx;
-  }
-}
-
-export default ModelContainer;
+// Backward compatibility proxy for modelcontainer.ts
+import modelcontainer from '#src/models/modelcontainer';
+export default modelcontainer;
+export * from '#src/models/modelcontainer';

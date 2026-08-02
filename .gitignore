@@ -2,7 +2,7 @@
 dist/
 build/
 out/
-spec/out/
+fixtures/out/
 
 # Dependencies
 node_modules/

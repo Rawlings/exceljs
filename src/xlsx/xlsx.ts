@@ -1,10 +1,10 @@
 import fs from 'fs';
-import { NativeZipReader as JSZip } from '#src/utils/native-zip';
+import { NativeZipReader as JSZip } from '#src/utils/stream/native-zip';
 import { PassThrough } from 'stream';
-import ZipStream from '#src/utils/zip-stream';
-import StreamBuf from '#src/utils/stream-buf';
+import ZipStream from '#src/utils/stream/zip-stream';
+import StreamBuf from '#src/utils/stream/stream-buf';
 
-import XmlStream from '#src/utils/xml-stream';
+import XmlStream from '#src/utils/stream/xml-stream';
 
 import StylesXform from '#src/xlsx/xform/style/styles-xform';
 

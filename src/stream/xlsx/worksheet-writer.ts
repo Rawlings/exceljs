@@ -1,11 +1,11 @@
-import _ from '#src/utils/under-dash';
+import _ from '#src/utils/helpers/under-dash';
 
 import RelType from '#src/xlsx/rel-type';
 
-import colCache from '#src/utils/col-cache';
-import Encryptor from '#src/utils/encryptor';
+import colCache from '#src/utils/data/col-cache';
+import Encryptor from '#src/utils/crypto/encryptor';
 import Dimensions from '#src/doc/range';
-import StringBuf from '#src/utils/string-buf';
+import StringBuf from '#src/utils/stream/string-buf';
 
 import Row from '#src/doc/row';
 import Column from '#src/doc/column';
@@ -452,7 +452,7 @@ class WorksheetWriter {
   findCell(r: any, c: any) {
     const address = colCache.getAddress(r, c);
     const row = this.findRow(address.row);
-    return row ? row.findCell(address.column) : undefined;
+    return row ? row.findCell(address.col) : undefined;
   }
 
   // return the cell at [r,c] or address given by r. If not found, create a new one.

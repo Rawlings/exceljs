@@ -2,12 +2,12 @@ import ExcelJS from '#src/exceljs.nodejs';
 const fs = require('fs');
 
 describe('github issues: Date field with cache style', () => {
-  const rows = [];
+  const rows: any[] = [];
   beforeEach(
     () =>
       new Promise((resolve: any, reject: any) => {
         const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader(
-          fs.createReadStream('./spec/integration/data/dateIssue.xlsx'),
+          fs.createReadStream('./fixtures/xlsx/dateIssue.xlsx'),
           {
             worksheets: 'emit',
             styles: 'cache',

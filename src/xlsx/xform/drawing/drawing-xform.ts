@@ -1,5 +1,5 @@
-import colCache from '#src/utils/col-cache';
-import XmlStream from '#src/utils/xml-stream';
+import colCache from '#src/utils/data/col-cache';
+import XmlStream from '#src/utils/stream/xml-stream';
 
 import BaseXform from '#src/xlsx/xform/base-xform';
 import TwoCellAnchorXform from '#src/xlsx/xform/drawing/two-cell-anchor-xform';

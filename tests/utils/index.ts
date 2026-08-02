@@ -10,13 +10,13 @@ import conditionalFormattingSheet from './test-conditional-formatting-sheet';
 import valuesSheet from './test-values-sheet';
 import spliceSheet from './test-spliced-sheet';
 
-import viewsData from './data/views.json';
-import sheetValuesData from './data/sheet-values.json';
-import stylesData from './data/styles.json';
-import sheetPropertiesData from './data/sheet-properties.json';
-import pageSetupData from './data/page-setup.json';
-import conditionalFormattingData from './data/conditional-formatting.json';
-import headerFooterData from './data/header-footer.json';
+import viewsData from '#fixtures/json/views.json';
+import sheetValuesData from '#fixtures/json/sheet-values.json';
+import stylesData from '#fixtures/json/styles.json';
+import sheetPropertiesData from '#fixtures/json/sheet-properties.json';
+import pageSetupData from '#fixtures/json/page-setup.json';
+import conditionalFormattingData from '#fixtures/json/conditional-formatting.json';
+import headerFooterData from '#fixtures/json/header-footer.json';
 
 const testSheets = {
   dataValidations: dataValidationsSheet,
@@ -67,7 +67,7 @@ const utilsModule: any = {
   conditionalFormatting: tools.fix(conditionalFormattingData),
   headerFooter: tools.fix(headerFooterData),
 
-  createTestBook(workbook, docType: string, sheets?: string[]) {
+  createTestBook(workbook: any, docType: string, sheets?: string[]) {
     const options = getOptions(docType);
     sheets = sheets || ['values'];
 
@@ -81,7 +81,7 @@ const utilsModule: any = {
     return workbook;
   },
 
-  checkTestBook(workbook, docType: string, sheets?: string[], options?: any) {
+  checkTestBook(workbook: any, docType: string, sheets?: string[], options?: any) {
     options = getOptions(docType, options);
     sheets = sheets || ['values'];
 
@@ -154,7 +154,7 @@ const utilsModule: any = {
       eachColumnKey(f: any) {
         _.each(this._keys, f);
       },
-      eachRow(opt, f?: any) {
+      eachRow(opt: any, f?: any) {
         if (!f) {
           f = opt;
           opt = {};
@@ -175,5 +175,9 @@ const utilsModule: any = {
     };
   },
 };
+
+export const createSheetMock = utilsModule.createSheetMock;
+export const createTestBook = utilsModule.createTestBook;
+export const checkTestBook = utilsModule.checkTestBook;
 
 export default utilsModule;

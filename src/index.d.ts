@@ -1362,7 +1362,7 @@ export interface Worksheet {
   /**
    * returns the cell at [r,c] or address given by r. If not found, return undefined
    */
-  findCell(r: number | string, c: number | string): Cell | undefined;
+  findCell(r: number | string, c?: number | string): Cell | undefined;
 
   /**
    * Get or create cell
@@ -1859,6 +1859,7 @@ export class Workbook {
    * Add a new worksheet and return a reference to it
    */
   addWorksheet(name?: string, options?: Partial<AddWorksheetOptions>): Worksheet;
+  addWorksheet(options?: Partial<AddWorksheetOptions>): Worksheet;
 
   removeWorksheetEx(worksheet: Worksheet): void;
   removeWorksheet(indexOrName: number | string): void;

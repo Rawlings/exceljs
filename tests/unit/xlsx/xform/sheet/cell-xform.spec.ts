@@ -5,13 +5,13 @@ import SharedStringsXform from '#src/xlsx/xform/strings/shared-strings-xform';
 import Enums from '#src/doc/enums';
 
 const fakeStyles = {
-  addStyleModel(style, effectiveType) {
+  addStyleModel(style: any, effectiveType: any) {
     if (effectiveType === Enums.ValueType.Date) {
       return 1;
     }
     return 0;
   },
-  getStyleModel(styleId) {
+  getStyleModel(styleId: any) {
     switch (styleId) {
       case 1:
         return { numFmt: 'mm-dd-yy' };

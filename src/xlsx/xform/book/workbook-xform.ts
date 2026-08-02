@@ -1,7 +1,7 @@
-import _ from '#src/utils/under-dash';
+import _ from '#src/utils/helpers/under-dash';
 
-import colCache from '#src/utils/col-cache';
-import XmlStream from '#src/utils/xml-stream';
+import colCache from '#src/utils/data/col-cache';
+import XmlStream from '#src/utils/stream/xml-stream';
 
 import BaseXform from '#src/xlsx/xform/base-xform';
 import StaticXform from '#src/xlsx/xform/static-xform';

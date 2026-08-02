@@ -1,6 +1,6 @@
 import testUtils from '../../utils/index';
 
-import _ from '#src/utils/under-dash';
+import _ from '#src/utils/helpers/under-dash';
 import Excel from '#src/exceljs.nodejs';
 
 describe('Worksheet', () => {
@@ -262,7 +262,7 @@ describe('Worksheet', () => {
       ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(values[rowNumber]);
         row.eachCell((cell: any, colNumber: any) => {
-          expect(cell.value).to.equal(values[rowNumber][colNumber]);
+          expect(cell.value).to.equal(values[rowNumber]![colNumber]);
         });
       });
     });
@@ -326,7 +326,7 @@ describe('Worksheet', () => {
       ws.eachRow((row: any, rowNumber: any) => {
         expect(row.values).to.deep.equal(rows[rowNumber]);
         row.eachCell((cell: any, colNumber: any) => {
-          expect(cell.value).to.equal(rows[rowNumber][colNumber]);
+          expect(cell.value).to.equal(rows[rowNumber]![colNumber]);
         });
       });
     });

@@ -4,13 +4,15 @@ const testutils = require('../utils/index');
 
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_FILE_NAME = './spec/out/wb.test.xlsx';
+declare const before: any;
+
+const TEST_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
 // need some architectural changes to make stream read work properly
 // because of: shared strings, sheet names, etc are not read in guaranteed order
 describe('WorkbookReader', () => {
   describe('Serialise', () => {
-    it('xlsx file', function () {
+    it('xlsx file', function (this: any) {
       this.timeout(10000);
       const wb = testutils.createTestBook(new ExcelJS.Workbook(), 'xlsx');
 
@@ -26,7 +28,7 @@ describe('WorkbookReader', () => {
         const workbook = new ExcelJS.Workbook();
         // The Fibonacci sheet has 19 rows
         return workbook.xlsx
-          .readFile('./spec/integration/data/fibonacci.xlsx', { maxRows: 10 })
+          .readFile('./fixtures/xlsx/fibonacci.xlsx', { maxRows: 10 })
           .then(
             () => {
               throw new Error('Promise unexpectedly fulfilled');
@@ -37,10 +39,10 @@ describe('WorkbookReader', () => {
           );
       });
 
-      it('should fail fast on a huge file', function () {
+      it('should fail fast on a huge file', function (this: any) {
         this.timeout(5000);
         const workbook = new ExcelJS.Workbook();
-        return workbook.xlsx.readFile('./spec/integration/data/huge.xlsx', { maxRows: 100 }).then(
+        return workbook.xlsx.readFile('./fixtures/xlsx/huge.xlsx', { maxRows: 100 }).then(
           () => {
             throw new Error('Promise unexpectedly fulfilled');
           },
@@ -52,7 +54,7 @@ describe('WorkbookReader', () => {
 
       it('should parse fine if the limit is not exceeded', () => {
         const workbook = new ExcelJS.Workbook();
-        return workbook.xlsx.readFile('./spec/integration/data/fibonacci.xlsx', { maxRows: 20 });
+        return workbook.xlsx.readFile('./fixtures/xlsx/fibonacci.xlsx', { maxRows: 20 });
       });
     });
 
@@ -61,7 +63,7 @@ describe('WorkbookReader', () => {
         const workbook = new ExcelJS.Workbook();
         // The many-columns sheet has 20 columns in row 2
         return workbook.xlsx
-          .readFile('./spec/integration/data/many-columns.xlsx', {
+          .readFile('./fixtures/xlsx/many-columns.xlsx', {
             maxCols: 15,
           })
           .then(
@@ -74,10 +76,10 @@ describe('WorkbookReader', () => {
           );
       });
 
-      it('should fail fast on a huge file', function () {
+      it('should fail fast on a huge file', function (this: any) {
         this.timeout(5000);
         const workbook = new ExcelJS.Workbook();
-        return workbook.xlsx.readFile('./spec/integration/data/huge.xlsx', { maxCols: 10 }).then(
+        return workbook.xlsx.readFile('./fixtures/xlsx/huge.xlsx', { maxCols: 10 }).then(
           () => {
             throw new Error('Promise unexpectedly fulfilled');
           },
@@ -89,7 +91,7 @@ describe('WorkbookReader', () => {
 
       it('should parse fine if the limit is not exceeded', () => {
         const workbook = new ExcelJS.Workbook();
-        return workbook.xlsx.readFile('./spec/integration/data/many-columns.xlsx', { maxCols: 40 });
+        return workbook.xlsx.readFile('./fixtures/xlsx/many-columns.xlsx', { maxCols: 40 });
       });
     });
   });
@@ -100,7 +102,7 @@ describe('WorkbookReader', () => {
         const workbook = new ExcelJS.Workbook();
         // The Fibonacci sheet has 19 rows
         return workbook.xlsx
-          .read(fs.createReadStream('./spec/integration/data/fibonacci.xlsx'), {
+          .read(fs.createReadStream('./fixtures/xlsx/fibonacci.xlsx'), {
             maxRows: 10,
           })
           .then(
@@ -115,7 +117,7 @@ describe('WorkbookReader', () => {
 
       it('should parse fine if the limit is not exceeded', () => {
         const workbook = new ExcelJS.Workbook();
-        return workbook.xlsx.read(fs.createReadStream('./spec/integration/data/fibonacci.xlsx'), {
+        return workbook.xlsx.read(fs.createReadStream('./fixtures/xlsx/fibonacci.xlsx'), {
           maxRows: 20,
         });
       });
@@ -123,12 +125,12 @@ describe('WorkbookReader', () => {
   });
 
   describe('edit styles in existing file', () => {
-    beforeEach(function () {
+    beforeEach(function (this: any) {
       this.wb = new ExcelJS.Workbook();
-      return this.wb.xlsx.readFile('./spec/integration/data/test-row-styles.xlsx');
+      return this.wb.xlsx.readFile('./fixtures/xlsx/test-row-styles.xlsx');
     });
 
-    it('edit styles of single row instead of all', function () {
+    it('edit styles of single row instead of all', function (this: any) {
       const ws = this.wb.getWorksheet(1);
 
       ws.eachRow((row: any, rowNo: any) => {
@@ -151,7 +153,7 @@ describe('WorkbookReader', () => {
     let worksheet: any;
     before(async () => {
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.read(fs.createReadStream('./spec/integration/data/formulas.xlsx'));
+      await workbook.xlsx.read(fs.createReadStream('./fixtures/xlsx/formulas.xlsx'));
       worksheet = workbook.getWorksheet();
     });
 
@@ -204,7 +206,7 @@ describe('WorkbookReader', () => {
     before(async () => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.read(
-        fs.createReadStream('./spec/integration/data/shared_string_with_escape.xlsx')
+        fs.createReadStream('./fixtures/xlsx/shared_string_with_escape.xlsx')
       );
       worksheet = workbook.getWorksheet();
     });
@@ -216,7 +218,7 @@ describe('WorkbookReader', () => {
   });
 
   describe('with a spreadsheet that has an XML parse error in a worksheet', () => {
-    let unhandledRejection;
+    let unhandledRejection: any;
     function unhandledRejectionHandler(err: any) {
       unhandledRejection = err;
     }
@@ -230,7 +232,7 @@ describe('WorkbookReader', () => {
     it('should reject the promise with the sax error', () => {
       const workbook = new ExcelJS.Workbook();
       return workbook.xlsx
-        .readFile('./spec/integration/data/invalid-xml.xlsx')
+        .readFile('./fixtures/xlsx/invalid-xml.xlsx')
         .then(
           () => {
             throw new Error('Promise unexpectedly fulfilled');
@@ -250,7 +252,7 @@ describe('WorkbookReader', () => {
   describe('with a spreadsheet that is missing some files in the zip container', () => {
     it('should not break', () => {
       const workbook = new ExcelJS.Workbook();
-      return workbook.xlsx.readFile('./spec/integration/data/missing-bits.xlsx');
+      return workbook.xlsx.readFile('./fixtures/xlsx/missing-bits.xlsx');
     });
   });
 
@@ -258,22 +260,22 @@ describe('WorkbookReader', () => {
     let worksheet: any;
     before(async () => {
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.read(fs.createReadStream('./spec/integration/data/images.xlsx'));
+      await workbook.xlsx.read(fs.createReadStream('./fixtures/xlsx/images.xlsx'));
       worksheet = workbook.getWorksheet();
     });
 
     describe('with image`s tl anchor', () => {
-      it('Should integer part of col equals nativeCol', function () {
+      it('Should integer part of col equals nativeCol', function (this: any) {
         this.worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.tl.col)).to.equal(image.range.tl.nativeCol);
         });
       });
-      it('Should integer part of row equals nativeRow', function () {
+      it('Should integer part of row equals nativeRow', function (this: any) {
         this.worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.tl.row)).to.equal(image.range.tl.nativeRow);
         });
       });
-      it('Should anchor width equals to column width when custom', function () {
+      it('Should anchor width equals to column width when custom', function (this: any) {
         const ws = this.worksheet;
 
         ws.getImages().forEach((image: any) => {
@@ -286,7 +288,7 @@ describe('WorkbookReader', () => {
           }
         });
       });
-      it('Should anchor height equals to row height', function () {
+      it('Should anchor height equals to row height', function (this: any) {
         const ws = this.worksheet;
 
         ws.getImages().forEach((image: any) => {
@@ -302,17 +304,17 @@ describe('WorkbookReader', () => {
     });
 
     describe('with image`s br anchor', () => {
-      it('Should integer part of col equals nativeCol', function () {
+      it('Should integer part of col equals nativeCol', function (this: any) {
         this.worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.br.col)).to.equal(image.range.br.nativeCol);
         });
       });
-      it('Should integer part of row equals nativeRow', function () {
+      it('Should integer part of row equals nativeRow', function (this: any) {
         this.worksheet.getImages().forEach((image: any) => {
           expect(Math.floor(image.range.br.row)).to.equal(image.range.br.nativeRow);
         });
       });
-      it('Should anchor width equals to column width when custom', function () {
+      it('Should anchor width equals to column width when custom', function (this: any) {
         const ws = this.worksheet;
 
         ws.getImages().forEach((image: any) => {
@@ -325,7 +327,7 @@ describe('WorkbookReader', () => {
           }
         });
       });
-      it('Should anchor height equals to row height', function () {
+      it('Should anchor height equals to row height', function (this: any) {
         const ws = this.worksheet;
 
         ws.getImages().forEach((image: any) => {
@@ -344,7 +346,7 @@ describe('WorkbookReader', () => {
     it('should not crash', () => {
       const workbook = new ExcelJS.Workbook();
       return workbook.xlsx.read(
-        fs.createReadStream('./spec/integration/data/bogus-defined-name.xlsx')
+        fs.createReadStream('./fixtures/xlsx/bogus-defined-name.xlsx')
       );
     });
   });

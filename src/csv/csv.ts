@@ -1,6 +1,6 @@
-import fs from 'fs';
-import { access } from 'fs/promises';
-import StreamBuf from '#src/utils/stream-buf';
+import fs from 'node:fs';
+import { access } from 'node:fs/promises';
+import StreamBuf from '#src/utils/stream/stream-buf';
 
 async function fileExists(filename: string): Promise<boolean> {
   try {
@@ -25,7 +25,7 @@ const SpecialValues: Record<string, any> = {
 };
 /* eslint-enable quote-props */
 
-function parseCsvLine(line: string, delimiter: string = ','): string[] {
+function parseCsvLine(line: string, delimiter = ','): string[] {
   const result: string[] = [];
   let current = '';
   let inQuotes = false;
@@ -53,7 +53,7 @@ function parseDateNative(str: string): Date | null {
   if (!str || typeof str !== 'string') return null;
   const d = new Date(str);
   if (!Number.isNaN(d.getTime())) return d;
-  // Fallback MM-DD-YYYY
+
   const m = str.match(/^(\d{2})-(\d{2})-(\d{4})$/);
   if (m) {
     const d2 = new Date(`${m[3]}-${m[1]}-${m[2]}`);
@@ -111,7 +111,7 @@ export class CSV {
     this.worksheet = null;
   }
 
-  async readFile(filename: string, options: any = {}): Promise<any> {
+  async readFile(filename: string, options: Record<string, any> = {}): Promise<any> {
     if (!(await fileExists(filename))) {
       throw new Error(`File not found: ${filename}`);
     }
@@ -121,7 +121,7 @@ export class CSV {
     return worksheet;
   }
 
-  read(stream: any, options: any = {}): Promise<any> {
+  read(stream: any, options: Record<string, any> = {}): Promise<any> {
     return new Promise((resolve, reject) => {
       const worksheet = this.workbook.addWorksheet(options.sheetName);
       const delimiter = options.parserOptions?.delimiter || ',';
@@ -155,7 +155,7 @@ export class CSV {
     throw new Error('`CSV#createInputStream` is deprecated. You should use `CSV#read` instead.');
   }
 
-  write(stream: any, options: any = {}): Promise<void> {
+  write(stream: any, options: Record<string, any> = {}): Promise<void> {
     return new Promise((resolve) => {
       const worksheet = this.workbook.getWorksheet(options.sheetName || options.sheetId);
       const delimiter = options.formatterOptions?.delimiter || ',';
@@ -194,7 +194,7 @@ export class CSV {
     });
   }
 
-  writeFile(filename: string, options: any = {}): Promise<void> {
+  writeFile(filename: string, options: Record<string, any> = {}): Promise<void> {
     const streamOptions = {
       encoding: options.encoding || 'utf8',
     };
@@ -202,7 +202,7 @@ export class CSV {
     return this.write(stream, options);
   }
 
-  async writeBuffer(options: any = {}): Promise<any> {
+  async writeBuffer(options: Record<string, any> = {}): Promise<any> {
     const stream = new (StreamBuf as unknown as new (options?: any) => any)();
     await this.write(stream, options);
     return stream.read();

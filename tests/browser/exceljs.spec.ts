@@ -4,7 +4,7 @@ declare const ExcelJS: any;
 
 'use strict';
 
-function unexpectedError(done) {
+function unexpectedError(done: any) {
   return function (error: any) {
     // eslint-disable-next-line no-console
     console.error('Error Caught', error.message, error.stack);

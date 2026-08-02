@@ -1,4 +1,4 @@
-import colCache from '#src/utils/col-cache';
+import colCache from '#src/utils/data/col-cache';
 import BaseXform from '#src/xlsx/xform/base-xform';
 
 class AutoFilterXform extends BaseXform {

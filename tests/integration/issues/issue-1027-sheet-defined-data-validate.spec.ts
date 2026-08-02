@@ -1,6 +1,6 @@
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
 describe('github issues', () => {
   it("issue 1027 - Broken due to Cannot set property 'marked' of undefined error", () => {

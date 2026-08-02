@@ -2,8 +2,8 @@ import testUtils from '../../utils/index';
 
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
-const TEST_CSV_FILE_NAME = './spec/out/wb.test.csv';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
+const TEST_CSV_FILE_NAME = './fixtures/out/wb.test.csv';
 
 // =============================================================================
 // Tests
@@ -143,8 +143,8 @@ describe('Workbook', () => {
         .then((wb2: any) => {
           expect(wb2.creator).to.equal(wb.creator);
           expect(wb2.lastModifiedBy).to.equal(wb.lastModifiedBy);
-          expect(wb2.created).to.equalDate(wb.created);
-          expect(wb2.modified).to.equalDate(wb.modified);
+          expect(wb2.created.getTime()).to.equal(wb.created.getTime());
+          expect(wb2.modified.getTime()).to.equal(wb.modified.getTime());
         });
     });
     it('printTitlesRow', () => {
@@ -415,7 +415,7 @@ describe('Workbook', () => {
       return wb.xlsx.writeFile(TEST_XLSX_FILE_NAME);
     });
 
-    it('a lot of sheets to xlsx file', function () {
+    it('a lot of sheets to xlsx file', function (this: any) {
       this.timeout(10000);
 
       let i;
@@ -441,7 +441,7 @@ describe('Workbook', () => {
         });
     });
 
-    it('csv file', function () {
+    it('csv file', function (this: any) {
       this.timeout(5000);
 
       const wb = testUtils.createTestBook(new ExcelJS.Workbook(), 'csv');
@@ -457,7 +457,7 @@ describe('Workbook', () => {
         });
     });
 
-    it('CSV file and its configuration', function () {
+    it('CSV file and its configuration', function (this: any) {
       this.timeout(5000);
       const writeOptions = {
         dateFormat: 'DD/MM/YYYY HH:mm:ss',
@@ -496,7 +496,7 @@ describe('Workbook', () => {
       const ws1a = wb1.addWorksheet('blort');
       const ws1b = wb1.addWorksheet('foo');
 
-      function assign(sheet, address, value, name) {
+      function assign(sheet: any, address: any, value: any, name: any) {
         const cell = sheet.getCell(address);
         cell.value = value;
         if (Array.isArray(name)) {
@@ -547,7 +547,7 @@ describe('Workbook', () => {
           const ws2a = wb2.getWorksheet('blort');
           const ws2b = wb2.getWorksheet('foo');
 
-          function check(sheet, address, value, name) {
+          function check(sheet: any, address: any, value: any, name: any) {
             const cell = sheet.getCell(address);
             expect(cell.value).to.equal(value);
             expect(cell.name).to.equal(name);
@@ -583,7 +583,7 @@ describe('Workbook', () => {
           expect(ws2a.getCell('G2').names).to.have.members(['twice']);
 
           // ranges
-          function rangeCheck(name, members) {
+          function rangeCheck(name: any, members: any) {
             const ranges = wb2.definedNames.getRanges(name);
             expect(ranges.name).to.equal(name);
             if (members.length) {
@@ -607,7 +607,7 @@ describe('Workbook', () => {
 
     describe('Duplicate Rows', () => {
       it('Duplicate rows with styles properly', () => {
-        const fileDuplicateRowTestFile = './spec/integration/data/duplicateRowTest.xlsx';
+        const fileDuplicateRowTestFile = './fixtures/xlsx/duplicateRowTest.xlsx';
         const wb = new ExcelJS.Workbook();
         return wb.xlsx.readFile(fileDuplicateRowTestFile).then(() => {
           const ws = wb.getWorksheet('duplicateTest');
@@ -881,7 +881,7 @@ describe('Workbook', () => {
       await wb.xlsx.load({});
       expect.fail('should fail for given argument');
     } catch (e) {
-      expect(e.message).to.equal(
+      expect((e as any).message).to.equal(
         "Can't read the data of 'the loaded zip file'. Is it in a supported JavaScript type (String, Blob, ArrayBuffer, etc) ?"
       );
     }

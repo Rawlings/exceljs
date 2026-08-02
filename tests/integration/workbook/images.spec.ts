@@ -4,7 +4,7 @@ const { promisify } = require('util');
 import ExcelJS from '#src/exceljs.nodejs';
 
 const IMAGE_FILENAME = `${__dirname}/../data/image.png`;
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 const fsReadFileAsync = promisify(fs.readFile);
 
 // =============================================================================
@@ -15,8 +15,8 @@ describe('Workbook', () => {
     it('stores background image', () => {
       const wb = new ExcelJS.Workbook();
       const ws = wb.addWorksheet('blort');
-      let wb2;
-      let ws2;
+      let wb2: any;
+      let ws2: any;
       const imageId = wb.addImage({
         filename: IMAGE_FILENAME,
         extension: 'jpeg',
@@ -48,8 +48,8 @@ describe('Workbook', () => {
     it('stores embedded image and hyperlink', () => {
       const wb = new ExcelJS.Workbook();
       const ws = wb.addWorksheet('blort');
-      let wb2;
-      let ws2;
+      let wb2: any;
+      let ws2: any;
 
       const imageId = wb.addImage({
         filename: IMAGE_FILENAME,
@@ -99,8 +99,8 @@ describe('Workbook', () => {
     it('stores embedded image with oneCell', () => {
       const wb = new ExcelJS.Workbook();
       const ws = wb.addWorksheet('blort');
-      let wb2;
-      let ws2;
+      let wb2: any;
+      let ws2: any;
 
       const imageId = wb.addImage({
         filename: IMAGE_FILENAME,
@@ -140,8 +140,8 @@ describe('Workbook', () => {
     it('stores embedded image with one-cell-anchor', () => {
       const wb = new ExcelJS.Workbook();
       const ws = wb.addWorksheet('blort');
-      let wb2;
-      let ws2;
+      let wb2: any;
+      let ws2: any;
 
       const imageId = wb.addImage({
         filename: IMAGE_FILENAME,
@@ -183,8 +183,8 @@ describe('Workbook', () => {
     it('stores embedded image with hyperlinks', () => {
       const wb = new ExcelJS.Workbook();
       const ws = wb.addWorksheet('blort');
-      let wb2;
-      let ws2;
+      let wb2: any;
+      let ws2: any;
 
       const imageId = wb.addImage({
         filename: IMAGE_FILENAME,
@@ -235,8 +235,8 @@ describe('Workbook', () => {
     it('image extensions should not be case sensitive', () => {
       const wb = new ExcelJS.Workbook();
       const ws = wb.addWorksheet('blort');
-      let wb2;
-      let ws2;
+      let wb2: any;
+      let ws2: any;
 
       const imageId1 = wb.addImage({
         filename: IMAGE_FILENAME,

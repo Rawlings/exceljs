@@ -3,7 +3,7 @@ const { readFileSync } = require('fs');
 
 import ExcelJS from '#src/exceljs.nodejs';
 
-const fileName = './spec/integration/data/test-issue-1842.xlsx';
+const fileName = './fixtures/xlsx/test-issue-1842.xlsx';
 
 describe('github issues', () => {
   describe('issue 1842 - Memory overload when unnecessary dataValidations apply', () => {

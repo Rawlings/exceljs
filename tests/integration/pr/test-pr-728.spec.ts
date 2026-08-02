@@ -3,10 +3,10 @@ import ExcelJS from '#src/exceljs.nodejs';
 describe('github issues', () => {
   it('pull request 728 - Read worksheet hidden state', () => {
     const wb = new ExcelJS.Workbook();
-    return wb.xlsx.readFile('./spec/integration/data/test-pr-728.xlsx').then(() => {
+    return wb.xlsx.readFile('./fixtures/xlsx/test-pr-728.xlsx').then(() => {
       const expected = { 1: 'visible', 2: 'hidden', 3: 'visible' };
       wb.eachSheet((ws: any, sheetId: any) => {
-        expect(ws.state).to.equal(expected[sheetId]);
+        expect(ws.state).to.equal((expected as any)[sheetId]);
       });
     });
   });

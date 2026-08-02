@@ -1,34 +1,29 @@
-import srcUnderDash from '#src/utils/under-dash';
+import srcUnderDash from '#src/utils/helpers/under-dash';
 
 const _ = Object.assign(
   {
-    get(obj, path, dflt?: any) {
-      if (typeof path === 'string') {
-        path = path.split('.');
-      }
-      while (obj && path.length) {
-        obj = obj[path.shift()];
+    get(obj: any, path: any, dflt?: any) {
+      let parts = typeof path === 'string' ? path.split('.') : [...path];
+      while (obj && parts.length) {
+        obj = obj[parts.shift()];
       }
       return obj !== undefined ? obj : dflt;
     },
 
-    has(obj, path: any) {
+    has(obj: any, path: any) {
       const dummy = {};
       return _.get(obj, path, dummy) !== dummy;
     },
 
-    cloneDeep(obj, preserveUndefined?: boolean) {
-      if (preserveUndefined === undefined) {
-        preserveUndefined = true;
-      }
-      let clone: any;
+    cloneDeep(obj: any, preserveUndefined = true): any {
       if (obj === null) {
         return null;
       }
       if (obj instanceof Date) {
-        return obj;
+        return new Date(obj.getTime());
       }
-      if (obj instanceof Array) {
+      let clone: any;
+      if (Array.isArray(obj)) {
         clone = [];
       } else if (typeof obj === 'object') {
         clone = {};

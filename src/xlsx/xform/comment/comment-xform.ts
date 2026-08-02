@@ -1,5 +1,5 @@
 import RichTextXform from '#src/xlsx/xform/strings/rich-text-xform';
-import utils from '#src/utils/utils';
+import utils from '#src/utils/helpers/utils';
 import BaseXform from '#src/xlsx/xform/base-xform';
 
 /**

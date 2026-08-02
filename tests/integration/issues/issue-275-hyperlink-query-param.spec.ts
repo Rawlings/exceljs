@@ -1,7 +1,7 @@
 import ExcelJS from '#src/exceljs.nodejs';
 
 // this file to contain integration tests created from github issues
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
 describe('github issues', () => {
   it('issue 275 - hyperlink with query arguments corrupts workbook', () => {

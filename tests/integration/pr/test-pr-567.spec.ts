@@ -1,6 +1,6 @@
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_567_XLSX_FILE_NAME = './spec/integration/data/test-pr-567.xlsx';
+const TEST_567_XLSX_FILE_NAME = './fixtures/xlsx/test-pr-567.xlsx';
 
 describe('pr related issues', () => {
   describe('pr 5676 whole column defined names', () => {

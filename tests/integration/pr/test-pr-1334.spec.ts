@@ -1,6 +1,6 @@
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
 describe('github issues', () => {
   it('pull request 1334 - Fix the error that comment does not delete at spliceColumn', async () => {

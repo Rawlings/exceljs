@@ -5,10 +5,10 @@ import SharedStringsXform from '#src/xlsx/xform/strings/shared-strings-xform';
 import Enums from '#src/doc/enums';
 
 const fakeStyles = {
-  addStyleModel(style) {
+  addStyleModel(style: any) {
     return style && JSON.stringify(style) !== '{}' ? 1 : 0;
   },
-  getStyleModel(styleId) {
+  getStyleModel(styleId: any) {
     return styleId ? { numFmt: '#' } : undefined;
   },
 };

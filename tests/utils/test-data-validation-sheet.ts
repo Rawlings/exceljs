@@ -1,5 +1,5 @@
 import tools from './tools';
-import dataValidationsData from './data/data-validations.json';
+import dataValidationsData from '#fixtures/json/data-validations.json';
 
 const self: any = {
   dataValidations: tools.fix(dataValidationsData),

@@ -1,4 +1,4 @@
-import _ from '#src/utils/under-dash';
+import _ from '#src/utils/helpers/under-dash';
 import defaultNumFormats from '#src/xlsx/defaultnumformats';
 
 import BaseXform from '#src/xlsx/xform/base-xform';
@@ -14,6 +14,8 @@ function hashDefaultFormats() {
   return hash;
 }
 const defaultFmtHash: any = hashDefaultFormats();
+
+import utils from '#src/utils/helpers/utils';
 
 // NumFmt encapsulates translation between number format and xlsx
 class NumFmtXform extends BaseXform {
@@ -42,7 +44,7 @@ class NumFmtXform extends BaseXform {
       case 'numFmt':
         this.model = {
           id: parseInt(node.attributes.numFmtId, 10),
-          formatCode: node.attributes.formatCode.replace(/[\\](.)/g, '$1'),
+          formatCode: utils.xmlDecode(node.attributes.formatCode).replace(/[\\](.)/g, '$1'),
         };
         return true;
       default:

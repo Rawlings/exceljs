@@ -11,10 +11,11 @@ describe('typescript', () => {
     });
 
     const wb2 = new ExcelJS.Workbook();
-    await wb2.xlsx.load(buffer);
+    await wb2.xlsx.load(buffer as any);
     const ws2 = wb2.getWorksheet('blort');
-    expect(ws2?.getCell('A1').value).toBe(7);
+    expect(ws2?.getCell('A1').value).toEqual(7);
   });
+
   it('can create and stream xlsx', async () => {
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('blort');

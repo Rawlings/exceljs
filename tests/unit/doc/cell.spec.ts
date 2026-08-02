@@ -1,25 +1,25 @@
-import colCache from '#src/utils/col-cache';
+import colCache from '#src/utils/data/col-cache';
 import Cell from '#src/doc/cell';
 import Enums from '#src/doc/enums';
 
-const sheetMock = {
+const sheetMock: any = {
   reset() {
     this.rows = [];
     this.columns = [];
   },
-  findRow(num: any) {
+  findRow(num: any): any {
     return this.rows[num];
   },
-  getRow(num: any) {
+  getRow(num: any): any {
     return this.rows[num] || this.createRow(num);
   },
-  findColumn(num: any) {
+  findColumn(num: any): any {
     return this.columns[num];
   },
-  getColumn(num: any) {
+  getColumn(num: any): any {
     return this.columns[num] || this.createColumn(num);
   },
-  createRow(num: any) {
+  createRow(num: any): any {
     this.rows[num] = {
       cells: [],
       findCell(col: any) {
@@ -28,7 +28,7 @@ const sheetMock = {
       getCell(col: any) {
         return this.cells[col] || this.createCell(col);
       },
-      createCell(col) {
+      createCell(col: any) {
         const address = colCache.encodeAddress(this.number, col);
         const column = sheetMock.getColumn(col);
         return (this.cells[col] = new Cell(this, column, address));
@@ -117,7 +117,7 @@ describe('Cell', () => {
     expect(a1.type).to.equal(Enums.ValueType.Formula);
 
     // no result
-    formulaValue = { formula: 'A3' };
+    formulaValue = { formula: 'A3' } as any;
     expect((a1.value = formulaValue)).to.deep.equal(formulaValue);
     expect(a1.value).to.deep.equal({ formula: 'A3' });
     expect(a1.type).to.equal(Enums.ValueType.Formula);

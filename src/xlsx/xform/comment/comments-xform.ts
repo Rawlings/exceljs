@@ -1,5 +1,5 @@
-import XmlStream from '#src/utils/xml-stream';
-import utils from '#src/utils/utils';
+import XmlStream from '#src/utils/stream/xml-stream';
+import utils from '#src/utils/helpers/utils';
 import BaseXform from '#src/xlsx/xform/base-xform';
 
 import CommentXform from '#src/xlsx/xform/comment/comment-xform';

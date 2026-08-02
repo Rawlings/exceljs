@@ -1,12 +1,12 @@
 import ExcelJS from '#src/exceljs.nodejs';
 
-const TEST_XLSX_FILE_NAME = './spec/out/test-issue-623.xlsx';
+const TEST_XLSX_FILE_NAME = './fixtures/out/test-issue-623.xlsx';
 
 describe('github issues', () => {
   it('issue 623 - Issue with borders for merged cell when rewriting an excel workbook', () => {
     const wb = new ExcelJS.Workbook();
     return wb.xlsx
-      .readFile('./spec/integration/data/test-issue-623.xlsx')
+      .readFile('./fixtures/xlsx/test-issue-623.xlsx')
       .then(() => {
         // styles of each cell should be read as is without merging
         const worksheet = wb.getWorksheet(1);
@@ -31,7 +31,7 @@ describe('github issues', () => {
   });
 });
 
-function checkBorder(cell, borders) {
+function checkBorder(cell: any, borders: any) {
   borders.forEach((b: any) => {
     expect(cell.style.border).to.have.property(b);
   });

@@ -17,7 +17,7 @@ const PIVOT_TABLE_FILEPATHS = [
   'xl/pivotTables/_rels/pivotTable1.xml.rels',
 ];
 
-const TEST_XLSX_FILEPATH = './spec/out/wb.test.xlsx';
+const TEST_XLSX_FILEPATH = './fixtures/out/wb.test.xlsx';
 
 const TEST_DATA = [
   ['A', 'B', 'C', 'D', 'E'],

@@ -1,62 +1,54 @@
 /* eslint-disable max-classes-per-file */
-import utils from '#src/utils/utils';
+import utils from '#src/utils/helpers/utils';
 import RelType from '#src/xlsx/rel-type';
 
 class HyperlinksProxy {
-  writer: any;
+  writer: SheetRelsWriter;
 
-  constructor(sheetRelsWriter: any) {
+  constructor(sheetRelsWriter: SheetRelsWriter) {
     this.writer = sheetRelsWriter;
   }
 
-  push(hyperlink: any) {
+  push(hyperlink: any): void {
     this.writer.addHyperlink(hyperlink);
   }
 }
 
 class SheetRelsWriter {
-  id: any;
-  count: any;
-  _hyperlinks: any;
+  id: number;
+  count: number;
+  _hyperlinks: any[];
   _workbook: any;
   _stream: any;
-  _hyperlinksProxy: any;
+  _hyperlinksProxy?: HyperlinksProxy;
 
-  constructor(options: any) {
-    // in a workbook, each sheet will have a number
+  constructor(options: { id: number; workbook: any }) {
     this.id = options.id;
-
-    // count of all relationships
     this.count = 0;
-
-    // keep record of all hyperlinks
     this._hyperlinks = [];
-
     this._workbook = options.workbook;
   }
 
-  get stream() {
+  get stream(): any {
     if (!this._stream) {
-      // eslint-disable-next-line no-underscore-dangle
       this._stream = this._workbook._openStream(`/xl/worksheets/_rels/sheet${this.id}.xml.rels`);
     }
     return this._stream;
   }
 
-  get length() {
+  get length(): number {
     return this._hyperlinks.length;
   }
 
-  each(fn: any) {
+  each(fn: (item: any) => void): void {
     return this._hyperlinks.forEach(fn);
   }
 
-  get hyperlinksProxy() {
+  get hyperlinksProxy(): HyperlinksProxy {
     return this._hyperlinksProxy || (this._hyperlinksProxy = new HyperlinksProxy(this));
   }
 
-  addHyperlink(hyperlink: any) {
-    // Write to stream
+  addHyperlink(hyperlink: { target: string; address: string }): void {
     const relationship = {
       Target: hyperlink.target,
       Type: RelType.Hyperlink,
@@ -64,39 +56,34 @@ class SheetRelsWriter {
     };
     const rId = this._writeRelationship(relationship);
 
-    // store sheet stuff for later
     this._hyperlinks.push({
       rId,
       address: hyperlink.address,
     });
   }
 
-  addMedia(media: any) {
+  addMedia(media: any): string {
     return this._writeRelationship(media);
   }
 
-  addRelationship(rel: any) {
+  addRelationship(rel: any): string {
     return this._writeRelationship(rel);
   }
 
-  commit() {
+  commit(): void {
     if (this.count) {
-      // write xml utro
       this._writeClose();
-      // and close stream
       this.stream.end();
     }
   }
 
-  // ================================================================================
-  _writeOpen() {
+  private _writeOpen(): void {
     this.stream.write(
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-       <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`
     );
   }
 
-  _writeRelationship(relationship: any) {
+  private _writeRelationship(relationship: { Type: string; Target: string; TargetMode?: string }): string {
     if (!this.count) {
       this._writeOpen();
     }
@@ -120,7 +107,7 @@ class SheetRelsWriter {
     return rId;
   }
 
-  _writeClose() {
+  private _writeClose(): void {
     this.stream.write('</Relationships>');
   }
 }

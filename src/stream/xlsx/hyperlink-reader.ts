@@ -1,37 +1,38 @@
-import { EventEmitter } from 'events';
-import parseSax from '#src/utils/parse-sax';
-
+import { EventEmitter } from 'node:events';
+import parseSax from '#src/utils/helpers/parse-sax';
 import Enums from '#src/doc/enums';
 import RelType from '#src/xlsx/rel-type';
 
 class HyperlinkReader extends EventEmitter {
   workbook: any;
-  id: any;
+  id: number;
   iterator: any;
   options: any;
-  hyperlinks: any;
+  hyperlinks: Record<string, any> | null;
 
-  constructor({ workbook, id, iterator, options }: any = {}) {
+  constructor({ workbook, id, iterator, options }: { workbook?: any; id?: number; iterator?: any; options?: any } = {}) {
     super();
-
     this.workbook = workbook;
-    this.id = id;
+    this.id = id || 0;
     this.iterator = iterator;
-    this.options = options;
+    this.options = options || {};
+    this.hyperlinks = null;
   }
 
-  get count() {
-    return (this.hyperlinks && this.hyperlinks.length) || 0;
+  get count(): number {
+    return (this.hyperlinks && Object.keys(this.hyperlinks).length) || 0;
   }
 
-  each(fn: any) {
-    return this.hyperlinks.forEach(fn);
+  each(fn: (hyperlink: any, rId: string) => void): void {
+    if (this.hyperlinks) {
+      Object.entries(this.hyperlinks).forEach(([rId, hl]) => fn(hl, rId));
+    }
   }
 
-  async read() {
+  async read(): Promise<void> {
     const { iterator, options } = this;
     let emitHyperlinks = false;
-    let hyperlinks = null;
+    let hyperlinks: Record<string, any> | null = null;
     switch (options.hyperlinks) {
       case 'emit':
         emitHyperlinks = true;
@@ -66,8 +67,8 @@ class HyperlinkReader extends EventEmitter {
                     };
                     if (emitHyperlinks) {
                       this.emit('hyperlink', relationship);
-                    } else {
-                      (hyperlinks as Record<string, any>)[relationship.rId] = relationship;
+                    } else if (hyperlinks) {
+                      hyperlinks[relationship.rId] = relationship;
                     }
                   }
                   break;

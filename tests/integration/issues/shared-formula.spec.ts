@@ -8,7 +8,7 @@ describe('github issues', () => {
         'this fails, although the cells look the same in excel. Both cells are created by copying A3:B3 to A4:F19. The first row in the new block work as espected, the rest only has values (when seen through exceljs)';
       it('copied cells should have the right formulas', () => {
         const wb = new ExcelJS.Workbook();
-        return wb.xlsx.readFile('./spec/integration/data/fibonacci.xlsx').then(() => {
+        return wb.xlsx.readFile('./fixtures/xlsx/fibonacci.xlsx').then(() => {
           const ws = wb.getWorksheet('fib');
           expect(ws.getCell('A4').value).to.deep.equal({
             formula: 'A3+1',
@@ -21,7 +21,7 @@ describe('github issues', () => {
       });
       it('copied cells should have the right types', () => {
         const wb = new ExcelJS.Workbook();
-        return wb.xlsx.readFile('./spec/integration/data/fibonacci.xlsx').then(() => {
+        return wb.xlsx.readFile('./fixtures/xlsx/fibonacci.xlsx').then(() => {
           const ws = wb.getWorksheet('fib');
           expect(ws.getCell('A4').type).to.equal(Enums.ValueType.Formula);
           expect(ws.getCell('A5').type).to.equal(Enums.ValueType.Formula);
@@ -30,7 +30,7 @@ describe('github issues', () => {
       it('copied cells should have the same fields', () => {
         // to see if there are other fields on the object worth comparing
         const wb = new ExcelJS.Workbook();
-        return wb.xlsx.readFile('./spec/integration/data/fibonacci.xlsx').then(() => {
+        return wb.xlsx.readFile('./fixtures/xlsx/fibonacci.xlsx').then(() => {
           const ws = wb.getWorksheet('fib');
           const A4 = ws.getCell('A4');
           const A5 = ws.getCell('A5');
