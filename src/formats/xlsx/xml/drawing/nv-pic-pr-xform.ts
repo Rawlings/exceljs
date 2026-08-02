@@ -21,7 +21,7 @@ class NvPicPrXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: NvPicPrModel) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
     this.map['xdr:cNvPr'].render(xmlStream, model);
     this.map['xdr:cNvPicPr'].render(xmlStream, model);
     xmlStream.closeNode();

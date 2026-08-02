@@ -18,7 +18,7 @@ class HLinkClickXform extends BaseXform {
     if (!(model.hyperlinks && model.hyperlinks.rId)) {
       return;
     }
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
       'r:id': model.hyperlinks.rId,
       tooltip: model.hyperlinks.tooltip,

@@ -134,9 +134,9 @@ class StyleXform extends BaseXform {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         if (this.map.protection === this.parser) {
-          (this.model as StyleXfModel).protection = this.parser.model;
+          this.model.protection = this.parser.model;
         } else {
-          (this.model as StyleXfModel).alignment = this.parser.model;
+          this.model.alignment = this.parser.model;
         }
         this.parser = undefined;
       }

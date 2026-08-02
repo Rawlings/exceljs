@@ -29,7 +29,7 @@ class AutoFilterXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: AutoFilterModel) {
-    xmlStream.openNode(this.tag as string, { ref: model.autoFilterRef });
+    xmlStream.openNode(this.tag, { ref: model.autoFilterRef });
 
     model.columns.forEach((column) => {
       this.map.filterColumn.render(xmlStream, column);

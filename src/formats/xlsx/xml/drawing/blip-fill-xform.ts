@@ -19,7 +19,7 @@ class BlipFillXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: BlipFillModel) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
 
     this.map['a:blip'].render(xmlStream, model);
 

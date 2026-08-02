@@ -156,7 +156,7 @@ export default async function* parseSax(
   const xml = typeof iterable === 'string' ? iterable : await readAllChunks(iterable);
   if (!xml) return;
 
-  const tree = xmlParser.parse(xml) as XmlNode[];
+  const tree = xmlParser.parse(xml);
   const events = Array.from(walkNodes(tree));
   if (events.length > 0) {
     yield events;

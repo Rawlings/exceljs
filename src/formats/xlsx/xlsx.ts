@@ -722,9 +722,7 @@ export class XLSX {
     model.sharedStrings = new SharedStringsXform();
 
     // add a style manager to handle cell formats, fonts, etc.
-    model.styles = model.useStyles
-      ? new StylesXform(true)
-      : new (StylesXform.Mock as new (...args: any[]) => any)();
+    model.styles = model.useStyles ? new StylesXform(true) : new StylesXform.Mock();
 
     // prepare all of the things before the render
     const workbookXform = new WorkbookXform();

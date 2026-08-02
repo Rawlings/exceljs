@@ -250,7 +250,7 @@ export class Table {
     const assignStyle = (cell: CellLike, style: Record<string, unknown> | undefined) => {
       if (style) {
         Object.keys(style).forEach((key) => {
-          (cell.style as Record<string, unknown>)[key] = style[key];
+          cell.style[key] = style[key];
         });
       }
     };

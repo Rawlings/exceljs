@@ -188,7 +188,7 @@ export class WorkbookWriter {
     const medium = Object.assign({}, image, {
       type: 'image',
       name: `image${id}.${image.extension}`,
-    }) as MediaItem;
+    });
     this.media.push(medium);
     return id;
   }

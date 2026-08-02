@@ -32,7 +32,7 @@ class PicXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: PicModel) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
 
     this.map['xdr:nvPicPr'].render(xmlStream, model);
     this.map['xdr:blipFill'].render(xmlStream, model);

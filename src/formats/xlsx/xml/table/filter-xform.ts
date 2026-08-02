@@ -12,7 +12,7 @@ class FilterXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: FilterModel) {
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       val: model.val,
     });
   }

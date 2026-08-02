@@ -16,7 +16,7 @@ class TableStyleInfoXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: TableStyleInfoModel) {
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       name: model.theme ? model.theme : undefined,
       showFirstColumn: model.showFirstColumn ? '1' : '0',
       showLastColumn: model.showLastColumn ? '1' : '0',

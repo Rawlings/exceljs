@@ -65,7 +65,7 @@ class EdgeXform extends BaseXform {
         if (style) {
           this.model = {
             style,
-          } as EdgeModel;
+          };
         } else {
           this.model = undefined;
         }
@@ -99,7 +99,7 @@ class EdgeXform extends BaseXform {
         if (!this.model) {
           this.model = {};
         }
-        (this.model as EdgeModel).color = this.map.color.model;
+        this.model.color = this.map.color.model;
       }
     }
 
@@ -125,13 +125,10 @@ EdgeXform.validStyleValues = [
   'medium',
   'double',
   'thick',
-].reduce(
-  (p: Record<string, boolean>, v) => {
-    p[v] = true;
-    return p;
-  },
-  {} as Record<string, boolean>
-);
+].reduce((p: Record<string, boolean>, v) => {
+  p[v] = true;
+  return p;
+}, {});
 
 // Border encapsulates translation from border model to/from xlsx
 class BorderXform extends BaseXform {

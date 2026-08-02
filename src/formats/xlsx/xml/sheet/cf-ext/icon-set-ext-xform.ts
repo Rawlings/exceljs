@@ -32,7 +32,7 @@ class IconSetExtXform extends CompositeXform {
   }
 
   override render(xmlStream: XmlStream, model: IconSetExtModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       iconSet: BaseXform.toStringAttribute(model.iconSet),
       reverse: BaseXform.toBoolAttribute(model.reverse, false),
       showValue: BaseXform.toBoolAttribute(model.showValue, true),
@@ -65,7 +65,7 @@ class IconSetExtXform extends CompositeXform {
 
   override onParserClose(name: string, parser: { model: any }) {
     const [, prop] = name.split(':');
-    const model = this.model as IconSetExtModel;
+    const model = this.model;
     switch (prop) {
       case 'cfvo':
         model.cfvo.push(parser.model);
@@ -79,7 +79,7 @@ class IconSetExtXform extends CompositeXform {
         break;
 
       default:
-        (model as Record<string, any>)[prop] = parser.model;
+        model[prop] = parser.model;
         break;
     }
   }

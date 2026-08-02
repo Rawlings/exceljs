@@ -105,7 +105,7 @@ class HyperlinkReader extends EventEmitter {
       const relationships = doc.Relationships;
 
       if (relationships?.Relationship) {
-        for (const rel of relationships.Relationship as Record<string, string>[]) {
+        for (const rel of relationships.Relationship) {
           if (rel.Type === RelType.Hyperlink) {
             const relationship = {
               type: Enums.RelationshipType.Styles,

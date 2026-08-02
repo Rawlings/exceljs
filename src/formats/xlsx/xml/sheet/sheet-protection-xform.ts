@@ -69,7 +69,7 @@ class SheetProtectionXform extends BaseXform {
         attributes.scenarios = booleanToXml(model.scenarios === false, '1');
       }
       if (_.some(attributes, (value) => value !== undefined)) {
-        xmlStream.leafNode(this.tag as string, attributes);
+        xmlStream.leafNode(this.tag, attributes);
       }
     }
   }

@@ -33,7 +33,7 @@ class PivotCacheDefinitionXform extends BaseXform {
     const { sourceSheet, cacheFields } = model;
 
     xmlStream.openXml(XmlStream.StdDocAttributes);
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       ...PivotCacheDefinitionXform.PIVOT_CACHE_DEFINITION_ATTRIBUTES,
       'r:id': 'rId1',
       refreshOnLoad: '1', // important for our implementation to work

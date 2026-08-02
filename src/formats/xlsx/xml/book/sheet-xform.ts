@@ -28,7 +28,7 @@ class WorksheetXform extends BaseXform {
         id: parseInt(attrs.sheetId, 10),
         state: attrs.state,
         rId: attrs['r:id'],
-      } as SheetModel;
+      };
       return true;
     }
     return false;

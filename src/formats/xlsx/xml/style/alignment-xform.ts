@@ -23,20 +23,17 @@ const horizontalValues = [
   'centerContinuous',
   'distributed',
   'justify',
-].reduce(
-  (p: Record<string, boolean>, v) => {
-    p[v] = true;
-    return p;
-  },
-  {} as Record<string, boolean>
-);
+].reduce((p: Record<string, boolean>, v) => {
+  p[v] = true;
+  return p;
+}, {});
 
 const verticalValues = ['top', 'middle', 'bottom', 'distributed', 'justify'].reduce(
   (p: Record<string, boolean>, v) => {
     p[v] = true;
     return p;
   },
-  {} as Record<string, boolean>
+  {}
 );
 
 const validation = {

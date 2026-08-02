@@ -28,7 +28,7 @@ class IconSetXform extends CompositeXform {
   }
 
   override render(xmlStream: XmlStream, model: IconSetModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       iconSet: BaseXform.toStringAttribute(model.iconSet, '3TrafficLights'),
       reverse: BaseXform.toBoolAttribute(model.reverse, false),
       showValue: BaseXform.toBoolAttribute(model.showValue, true),
@@ -52,7 +52,7 @@ class IconSetXform extends CompositeXform {
   }
 
   override onParserClose(name: string, parser: { model: any }) {
-    (this.model as Record<string, any[]>)[name].push(parser.model);
+    this.model[name].push(parser.model);
   }
 }
 

@@ -8,7 +8,7 @@ class ExtLstXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
     xmlStream.openNode('a:ext', {
       uri: '{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}',
     });

@@ -18,7 +18,7 @@ class VmlPositionXform extends BaseXform {
     if (model === type[2]) {
       xmlStream.leafNode(this.tag as string);
     } else if (this.tag === 'x:SizeWithCells' && model === type[1]) {
-      xmlStream.leafNode(this.tag as string);
+      xmlStream.leafNode(this.tag);
     }
   }
 

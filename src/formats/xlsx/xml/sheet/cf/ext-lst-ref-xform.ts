@@ -13,7 +13,7 @@ class X14IdXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: string) {
-    xmlStream.leafNode(this.tag as string, undefined, model);
+    xmlStream.leafNode(this.tag, undefined, model);
   }
 
   override parseOpen() {
@@ -45,7 +45,7 @@ class ExtXform extends CompositeXform {
   }
 
   override render(xmlStream: XmlStream, model: ExtModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       uri: '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}',
       'xmlns:x14': 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
     });
@@ -77,7 +77,7 @@ class ExtLstRefXform extends CompositeXform {
   }
 
   override render(xmlStream: XmlStream, model: ExtModel) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
     this.map.ext.render(xmlStream, model);
     xmlStream.closeNode();
   }

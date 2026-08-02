@@ -46,7 +46,7 @@ class RichTextXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, modelInput?: RichTextRunModel) {
-    const model = modelInput || (this.model as RichTextRunModel);
+    const model = modelInput || this.model;
 
     xmlStream.openNode('r');
     if (model.font) {
@@ -89,11 +89,11 @@ class RichTextXform extends BaseXform {
       case 'r':
         return false;
       case 't':
-        (this.model as RichTextRunModel).text = this.parser.model;
+        this.model.text = this.parser.model;
         this.parser = undefined;
         return true;
       case 'rPr':
-        (this.model as RichTextRunModel).font = this.parser.model;
+        this.model.font = this.parser.model;
         this.parser = undefined;
         return true;
       default:

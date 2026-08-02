@@ -39,9 +39,7 @@ const copyStyle = (style: StyleRecord | undefined | null): StyleRecord | undefin
     setIfExists(style, copied, 'fill', ['fgColor', 'bgColor', 'center']);
     const fill = style.fill as StyleRecord;
     if (fill.stops && Array.isArray(fill.stops)) {
-      (copied.fill as StyleRecord).stops = (fill.stops as StyleRecord[]).map((s) =>
-        oneDepthCopy(s, ['color'])
-      );
+      (copied.fill as StyleRecord).stops = fill.stops.map((s) => oneDepthCopy(s, ['color']));
     }
   }
 

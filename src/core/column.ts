@@ -171,7 +171,7 @@ export class Column implements ColumnLike {
     if (this.outlineLevel) {
       return false;
     }
-    const s = this.style as Record<string, unknown> | undefined;
+    const s = this.style;
     if (s && (s.font || s.numFmt || s.alignment || s.border || s.fill || s.protection)) {
       return false;
     }
@@ -199,10 +199,7 @@ export class Column implements ColumnLike {
     this._worksheet.eachRow(
       options as EachRowOptions | null,
       (row: { getCell(n: number): CellLike }, rowNumber: number) => {
-        (iteratee as (cell: CellLike, rowNumber: number) => void)(
-          row.getCell(colNumber),
-          rowNumber
-        );
+        iteratee(row.getCell(colNumber), rowNumber);
       }
     );
   }
@@ -243,7 +240,7 @@ export class Column implements ColumnLike {
   }
 
   get numFmt(): unknown {
-    return (this.style as Record<string, unknown>).numFmt;
+    return this.style.numFmt;
   }
 
   set numFmt(value: unknown) {
@@ -251,7 +248,7 @@ export class Column implements ColumnLike {
   }
 
   get font(): unknown {
-    return (this.style as Record<string, unknown>).font;
+    return this.style.font;
   }
 
   set font(value: unknown) {
@@ -259,7 +256,7 @@ export class Column implements ColumnLike {
   }
 
   get alignment(): unknown {
-    return (this.style as Record<string, unknown>).alignment;
+    return this.style.alignment;
   }
 
   set alignment(value: unknown) {
@@ -267,7 +264,7 @@ export class Column implements ColumnLike {
   }
 
   get protection(): unknown {
-    return (this.style as Record<string, unknown>).protection;
+    return this.style.protection;
   }
 
   set protection(value: unknown) {
@@ -275,7 +272,7 @@ export class Column implements ColumnLike {
   }
 
   get border(): unknown {
-    return (this.style as Record<string, unknown>).border;
+    return this.style.border;
   }
 
   set border(value: unknown) {
@@ -283,7 +280,7 @@ export class Column implements ColumnLike {
   }
 
   get fill(): unknown {
-    return (this.style as Record<string, unknown>).fill;
+    return this.style.fill;
   }
 
   set fill(value: unknown) {
@@ -316,7 +313,7 @@ export class Column implements ColumnLike {
           };
           cols.push(col);
         } else {
-          (col as Record<string, unknown>).max = index + 1;
+          col.max = index + 1;
         }
       });
     }

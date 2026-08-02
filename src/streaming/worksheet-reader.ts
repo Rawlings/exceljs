@@ -233,7 +233,7 @@ export class WorksheetReader extends EventEmitter {
     // them to cells during row processing (fixes ordering issue in old code).
     // -----------------------------------------------------------------------
     if ((emitHyperlinks || hyperlinks) && ws.hyperlinks?.hyperlink) {
-      for (const hl of ws.hyperlinks.hyperlink as Record<string, string>[]) {
+      for (const hl of ws.hyperlinks.hyperlink) {
         const hyperlink = {
           ref: hl.ref,
           rId: hl['r:id'],
@@ -248,7 +248,7 @@ export class WorksheetReader extends EventEmitter {
     // Columns
     // -----------------------------------------------------------------------
     if (emitSheet && ws.cols?.col) {
-      const cols = (ws.cols.col as Record<string, string>[]).map((col) => ({
+      const cols = (ws.cols.col as Record<string, string>[]).map((col: Record<string, string>) => ({
         min: parseInt(col.min, 10),
         max: parseInt(col.max, 10),
         width: parseFloat(col.width),
@@ -261,7 +261,7 @@ export class WorksheetReader extends EventEmitter {
     // Rows & cells
     // -----------------------------------------------------------------------
     if (emitSheet && ws.sheetData?.row) {
-      for (const rowNode of ws.sheetData.row as Record<string, unknown>[]) {
+      for (const rowNode of ws.sheetData.row) {
         const worksheetEvents: WorksheetEvent[] = [];
 
         const r = parseInt(rowNode.r as string, 10);
@@ -351,7 +351,7 @@ export class WorksheetReader extends EventEmitter {
                 break;
 
               default:
-                if (utils.isDateFmt(cell.numFmt as string)) {
+                if (utils.isDateFmt(cell.numFmt)) {
                   cell.value = utils.excelToDate(parseFloat(vText), properties?.model?.date1904);
                 } else {
                   cell.value = parseFloat(vText);
@@ -399,7 +399,7 @@ export class WorksheetReader extends EventEmitter {
     // -----------------------------------------------------------------------
     if (emitHyperlinks && ws.hyperlinks?.hyperlink) {
       const hyperlinkEvents: WorksheetEvent[] = [];
-      for (const hl of ws.hyperlinks.hyperlink as Record<string, string>[]) {
+      for (const hl of ws.hyperlinks.hyperlink) {
         hyperlinkEvents.push({
           eventType: 'hyperlink',
           value: { ref: hl.ref, rId: hl['r:id'] },

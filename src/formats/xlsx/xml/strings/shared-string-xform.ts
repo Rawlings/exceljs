@@ -40,7 +40,7 @@ class SharedStringXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: SharedStringModel) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
     if (
       model &&
       Object.prototype.hasOwnProperty.call(model, 'richText') &&
@@ -89,7 +89,7 @@ class SharedStringXform extends BaseXform {
       if (!this.parser.parseClose(name)) {
         switch (name) {
           case 'r': {
-            const model = this.model as RichSharedStringModel;
+            const model = this.model;
             let rt = model.richText;
             if (!rt) {
               rt = model.richText = [];

@@ -34,7 +34,7 @@ class PhoneticTextXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: PhoneticTextModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       sb: model.sb || 0,
       eb: model.eb || 0,
     });
@@ -80,7 +80,7 @@ class PhoneticTextXform extends BaseXform {
   override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
-        const model = this.model as PhoneticTextModel;
+        const model = this.model;
         switch (name) {
           case 'r': {
             let rt = model.richText;

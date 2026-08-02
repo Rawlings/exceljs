@@ -22,7 +22,7 @@ class TableColumnXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: TableColumnModel) {
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       id: (model.id as number).toString(),
       name: model.name,
       totalsRowLabel: model.totalsRowLabel,

@@ -146,7 +146,7 @@ export class DefinedNames {
       cell.mark = true;
     });
     const ranges = matrix
-      .map((cell) => cell.mark && this._explore(matrix as CellMatrix, cell))
+      .map((cell) => cell.mark && this._explore(matrix, cell))
       .filter(Boolean)
       .map((range) => (range as Range).$shortRange);
 

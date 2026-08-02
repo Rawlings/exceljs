@@ -43,7 +43,7 @@ class FilterColumnXform extends BaseXform {
 
   override render(xmlStream: XmlStream, model: FilterColumnModel) {
     if (model.customFilters) {
-      xmlStream.openNode(this.tag as string, {
+      xmlStream.openNode(this.tag, {
         colId: model.colId,
         hiddenButton: model.filterButton ? '0' : '1',
       });
@@ -53,7 +53,7 @@ class FilterColumnXform extends BaseXform {
       xmlStream.closeNode();
       return true;
     }
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       colId: model.colId,
       hiddenButton: model.filterButton ? '0' : '1',
     });

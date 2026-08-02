@@ -39,7 +39,7 @@ export class ZipBuilder {
     } else if (typeof data === 'string') {
       this.files[name] = isBase64 ? toU8(Buffer.from(data, 'base64')) : toU8(data);
     } else if (data && typeof d.xml === 'string') {
-      this.files[name] = toU8(d.xml as string);
+      this.files[name] = toU8(d.xml);
     } else if (data && typeof d.toXml === 'function') {
       this.files[name] = toU8((d.toXml as () => string)());
     } else if (data && typeof d.toBuffer === 'function') {

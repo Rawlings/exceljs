@@ -40,7 +40,7 @@ class ConditionalFormattingsExtXform extends CompositeXform {
 
   override render(xmlStream: XmlStream, model: ConditionalFormattingsExtModel) {
     if (this.hasContent(model)) {
-      xmlStream.openNode(this.tag as string);
+      xmlStream.openNode(this.tag);
       model.forEach((cf) => this.cfXform.render(xmlStream, cf));
       xmlStream.closeNode();
     }
@@ -52,7 +52,7 @@ class ConditionalFormattingsExtXform extends CompositeXform {
 
   override onParserClose(_name: string, parser: { model: any }) {
     // model is array of conditional formatting objects
-    (this.model as ConditionalFormattingsExtModel).push(parser.model);
+    this.model.push(parser.model);
   }
 }
 

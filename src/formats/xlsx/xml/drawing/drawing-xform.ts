@@ -34,7 +34,7 @@ class DrawingXform extends BaseXform {
   override prepare(model: DrawingModel) {
     model.anchors.forEach((item: AnchorModel, index: number) => {
       item.anchorType = getAnchorType(item);
-      const anchor = this.map[item.anchorType as string];
+      const anchor = this.map[item.anchorType];
       anchor.prepare(item, { index });
     });
   }

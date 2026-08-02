@@ -289,10 +289,10 @@ class DataValidationsXform extends BaseXform {
           if (addr.includes(':')) {
             const range = new Range(addr);
             range.forEachAddress((address: string) => {
-              (this.model as DataValidationsModel)[address] = dataValidation;
+              this.model[address] = dataValidation;
             });
           } else {
-            (this.model as DataValidationsModel)[addr] = dataValidation;
+            this.model[addr] = dataValidation;
           }
         });
         return true;

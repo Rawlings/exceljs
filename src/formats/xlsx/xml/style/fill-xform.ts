@@ -82,7 +82,7 @@ class StopXform extends BaseXform {
   override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
-        (this.model as StopModel).color = this.parser.model;
+        this.model.color = this.parser.model;
         this.parser = undefined;
       }
       return true;
@@ -155,7 +155,7 @@ class PatternFillXform extends BaseXform {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         if (this.parser.model) {
-          (this.model as Record<string, unknown>)[name] = this.parser.model;
+          this.model[name] = this.parser.model;
         }
         this.parser = undefined;
       }
@@ -277,7 +277,7 @@ class GradientFillXform extends BaseXform {
   override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
-        (this.model as GradientFillModel).stops.push(this.parser.model);
+        this.model.stops.push(this.parser.model);
         this.parser = undefined;
       }
       return true;
@@ -354,9 +354,7 @@ class FillXform extends BaseXform {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.model = this.parser.model;
-        (this.model as Record<string, unknown>).type = (
-          this.parser as unknown as { name: string }
-        ).name;
+        this.model.type = (this.parser as { name: string }).name;
         this.parser = undefined;
       }
       return true;
@@ -391,13 +389,10 @@ FillXform.validPatternValues = [
   'lightGrid',
   'lightTrellis',
   'lightGrid',
-].reduce(
-  (p: Record<string, boolean>, v) => {
-    p[v] = true;
-    return p;
-  },
-  {} as Record<string, boolean>
-);
+].reduce((p: Record<string, boolean>, v) => {
+  p[v] = true;
+  return p;
+}, {});
 
 FillXform.StopXform = StopXform;
 FillXform.PatternFillXform = PatternFillXform;

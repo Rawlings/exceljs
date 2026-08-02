@@ -7,7 +7,7 @@ class FExtXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: string) {
-    xmlStream.leafNode(this.tag as string, undefined, model);
+    xmlStream.leafNode(this.tag, undefined, model);
   }
 
   override parseOpen() {

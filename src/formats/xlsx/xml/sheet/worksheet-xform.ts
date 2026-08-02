@@ -393,11 +393,8 @@ class WorkSheetXform extends BaseXform {
       return true;
     }
 
-    if (
-      this.map[node.name as keyof WorkSheetXform['map']] &&
-      !this.ignoreNodes.includes(node.name)
-    ) {
-      this.parser = this.map[node.name as keyof WorkSheetXform['map']];
+    if (this.map[node.name] && !this.ignoreNodes.includes(node.name)) {
+      this.parser = this.map[node.name];
       this.parser.parseOpen(node);
     }
     return true;

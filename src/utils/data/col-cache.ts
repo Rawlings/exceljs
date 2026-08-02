@@ -30,7 +30,7 @@ export interface DecodedExAddress extends Partial<Address> {
 const addressRegex = /^[A-Z]+\d+$/;
 
 const colCache = {
-  _hash: {} as Record<string, Address>,
+  _hash: {},
 
   l2n(l: string): number {
     if (!l || typeof l !== 'string') {
@@ -73,7 +73,7 @@ const colCache = {
   },
 
   decodeAddress(value: string): Address {
-    const cached = value.length < 5 && this._hash[value];
+    const cached = value.length < 5 && (this._hash as Record<string, Address>)[value];
     if (cached) {
       return cached;
     }
@@ -113,8 +113,8 @@ const colCache = {
     };
 
     if (colNumber <= 100 && rowNumber <= 100) {
-      this._hash[addrStr] = address;
-      this._hash[address.$col$row] = address;
+      (this._hash as Record<string, Address>)[addrStr] = address;
+      (this._hash as Record<string, Address>)[address.$col$row] = address;
     }
 
     return address;

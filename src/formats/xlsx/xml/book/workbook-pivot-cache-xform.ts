@@ -21,7 +21,7 @@ class WorkbookPivotCacheXform extends BaseXform {
       this.model = {
         cacheId: attrs.cacheId,
         rId: attrs['r:id'],
-      } as WorkbookPivotCacheModel;
+      };
       return true;
     }
     return false;

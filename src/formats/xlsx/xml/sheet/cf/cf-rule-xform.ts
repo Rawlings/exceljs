@@ -154,7 +154,7 @@ class CfRuleXform extends CompositeXform {
   static isPrimitive(rule: CfRuleModel) {
     // is this rule primitive?
     if (rule.type === 'iconSet') {
-      if (rule.custom || (extIcons as Record<string, any>)[rule.iconSet as string]) {
+      if (rule.custom || (extIcons as Record<string, boolean>)[rule.iconSet as string]) {
         return false;
       }
     }
@@ -194,7 +194,7 @@ class CfRuleXform extends CompositeXform {
   }
 
   renderExpression(xmlStream: XmlStream, model: CfRuleModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: 'expression',
       dxfId: model.dxfId,
       priority: model.priority,
@@ -206,7 +206,7 @@ class CfRuleXform extends CompositeXform {
   }
 
   renderCellIs(xmlStream: XmlStream, model: CfRuleModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: 'cellIs',
       dxfId: model.dxfId,
       priority: model.priority,
@@ -221,7 +221,7 @@ class CfRuleXform extends CompositeXform {
   }
 
   renderTop10(xmlStream: XmlStream, model: CfRuleModel) {
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       type: 'top10',
       dxfId: model.dxfId,
       priority: model.priority,
@@ -232,7 +232,7 @@ class CfRuleXform extends CompositeXform {
   }
 
   renderAboveAverage(xmlStream: XmlStream, model: CfRuleModel) {
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       type: 'aboveAverage',
       dxfId: model.dxfId,
       priority: model.priority,
@@ -241,19 +241,19 @@ class CfRuleXform extends CompositeXform {
   }
 
   renderDataBar(xmlStream: XmlStream, model: CfRuleModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: 'dataBar',
       priority: model.priority,
     });
 
     this.databarXform.render(xmlStream, model as DatabarModel);
-    this.extLstRefXform.render(xmlStream, model as ExtModel);
+    this.extLstRefXform.render(xmlStream, model);
 
     xmlStream.closeNode();
   }
 
   renderColorScale(xmlStream: XmlStream, model: CfRuleModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: 'colorScale',
       priority: model.priority,
     });
@@ -269,7 +269,7 @@ class CfRuleXform extends CompositeXform {
       return;
     }
 
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: 'iconSet',
       priority: model.priority,
     });
@@ -280,7 +280,7 @@ class CfRuleXform extends CompositeXform {
   }
 
   renderText(xmlStream: XmlStream, model: CfRuleModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: model.operator,
       dxfId: model.dxfId,
       priority: model.priority,
@@ -296,7 +296,7 @@ class CfRuleXform extends CompositeXform {
   }
 
   renderTimePeriod(xmlStream: XmlStream, model: CfRuleModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: 'timePeriod',
       dxfId: model.dxfId,
       priority: model.priority,
@@ -326,7 +326,7 @@ class CfRuleXform extends CompositeXform {
   }
 
   override onParserClose(name: string, parser: { model: any }) {
-    const model = this.model as CfRuleModel;
+    const model = this.model;
     switch (name) {
       case 'dataBar':
       case 'extLst':

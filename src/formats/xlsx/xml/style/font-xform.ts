@@ -75,7 +75,7 @@ class FontXform extends BaseXform {
     }
     if (this.map[node.name]) {
       this.parser = this.map[node.name].xform;
-      return this.parser.parseOpen(node) as boolean;
+      return this.parser.parseOpen(node);
     }
     switch (node.name) {
       case this.options.tagName:
@@ -96,7 +96,7 @@ class FontXform extends BaseXform {
     if (this.parser && !this.parser.parseClose(name)) {
       const item = this.map[name];
       if (this.parser.model) {
-        (this.model as Record<string, unknown>)[item.prop] = this.parser.model;
+        this.model[item.prop] = this.parser.model;
       }
       this.parser = undefined;
       return true;

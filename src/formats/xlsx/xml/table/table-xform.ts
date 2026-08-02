@@ -50,7 +50,7 @@ class TableXform extends BaseXform {
 
   override render(xmlStream: XmlStream, model: TableModel) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       ...TableXform.TABLE_ATTRIBUTES,
       id: model.id,
       name: model.name,
@@ -112,12 +112,12 @@ class TableXform extends BaseXform {
     }
     switch (name) {
       case this.tag: {
-        const model = this.model as TableModel;
+        const model = this.model;
         model.columns = this.map.tableColumns.model;
         if (this.map.autoFilter.model) {
-          const autoFilterModel = this.map.autoFilter.model as AutoFilterModel;
+          const autoFilterModel = this.map.autoFilter.model;
           model.autoFilterRef = autoFilterModel.autoFilterRef;
-          autoFilterModel.columns.forEach((column, index) => {
+          autoFilterModel.columns.forEach((column: TableColumnModel, index: number) => {
             model.columns[index].filterButton = column.filterButton;
           });
         }

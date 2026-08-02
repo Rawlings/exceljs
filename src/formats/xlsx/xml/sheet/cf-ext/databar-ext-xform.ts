@@ -56,7 +56,7 @@ class DatabarExtXform extends CompositeXform {
   }
 
   override render(xmlStream: XmlStream, model: DatabarExtModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       minLength: BaseXform.toIntAttribute(model.minLength, 0, true),
       maxLength: BaseXform.toIntAttribute(model.maxLength, 100, true),
       gradient: BaseXform.toBoolAttribute(model.gradient, true),
@@ -108,14 +108,14 @@ class DatabarExtXform extends CompositeXform {
 
   override onParserClose(name: string, parser: { model: any }) {
     const [, prop] = name.split(':');
-    const model = this.model as DatabarExtModel;
+    const model = this.model;
     switch (prop) {
       case 'cfvo':
         model.cfvo.push(parser.model);
         break;
 
       default:
-        (model as Record<string, any>)[prop] = parser.model;
+        model[prop] = parser.model;
         break;
     }
   }

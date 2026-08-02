@@ -82,7 +82,7 @@ class PageSetupXform extends BaseXform {
         copies: model.copies,
       };
       if (_.some(attributes, (value: any) => value !== undefined)) {
-        xmlStream.leafNode(this.tag as string, attributes);
+        xmlStream.leafNode(this.tag, attributes);
       }
     }
   }

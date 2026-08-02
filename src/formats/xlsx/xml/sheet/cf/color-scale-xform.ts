@@ -28,7 +28,7 @@ class ColorScaleXform extends CompositeXform {
   }
 
   override render(xmlStream: XmlStream, model: ColorScaleModel) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
 
     model.cfvo.forEach((cfvo) => {
       this.cfvoXform.render(xmlStream, cfvo);
@@ -48,7 +48,7 @@ class ColorScaleXform extends CompositeXform {
   }
 
   override onParserClose(name: string, parser: { model: any }) {
-    (this.model as Record<string, any[]>)[name].push(parser.model);
+    this.model[name].push(parser.model);
   }
 }
 

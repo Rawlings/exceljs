@@ -104,7 +104,7 @@ class RowXform extends BaseXform {
       return true;
     }
 
-    this.parser = this.map[node.name as keyof RowXform['map']];
+    this.parser = this.map[node.name];
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;

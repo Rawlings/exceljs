@@ -13,7 +13,7 @@ class CfIconExtXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: CfIconExtModel) {
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       iconSet: model.iconSet,
       iconId: model.iconId,
     });

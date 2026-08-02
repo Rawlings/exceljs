@@ -143,7 +143,7 @@ class StylesXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, modelInput?: StylesModel) {
-    const model: StylesModel = modelInput || (this.model as StylesModel);
+    const model: StylesModel = modelInput || this.model;
     //
     //   <fonts count="2" x14ac:knownFonts="1">
     xmlStream.openXml(XmlStream.StdDocAttributes);
@@ -255,7 +255,7 @@ class StylesXform extends BaseXform {
         this.model = {} as StylesModel;
         const add = (propName: keyof StylesModel, xform: BaseXform) => {
           if (xform.model && xform.model.length) {
-            (this.model[propName] as unknown[]) = xform.model;
+            this.model[propName] = xform.model;
           }
         };
         add('numFmts', this.map.numFmts);
@@ -272,7 +272,7 @@ class StylesXform extends BaseXform {
         } as StylesIndex;
         if (this.model.numFmts) {
           const numFmtIndex = this.index.numFmt;
-          (this.model.numFmts as { id: number; formatCode: string }[]).forEach((numFmt) => {
+          (this.model.numFmts as Record<string, any>[]).forEach((numFmt: Record<string, any>) => {
             numFmtIndex[numFmt.id] = numFmt.formatCode;
           });
         }
@@ -353,7 +353,7 @@ class StylesXform extends BaseXform {
   // objects are shared where possible.
   getStyleModel(id: number): Record<string, unknown> | null {
     // if the style doesn't exist return null
-    const style = this.model.styles[id] as StyleXfModel;
+    const style = this.model.styles[id];
     if (!style) return null;
 
     const index = this.index as StylesIndex;

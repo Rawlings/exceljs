@@ -21,6 +21,6 @@ export const RelType = {
   PivotCacheRecords:
     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/pivotCacheRecords',
   PivotTable: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/pivotTable',
-} as const;
+};
 
 export default RelType;

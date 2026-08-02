@@ -16,7 +16,7 @@ class OutlinePropertiesXform extends BaseXform {
 
   override render(xmlStream: XmlStream, model: OutlinePropertiesModel | undefined) {
     if (model && (isDefined(model.summaryBelow) || isDefined(model.summaryRight))) {
-      xmlStream.leafNode(this.tag as string, {
+      xmlStream.leafNode(this.tag, {
         summaryBelow: isDefined(model.summaryBelow) ? Number(model.summaryBelow) : undefined,
         summaryRight: isDefined(model.summaryRight) ? Number(model.summaryRight) : undefined,
       });

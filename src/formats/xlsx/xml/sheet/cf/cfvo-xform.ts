@@ -13,7 +13,7 @@ class CfvoXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: CfvoModel) {
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       type: model.type,
       val: model.value,
     });

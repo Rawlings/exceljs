@@ -60,13 +60,10 @@ function makePivotTable(worksheet: WorksheetLike, model: PivotTableModel) {
   // names can then be accessed via `pivotTable.cacheFields[index].name`.
   // *Note*: Using `reduce` as `Object.fromEntries` requires Node 12+;
   // ExcelJS is >=8.3.0 (as of 2023-10-08).
-  const nameToIndex = cacheFields.reduce(
-    (result: Record<string, number>, cacheField, index) => {
-      result[cacheField.name] = index;
-      return result;
-    },
-    {} as Record<string, number>
-  );
+  const nameToIndex = cacheFields.reduce((result: Record<string, number>, cacheField, index) => {
+    result[cacheField.name] = index;
+    return result;
+  }, {});
   rows = rows.map((row) => nameToIndex[row as string]);
   columns = columns.map((column) => nameToIndex[column as string]);
   values = values.map((value) => nameToIndex[value as string]);
@@ -156,9 +153,9 @@ function makeCacheFields(
   const nameToHasSharedItems = objectFromProps(fieldNamesWithSharedItems, true);
 
   const aggregate = (columnIndex: number) => {
-    const columnValues = (
-      worksheet.getColumn(columnIndex) as unknown as { values: unknown[] }
-    ).values.splice(2);
+    const columnValues = (worksheet.getColumn(columnIndex) as { values: unknown[] }).values.splice(
+      2
+    );
     const columnValuesAsSet = new Set(columnValues);
     return toSortedArray(columnValuesAsSet);
   };

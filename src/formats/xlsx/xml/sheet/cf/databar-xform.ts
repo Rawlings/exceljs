@@ -27,7 +27,7 @@ class DatabarXform extends CompositeXform {
   }
 
   override render(xmlStream: XmlStream, model: DatabarModel) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
 
     model.cfvo.forEach((cfvo) => {
       this.cfvoXform.render(xmlStream, cfvo);
@@ -46,10 +46,10 @@ class DatabarXform extends CompositeXform {
   override onParserClose(name: string, parser: { model: any }) {
     switch (name) {
       case 'cfvo':
-        (this.model as DatabarModel).cfvo.push(parser.model);
+        this.model.cfvo.push(parser.model);
         break;
       case 'color':
-        (this.model as DatabarModel).color = parser.model;
+        this.model.color = parser.model;
         break;
     }
   }

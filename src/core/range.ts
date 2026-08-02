@@ -70,7 +70,7 @@ export class Range {
         break;
 
       case 3: // [tl,br,s]
-        this.setTLBR(argv[0] as string, argv[1] as string, argv[2] as unknown as number);
+        this.setTLBR(argv[0] as string, argv[1] as string, argv[2] as number);
         break;
       case 2: // [tl,br]
         this.setTLBR(argv[0] as string, argv[1] as string);

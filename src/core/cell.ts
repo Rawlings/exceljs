@@ -290,11 +290,7 @@ export class Cell {
   }
 
   get workbook() {
-    return (
-      (this._row as unknown as { worksheet: { workbook: unknown } }).worksheet as {
-        workbook: unknown;
-      }
-    ).workbook;
+    return (this._row as unknown as { worksheet: { workbook: unknown } }).worksheet.workbook;
   }
 
   get sheetName(): string {
@@ -560,14 +556,14 @@ export class Cell {
 
   get names(): string[] {
     return (
-      this.workbook as unknown as {
+      this.workbook as {
         definedNames: { getNamesEx(address: FullAddress): string[] };
       }
     ).definedNames.getNamesEx(this.fullAddress);
   }
 
   set names(value: string[]) {
-    const { definedNames } = this.workbook as unknown as {
+    const { definedNames } = this.workbook as {
       definedNames: {
         removeAllNames(address: FullAddress): void;
         addEx(address: FullAddress, name: string): void;
@@ -581,26 +577,26 @@ export class Cell {
 
   addName(name: string) {
     (
-      this.workbook as unknown as { definedNames: { addEx(a: FullAddress, n: string): void } }
+      this.workbook as { definedNames: { addEx(a: FullAddress, n: string): void } }
     ).definedNames.addEx(this.fullAddress, name);
   }
 
   removeName(name: string) {
     (
-      this.workbook as unknown as { definedNames: { removeEx(a: FullAddress, n: string): void } }
+      this.workbook as { definedNames: { removeEx(a: FullAddress, n: string): void } }
     ).definedNames.removeEx(this.fullAddress, name);
   }
 
   removeAllNames() {
     (
-      this.workbook as unknown as { definedNames: { removeAllNames(a: FullAddress): void } }
+      this.workbook as { definedNames: { removeAllNames(a: FullAddress): void } }
     ).definedNames.removeAllNames(this.fullAddress);
   }
 
   // =========================================================================
   // Data Validation stuff
   get _dataValidations() {
-    return (this.worksheet as unknown as { dataValidations: unknown }).dataValidations as {
+    return (this.worksheet as { dataValidations: unknown }).dataValidations as {
       find(address: string): unknown;
       add(address: string, validation: unknown): unknown;
     };
@@ -1168,7 +1164,7 @@ class FormulaValue implements CellValueImpl {
   }
 
   get effectiveType(): number {
-    const v = this.model.result as unknown;
+    const v = this.model.result;
     if (v === null || v === undefined) {
       return Enums.ValueType.Null;
     }
@@ -1181,10 +1177,10 @@ class FormulaValue implements CellValueImpl {
     if (v instanceof Date) {
       return Enums.ValueType.Date;
     }
-    if ((v as { text?: unknown }).text && (v as { hyperlink?: unknown }).hyperlink) {
+    if ((v as Record<string, unknown>).text && (v as Record<string, unknown>).hyperlink) {
       return Enums.ValueType.Hyperlink;
     }
-    if ((v as { formula?: unknown }).formula) {
+    if ((v as Record<string, unknown>).formula) {
       return Enums.ValueType.Formula;
     }
 
@@ -1218,7 +1214,7 @@ class FormulaValue implements CellValueImpl {
   release() {}
 
   toString(): string {
-    return this.model.result ? (this.model.result as { toString(): string }).toString() : '';
+    return this.model.result ? this.model.result.toString() : '';
   }
 }
 
@@ -1468,13 +1464,10 @@ const Value = {
     { t: Cell.Types.RichText, f: RichTextValue },
     { t: Cell.Types.Boolean, f: BooleanValue },
     { t: Cell.Types.Error, f: ErrorValue },
-  ].reduce(
-    (p: Record<string, ValueCtor>, t) => {
-      p[t.t as unknown as string] = t.f as unknown as ValueCtor;
-      return p;
-    },
-    {} as Record<string, ValueCtor>
-  ),
+  ].reduce((p: Record<string, ValueCtor>, t) => {
+    p[t.t as unknown as string] = t.f as unknown as ValueCtor;
+    return p;
+  }, {}),
 
   create(type: number, cell: Cell, value?: unknown): CellValueImpl {
     const T = this.types[type as unknown as string];

@@ -124,7 +124,7 @@ class HeaderFooterXform extends BaseXform {
 
   override parseText(text: string) {
     const decoded = utils.xmlDecode(text);
-    const model = this.model as HeaderFooterModel;
+    const model = this.model;
     switch (this.currentNode) {
       case 'oddHeader':
         model.oddHeader = decoded;

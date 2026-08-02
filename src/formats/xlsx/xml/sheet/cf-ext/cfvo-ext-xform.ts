@@ -25,7 +25,7 @@ class CfvoExtXform extends CompositeXform {
   }
 
   override render(xmlStream: XmlStream, model: CfvoExtModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: model.type,
     });
     if (model.value !== undefined) {
@@ -44,7 +44,7 @@ class CfvoExtXform extends CompositeXform {
   override onParserClose(name: string, parser: { model: any }) {
     switch (name) {
       case 'xm:f':
-        (this.model as CfvoExtModel).value = parser.model ? parseFloat(parser.model) : 0;
+        this.model.value = parser.model ? parseFloat(parser.model) : 0;
         break;
     }
   }

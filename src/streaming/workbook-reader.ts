@@ -286,7 +286,7 @@ export class WorkbookReader extends EventEmitter {
     if (!sst || !sst.si) return;
 
     let index = 0;
-    for (const si of sst.si as Record<string, unknown>[]) {
+    for (const si of sst.si) {
       let text: string | null = null;
       const richText: { font: Record<string, unknown> | null; text: string | null }[] = [];
 
@@ -389,7 +389,7 @@ export class WorkbookReader extends EventEmitter {
 
     const matchingRel = (this.workbookRels || []).find(
       (rel) => rel.Target === `worksheets/sheet${sheetNo}.xml`
-    ) as Record<string, unknown> | undefined;
+    );
     const matchingSheet =
       matchingRel &&
       ((this.model.sheets as Record<string, unknown>[]) || []).find(

@@ -292,9 +292,8 @@ export class Worksheet implements WorksheetLike {
         verticalDpi: 4294967295,
         fitToPage: !!(
           options.pageSetup &&
-          ((options.pageSetup as Record<string, unknown>).fitToWidth ||
-            (options.pageSetup as Record<string, unknown>).fitToHeight) &&
-          !(options.pageSetup as Record<string, unknown>).scale
+          (options.pageSetup.fitToWidth || options.pageSetup.fitToHeight) &&
+          !options.pageSetup.scale
         ),
         pageOrder: 'downThenOver',
         blackAndWhite: false,
@@ -507,11 +506,7 @@ export class Worksheet implements WorksheetLike {
         });
         const row = this.getRow(i + 1);
         // eslint-disable-next-line prefer-spread
-        (
-          (row as unknown as { splice(...args: unknown[]): void }).splice as (
-            ...args: unknown[]
-          ) => void
-        ).apply(row, rowArguments);
+        (row as unknown as { splice(...args: unknown[]): void }).splice.apply(row, rowArguments);
       }
     } else {
       // nothing to insert, so just splice all rows
@@ -823,7 +818,7 @@ export class Worksheet implements WorksheetLike {
     } else {
       this._rows.forEach((row) => {
         if (row && row.hasValues) {
-          (iteratee as (row: Row, rowNumber: number) => void)(row, row.number);
+          iteratee(row, row.number);
         }
       });
     }
@@ -1000,7 +995,7 @@ export class Worksheet implements WorksheetLike {
     const model: ImageModel = {
       type: 'image',
       imageId,
-      range: range as ImageRangeInput | string,
+      range: range,
     };
     this._media.push(new Image(this, model));
   }
@@ -1045,8 +1040,8 @@ export class Worksheet implements WorksheetLike {
         this.sheetProtection.hashValue = Encryptor.convertPasswordToHash(
           password,
           'SHA512',
-          this.sheetProtection.saltValue as string,
-          this.sheetProtection.spinCount as number
+          this.sheetProtection.saltValue,
+          this.sheetProtection.spinCount
         );
       }
       if (options) {
@@ -1171,8 +1166,8 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
         row &&
         (row as unknown as { model: { number: number; min: number; max: number } | null }).model;
       if (rowModel) {
-        (dimensions as Range).expand(rowModel.number, rowModel.min, rowModel.number, rowModel.max);
-        (rows as unknown[]).push(rowModel);
+        dimensions.expand(rowModel.number, rowModel.min, rowModel.number, rowModel.max);
+        rows.push(rowModel);
       }
     });
 

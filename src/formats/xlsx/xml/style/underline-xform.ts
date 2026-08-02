@@ -23,7 +23,7 @@ class UnderlineXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model?: UnderlineValue) {
-    model = model || (this.model as UnderlineValue);
+    model = model || this.model;
 
     if (model === true) {
       xmlStream.leafNode('u');

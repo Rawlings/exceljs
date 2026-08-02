@@ -44,7 +44,7 @@ class PivotTableXform extends BaseXform {
     // the numbers are indices into `cacheFields`.
 
     xmlStream.openXml(XmlStream.StdDocAttributes);
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       ...PivotTableXform.PIVOT_TABLE_ATTRIBUTES,
       'xr:uid': '{267EE50F-B116-784D-8DC2-BA77DE3F4F4A}',
       name: 'PivotTable2',

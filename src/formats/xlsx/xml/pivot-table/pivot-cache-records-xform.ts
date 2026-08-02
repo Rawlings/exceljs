@@ -34,7 +34,7 @@ class PivotCacheRecordsXform extends BaseXform {
     const sourceBodyRows = sourceSheet.getSheetValues().slice(2);
 
     xmlStream.openXml(XmlStream.StdDocAttributes);
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       ...PivotCacheRecordsXform.PIVOT_CACHE_RECORDS_ATTRIBUTES,
       count: sourceBodyRows.length,
     });

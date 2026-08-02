@@ -31,19 +31,19 @@ class SharedStringsXform extends BaseXform {
   }
 
   get values(): SharedStringModel[] {
-    return (this.model as SharedStringsModel).values;
+    return this.model.values;
   }
 
   get uniqueCount(): number {
-    return (this.model as SharedStringsModel).values.length;
+    return this.model.values.length;
   }
 
   get count(): number {
-    return (this.model as SharedStringsModel).count;
+    return this.model.count;
   }
 
   getString(index: number): SharedStringModel {
-    return (this.model as SharedStringsModel).values[index];
+    return this.model.values[index];
   }
 
   add(value: SharedStringModel): number {
@@ -53,7 +53,7 @@ class SharedStringsXform extends BaseXform {
   }
 
   addText(value: string): number {
-    const model = this.model as SharedStringsModel;
+    const model = this.model;
     let index = this.hash[value];
     if (index === undefined) {
       index = this.hash[value] = model.values.length;
@@ -65,7 +65,7 @@ class SharedStringsXform extends BaseXform {
 
   addRichText(value: SharedStringModel): number {
     // TODO: add WeakMap here
-    const model = this.model as SharedStringsModel;
+    const model = this.model;
     const xml = this.sharedStringXform.toXml(value);
     let index = this.rich[xml];
     if (index === undefined) {
@@ -125,7 +125,7 @@ class SharedStringsXform extends BaseXform {
   override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
-        const model = this.model as SharedStringsModel;
+        const model = this.model;
         model.values.push(this.parser.model);
         model.count++;
         this.parser = undefined;

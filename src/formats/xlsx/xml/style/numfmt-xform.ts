@@ -57,7 +57,7 @@ class NumFmtXform extends BaseXform {
         this.model = {
           id: parseInt(attrs.numFmtId, 10),
           formatCode: utils.xmlDecode(attrs.formatCode).replace(/[\\](.)/g, '$1'),
-        } as NumFmtModel;
+        };
         return true;
       }
       default:

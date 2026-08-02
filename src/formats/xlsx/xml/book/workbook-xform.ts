@@ -211,7 +211,7 @@ class WorkbookXform extends BaseXform {
 
     // reconcile print areas
     const definedNames: AnyModel[] = [];
-    _.each(model.definedNames as AnyModel[], (definedName) => {
+    _.each(model.definedNames, (definedName: AnyModel) => {
       if (definedName.name === '_xlnm.Print_Area') {
         worksheet = worksheets[definedName.localSheetId];
         if (worksheet) {

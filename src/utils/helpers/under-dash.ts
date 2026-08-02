@@ -70,7 +70,7 @@ const _ = {
 
   keyBy<T extends Record<string, unknown>>(a: T[], p: keyof T): Record<string, T> {
     if (!Array.isArray(a)) return {};
-    return Object.fromEntries(a.map((v) => [v[p], v])) as Record<string, T>;
+    return Object.fromEntries(a.map((v) => [v[p], v]));
   },
 
   isEqual(a: unknown, b: unknown): boolean {

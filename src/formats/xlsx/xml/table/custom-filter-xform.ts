@@ -13,7 +13,7 @@ class CustomFilterXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: CustomFilterModel) {
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       operator: model.operator,
       val: model.val,
     });

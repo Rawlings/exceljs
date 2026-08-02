@@ -215,9 +215,8 @@ class WorksheetWriter {
         verticalDpi: 4294967295,
         fitToPage: !!(
           options.pageSetup &&
-          ((options.pageSetup as Record<string, unknown>).fitToWidth ||
-            (options.pageSetup as Record<string, unknown>).fitToHeight) &&
-          !(options.pageSetup as Record<string, unknown>).scale
+          (options.pageSetup.fitToWidth || options.pageSetup.fitToHeight) &&
+          !options.pageSetup.scale
         ),
         pageOrder: 'downThenOver',
         blackAndWhite: false,
@@ -437,7 +436,7 @@ class WorksheetWriter {
     } else {
       (this._rows as (Row | undefined | null)[]).forEach((row) => {
         if (row && row.hasValues) {
-          (iteratee as (row: Row, rowNumber: number) => void)(row, row.number);
+          iteratee(row, row.number);
         }
       });
     }
@@ -699,7 +698,7 @@ class WorksheetWriter {
         merges: this._merges,
         formulae: this._formulae,
         siFormulae: this._siFormulae,
-        comments: [] as unknown[],
+        comments: [],
       };
       xform.row.prepare(model, options);
       (this.stream as unknown as { write(t: string): void }).write(xform.row.toXml(model));
@@ -740,7 +739,7 @@ class WorksheetWriter {
     };
     xform.conditionalFormattings.prepare(this.conditionalFormatting as any[], options);
     (this.stream as unknown as { write(t: string): void }).write(
-      xform.conditionalFormattings.toXml(this.conditionalFormatting as any[])
+      xform.conditionalFormattings.toXml(this.conditionalFormatting)
     );
   }
 

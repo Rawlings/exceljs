@@ -8,7 +8,7 @@ class CNvPicPrXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
     xmlStream.leafNode('a:picLocks', {
       noChangeAspect: '1',
     });

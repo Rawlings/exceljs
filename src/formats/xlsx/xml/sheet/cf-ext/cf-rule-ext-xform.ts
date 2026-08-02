@@ -48,7 +48,7 @@ class CfRuleExtXform extends CompositeXform {
       return DatabarExtXform.isExt(rule);
     }
     if (rule.type === 'iconSet') {
-      if (rule.custom || (extIcons as Record<string, any>)[rule.iconSet as string]) {
+      if (rule.custom || (extIcons as Record<string, boolean>)[rule.iconSet as string]) {
         return true;
       }
     }
@@ -77,7 +77,7 @@ class CfRuleExtXform extends CompositeXform {
   }
 
   renderDataBar(xmlStream: XmlStream, model: CfRuleExtModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: 'dataBar',
       id: model.x14Id,
     });
@@ -88,7 +88,7 @@ class CfRuleExtXform extends CompositeXform {
   }
 
   renderIconSet(xmlStream: XmlStream, model: CfRuleExtModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       type: 'iconSet',
       priority: model.priority,
       id: model.x14Id || `{${uuidv4()}}`,

@@ -13,7 +13,7 @@ class PageSetupPropertiesXform extends BaseXform {
 
   override render(xmlStream: XmlStream, model: PageSetupPropertiesModel | undefined) {
     if (model && model.fitToPage) {
-      xmlStream.leafNode(this.tag as string, {
+      xmlStream.leafNode(this.tag, {
         fitToPage: model.fitToPage ? '1' : undefined,
       });
       return true;

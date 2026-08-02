@@ -12,7 +12,7 @@ class BlipXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: BlipModel) {
-    xmlStream.leafNode(this.tag as string, {
+    xmlStream.leafNode(this.tag, {
       'xmlns:r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
       'r:embed': model.rId,
       cstate: 'print',

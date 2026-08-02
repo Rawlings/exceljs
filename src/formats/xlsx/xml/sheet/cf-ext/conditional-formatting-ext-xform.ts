@@ -37,7 +37,7 @@ class ConditionalFormattingExtXform extends CompositeXform {
       return;
     }
 
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       'xmlns:xm': 'http://schemas.microsoft.com/office/excel/2006/main',
     });
 
@@ -56,7 +56,7 @@ class ConditionalFormattingExtXform extends CompositeXform {
   }
 
   override onParserClose(name: string, parser: { model: any }) {
-    const model = this.model as ConditionalFormattingExtModel;
+    const model = this.model;
     switch (name) {
       case 'xm:sqref':
         model.ref = parser.model;

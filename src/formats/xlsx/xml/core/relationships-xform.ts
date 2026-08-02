@@ -58,7 +58,7 @@ class RelationshipsXform extends BaseXform {
   override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
-        (this.model as RelationshipModel[]).push(this.parser.model);
+        this.model.push(this.parser.model);
         this.parser = undefined;
       }
       return true;

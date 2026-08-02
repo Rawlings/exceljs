@@ -59,7 +59,7 @@ class DxfXform extends BaseXform {
   // how do we generate dxfid?
 
   override render(xmlStream: XmlStream, model: DxfModel) {
-    xmlStream.openNode(this.tag as string);
+    xmlStream.openNode(this.tag);
 
     if (model.font) {
       this.map.font.render(xmlStream, model.font);

@@ -233,12 +233,12 @@ export class Row implements RowLike {
     } else {
       // assume object with column keys
       this._worksheet.eachColumnKey((column, key) => {
-        if ((value as Record<string, unknown>)[key] !== undefined) {
+        if (value[key] !== undefined) {
           this.getCellEx({
             address: colCache.encodeAddress(this._number, column.number),
             row: this._number,
             col: column.number,
-          }).value = (value as Record<string, unknown>)[key];
+          }).value = value[key];
         }
       });
     }

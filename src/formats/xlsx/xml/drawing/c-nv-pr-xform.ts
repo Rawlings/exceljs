@@ -23,7 +23,7 @@ class CNvPrXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: CNvPrModel) {
-    xmlStream.openNode(this.tag as string, {
+    xmlStream.openNode(this.tag, {
       id: model.index,
       name: `Picture ${model.index}`,
     });
