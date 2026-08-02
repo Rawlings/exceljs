@@ -234,12 +234,17 @@ class WorkbookWriter {
       return this._worksheets.find(Boolean);
     }
     if (typeof id === 'number') {
-      return this._worksheets[id];
+      return this._worksheets[id] || this._worksheets.find((ws) => ws && ws.id === id);
     }
     if (typeof id === 'string') {
-      return this._worksheets.find(
+      const byName = this._worksheets.find(
         (worksheet) => worksheet && (worksheet as unknown as { name: string }).name === id
       );
+      if (byName) return byName;
+      const num = parseInt(id, 10);
+      if (!Number.isNaN(num)) {
+        return this._worksheets[num] || this._worksheets.find((ws) => ws && ws.id === num);
+      }
     }
     return undefined;
   }

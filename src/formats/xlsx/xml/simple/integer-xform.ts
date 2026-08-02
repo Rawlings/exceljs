@@ -1,21 +1,30 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface IntegerXformOptions {
+  tag?: string;
+  attr?: string;
+  attrs?: Record<string, unknown>;
+  zero?: boolean;
+}
 
 class IntegerXform extends BaseXform {
-  _tag: any;
-  attr: any;
-  attrs: any;
-  zero: any;
-  text: any[] = [];
+  _tag: string | undefined;
+  attr: string | undefined;
+  attrs: Record<string, unknown> | undefined;
+  zero: boolean | undefined;
+  text: string[] = [];
 
-  override get tag(): any {
+  override get tag(): string | undefined {
     return this._tag;
   }
 
-  override set tag(val: any) {
+  override set tag(val: string | undefined) {
     this._tag = val;
   }
 
-  constructor(options?: any) {
+  constructor(options?: IntegerXformOptions) {
     super();
     options = options || {};
 
@@ -27,10 +36,10 @@ class IntegerXform extends BaseXform {
     this.zero = options.zero;
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: unknown) {
     // int is different to float in that zero is not rendered
     if (model || this.zero) {
-      xmlStream.openNode(this.tag);
+      xmlStream.openNode(this.tag as string);
       if (this.attrs) {
         xmlStream.addAttributes(this.attrs);
       }
@@ -43,10 +52,10 @@ class IntegerXform extends BaseXform {
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === this.tag) {
       if (this.attr) {
-        this.model = parseInt(node.attributes[this.attr], 10);
+        this.model = parseInt((node.attributes as Record<string, string>)[this.attr], 10);
       } else {
         this.text = [];
       }
@@ -55,13 +64,13 @@ class IntegerXform extends BaseXform {
     return false;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (!this.attr) {
       this.text.push(text);
     }
   }
 
-  parseClose() {
+  override parseClose() {
     if (!this.attr) {
       this.model = parseInt(String(this.text.join('') || 0), 10);
     }

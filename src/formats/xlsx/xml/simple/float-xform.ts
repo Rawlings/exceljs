@@ -1,20 +1,28 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface FloatXformOptions {
+  tag?: string;
+  attr?: string;
+  attrs?: Record<string, unknown>;
+}
 
 class FloatXform extends BaseXform {
-  _tag: any;
-  attr: any;
-  attrs: any;
-  text: any[] = [];
+  _tag: string | undefined;
+  attr: string | undefined;
+  attrs: Record<string, unknown> | undefined;
+  text: string[] = [];
 
-  override get tag(): any {
+  override get tag(): string | undefined {
     return this._tag;
   }
 
-  override set tag(val: any) {
+  override set tag(val: string | undefined) {
     this._tag = val;
   }
 
-  constructor(options?: any) {
+  constructor(options?: FloatXformOptions) {
     super();
     options = options || {};
 
@@ -23,9 +31,9 @@ class FloatXform extends BaseXform {
     this.attrs = options.attrs;
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: unknown) {
     if (model !== undefined) {
-      xmlStream.openNode(this.tag);
+      xmlStream.openNode(this.tag as string);
       if (this.attrs) {
         xmlStream.addAttributes(this.attrs);
       }
@@ -38,23 +46,23 @@ class FloatXform extends BaseXform {
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === this.tag) {
       if (this.attr) {
-        this.model = parseFloat(node.attributes[this.attr]);
+        this.model = parseFloat((node.attributes as Record<string, string>)[this.attr]);
       } else {
         this.text = [];
       }
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (!this.attr) {
       this.text.push(text);
     }
   }
 
-  parseClose() {
+  override parseClose() {
     if (!this.attr) {
       this.model = parseFloat(this.text.join(''));
     }

@@ -1,18 +1,25 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface BooleanXformOptions {
+  tag?: string;
+  attr?: string;
+}
 
 class BooleanXform extends BaseXform {
-  _tag: any;
-  attr: any;
+  _tag: string | undefined;
+  attr: string | undefined;
 
-  override get tag(): any {
+  override get tag(): string | undefined {
     return this._tag;
   }
 
-  override set tag(val: any) {
+  override set tag(val: string | undefined) {
     this._tag = val;
   }
 
-  constructor(options?: any) {
+  constructor(options?: BooleanXformOptions) {
     super();
     options = options || {};
 
@@ -20,22 +27,22 @@ class BooleanXform extends BaseXform {
     this.attr = options.attr;
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: unknown) {
     if (model) {
-      xmlStream.openNode(this.tag);
+      xmlStream.openNode(this.tag as string);
       xmlStream.closeNode();
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === this.tag) {
       this.model = true;
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

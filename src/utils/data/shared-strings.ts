@@ -1,12 +1,12 @@
 class SharedStrings {
   private _values: unknown[];
   private _totalRefs: number;
-  private _hash: Record<string, number>;
+  private _hash: Map<string, number>;
 
   constructor() {
     this._values = [];
     this._totalRefs = 0;
-    this._hash = Object.create(null);
+    this._hash = new Map<string, number>();
   }
 
   get count(): number {
@@ -27,10 +27,10 @@ class SharedStrings {
 
   add(value: unknown): number {
     const key = typeof value === 'object' ? JSON.stringify(value) : String(value);
-    let index = this._hash[key];
+    let index = this._hash.get(key);
     if (index === undefined) {
       index = this._values.length;
-      this._hash[key] = index;
+      this._hash.set(key, index);
       this._values.push(value);
     }
     this._totalRefs++;

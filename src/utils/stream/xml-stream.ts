@@ -1,4 +1,3 @@
-import _ from '#src/utils/helpers/under-dash';
 import utils from '#src/utils/helpers/utils';
 
 const OPEN_ANGLE = '<';
@@ -6,18 +5,18 @@ const CLOSE_ANGLE = '>';
 const OPEN_ANGLE_SLASH = '</';
 const CLOSE_SLASH_ANGLE = '/>';
 
-function pushAttribute(xml: string[], name: string, value: any) {
-  xml.push(` ${name}="${utils.xmlEncode(value.toString())}"`);
+function pushAttribute(xml: string[], name: string, value: unknown) {
+  xml.push(` ${name}="${utils.xmlEncode((value as { toString(): string }).toString())}"`);
 }
 
-function pushAttributes(xml: string[], attributes: Record<string, any>) {
+function pushAttributes(xml: string[], attributes: Record<string, unknown>) {
   if (attributes) {
     const tmp: string[] = [];
-    _.each(attributes, (value: any, name: string) => {
+    for (const [name, value] of Object.entries(attributes)) {
       if (value !== undefined) {
         pushAttribute(tmp, name, value);
       }
-    });
+    }
     xml.push(tmp.join(''));
   }
 }
@@ -55,14 +54,14 @@ class XmlStream {
     return this._xml.length;
   }
 
-  openXml(docAttributes: Record<string, any>): void {
+  openXml(docAttributes: Record<string, unknown>): void {
     const xml = this._xml;
     xml.push('<?xml');
     pushAttributes(xml, docAttributes);
     xml.push('?>\n');
   }
 
-  openNode(name: string, attributes?: Record<string, any>): void {
+  openNode(name: string, attributes?: Record<string, unknown>): void {
     const parent = this.tos;
     const xml = this._xml;
     if (parent && this.open) {
@@ -79,7 +78,7 @@ class XmlStream {
     this.open = true;
   }
 
-  addAttribute(name: string, value: any): void {
+  addAttribute(name: string, value: unknown): void {
     if (!this.open) {
       throw new Error('Cannot write attributes to node if it is not open');
     }
@@ -88,21 +87,21 @@ class XmlStream {
     }
   }
 
-  addAttributes(attrs: Record<string, any>): void {
+  addAttributes(attrs: Record<string, unknown>): void {
     if (!this.open) {
       throw new Error('Cannot write attributes to node if it is not open');
     }
     pushAttributes(this._xml, attrs);
   }
 
-  writeText(text: any): void {
+  writeText(text: unknown): void {
     const xml = this._xml;
     if (this.open) {
       xml.push(CLOSE_ANGLE);
       this.open = false;
     }
     this.leaf = false;
-    xml.push(utils.xmlEncodeText(text.toString()));
+    xml.push(utils.xmlEncodeText((text as { toString(): string }).toString()));
   }
 
   writeXml(xml: string): void {
@@ -128,7 +127,7 @@ class XmlStream {
     this.leaf = false;
   }
 
-  leafNode(name: string, attributes?: Record<string, any>, text?: any): void {
+  leafNode(name: string, attributes?: Record<string, unknown>, text?: unknown): void {
     this.openNode(name, attributes);
     if (text !== undefined) {
       this.writeText(text);

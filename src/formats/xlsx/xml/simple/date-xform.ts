@@ -1,22 +1,32 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface DateXformOptions {
+  tag?: string;
+  attr?: string;
+  attrs?: Record<string, unknown>;
+  format?: (dt: unknown) => string;
+  parse?: (str: string) => unknown;
+}
 
 class DateXform extends BaseXform {
-  _tag: any;
-  attr: any;
-  attrs: any;
-  _format: any;
-  _parse: any;
-  text: any[] = [];
+  _tag: string | undefined;
+  attr: string | undefined;
+  attrs: Record<string, unknown> | undefined;
+  _format: (dt: unknown) => string;
+  _parse: (str: string) => unknown;
+  text: string[] = [];
 
-  override get tag(): any {
+  override get tag(): string | undefined {
     return this._tag;
   }
 
-  override set tag(val: any) {
+  override set tag(val: string | undefined) {
     this._tag = val;
   }
 
-  constructor(options?: any) {
+  constructor(options?: DateXformOptions) {
     super();
     options = options || {};
 
@@ -25,9 +35,9 @@ class DateXform extends BaseXform {
     this.attrs = options.attrs;
     this._format =
       options.format ||
-      function (dt: any) {
+      function (dt: unknown) {
         try {
-          const dateObj = dt instanceof Date ? dt : new Date(dt);
+          const dateObj = dt instanceof Date ? dt : new Date(dt as string | number);
           if (Number.isNaN(dateObj.getTime())) return '';
           return dateObj.toISOString();
         } catch {
@@ -36,7 +46,7 @@ class DateXform extends BaseXform {
       };
     this._parse =
       options.parse ||
-      function (str: any) {
+      function (str: string) {
         return str ? new Date(str) : undefined;
       };
   }
@@ -50,12 +60,12 @@ class DateXform extends BaseXform {
     return val;
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: unknown) {
     if (model !== undefined && model !== null) {
       const val = this._toDate(model);
       const formatted = this._format(val);
       if (formatted !== '') {
-        xmlStream.openNode(this.tag);
+        xmlStream.openNode(this.tag as string);
         if (this.attrs) {
           xmlStream.addAttributes(this.attrs);
         }
@@ -69,23 +79,23 @@ class DateXform extends BaseXform {
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === this.tag) {
       if (this.attr) {
-        this.model = this._parse(node.attributes[this.attr]);
+        this.model = this._parse((node.attributes as Record<string, string>)[this.attr]);
       } else {
         this.text = [];
       }
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (!this.attr) {
       this.text.push(text);
     }
   }
 
-  parseClose() {
+  override parseClose() {
     if (!this.attr) {
       this.model = this._parse(this.text.join(''));
     }

@@ -4,7 +4,22 @@ import XmlStream from '#src/utils/stream/xml-stream';
 /* 'virtual' methods used as a form of documentation */
 /* eslint-disable class-methods-use-this */
 
+export interface SaxNode {
+  name: string;
+  attributes?: Record<string, string>;
+}
+
 // Base class for Xforms
+//
+// NB: `model`/`_model` are intentionally `any` here — each of the ~115
+// subclasses stores a completely different, freely-accessed model shape.
+// Tightening this to `unknown` at the base class ripples a compile error
+// into every subclass that reads a property off `this.model` (which is all
+// of them), since none of them narrow before accessing. Fully typing this
+// framework requires typing base + every subclass together, matching the
+// same "type the whole circular unit at once" approach used for models/ —
+// out of scope for this pass. Only the non-polymorphic static utility
+// helpers below are tightened, since they aren't overridden by subclasses.
 class BaseXform {
   _model: any;
   map: any;
@@ -104,29 +119,37 @@ class BaseXform {
 
   // ============================================================
   // Useful Utilities
-  static toAttribute(value: any, dflt?: any, always: boolean = false): string | undefined {
+  static toAttribute(value: unknown, dflt?: unknown, always: boolean = false): string | undefined {
     if (value === undefined) {
       if (always) {
-        return dflt;
+        return dflt as string | undefined;
       }
     } else if (always || value !== dflt) {
-      return value.toString();
+      return (value as { toString(): string }).toString();
     }
     return undefined;
   }
 
-  static toStringAttribute(value: any, dflt?: any, always: boolean = false): string | undefined {
+  static toStringAttribute(
+    value: unknown,
+    dflt?: unknown,
+    always: boolean = false
+  ): string | undefined {
     return BaseXform.toAttribute(value, dflt, always);
   }
 
-  static toStringValue(attr: any, dflt?: any): any {
+  static toStringValue(attr: unknown, dflt?: unknown): unknown {
     return attr === undefined ? dflt : attr;
   }
 
-  static toBoolAttribute(value: any, dflt?: any, always: boolean = false): string | undefined {
+  static toBoolAttribute(
+    value: unknown,
+    dflt?: unknown,
+    always: boolean = false
+  ): string | undefined {
     if (value === undefined) {
       if (always) {
-        return dflt;
+        return dflt as string | undefined;
       }
     } else if (always || value !== dflt) {
       return value ? '1' : '0';
@@ -134,24 +157,32 @@ class BaseXform {
     return undefined;
   }
 
-  static toBoolValue(attr: any, dflt?: any): boolean {
-    return attr === undefined ? dflt : attr === '1';
+  static toBoolValue(attr: unknown, dflt?: boolean): boolean {
+    return attr === undefined ? (dflt as boolean) : attr === '1';
   }
 
-  static toIntAttribute(value: any, dflt?: any, always: boolean = false): string | undefined {
+  static toIntAttribute(
+    value: unknown,
+    dflt?: unknown,
+    always: boolean = false
+  ): string | undefined {
     return BaseXform.toAttribute(value, dflt, always);
   }
 
-  static toIntValue(attr: any, dflt?: any): number {
-    return attr === undefined ? dflt : parseInt(attr, 10);
+  static toIntValue(attr: unknown, dflt?: number): number {
+    return attr === undefined ? (dflt as number) : parseInt(attr as string, 10);
   }
 
-  static toFloatAttribute(value: any, dflt?: any, always: boolean = false): string | undefined {
+  static toFloatAttribute(
+    value: unknown,
+    dflt?: unknown,
+    always: boolean = false
+  ): string | undefined {
     return BaseXform.toAttribute(value, dflt, always);
   }
 
-  static toFloatValue(attr: any, dflt?: any): number {
-    return attr === undefined ? dflt : parseFloat(attr);
+  static toFloatValue(attr: unknown, dflt?: number): number {
+    return attr === undefined ? (dflt as number) : parseFloat(attr as string);
   }
 }
 

@@ -1,4 +1,3 @@
-import _ from '#src/utils/helpers/under-dash';
 import colCache from '#src/utils/data/col-cache';
 import type { DecodedExAddress } from '#src/utils/data/col-cache';
 
@@ -108,9 +107,9 @@ class CellMatrix {
   }
 
   forEach(callback: (cell: MatrixCell, rowNumber: number, colNumber: number) => void): void {
-    _.each(this.sheets, (_sheet: MatrixSheet, sheetName: string) => {
+    for (const sheetName of Object.keys(this.sheets)) {
       this.forEachInSheet(sheetName, callback);
-    });
+    }
   }
 
   map<T>(callback: (cell: MatrixCell) => T): T[] {
@@ -158,7 +157,7 @@ class CellMatrix {
     }
     if (create && row) {
       return (row[col] = this.template
-        ? (Object.assign(address, JSON.parse(JSON.stringify(this.template))) as MatrixCell)
+        ? (Object.assign(address, structuredClone(this.template)) as MatrixCell)
         : (address as unknown as MatrixCell));
     }
     return undefined;
@@ -182,7 +181,7 @@ class CellMatrix {
       for (let i = 0; i < numInsert; i++) {
         inserts.push(null);
       }
-      _.each(sheet, (row: MatrixRow | undefined) => {
+      sheet.forEach((row: MatrixRow | undefined) => {
         if (row) {
           row.splice(start, numDelete, ...inserts);
         }

@@ -1,6 +1,15 @@
-export default async function* iterateStream<T = any>(stream: any): AsyncGenerator<T> {
+interface NodeStreamLike {
+  on(event: 'data' | 'end' | 'error', cb: (...args: unknown[]) => void): void;
+  resume(): void;
+  pause(): void;
+  [Symbol.asyncIterator]?: unknown;
+}
+
+export default async function* iterateStream<T = unknown>(
+  stream: NodeStreamLike | AsyncIterable<T>
+): AsyncGenerator<T> {
   if (Symbol.asyncIterator in stream) {
-    for await (const chunk of stream) {
+    for await (const chunk of stream as AsyncIterable<T>) {
       yield chunk;
     }
     return;
@@ -10,14 +19,14 @@ export default async function* iterateStream<T = any>(stream: any): AsyncGenerat
   let resolveEnded: (() => void) | undefined;
   const endedPromise = new Promise<void>((resolve) => (resolveEnded = resolve));
   let ended = false;
-  let error: any = null;
+  let error: unknown = null;
 
-  stream.on('data', (data: T) => contents.push(data));
+  stream.on('data', (data: unknown) => contents.push(data as T));
   stream.on('end', () => {
     ended = true;
     resolveEnded!();
   });
-  stream.on('error', (err: any) => {
+  stream.on('error', (err: unknown) => {
     error = err;
     resolveEnded!();
   });

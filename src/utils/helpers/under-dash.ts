@@ -121,22 +121,22 @@ const _ = {
     for (let i = 1; i < args.length; i++) {
       const source = args[i];
       if (!source) continue;
-      _.each(source as Dict<unknown>, (val, key) => {
-        if (val === undefined) return;
-        const srcVal = target[key as string];
+      for (const [key, val] of Object.entries(source as Dict<unknown>)) {
+        if (val === undefined) continue;
+        const srcVal = target[key];
         const valIsArray = Array.isArray(val);
         const valIsObj = _.isObject(val);
 
         if (valIsArray) {
           const clone = Array.isArray(srcVal) ? srcVal : [];
-          target[key as string] = _.deepMerge(clone, val);
+          target[key] = _.deepMerge(clone, val);
         } else if (valIsObj) {
           const clone = _.isObject(srcVal) ? srcVal : {};
-          target[key as string] = _.deepMerge(clone, val);
+          target[key] = _.deepMerge(clone, val);
         } else {
-          target[key as string] = val;
+          target[key] = val;
         }
-      });
+      }
     }
     return target as T;
   },

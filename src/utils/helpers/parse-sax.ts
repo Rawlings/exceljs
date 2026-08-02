@@ -33,16 +33,28 @@ function decodeChunk(chunk: unknown): string {
   return String(chunk);
 }
 
-async function readAllChunks(iterable: any): Promise<string> {
-  if (typeof iterable.on !== 'function') {
+interface SaxStreamLike {
+  on(event: string, cb: (...args: unknown[]) => void): void;
+  removeListener(event: string, cb: (...args: unknown[]) => void): void;
+  read?(): unknown;
+  resume?(): void;
+  readableEnded?: boolean;
+  _readableState?: { ended?: boolean };
+}
+
+async function readAllChunks(
+  iterableInput: SaxStreamLike | AsyncIterable<unknown>
+): Promise<string> {
+  if (typeof (iterableInput as SaxStreamLike).on !== 'function') {
     // Async iterable (not a Node.js EventEmitter stream)
     const parts: string[] = [];
-    for await (const chunk of iterable) {
+    for await (const chunk of iterableInput as AsyncIterable<unknown>) {
       parts.push(decodeChunk(chunk));
     }
     return parts.join('');
   }
 
+  const iterable = iterableInput as SaxStreamLike;
   const chunks: string[] = [];
 
   if (typeof iterable.read === 'function') {
@@ -52,7 +64,7 @@ async function readAllChunks(iterable: any): Promise<string> {
     }
   }
 
-  const state = (iterable as any)._readableState;
+  const state = iterable._readableState;
   if (state?.ended || iterable.readableEnded) {
     return chunks.join('');
   }
@@ -103,7 +115,9 @@ const xmlParser = new XMLParser({
 // Nodes to skip entirely (XML declaration, processing instructions, comments, CDATA wrappers)
 const SKIP_PREFIXES = ['?', '!'];
 
-function* walkNodes(nodes: any[]): Generator<SaxEvent> {
+type XmlNode = Record<string, unknown>;
+
+function* walkNodes(nodes: XmlNode[]): Generator<SaxEvent> {
   for (const node of nodes) {
     const nodeKeys = Object.keys(node);
 
@@ -123,8 +137,8 @@ function* walkNodes(nodes: any[]): Generator<SaxEvent> {
     // Skip XML declarations, processing instructions, comments
     if (SKIP_PREFIXES.some((p) => tagName.startsWith(p))) continue;
 
-    const attributes: Record<string, string> = node[':@'] ?? {};
-    const children: any[] = node[tagName] ?? [];
+    const attributes: Record<string, string> = (node[':@'] as Record<string, string>) ?? {};
+    const children: XmlNode[] = (node[tagName] as XmlNode[]) ?? [];
 
     yield { eventType: 'opentag', value: { name: tagName, attributes } };
     yield* walkNodes(children);
@@ -136,11 +150,13 @@ function* walkNodes(nodes: any[]): Generator<SaxEvent> {
 // Public API — drop-in replacement for the old hand-rolled parseSax
 // ---------------------------------------------------------------------------
 
-export default async function* parseSax(iterable: any): AsyncGenerator<SaxEvent[]> {
+export default async function* parseSax(
+  iterable: string | SaxStreamLike | AsyncIterable<unknown>
+): AsyncGenerator<SaxEvent[]> {
   const xml = typeof iterable === 'string' ? iterable : await readAllChunks(iterable);
   if (!xml) return;
 
-  const tree: any[] = xmlParser.parse(xml);
+  const tree = xmlParser.parse(xml) as XmlNode[];
   const events = Array.from(walkNodes(tree));
   if (events.length > 0) {
     yield events;

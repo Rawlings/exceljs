@@ -177,12 +177,14 @@ class Table {
 
   validate() {
     const { table } = this;
-    // set defaults and check is valid
     const assign = (o: Record<string, unknown>, name: string, dflt: unknown) => {
       if (o[name] === undefined) {
         o[name] = dflt;
       }
     };
+    if (!table.ref && (table as any).tableRef) {
+      table.ref = (table as any).tableRef;
+    }
     assign(table as unknown as Record<string, unknown>, 'headerRow', true);
     assign(table as unknown as Record<string, unknown>, 'totalsRow', false);
 
