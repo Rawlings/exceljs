@@ -7,46 +7,73 @@ const HTML_ESCAPES: Record<string, string> = {
 };
 const ESCAPE_REGEX = /[&<>"']/g;
 
+type Dict<T> = Record<string, T>;
+
+export interface EachFn {
+  <T>(obj: T[] | null | undefined, cb: (value: T, key: number) => void): void;
+  <T>(obj: Dict<T> | null | undefined, cb: (value: T, key: string) => void): void;
+}
+
+export interface SomeFn {
+  <T>(obj: T[] | null | undefined, cb: (value: T, key: number) => boolean): boolean;
+  <T>(obj: Dict<T> | null | undefined, cb: (value: T, key: string) => boolean): boolean;
+}
+
+export interface EveryFn {
+  <T>(obj: T[] | null | undefined, cb: (value: T, key: number) => boolean): boolean;
+  <T>(obj: Dict<T> | null | undefined, cb: (value: T, key: string) => boolean): boolean;
+}
+
+export interface MapFn {
+  <T, R>(obj: T[] | null | undefined, cb: (value: T, key: number) => R): R[];
+  <T, R>(obj: Dict<T> | null | undefined, cb: (value: T, key: string) => R): R[];
+}
+
+const each: EachFn = ((obj: unknown, cb: (value: unknown, key: unknown) => void): void => {
+  if (!obj) return;
+  if (Array.isArray(obj)) {
+    obj.forEach(cb);
+  } else {
+    Object.keys(obj as Dict<unknown>).forEach((key) => cb((obj as Dict<unknown>)[key], key));
+  }
+}) as EachFn;
+
+const some: SomeFn = ((obj: unknown, cb: (value: unknown, key: unknown) => boolean): boolean => {
+  if (!obj) return false;
+  if (Array.isArray(obj)) {
+    return obj.some(cb);
+  }
+  return Object.keys(obj as Dict<unknown>).some((key) => cb((obj as Dict<unknown>)[key], key));
+}) as SomeFn;
+
+const every: EveryFn = ((obj: unknown, cb: (value: unknown, key: unknown) => boolean): boolean => {
+  if (!obj) return true;
+  if (Array.isArray(obj)) {
+    return obj.every(cb);
+  }
+  return Object.keys(obj as Dict<unknown>).every((key) => cb((obj as Dict<unknown>)[key], key));
+}) as EveryFn;
+
+const map: MapFn = ((obj: unknown, cb: (value: unknown, key: unknown) => unknown): unknown[] => {
+  if (!obj) return [];
+  if (Array.isArray(obj)) {
+    return obj.map(cb);
+  }
+  return Object.keys(obj as Dict<unknown>).map((key) => cb((obj as Dict<unknown>)[key], key));
+}) as MapFn;
+
 const _ = {
-  each(obj: any, cb: (value: any, key: any) => void): void {
-    if (!obj) return;
-    if (Array.isArray(obj)) {
-      obj.forEach(cb);
-    } else {
-      Object.keys(obj).forEach((key) => cb(obj[key], key));
-    }
-  },
+  each,
+  some,
+  every,
+  map,
 
-  some(obj: any, cb: (value: any, key: any) => boolean): boolean {
-    if (!obj) return false;
-    if (Array.isArray(obj)) {
-      return obj.some(cb);
-    }
-    return Object.keys(obj).some((key) => cb(obj[key], key));
-  },
-
-  every(obj: any, cb: (value: any, key: any) => boolean): boolean {
-    if (!obj) return true;
-    if (Array.isArray(obj)) {
-      return obj.every(cb);
-    }
-    return Object.keys(obj).every((key) => cb(obj[key], key));
-  },
-
-  map<T>(obj: any, cb: (value: any, key: any) => T): T[] {
-    if (!obj) return [];
-    if (Array.isArray(obj)) {
-      return obj.map(cb);
-    }
-    return Object.keys(obj).map((key) => cb(obj[key], key));
-  },
-
-  keyBy<T extends Record<string, any>>(a: T[], p: keyof T): Record<string, T> {
+  keyBy<T extends Record<string, unknown>>(a: T[], p: keyof T): Record<string, T> {
     if (!Array.isArray(a)) return {};
-    return Object.fromEntries(a.map((v) => [v[p], v]));
+    return Object.fromEntries(a.map((v) => [v[p], v])) as Record<string, T>;
   },
 
-  isEqual(a: any, b: any): boolean {
+  isEqual(a: unknown, b: unknown): boolean {
     if (a === b) return true;
     if (a === null || a === undefined || b === null || b === undefined) return a === b;
     if (typeof a !== typeof b) return false;
@@ -58,58 +85,60 @@ const _ = {
 
     if (typeof a === 'object') {
       if (Array.isArray(b)) return false;
-      const keysA = Object.keys(a);
-      const keysB = Object.keys(b);
+      const objA = a as Record<string, unknown>;
+      const objB = b as Record<string, unknown>;
+      const keysA = Object.keys(objA);
+      const keysB = Object.keys(objB);
       if (keysA.length !== keysB.length) return false;
-      return keysA.every((key) => Object.hasOwn(b, key) && _.isEqual(a[key], b[key]));
+      return keysA.every((key) => Object.hasOwn(objB, key) && _.isEqual(objA[key], objB[key]));
     }
 
     return false;
   },
 
-  escapeHtml(html: any): string {
+  escapeHtml(html: unknown): string {
     if (html === null || html === undefined) return '';
     const str = typeof html === 'string' ? html : String(html);
     return str.replace(ESCAPE_REGEX, (ch) => HTML_ESCAPES[ch]);
   },
 
-  strcmp(a: any, b: any): number {
-    if (a < b) return -1;
-    if (a > b) return 1;
+  strcmp(a: unknown, b: unknown): number {
+    if ((a as string) < (b as string)) return -1;
+    if ((a as string) > (b as string)) return 1;
     return 0;
   },
 
-  isUndefined(val: any): boolean {
+  isUndefined(val: unknown): boolean {
     return val === undefined;
   },
 
-  isObject(val: any): boolean {
+  isObject(val: unknown): boolean {
     return typeof val === 'object' && val !== null && !Array.isArray(val);
   },
 
-  deepMerge(...args: any[]): any {
-    const target = args[0] || {};
+  deepMerge<T = unknown>(...args: unknown[]): T {
+    const target = (args[0] || {}) as Record<string, unknown>;
     for (let i = 1; i < args.length; i++) {
       const source = args[i];
       if (!source) continue;
-      _.each(source, (val: any, key: any) => {
+      _.each(source as Dict<unknown>, (val, key) => {
         if (val === undefined) return;
-        const srcVal = target[key];
+        const srcVal = target[key as string];
         const valIsArray = Array.isArray(val);
         const valIsObj = _.isObject(val);
 
         if (valIsArray) {
           const clone = Array.isArray(srcVal) ? srcVal : [];
-          target[key] = _.deepMerge(clone, val);
+          target[key as string] = _.deepMerge(clone, val);
         } else if (valIsObj) {
           const clone = _.isObject(srcVal) ? srcVal : {};
-          target[key] = _.deepMerge(clone, val);
+          target[key as string] = _.deepMerge(clone, val);
         } else {
-          target[key] = val;
+          target[key as string] = val;
         }
       });
     }
-    return target;
+    return target as T;
   },
 };
 

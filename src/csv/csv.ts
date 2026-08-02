@@ -51,14 +51,13 @@ function parseCsvLine(line: string, delimiter = ','): string[] {
 
 function parseDateNative(str: string): Date | null {
   if (!str || typeof str !== 'string') return null;
-  const d = new Date(str);
-  if (!Number.isNaN(d.getTime())) return d;
-
   const m = str.match(/^(\d{2})-(\d{2})-(\d{4})$/);
   if (m) {
-    const d2 = new Date(`${m[3]}-${m[1]}-${m[2]}`);
+    const d2 = new Date(`${m[3]}-${m[1]}-${m[2]}T00:00:00Z`);
     if (!Number.isNaN(d2.getTime())) return d2;
   }
+  const d = new Date(str);
+  if (!Number.isNaN(d.getTime())) return d;
   return null;
 }
 

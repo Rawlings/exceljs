@@ -2,6 +2,25 @@
 import utils from '#src/utils/helpers/utils';
 import RelType from '#src/xlsx/rel-type';
 
+interface HyperlinkEntry {
+  target: string;
+  address: string;
+}
+
+interface StoredHyperlink {
+  rId: string;
+  address: string;
+}
+
+interface WriterStream {
+  write(text: string): void;
+  end(): void;
+}
+
+export interface RelsWorkbook {
+  _openStream(path: string): WriterStream;
+}
+
 class HyperlinksProxy {
   writer: SheetRelsWriter;
 
@@ -9,7 +28,7 @@ class HyperlinksProxy {
     this.writer = sheetRelsWriter;
   }
 
-  push(hyperlink: any): void {
+  push(hyperlink: HyperlinkEntry): void {
     this.writer.addHyperlink(hyperlink);
   }
 }
@@ -17,19 +36,19 @@ class HyperlinksProxy {
 class SheetRelsWriter {
   id: number;
   count: number;
-  _hyperlinks: any[];
-  _workbook: any;
-  _stream: any;
+  _hyperlinks: StoredHyperlink[];
+  _workbook: RelsWorkbook;
+  _stream: WriterStream | undefined;
   _hyperlinksProxy?: HyperlinksProxy;
 
-  constructor(options: { id: number; workbook: any }) {
+  constructor(options: { id: number; workbook: RelsWorkbook }) {
     this.id = options.id;
     this.count = 0;
     this._hyperlinks = [];
     this._workbook = options.workbook;
   }
 
-  get stream(): any {
+  get stream(): WriterStream {
     if (!this._stream) {
       this._stream = this._workbook._openStream(`xl/worksheets/_rels/sheet${this.id}.xml.rels`);
     }
@@ -40,7 +59,7 @@ class SheetRelsWriter {
     return this._hyperlinks.length;
   }
 
-  each(fn: (item: any) => void): void {
+  each(fn: (item: StoredHyperlink) => void): void {
     return this._hyperlinks.forEach(fn);
   }
 
@@ -62,11 +81,11 @@ class SheetRelsWriter {
     });
   }
 
-  addMedia(media: any): string {
+  addMedia(media: { Type: string; Target: string; TargetMode?: string }): string {
     return this._writeRelationship(media);
   }
 
-  addRelationship(rel: any): string {
+  addRelationship(rel: { Type: string; Target: string; TargetMode?: string }): string {
     return this._writeRelationship(rel);
   }
 

@@ -27,7 +27,7 @@ const utils = {
     return `${path.path}/_rels/${path.name}.rels`;
   },
 
-  xmlEncode(text: any): string {
+  xmlEncode(text: unknown): string {
     if (text === null || text === undefined) return '';
     const str = typeof text === 'string' ? text : String(text);
     const regexResult = xmlDecodeRegex.exec(str);
@@ -74,10 +74,11 @@ const utils = {
     return result;
   },
 
-  xmlEncodeText(text: any): string {
+  xmlEncodeText(text: unknown): string {
     if (text === null || text === undefined) return '';
     const str = typeof text !== 'string' ? String(text) : text;
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // eslint-disable-next-line no-control-regex
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
   },
 
   xmlDecode(text: string): string {
@@ -100,8 +101,8 @@ const utils = {
     });
   },
 
-  validInt(value: any): number {
-    const i = parseInt(value, 10);
+  validInt(value: unknown): number {
+    const i = parseInt(value as string, 10);
     return !Number.isNaN(i) ? i : 0;
   },
 
@@ -112,7 +113,7 @@ const utils = {
     return /[ymdhMsb]+/.test(cleaned);
   },
 
-  parseBoolean(value: any): boolean {
+  parseBoolean(value: unknown): boolean {
     return value === true || value === 'true' || value === 1 || value === '1';
   },
 
@@ -132,7 +133,7 @@ const utils = {
     return result.sort();
   },
 
-  objectFromProps(props: string[], value: any = null): Record<string, any> {
+  objectFromProps(props: string[], value: unknown = null): Record<string, unknown> {
     return Object.fromEntries(props.map((property) => [property, value]));
   },
 };

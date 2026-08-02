@@ -50,18 +50,16 @@ export class ZipReader {
         typeof input.on === 'function')
     ) {
       const chunks: Buffer[] = [];
-      if (typeof input.read === 'function') {
+      if (Symbol.asyncIterator in input) {
+        for await (const chunk of input) {
+          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as any));
+        }
+      } else if (typeof input.read === 'function') {
         let chunk: any;
         while ((chunk = input.read()) !== null) {
           chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
         }
-      }
-      if (chunks.length === 0 && Symbol.asyncIterator in input) {
-        for await (const chunk of input) {
-          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-        }
-      }
-      if (chunks.length === 0 && typeof input.on === 'function') {
+      } else if (typeof input.on === 'function') {
         await new Promise<void>((resolve) => {
           input.on('data', (c: any) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
           const onEnd = () => resolve();
@@ -101,28 +99,29 @@ export class ZipWriter {
     const rawName = typeof options === 'string' ? options : options.name || 'file';
     const name = rawName.replace(/^\//, '');
 
-    if (Buffer.isBuffer(data)) {
+    if (Buffer.isBuffer(data) || data instanceof Uint8Array) {
       const u8 = new Uint8Array(data.byteLength);
       u8.set(data);
       this.files[name] = u8;
     } else if (data instanceof ArrayBuffer) {
       this.files[name] = new Uint8Array(data);
-    } else if (data instanceof Uint8Array) {
-      const u8 = new Uint8Array(data.byteLength);
-      u8.set(data);
-      this.files[name] = u8;
     } else if (typeof data === 'string') {
       const isBase64 = typeof options === 'object' && options?.base64;
-      this.files[name] = isBase64
-        ? fflate.strToU8(Buffer.from(data, 'base64').toString('binary'))
-        : fflate.strToU8(data);
+      if (isBase64) {
+        const buf = Buffer.from(data, 'base64');
+        const u8 = new Uint8Array(buf.byteLength);
+        u8.set(buf);
+        this.files[name] = u8;
+      } else {
+        this.files[name] = fflate.strToU8(data);
+      }
     } else if (data && typeof data.xml === 'string') {
       this.files[name] = fflate.strToU8(data.xml);
     } else if (data && typeof data.toXml === 'function') {
       this.files[name] = fflate.strToU8(data.toXml());
     } else if (data && typeof data.toBuffer === 'function') {
       const buf = data.toBuffer();
-      if (Buffer.isBuffer(buf)) {
+      if (Buffer.isBuffer(buf) || buf instanceof Uint8Array) {
         const u8 = new Uint8Array(buf.byteLength);
         u8.set(buf);
         this.files[name] = u8;
@@ -135,6 +134,9 @@ export class ZipWriter {
         await new Promise<void>((resolve) => {
           if (typeof data.on === 'function') {
             data.on('data', (c: any) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+            if (typeof data.resume === 'function') {
+              data.resume();
+            }
             const onFinish = () => {
               // drain any buffered data from the readable side (handles paused streams)
               if (typeof data.read === 'function') {
@@ -148,6 +150,7 @@ export class ZipWriter {
             if (data.readableEnded || data._readableState?.ended) {
               onFinish();
             } else {
+              data.on('end', onFinish);
               data.on('finish', onFinish);
               data.on('close', onFinish);
               data.on('error', () => resolve());
@@ -172,9 +175,16 @@ export class ZipWriter {
   }
 
   generateSync(): Buffer {
-    const level = this.options.compressionLevel ?? 6;
-    const zipped = fflate.zipSync(this.files, { level });
-    return Buffer.from(zipped.buffer, zipped.byteOffset, zipped.byteLength);
+    let level = 6;
+    if (this.options.compression === 'STORE') {
+      level = 0;
+    } else if (this.options.compressionOptions?.level !== undefined) {
+      level = this.options.compressionOptions.level;
+    } else if (this.options.compressionLevel !== undefined) {
+      level = this.options.compressionLevel;
+    }
+    const zipped = fflate.zipSync(this.files, { level: level as fflate.DeflateOptions['level'] });
+    return Buffer.from(zipped);
   }
 
   async generateAsync(_options: Record<string, any> = {}): Promise<Buffer> {

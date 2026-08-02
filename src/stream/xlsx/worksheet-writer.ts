@@ -128,12 +128,20 @@ class WorksheetWriter {
     this._merges.add = function () {}; // ignore cell instruction
 
     // keep record of all hyperlinks
-    this._sheetRelsWriter = new SheetRelsWriter(options as unknown as { id: number; workbook: unknown });
+    this._sheetRelsWriter = new SheetRelsWriter(
+      options as unknown as {
+        id: number;
+        workbook: import('#src/stream/xlsx/sheet-rels-writer').RelsWorkbook;
+      }
+    );
 
     this._sheetCommentsWriter = new SheetCommentsWriter(
       this,
       this._sheetRelsWriter,
-      options as unknown as { id: number; workbook: unknown }
+      options as unknown as {
+        id: number;
+        workbook: import('#src/stream/xlsx/sheet-comments-writer').CommentsWorkbook;
+      }
     );
 
     // keep a record of dimensions
@@ -250,7 +258,9 @@ class WorksheetWriter {
     if (!this._stream) {
       // eslint-disable-next-line no-underscore-dangle
       this._stream = (
-        this._workbook as unknown as { _openStream(path: string): NodeJS.WritableStream & { pause(): void } }
+        this._workbook as unknown as {
+          _openStream(path: string): NodeJS.WritableStream & { pause(): void };
+        }
       )._openStream(`xl/worksheets/sheet${this.id}.xml`);
 
       // pause stream to prevent 'data' events
@@ -648,7 +658,9 @@ class WorksheetWriter {
   _writeColumns() {
     const cols = Column.toModel(this.columns as Column[]);
     if (cols) {
-      xform.columns.prepare(cols, { styles: (this._workbook as unknown as { styles: unknown }).styles });
+      xform.columns.prepare(cols, {
+        styles: (this._workbook as unknown as { styles: unknown }).styles,
+      });
       (this.stream as unknown as { write(t: string): void }).write(xform.columns.toXml(cols));
     }
   }
@@ -682,7 +694,7 @@ class WorksheetWriter {
 
       if (options.comments.length) {
         this.hasComments = true;
-        this._sheetCommentsWriter.addComments(options.comments);
+        this._sheetCommentsWriter.addComments(options.comments as Record<string, unknown>[]);
       }
     }
   }
@@ -716,7 +728,7 @@ class WorksheetWriter {
     };
     xform.conditionalFormattings.prepare(this.conditionalFormatting, options);
     (this.stream as unknown as { write(t: string): void }).write(
-      xform.conditionalFormattings.toXml(this.conditionalFormatting)
+      xform.conditionalFormattings.toXml(this.conditionalFormatting as any[])
     );
   }
 

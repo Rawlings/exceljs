@@ -1015,8 +1015,8 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     });
   }
 
-  _parseMergeCells(model: { mergeCells?: unknown }) {
-    _.each(model.mergeCells, (merge: unknown) => {
+  _parseMergeCells(model: { mergeCells?: unknown[] | Record<string, unknown> }) {
+    _.each(model.mergeCells as unknown[], (merge) => {
       // Do not merge styles when importing an Excel file
       // since each cell may have different styles intentionally.
       this.mergeCellsWithoutStyle(merge);
@@ -1047,7 +1047,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     );
     this._parseRows(value);
 
-    this._parseMergeCells(value);
+    this._parseMergeCells(value as { mergeCells?: unknown[] | Record<string, unknown> });
     this.dataValidations = new DataValidations(value.dataValidations as never);
     this.properties = value.properties as Record<string, unknown> & {
       outlineLevelCol: number;

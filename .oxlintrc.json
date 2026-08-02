@@ -1,17 +1,11 @@
 {
   "plugins": ["typescript", "import", "unicorn", "node"],
-  "categories": {
-    "correctness": "error"
-  },
   "rules": {
-    "no-unused-vars": "error",
-    "no-console": "off",
+    "no-console": "error",
     "eqeqeq": "error",
     "no-sparse-arrays": "off",
     "no-underscore-dangle": "off",
-    "no-dupe-class-members": "off",
-    "no-unused-expressions": "off",
-    "unicorn/no-empty-file": "off"
+    "no-unused-expressions": "off"
   },
   "env": {
     "node": true,

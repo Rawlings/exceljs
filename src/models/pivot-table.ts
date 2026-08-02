@@ -6,7 +6,9 @@ const { range, toSortedArray } = utils;
 // bug (calling makePivotTable/validate throws TypeError at runtime today).
 // Preserved verbatim rather than silently fixed during a typing-only pass.
 const objectFromProps: (props: unknown[], value: unknown) => Record<string, unknown> = (
-  utils as unknown as { objectFromProps: (props: unknown[], value: unknown) => Record<string, unknown> }
+  utils as unknown as {
+    objectFromProps: (props: unknown[], value: unknown) => Record<string, unknown>;
+  }
 ).objectFromProps;
 
 export { makePivotTable };
@@ -93,9 +95,7 @@ function validate(worksheet: WorksheetLike, model: PivotTableModel) {
     throw new Error('Only the "sum" metric is supported at this time.');
   }
 
-  const headerNames = (
-    model.sourceSheet as unknown as { getRow(n: number): { values: unknown[] } }
-  )
+  const headerNames = (model.sourceSheet as unknown as { getRow(n: number): { values: unknown[] } })
     .getRow(1)
     .values.slice(1);
   const isInHeaderNames = objectFromProps(headerNames, true);

@@ -104,9 +104,7 @@ export class Anchor {
     const column = this.worksheet && this.worksheet.getColumn(this.nativeCol + 1);
     // NB: matches original — if width is undefined here (shouldn't happen
     // when isCustomWidth is true), this yields NaN, same as untyped original.
-    return column && column.isCustomWidth
-      ? Math.floor((column.width as number) * 10000)
-      : 640000;
+    return column && column.isCustomWidth ? Math.floor((column.width as number) * 10000) : 640000;
   }
 
   get rowHeight(): number {

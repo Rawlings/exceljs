@@ -4,18 +4,36 @@ import colCache from '#src/utils/data/col-cache';
 import CommentXform from '#src/xlsx/xform/comment/comment-xform';
 import VmlShapeXform from '#src/xlsx/xform/comment/vml-shape-xform';
 
+interface CommentsWriterStream {
+  write(text: string): void;
+  end(): void;
+}
+
+export interface CommentsWorkbook {
+  _openStream(path: string): CommentsWriterStream;
+  commentRefs: Record<string, unknown>[];
+}
+
+interface CommentsSheetRelsWriter {
+  addRelationship(rel: { Type: string; Target: string }): string;
+}
+
 class SheetCommentsWriter {
   id: number;
   count: number;
   _worksheet: any;
-  _workbook: any;
-  _sheetRelsWriter: any;
-  _commentsStream: any;
-  _vmlStream: any;
+  _workbook: CommentsWorkbook;
+  _sheetRelsWriter: CommentsSheetRelsWriter;
+  _commentsStream: CommentsWriterStream | undefined;
+  _vmlStream: CommentsWriterStream | undefined;
   startedData: boolean;
-  vmlRelId: any;
+  vmlRelId: string | undefined;
 
-  constructor(worksheet: any, sheetRelsWriter: any, options: { id: number; workbook: any }) {
+  constructor(
+    worksheet: any,
+    sheetRelsWriter: CommentsSheetRelsWriter,
+    options: { id: number; workbook: CommentsWorkbook }
+  ) {
     this.id = options.id;
     this.count = 0;
     this._worksheet = worksheet;
@@ -24,14 +42,14 @@ class SheetCommentsWriter {
     this.startedData = false;
   }
 
-  get commentsStream(): any {
+  get commentsStream(): CommentsWriterStream {
     if (!this._commentsStream) {
       this._commentsStream = this._workbook._openStream(`xl/comments${this.id}.xml`);
     }
     return this._commentsStream;
   }
 
-  get vmlStream(): any {
+  get vmlStream(): CommentsWriterStream {
     if (!this._vmlStream) {
       this._vmlStream = this._workbook._openStream(`xl/drawings/vmlDrawing${this.id}.vml`);
     }
@@ -79,7 +97,7 @@ class SheetCommentsWriter {
     );
   }
 
-  private _writeComment(comment: any, index: number): void {
+  private _writeComment(comment: Record<string, unknown>, index: number): void {
     const commentXform = new CommentXform();
     const commentsXmlStream = new XmlStream();
     commentXform.render(commentsXmlStream, comment);
@@ -96,7 +114,7 @@ class SheetCommentsWriter {
     this.vmlStream.write('</xml>');
   }
 
-  addComments(comments: any[]): void {
+  addComments(comments: Record<string, unknown>[]): void {
     if (comments && comments.length) {
       if (!this.startedData) {
         this._worksheet.comments = [];
@@ -106,11 +124,11 @@ class SheetCommentsWriter {
         this.startedData = true;
       }
 
-      comments.forEach((item: any) => {
-        item.refAddress = colCache.decodeAddress(item.ref);
+      comments.forEach((item) => {
+        item.refAddress = colCache.decodeAddress(item.ref as string);
       });
 
-      comments.forEach((comment: any) => {
+      comments.forEach((comment) => {
         this._writeComment(comment, this.count);
         this.count += 1;
       });

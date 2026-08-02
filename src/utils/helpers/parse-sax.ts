@@ -45,13 +45,15 @@ async function readAllChunks(iterable: any): Promise<string> {
 
   const chunks: string[] = [];
 
-  // If the readable stream has already ended, drain its buffer synchronously.
-  const state = (iterable as any)._readableState;
-  if (state?.ended) {
+  if (typeof iterable.read === 'function') {
     let chunk: unknown;
     while ((chunk = iterable.read()) !== null) {
       chunks.push(decodeChunk(chunk));
     }
+  }
+
+  const state = (iterable as any)._readableState;
+  if (state?.ended || iterable.readableEnded) {
     return chunks.join('');
   }
 
@@ -136,7 +138,7 @@ function* walkNodes(nodes: any[]): Generator<SaxEvent> {
 // ---------------------------------------------------------------------------
 
 export default async function* parseSax(iterable: any): AsyncGenerator<SaxEvent[]> {
-  const xml = await readAllChunks(iterable);
+  const xml = typeof iterable === 'string' ? iterable : await readAllChunks(iterable);
   if (!xml) return;
 
   const tree: any[] = xmlParser.parse(xml);

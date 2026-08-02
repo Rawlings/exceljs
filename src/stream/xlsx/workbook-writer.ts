@@ -150,6 +150,8 @@ class WorkbookWriter {
     await this._commitWorksheets();
     await this.addMedia();
     await Promise.all([
+      this.addOfficeRels(),
+      this.addThemes(),
       this.addContentTypes(),
       this.addApp(),
       this.addCore(),
@@ -191,8 +193,10 @@ class WorkbookWriter {
     // shared string handling
     // in fact, it's even possible to switch it mid-sheet
     options = options || {};
-    const useSharedStrings =
-      options.useSharedStrings !== undefined ? options.useSharedStrings : this.useSharedStrings;
+    const useSharedStrings: boolean =
+      options.useSharedStrings !== undefined
+        ? (options.useSharedStrings as boolean)
+        : this.useSharedStrings;
 
     if (options.tabColor) {
       // eslint-disable-next-line no-console
@@ -213,12 +217,12 @@ class WorkbookWriter {
       name,
       workbook: this,
       useSharedStrings,
-      properties: options.properties,
-      state: options.state,
-      pageSetup: options.pageSetup,
-      views: options.views,
+      properties: options.properties as Record<string, unknown> | undefined,
+      state: options.state as string | undefined,
+      pageSetup: options.pageSetup as Record<string, unknown> | undefined,
+      views: options.views as unknown[] | undefined,
       autoFilter: options.autoFilter,
-      headerFooter: options.headerFooter,
+      headerFooter: options.headerFooter as Record<string, unknown> | undefined,
     });
 
     this._worksheets[id] = worksheet;

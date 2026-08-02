@@ -1,43 +1,52 @@
-const oneDepthCopy = (obj: Record<string, any>, nestKeys: string[]) => ({
+type StyleRecord = Record<string, unknown>;
+
+const oneDepthCopy = (obj: StyleRecord, nestKeys: string[]): StyleRecord => ({
   ...obj,
   ...Object.fromEntries(
-    nestKeys.filter((key) => Boolean(obj[key])).map((key) => [key, { ...obj[key] }])
+    nestKeys
+      .filter((key) => Boolean(obj[key]))
+      .map((key) => [key, { ...(obj[key] as StyleRecord) }])
   ),
 });
 
 const setIfExists = (
-  src: Record<string, any>,
-  dst: Record<string, any>,
+  src: StyleRecord,
+  dst: StyleRecord,
   key: string,
   nestKeys: string[] = []
 ) => {
-  if (src[key]) dst[key] = oneDepthCopy(src[key], nestKeys);
+  if (src[key]) dst[key] = oneDepthCopy(src[key] as StyleRecord, nestKeys);
 };
 
-const isEmptyObj = (obj: Record<string, any>) => Object.keys(obj).length === 0;
+const isEmptyObj = (obj: StyleRecord) => Object.keys(obj).length === 0;
 
-const copyStyle = (style: any): any => {
+const copyStyle = (style: StyleRecord | undefined | null): StyleRecord | undefined | null => {
   if (!style) return style;
   if (isEmptyObj(style)) return {};
 
-  const copied: Record<string, any> = { ...style };
+  const copied: StyleRecord = { ...style };
 
   setIfExists(style, copied, 'font', ['color']);
   setIfExists(style, copied, 'alignment');
   setIfExists(style, copied, 'protection');
   if (style.border) {
     setIfExists(style, copied, 'border');
-    setIfExists(style.border, copied.border, 'top', ['color']);
-    setIfExists(style.border, copied.border, 'left', ['color']);
-    setIfExists(style.border, copied.border, 'bottom', ['color']);
-    setIfExists(style.border, copied.border, 'right', ['color']);
-    setIfExists(style.border, copied.border, 'diagonal', ['color']);
+    const border = style.border as StyleRecord;
+    const copiedBorder = copied.border as StyleRecord;
+    setIfExists(border, copiedBorder, 'top', ['color']);
+    setIfExists(border, copiedBorder, 'left', ['color']);
+    setIfExists(border, copiedBorder, 'bottom', ['color']);
+    setIfExists(border, copiedBorder, 'right', ['color']);
+    setIfExists(border, copiedBorder, 'diagonal', ['color']);
   }
 
   if (style.fill) {
     setIfExists(style, copied, 'fill', ['fgColor', 'bgColor', 'center']);
-    if (style.fill.stops && Array.isArray(style.fill.stops)) {
-      copied.fill.stops = style.fill.stops.map((s: any) => oneDepthCopy(s, ['color']));
+    const fill = style.fill as StyleRecord;
+    if (fill.stops && Array.isArray(fill.stops)) {
+      (copied.fill as StyleRecord).stops = (fill.stops as StyleRecord[]).map((s) =>
+        oneDepthCopy(s, ['color'])
+      );
     }
   }
 

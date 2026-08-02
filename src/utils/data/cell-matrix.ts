@@ -35,7 +35,11 @@ class CellMatrix {
     return this.findCellEx(colCache.decodeEx(addressStr), false);
   }
 
-  findCellAt(sheetName: string, rowNumber: number, colNumber: number): MatrixCell | undefined | null {
+  findCellAt(
+    sheetName: string,
+    rowNumber: number,
+    colNumber: number
+  ): MatrixCell | undefined | null {
     const sheet = this.sheets[sheetName];
     const row = sheet && sheet[rowNumber];
     return row && row[colNumber];

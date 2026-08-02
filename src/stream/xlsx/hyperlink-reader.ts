@@ -31,23 +31,32 @@ const relsParser = new XMLParser({
 // HyperlinkReader
 // ---------------------------------------------------------------------------
 
-class HyperlinkReader extends EventEmitter {
-  workbook: any;
-  id: number;
-  iterator: any;
-  options: any;
-  hyperlinks: Record<string, any> | null;
+interface HyperlinkRelationship {
+  type: number;
+  rId: string;
+  target: string;
+  targetMode: string;
+}
 
-  constructor({
-    workbook,
-    id,
-    iterator,
-    options,
-  }: { workbook?: any; id?: number; iterator?: any; options?: any } = {}) {
+export interface HyperlinkReaderOptions {
+  workbook?: unknown;
+  id?: number;
+  iterator?: AsyncIterable<unknown>;
+  options?: { hyperlinks?: string; [key: string]: unknown };
+}
+
+class HyperlinkReader extends EventEmitter {
+  workbook: unknown;
+  id: number;
+  iterator: AsyncIterable<unknown>;
+  options: { hyperlinks?: string; [key: string]: unknown };
+  hyperlinks: Record<string, HyperlinkRelationship> | null;
+
+  constructor({ workbook, id, iterator, options }: HyperlinkReaderOptions = {}) {
     super();
     this.workbook = workbook;
     this.id = id || 0;
-    this.iterator = iterator;
+    this.iterator = iterator as AsyncIterable<unknown>;
     this.options = options || {};
     this.hyperlinks = null;
   }
@@ -56,7 +65,7 @@ class HyperlinkReader extends EventEmitter {
     return (this.hyperlinks && Object.keys(this.hyperlinks).length) || 0;
   }
 
-  each(fn: (hyperlink: any, rId: string) => void): void {
+  each(fn: (hyperlink: HyperlinkRelationship, rId: string) => void): void {
     if (this.hyperlinks) {
       Object.entries(this.hyperlinks).forEach(([rId, hl]) => fn(hl, rId));
     }
@@ -65,7 +74,7 @@ class HyperlinkReader extends EventEmitter {
   async read(): Promise<void> {
     const { iterator, options } = this;
     let emitHyperlinks = false;
-    let hyperlinks: Record<string, any> | null = null;
+    let hyperlinks: Record<string, HyperlinkRelationship> | null = null;
 
     switch (options.hyperlinks) {
       case 'emit':
@@ -96,7 +105,7 @@ class HyperlinkReader extends EventEmitter {
       const relationships = doc.Relationships;
 
       if (relationships?.Relationship) {
-        for (const rel of relationships.Relationship as any[]) {
+        for (const rel of relationships.Relationship as Record<string, string>[]) {
           if (rel.Type === RelType.Hyperlink) {
             const relationship = {
               type: Enums.RelationshipType.Styles,

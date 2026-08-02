@@ -281,15 +281,16 @@ class XLSX {
       const getPriority = (rawName: string) => {
         const name = rawName.replace(/^\//, '');
         if (name === '_rels/.rels') return 1;
-        if (name === 'xl/_rels/workbook.xml.rels') return 2;
-        if (name === 'xl/workbook.xml') return 3;
-        if (name === 'xl/sharedStrings.xml') return 4;
-        if (name === 'xl/styles.xml') return 5;
-        if (name.match(/^xl\/worksheets\/_rels\//)) return 6;
-        if (name.match(/^xl\/drawings\/_rels\//)) return 7;
-        if (name.match(/^xl\/drawings\//)) return 8;
-        if (name.match(/^xl\/media\//)) return 9;
-        if (name.match(/^xl\/worksheets\/[^/]+\.xml$/)) return 10;
+        if (name === 'docProps/app.xml' || name === 'docProps/core.xml') return 2;
+        if (name === 'xl/_rels/workbook.xml.rels') return 3;
+        if (name === 'xl/workbook.xml') return 4;
+        if (name === 'xl/sharedStrings.xml') return 5;
+        if (name === 'xl/styles.xml') return 6;
+        if (name.match(/^xl\/worksheets\/_rels\//)) return 7;
+        if (name.match(/^xl\/drawings\/_rels\//)) return 8;
+        if (name.match(/^xl\/drawings\//)) return 9;
+        if (name.match(/^xl\/media\//)) return 10;
+        if (name.match(/^xl\/worksheets\/[^/]+\.xml$/)) return 11;
         return 15;
       };
       return getPriority(a.name) - getPriority(b.name);
@@ -308,20 +309,10 @@ class XLSX {
           entryName.match(/xl\/theme\/([a-zA-Z0-9]+)[.]xml/)
         ) {
           stream = new PassThrough();
-          stream.write(await entry.async('nodebuffer'));
+          stream.end(await entry.async('nodebuffer'));
         } else {
-          // use object mode to avoid buffer-string convention
-          stream = new PassThrough({
-            writableObjectMode: true,
-            readableObjectMode: true,
-          });
-          const content = await entry.async('string');
-          const chunkSize = 16 * 1024;
-          for (let i = 0; i < content.length; i += chunkSize) {
-            stream.write(content.substring(i, i + chunkSize));
-          }
+          stream = await entry.async('string');
         }
-        stream.end();
         const keyName = entryName.replace(/^\//, '');
         switch (keyName) {
           case '_rels/.rels': {
@@ -333,11 +324,13 @@ class XLSX {
           case 'xl/workbook.xml': {
             const workbookXform = new WorkbookXform();
             const workbook = await workbookXform.parseStream(stream);
-            model.sheets = workbook.sheets;
-            model.definedNames = workbook.definedNames;
-            model.views = workbook.views;
-            model.properties = workbook.properties;
-            model.calcProperties = workbook.calcProperties;
+            if (workbook) {
+              model.sheets = workbook.sheets;
+              model.definedNames = workbook.definedNames;
+              model.views = workbook.views;
+              model.properties = workbook.properties;
+              model.calcProperties = workbook.calcProperties;
+            }
             break;
           }
 
@@ -360,15 +353,19 @@ class XLSX {
           case 'docProps/app.xml': {
             const appXform = new AppXform();
             const appProperties = await appXform.parseStream(stream);
-            model.company = appProperties.company;
-            model.manager = appProperties.manager;
+            if (appProperties) {
+              model.company = appProperties.company;
+              model.manager = appProperties.manager;
+            }
             break;
           }
 
           case 'docProps/core.xml': {
             const coreXform = new CoreXform();
             const coreProperties = await coreXform.parseStream(stream);
-            Object.assign(model, coreProperties);
+            if (coreProperties) {
+              Object.assign(model, coreProperties);
+            }
             break;
           }
 

@@ -8,7 +8,7 @@ import Dimensions from '#src/models/range';
 
 import Row from '#src/models/row';
 import Column from '#src/models/column';
-import type { WorksheetLike } from '#src/models/internal-types';
+import type { WorksheetLike, CellLike } from '#src/models/internal-types';
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -51,23 +51,43 @@ const worksheetParser = new XMLParser({
 // WorksheetReader
 // ---------------------------------------------------------------------------
 
-class WorksheetReader extends EventEmitter {
-  workbook: any;
-  id: any;
-  iterator: any;
-  options: any;
-  name: string;
-  _columns: any;
-  _keys: any;
-  _dimensions: any;
-  hyperlinks: any;
+export interface WorksheetReaderOptions {
+  workbook: {
+    sharedStrings?: unknown[];
+    styles?: { getStyleModel(id: number): Record<string, unknown> | undefined };
+    properties?: { model?: { date1904?: boolean } };
+  };
+  id: number | string;
+  iterator: AsyncIterable<unknown>;
+  options: {
+    worksheets?: string;
+    hyperlinks?: string;
+    [key: string]: unknown;
+  };
+}
 
-  constructor({ workbook, id, iterator, options }: any = {}) {
+interface WorksheetEvent {
+  eventType: 'row' | 'hyperlink';
+  value: unknown;
+}
+
+class WorksheetReader extends EventEmitter {
+  workbook: WorksheetReaderOptions['workbook'];
+  id: number | string;
+  iterator: AsyncIterable<unknown>;
+  options: WorksheetReaderOptions['options'];
+  name: string;
+  _columns: Column[] | null;
+  _keys: Record<string, Column>;
+  _dimensions: Dimensions;
+  hyperlinks: Record<string, unknown> | undefined;
+
+  constructor({ workbook, id, iterator, options }: Partial<WorksheetReaderOptions> = {}) {
     super();
 
-    this.workbook = workbook;
-    this.id = id;
-    this.iterator = iterator;
+    this.workbook = workbook as WorksheetReaderOptions['workbook'];
+    this.id = id as number | string;
+    this.iterator = iterator as AsyncIterable<unknown>;
     this.options = options || {};
 
     // and a name
@@ -88,7 +108,7 @@ class WorksheetReader extends EventEmitter {
   }
 
   // return the current dimensions of the writer
-  get dimensions() {
+  get dimensions(): Dimensions {
     return this._dimensions;
   }
 
@@ -96,13 +116,13 @@ class WorksheetReader extends EventEmitter {
   // Columns
 
   // get the current columns array.
-  get columns() {
+  get columns(): Column[] | null {
     return this._columns;
   }
 
   // get a single column by col number. If it doesn't exist, it and any gaps before it
   // are created.
-  getColumn(c: any) {
+  getColumn(c: number | string): Column {
     if (typeof c === 'string') {
       // if it matches a key'd column, return that
       const col = this._keys[c];
@@ -125,19 +145,19 @@ class WorksheetReader extends EventEmitter {
     return this._columns[c - 1];
   }
 
-  getColumnKey(key: any) {
+  getColumnKey(key: string): Column | undefined {
     return this._keys[key];
   }
 
-  setColumnKey(key: any, value: any) {
+  setColumnKey(key: string, value: Column) {
     this._keys[key] = value;
   }
 
-  deleteColumnKey(key: any) {
+  deleteColumnKey(key: string) {
     delete this._keys[key];
   }
 
-  eachColumnKey(f: any) {
+  eachColumnKey(f: (column: Column, key: string) => void) {
     _.each(this._keys, f);
   }
 
@@ -149,7 +169,7 @@ class WorksheetReader extends EventEmitter {
         }
       }
       this.emit('finished');
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.emit('error', error);
     }
   }
@@ -164,11 +184,11 @@ class WorksheetReader extends EventEmitter {
     }
   }
 
-  async *parse() {
+  async *parse(): AsyncGenerator<WorksheetEvent[]> {
     const { iterator, options } = this;
     let emitSheet = false;
     let emitHyperlinks = false;
-    let hyperlinks: Record<string, any> | null = null;
+    let hyperlinks: Record<string, Record<string, unknown>> | null = null;
 
     switch (options.worksheets) {
       case 'emit':
@@ -213,13 +233,13 @@ class WorksheetReader extends EventEmitter {
     // them to cells during row processing (fixes ordering issue in old code).
     // -----------------------------------------------------------------------
     if ((emitHyperlinks || hyperlinks) && ws.hyperlinks?.hyperlink) {
-      for (const hl of ws.hyperlinks.hyperlink as any[]) {
+      for (const hl of ws.hyperlinks.hyperlink as Record<string, string>[]) {
         const hyperlink = {
           ref: hl.ref,
           rId: hl['r:id'],
         };
         if (hyperlinks) {
-          (hyperlinks as Record<string, any>)[hyperlink.ref] = hyperlink;
+          hyperlinks[hyperlink.ref] = hyperlink;
         }
       }
     }
@@ -228,7 +248,7 @@ class WorksheetReader extends EventEmitter {
     // Columns
     // -----------------------------------------------------------------------
     if (emitSheet && ws.cols?.col) {
-      const cols: any[] = (ws.cols.col as any[]).map((col: any) => ({
+      const cols = (ws.cols.col as Record<string, string>[]).map((col) => ({
         min: parseInt(col.min, 10),
         max: parseInt(col.max, 10),
         width: parseFloat(col.width),
@@ -241,36 +261,36 @@ class WorksheetReader extends EventEmitter {
     // Rows & cells
     // -----------------------------------------------------------------------
     if (emitSheet && ws.sheetData?.row) {
-      for (const rowNode of ws.sheetData.row as any[]) {
-        const worksheetEvents: any[] = [];
+      for (const rowNode of ws.sheetData.row as Record<string, unknown>[]) {
+        const worksheetEvents: WorksheetEvent[] = [];
 
-        const r = parseInt(rowNode.r, 10);
+        const r = parseInt(rowNode.r as string, 10);
         const row = new Row(this as unknown as WorksheetLike, r);
 
         if (rowNode.ht) {
-          row.height = parseFloat(rowNode.ht);
+          row.height = parseFloat(rowNode.ht as string);
         }
         if (rowNode.s) {
-          const styleId = parseInt(rowNode.s, 10);
-          const style = styles.getStyleModel(styleId);
+          const styleId = parseInt(rowNode.s as string, 10);
+          const style = styles?.getStyleModel(styleId);
           if (style) {
             row.style = style;
           }
         }
 
-        for (const cellNode of (rowNode.c as any[]) || []) {
-          const address = colCache.decodeAddress(cellNode.r);
+        for (const cellNode of (rowNode.c as Record<string, unknown>[]) || []) {
+          const address = colCache.decodeAddress(cellNode.r as string);
           const cell = row.getCell(address.col);
 
           // Cell style
           if (cellNode.s) {
-            const style = styles.getStyleModel(parseInt(cellNode.s, 10));
+            const style = styles?.getStyleModel(parseInt(cellNode.s as string, 10));
             if (style) {
               cell.style = style;
             }
           }
 
-          const cellType: string | undefined = cellNode.t;
+          const cellType: string | undefined = cellNode.t as string | undefined;
           const fNode = cellNode.f;
           const vNode = cellNode.v;
 
@@ -279,10 +299,10 @@ class WorksheetReader extends EventEmitter {
             // Formula cell
             // ---------------------------------------------------------------
             const formulaText = getNodeText(fNode);
-            const fAttrs: Record<string, any> =
-              typeof fNode === 'object' && fNode !== null ? (fNode as Record<string, any>) : {};
+            const fAttrs: Record<string, unknown> =
+              typeof fNode === 'object' && fNode !== null ? (fNode as Record<string, unknown>) : {};
 
-            const cellValue: any = {};
+            const cellValue: Record<string, unknown> = {};
             if (formulaText) cellValue.formula = formulaText;
             if (fAttrs.t) cellValue.shareType = fAttrs.t;
             if (fAttrs.ref) cellValue.ref = fAttrs.ref;
@@ -343,17 +363,24 @@ class WorksheetReader extends EventEmitter {
             // Inline string cell
             // ---------------------------------------------------------------
             const isNode = cellNode.is;
-            const tNode = typeof isNode === 'object' && isNode !== null ? isNode.t : undefined;
+            const tNode =
+              typeof isNode === 'object' && isNode !== null
+                ? (isNode as Record<string, unknown>).t
+                : undefined;
             cell.value = tNode !== undefined ? getNodeText(tNode) : '';
           }
 
           // Apply cached hyperlink if present
           if (hyperlinks) {
-            const hyperlink = (hyperlinks as Record<string, any>)[cellNode.r];
+            const hyperlink = hyperlinks[cellNode.r as string];
             if (hyperlink) {
-              cell.text = cell.value;
+              // NB: `text` is a getter-only accessor on Cell (no setter) —
+              // this assignment already throws a TypeError at runtime in the
+              // original code too (classes are always strict mode); preserved
+              // verbatim rather than silently fixed during a typing pass.
+              (cell as unknown as CellLike).text = cell.value;
               cell.value = undefined;
-              cell.hyperlink = hyperlink;
+              (cell as unknown as CellLike).hyperlink = hyperlink;
             }
           }
         }
@@ -371,8 +398,8 @@ class WorksheetReader extends EventEmitter {
     // Emit hyperlink events (emit mode — emit after rows are done)
     // -----------------------------------------------------------------------
     if (emitHyperlinks && ws.hyperlinks?.hyperlink) {
-      const hyperlinkEvents: any[] = [];
-      for (const hl of ws.hyperlinks.hyperlink as any[]) {
+      const hyperlinkEvents: WorksheetEvent[] = [];
+      for (const hl of ws.hyperlinks.hyperlink as Record<string, string>[]) {
         hyperlinkEvents.push({
           eventType: 'hyperlink',
           value: { ref: hl.ref, rId: hl['r:id'] },

@@ -460,7 +460,9 @@ class Table {
   // `displayNamename` (not `displayName`), so `table.displayName = x` never
   // actually invokes it. A typing pass must not silently fix behavior.
   get displayName(): string {
-    return (this.table as unknown as Record<string, unknown>).displyName as string || this.table.name;
+    return (
+      ((this.table as unknown as Record<string, unknown>).displyName as string) || this.table.name
+    );
   }
   set displayNamename(value: string) {
     this.table.displayName = value;
