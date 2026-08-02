@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import RelationshipsXform from '#src/formats/xlsx/xml/core/relationships-xform';
+import RelationshipsXform from '../../../../../../../src/formats/xlsx/xml/core/relationships-xform';
 import worksheetRels1 from '#fixtures/json/worksheet.rels.1.json' with { type: 'json' };
 
 const expectations = [

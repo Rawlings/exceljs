@@ -1,18 +1,27 @@
-import colCache from '#src/utils/data/col-cache';
-import XmlStream from '#src/utils/stream/xml-stream';
+import colCache from '../../../../utils/data/col-cache';
+import XmlStream from '../../../../utils/stream/xml-stream';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import TwoCellAnchorXform from '#src/formats/xlsx/xml/drawing/two-cell-anchor-xform';
-import OneCellAnchorXform from '#src/formats/xlsx/xml/drawing/one-cell-anchor-xform';
+import BaseXform from '../base-xform';
+import TwoCellAnchorXform, { type TwoCellAnchorModel } from './two-cell-anchor-xform';
+import OneCellAnchorXform, { type OneCellAnchorModel } from './one-cell-anchor-xform';
+import type { SaxNode } from '../base-xform';
 
-function getAnchorType(model: any) {
-  const range = typeof model.range === 'string' ? colCache.decode(model.range) : model.range;
+type AnchorModel = (TwoCellAnchorModel | OneCellAnchorModel) & { anchorType?: string };
+
+export interface DrawingModel {
+  anchors: AnchorModel[];
+}
+
+function getAnchorType(model: AnchorModel) {
+  const range =
+    typeof model.range === 'string' ? colCache.decode(model.range) : (model.range as any);
 
   return range.br ? 'xdr:twoCellAnchor' : 'xdr:oneCellAnchor';
 }
 
 class DrawingXform extends BaseXform {
-  static DRAWING_ATTRIBUTES: any;
+  static DRAWING_ATTRIBUTES: Record<string, string>;
+
   constructor(_options?: any) {
     super();
 
@@ -22,31 +31,31 @@ class DrawingXform extends BaseXform {
     };
   }
 
-  prepare(model: any) {
-    model.anchors.forEach((item: any, index: any) => {
+  override prepare(model: DrawingModel) {
+    model.anchors.forEach((item: AnchorModel, index: number) => {
       item.anchorType = getAnchorType(item);
-      const anchor = this.map[item.anchorType];
+      const anchor = this.map[item.anchorType as string];
       anchor.prepare(item, { index });
     });
   }
 
-  get tag() {
+  override get tag() {
     return 'xdr:wsDr';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: DrawingModel) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode(this.tag, DrawingXform.DRAWING_ATTRIBUTES);
 
-    model.anchors.forEach((item: any) => {
-      const anchor = this.map[item.anchorType];
+    model.anchors.forEach((item: AnchorModel) => {
+      const anchor = this.map[item.anchorType as string];
       anchor.render(xmlStream, item);
     });
 
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -68,13 +77,13 @@ class DrawingXform extends BaseXform {
     return true;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.model.anchors.push(this.parser.model);
@@ -91,9 +100,9 @@ class DrawingXform extends BaseXform {
     }
   }
 
-  reconcile(model: any, options: any) {
-    model.anchors.forEach((anchor: any) => {
-      if (anchor.br) {
+  override reconcile(model: DrawingModel, options: any) {
+    model.anchors.forEach((anchor: AnchorModel) => {
+      if ((anchor as any).br) {
         this.map['xdr:twoCellAnchor'].reconcile(anchor, options);
       } else {
         this.map['xdr:oneCellAnchor'].reconcile(anchor, options);

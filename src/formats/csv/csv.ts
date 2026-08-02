@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import { access } from 'node:fs/promises';
-import { PassThrough } from 'node:stream';
+import { PassThrough, Readable } from 'node:stream';
+import type Workbook from '../../core/workbook';
+import type Worksheet from '../../core/worksheet';
 
 async function fileExists(filename: string): Promise<boolean> {
   try {
@@ -102,15 +104,15 @@ function defaultWriteMap(value: any): any {
 }
 
 export class CSV {
-  workbook: any;
-  worksheet: any;
+  workbook: Workbook;
+  worksheet: Worksheet | null;
 
-  constructor(workbook: any) {
+  constructor(workbook: Workbook) {
     this.workbook = workbook;
     this.worksheet = null;
   }
 
-  async readFile(filename: string, options: Record<string, any> = {}): Promise<any> {
+  async readFile(filename: string, options: Record<string, any> = {}): Promise<Worksheet> {
     if (!(await fileExists(filename))) {
       throw new Error(`File not found: ${filename}`);
     }
@@ -120,7 +122,7 @@ export class CSV {
     return worksheet;
   }
 
-  read(stream: any, options: Record<string, any> = {}): Promise<any> {
+  read(stream: Readable, options: Record<string, any> = {}): Promise<Worksheet> {
     return new Promise((resolve, reject) => {
       const worksheet = this.workbook.addWorksheet(options.sheetName);
       const delimiter = options.parserOptions?.delimiter || ',';
@@ -154,7 +156,7 @@ export class CSV {
     throw new Error('`CSV#createInputStream` is deprecated. You should use `CSV#read` instead.');
   }
 
-  write(stream: any, options: Record<string, any> = {}): Promise<void> {
+  write(stream: NodeJS.WritableStream, options: Record<string, any> = {}): Promise<void> {
     return new Promise((resolve) => {
       const worksheet = this.workbook.getWorksheet(options.sheetName || options.sheetId);
       const delimiter = options.formatterOptions?.delimiter || ',';

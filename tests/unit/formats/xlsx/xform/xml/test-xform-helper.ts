@@ -1,7 +1,7 @@
 import { PassThrough } from 'node:stream';
 import CompyXform from './compy-xform';
-import BooleanXform from '#src/formats/xlsx/xml/simple/boolean-xform';
-import XmlStream from '#src/utils/stream/xml-stream';
+import BooleanXform from '../../../../../../src/formats/xlsx/xml/simple/boolean-xform';
+import XmlStream from '../../../../../../src/utils/stream/xml-stream';
 
 function normalizeXml(xml: string): string {
   if (typeof xml !== 'string') return xml;

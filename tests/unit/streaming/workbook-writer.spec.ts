@@ -1,6 +1,6 @@
 import Stream from 'node:stream';
 
-import Excel from '#src/index';
+import Excel from '../../../src/index';
 
 describe('Workbook Writer', () => {
   it('returns undefined for non-existant sheet', () => {

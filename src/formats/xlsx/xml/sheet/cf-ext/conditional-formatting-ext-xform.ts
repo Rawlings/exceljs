@@ -1,7 +1,7 @@
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import CompositeXform from '../../composite-xform';
 
-import SqRefExtXform from '#src/formats/xlsx/xml/sheet/cf-ext/sqref-ext-xform';
-import CfRuleExtXform from '#src/formats/xlsx/xml/sheet/cf-ext/cf-rule-ext-xform';
+import SqRefExtXform from './sqref-ext-xform';
+import CfRuleExtXform from './cf-rule-ext-xform';
 
 class ConditionalFormattingExtXform extends CompositeXform {
   sqRef: any;

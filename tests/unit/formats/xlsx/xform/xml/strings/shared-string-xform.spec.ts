@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import SharedStringXform from '#src/formats/xlsx/xml/strings/shared-string-xform';
+import SharedStringXform from '../../../../../../../src/formats/xlsx/xml/strings/shared-string-xform';
 
 const expectations = [
   {

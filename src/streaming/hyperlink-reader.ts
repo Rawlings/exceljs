@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import { XMLParser } from 'fast-xml-parser';
-import Enums from '#src/core/enums';
-import RelType from '#src/formats/xlsx/rel-type';
+import Enums from '../core/enums';
+import RelType from '../formats/xlsx/rel-type';
 
 // ---------------------------------------------------------------------------
 // Internal helpers

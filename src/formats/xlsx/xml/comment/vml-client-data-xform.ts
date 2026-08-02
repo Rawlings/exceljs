@@ -1,10 +1,10 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
 
-import VmlAnchorXform from '#src/formats/xlsx/xml/comment/vml-anchor-xform';
-import VmlProtectionXform from '#src/formats/xlsx/xml/comment/style/vml-protection-xform';
-import VmlPositionXform from '#src/formats/xlsx/xml/comment/style/vml-position-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import VmlAnchorXform from './vml-anchor-xform';
+import VmlProtectionXform from './style/vml-protection-xform';
+import VmlPositionXform from './style/vml-position-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 const POSITION_TYPE = ['twoCells', 'oneCells', 'absolute'];
 

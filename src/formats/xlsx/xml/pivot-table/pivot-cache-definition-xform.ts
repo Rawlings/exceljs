@@ -1,9 +1,18 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CacheField from '#src/formats/xlsx/xml/pivot-table/cache-field';
-import XmlStream from '#src/utils/stream/xml-stream';
+import BaseXform from '../base-xform';
+import CacheField, { type CacheFieldOptions } from './cache-field';
+import XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
+
+export interface PivotCacheDefinitionModel {
+  sourceSheet: {
+    name: string;
+    dimensions: { shortRange: string };
+  };
+  cacheFields: CacheFieldOptions[];
+}
 
 class PivotCacheDefinitionXform extends BaseXform {
-  static PIVOT_CACHE_DEFINITION_ATTRIBUTES: any;
+  static PIVOT_CACHE_DEFINITION_ATTRIBUTES: Record<string, string>;
 
   constructor() {
     super();
@@ -11,20 +20,20 @@ class PivotCacheDefinitionXform extends BaseXform {
     this.map = {};
   }
 
-  prepare(_model: any) {
+  override prepare(_model?: PivotCacheDefinitionModel) {
     // TK
   }
 
-  get tag() {
+  override get tag() {
     // http://www.datypic.com/sc/ooxml/e-ssml_pivotCacheDefinition.html
     return 'pivotCacheDefinition';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: PivotCacheDefinitionModel) {
     const { sourceSheet, cacheFields } = model;
 
     xmlStream.openXml(XmlStream.StdDocAttributes);
-    xmlStream.openNode(this.tag, {
+    xmlStream.openNode(this.tag as string, {
       ...PivotCacheDefinitionXform.PIVOT_CACHE_DEFINITION_ATTRIBUTES,
       'r:id': 'rId1',
       refreshOnLoad: '1', // important for our implementation to work
@@ -46,26 +55,26 @@ class PivotCacheDefinitionXform extends BaseXform {
     xmlStream.openNode('cacheFields', { count: cacheFields.length });
     // Note: keeping this pretty-printed for now to ease debugging.
     xmlStream.writeXml(
-      cacheFields.map((cacheField: any) => new CacheField(cacheField).render()).join('\n    ')
+      cacheFields.map((cacheField) => new CacheField(cacheField).render()).join('\n    ')
     );
     xmlStream.closeNode();
 
     xmlStream.closeNode();
   }
 
-  parseOpen(_node: any) {
+  override parseOpen(_node?: SaxNode) {
     // TK
   }
 
-  parseText(_text: any) {
+  override parseText(_text?: string) {
     // TK
   }
 
-  parseClose(_name: any) {
+  override parseClose(_name?: string) {
     // TK
   }
 
-  reconcile(_model: any, _options: any) {
+  override reconcile(_model?: PivotCacheDefinitionModel, _options?: any) {
     // TK
   }
 }

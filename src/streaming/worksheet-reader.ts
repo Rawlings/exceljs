@@ -1,14 +1,14 @@
 import { EventEmitter } from 'events';
 import { XMLParser } from 'fast-xml-parser';
 
-import _ from '#src/utils/helpers/under-dash';
-import utils from '#src/utils/helpers/utils';
-import colCache from '#src/utils/data/col-cache';
-import Dimensions from '#src/core/range';
+import _ from '../utils/helpers/under-dash';
+import utils from '../utils/helpers/utils';
+import colCache from '../utils/data/col-cache';
+import Dimensions from '../core/range';
 
-import Row from '#src/core/row';
-import Column from '#src/core/column';
-import type { WorksheetLike, CellLike } from '#src/core/internal-types';
+import Row from '../core/row';
+import Column from '../core/column';
+import type { WorksheetLike, CellLike } from '../core/internal-types';
 
 // ---------------------------------------------------------------------------
 // Internal helpers

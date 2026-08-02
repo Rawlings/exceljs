@@ -1,9 +1,9 @@
-import XmlStream from '#src/utils/stream/xml-stream';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import XmlStream from '../../../../utils/stream/xml-stream';
+import BaseXform from '../base-xform';
+import type { SaxNode } from '../base-xform';
 
-import RelationshipXform from '#src/formats/xlsx/xml/core/relationship-xform';
-import type { RelationshipModel } from '#src/formats/xlsx/xml/core/relationship-xform';
+import RelationshipXform from './relationship-xform';
+import type { RelationshipModel } from './relationship-xform';
 
 class RelationshipsXform extends BaseXform {
   _values: RelationshipModel[] | undefined;

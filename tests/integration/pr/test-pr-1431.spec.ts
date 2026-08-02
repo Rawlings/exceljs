@@ -1,4 +1,4 @@
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 describe('github issues', () => {
   it('pull request 1431 - streaming reader should handle rich text within shared strings', async () => {

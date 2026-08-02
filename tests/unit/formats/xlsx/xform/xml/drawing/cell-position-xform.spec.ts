@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import CellPositionXform from '#src/formats/xlsx/xml/drawing/cell-position-xform';
+import CellPositionXform from '../../../../../../../src/formats/xlsx/xml/drawing/cell-position-xform';
 
 const expectations = [
   {

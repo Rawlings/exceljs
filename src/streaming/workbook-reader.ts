@@ -2,15 +2,15 @@ import { EventEmitter } from 'node:events';
 import { PassThrough, Readable } from 'node:stream';
 import fs from 'node:fs';
 import { XMLParser } from 'fast-xml-parser';
-import { unzip } from '#src/utils/stream/zip';
-import iterateStream from '#src/utils/stream/iterate-stream';
+import { unzip } from '../utils/stream/zip';
+import iterateStream from '../utils/stream/iterate-stream';
 
-import StyleManager from '#src/formats/xlsx/xml/style/styles-xform';
-import WorkbookXform from '#src/formats/xlsx/xml/book/workbook-xform';
-import RelationshipsXform from '#src/formats/xlsx/xml/core/relationships-xform';
+import StyleManager from '../formats/xlsx/xml/style/styles-xform';
+import WorkbookXform from '../formats/xlsx/xml/book/workbook-xform';
+import RelationshipsXform from '../formats/xlsx/xml/core/relationships-xform';
 
-import WorksheetReader from '#src/streaming/worksheet-reader';
-import HyperlinkReader from '#src/streaming/hyperlink-reader';
+import WorksheetReader from './worksheet-reader';
+import HyperlinkReader from './hyperlink-reader';
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -380,8 +380,7 @@ class WorkbookReader extends EventEmitter {
   *_parseWorksheet(iterator: AsyncIterable<unknown>, sheetNo: string): Generator<ParseEvent> {
     this._emitEntry({ type: 'worksheet', id: sheetNo });
     const worksheetReader = new WorksheetReader({
-      workbook:
-        this as unknown as import('#src/streaming/worksheet-reader').WorksheetReaderOptions['workbook'],
+      workbook: this as unknown as import('./worksheet-reader').WorksheetReaderOptions['workbook'],
       id: sheetNo,
       iterator,
       options: this.options,

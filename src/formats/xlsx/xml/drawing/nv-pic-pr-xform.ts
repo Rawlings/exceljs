@@ -1,8 +1,8 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CNvPrXform, { type CNvPrModel } from '#src/formats/xlsx/xml/drawing/c-nv-pr-xform';
-import CNvPicPrXform from '#src/formats/xlsx/xml/drawing/c-nv-pic-pr-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import CNvPrXform, { type CNvPrModel } from './c-nv-pr-xform';
+import CNvPicPrXform from './c-nv-pic-pr-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export type NvPicPrModel = CNvPrModel;
 

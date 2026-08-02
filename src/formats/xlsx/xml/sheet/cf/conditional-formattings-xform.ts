@@ -1,6 +1,6 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../../base-xform';
 
-import ConditionalFormattingXform from '#src/formats/xlsx/xml/sheet/cf/conditional-formatting-xform';
+import ConditionalFormattingXform from './conditional-formatting-xform';
 
 class ConditionalFormattingsXform extends BaseXform {
   cfXform: any;

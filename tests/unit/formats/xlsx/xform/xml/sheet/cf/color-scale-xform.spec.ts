@@ -1,6 +1,6 @@
 import testXformHelper from '../../test-xform-helper';
 
-import ColorScaleXform from '#src/formats/xlsx/xml/sheet/cf/color-scale-xform';
+import ColorScaleXform from '../../../../../../../../src/formats/xlsx/xml/sheet/cf/color-scale-xform';
 
 const expectations = [
   {

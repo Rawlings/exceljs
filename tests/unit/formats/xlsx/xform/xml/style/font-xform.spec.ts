@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import FontXform from '#src/formats/xlsx/xml/style/font-xform';
+import FontXform from '../../../../../../../src/formats/xlsx/xml/style/font-xform';
 
 const expectations = [
   {

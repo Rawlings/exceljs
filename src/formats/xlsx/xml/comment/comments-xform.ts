@@ -1,10 +1,15 @@
-import XmlStream from '#src/utils/stream/xml-stream';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CommentXform from '#src/formats/xlsx/xml/comment/comment-xform';
+import XmlStream from '../../../../utils/stream/xml-stream';
+import BaseXform from '../base-xform';
+import CommentXform from './comment-xform';
+import type { SaxNode } from '../base-xform';
 
 export default class CommentsXform extends BaseXform {
   static COMMENTS_ATTRIBUTES = {
     xmlns: 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+  };
+
+  override map: {
+    comment: CommentXform;
   };
 
   constructor() {
@@ -14,7 +19,7 @@ export default class CommentsXform extends BaseXform {
     };
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: any) {
     model = model || this.model;
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode('comments', CommentsXform.COMMENTS_ATTRIBUTES);
@@ -22,7 +27,7 @@ export default class CommentsXform extends BaseXform {
     // authors
     // TODO: support authors properly
     xmlStream.openNode('authors');
-    xmlStream.leafNode('author', null, 'Author');
+    xmlStream.leafNode('author', undefined, 'Author');
     xmlStream.closeNode();
 
     // comments
@@ -34,7 +39,7 @@ export default class CommentsXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -54,13 +59,13 @@ export default class CommentsXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     switch (name) {
       case 'commentList':
         return false;

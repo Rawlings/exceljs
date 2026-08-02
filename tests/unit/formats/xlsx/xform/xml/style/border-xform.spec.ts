@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import BorderXform from '#src/formats/xlsx/xml/style/border-xform';
+import BorderXform from '../../../../../../../src/formats/xlsx/xml/style/border-xform';
 
 const expectations = [
   {

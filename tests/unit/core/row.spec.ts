@@ -1,6 +1,6 @@
 import { createSheetMock } from '../../helpers/index';
 
-import Enums from '#src/core/enums';
+import Enums from '../../../src/core/enums';
 
 describe('Row', () => {
   it('stores cells', () => {

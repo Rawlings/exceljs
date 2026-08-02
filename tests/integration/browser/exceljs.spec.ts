@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import ExcelJS from '#src';
+import ExcelJS from '../../../src/index';
 
 function unexpectedError(done: any) {
   return function (error: any) {

@@ -3,7 +3,7 @@ const { promisify } = require('util');
 
 import testUtils from '../../helpers/index';
 
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 const IMAGE_FILENAME = `${__dirname}/../../../fixtures/images/image.png`;

@@ -1,13 +1,11 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import HlickClickXform, {
-  type HLinkClickModel,
-} from '#src/formats/xlsx/xml/drawing/hlink-click-xform';
-import ExtLstXform from '#src/formats/xlsx/xml/drawing/ext-lst-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import HlickClickXform, { type HLinkClickModel } from './hlink-click-xform';
+import ExtLstXform from './ext-lst-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export interface CNvPrModel extends HLinkClickModel {
-  index: number;
+  index?: number;
 }
 
 class CNvPrXform extends BaseXform {

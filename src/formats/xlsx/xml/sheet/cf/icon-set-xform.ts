@@ -1,10 +1,19 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import BaseXform from '../../base-xform';
+import CompositeXform from '../../composite-xform';
 
-import CfvoXform from '#src/formats/xlsx/xml/sheet/cf/cfvo-xform';
+import CfvoXform, { type CfvoModel } from './cfvo-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../../base-xform';
+
+export interface IconSetModel {
+  iconSet?: string;
+  reverse?: boolean;
+  showValue?: boolean;
+  cfvo: CfvoModel[];
+}
 
 class IconSetXform extends CompositeXform {
-  cfvoXform: any;
+  cfvoXform: CfvoXform;
 
   constructor() {
     super();
@@ -14,35 +23,36 @@ class IconSetXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'iconSet';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  override render(xmlStream: XmlStream, model: IconSetModel) {
+    xmlStream.openNode(this.tag as string, {
       iconSet: BaseXform.toStringAttribute(model.iconSet, '3TrafficLights'),
       reverse: BaseXform.toBoolAttribute(model.reverse, false),
       showValue: BaseXform.toBoolAttribute(model.showValue, true),
     });
 
-    model.cfvo.forEach((cfvo: any) => {
+    model.cfvo.forEach((cfvo) => {
       this.cfvoXform.render(xmlStream, cfvo);
     });
 
     xmlStream.closeNode();
   }
 
-  createNewModel({ attributes }: any) {
+  override createNewModel({ attributes }: SaxNode): IconSetModel {
+    const attrs = attributes as Record<string, string>;
     return {
-      iconSet: BaseXform.toStringValue(attributes.iconSet, '3TrafficLights'),
-      reverse: BaseXform.toBoolValue(attributes.reverse),
-      showValue: BaseXform.toBoolValue(attributes.showValue),
+      iconSet: BaseXform.toStringValue(attrs.iconSet, '3TrafficLights') as string,
+      reverse: BaseXform.toBoolValue(attrs.reverse),
+      showValue: BaseXform.toBoolValue(attrs.showValue),
       cfvo: [],
     };
   }
 
-  onParserClose(name: any, parser: any) {
-    this.model[name].push(parser.model);
+  override onParserClose(name: string, parser: { model: any }) {
+    (this.model as Record<string, any[]>)[name].push(parser.model);
   }
 }
 

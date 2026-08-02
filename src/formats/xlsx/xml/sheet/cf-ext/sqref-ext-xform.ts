@@ -1,5 +1,5 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
+import BaseXform from '../../base-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
 
 class SqrefExtXform extends BaseXform {
   override get tag() {

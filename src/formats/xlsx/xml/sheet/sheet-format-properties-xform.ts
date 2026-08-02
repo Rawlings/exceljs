@@ -1,7 +1,7 @@
-import _ from '#src/utils/helpers/under-dash';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import _ from '../../../../utils/helpers/under-dash';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export interface SheetFormatPropertiesModel {
   defaultRowHeight?: number;

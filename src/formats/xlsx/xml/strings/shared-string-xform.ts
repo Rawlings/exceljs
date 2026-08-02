@@ -1,11 +1,11 @@
-import TextXform from '#src/formats/xlsx/xml/strings/text-xform';
-import RichTextXform from '#src/formats/xlsx/xml/strings/rich-text-xform';
-import type { RichTextRunModel } from '#src/formats/xlsx/xml/strings/rich-text-xform';
-import PhoneticTextXform from '#src/formats/xlsx/xml/strings/phonetic-text-xform';
+import TextXform from './text-xform';
+import RichTextXform from './rich-text-xform';
+import type { RichTextRunModel } from './rich-text-xform';
+import PhoneticTextXform from './phonetic-text-xform';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 // <si>
 //   <r></r><r></r>...
@@ -41,7 +41,11 @@ class SharedStringXform extends BaseXform {
 
   override render(xmlStream: XmlStream, model: SharedStringModel) {
     xmlStream.openNode(this.tag as string);
-    if (model && Object.prototype.hasOwnProperty.call(model, 'richText') && (model as RichSharedStringModel).richText) {
+    if (
+      model &&
+      Object.prototype.hasOwnProperty.call(model, 'richText') &&
+      (model as RichSharedStringModel).richText
+    ) {
       const richText = (model as RichSharedStringModel).richText;
       if (richText.length) {
         richText.forEach((text) => {

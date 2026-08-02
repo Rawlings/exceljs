@@ -1,4 +1,4 @@
-import Range from '#src/core/range';
+import Range from '../../../src/core/range';
 
 describe('Range', () => {
   function check(d: any, range: any, $range: any, tl: any, $t$l: any, br: any, $b$r: any, top: any, left: any, bottom: any, right: any, sheetName?: any) {

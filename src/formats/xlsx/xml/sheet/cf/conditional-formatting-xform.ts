@@ -1,6 +1,6 @@
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import CompositeXform from '../../composite-xform';
 
-import CfRuleXform from '#src/formats/xlsx/xml/sheet/cf/cf-rule-xform';
+import CfRuleXform from './cf-rule-xform';
 
 class ConditionalFormattingXform extends CompositeXform {
   constructor() {

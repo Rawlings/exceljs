@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import StylesXform from '#src/formats/xlsx/xml/style/styles-xform';
-import XmlStream from '#src/utils/stream/xml-stream';
+import StylesXform from '../../../../../../../src/formats/xlsx/xml/style/styles-xform';
+import XmlStream from '../../../../../../../src/utils/stream/xml-stream';
 import styles11 from '#fixtures/json/styles.1.1.json' with { type: 'json' };
 
 function normalizeXml(xml: string): string {

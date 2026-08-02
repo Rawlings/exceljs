@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import ColXform from '#src/formats/xlsx/xml/sheet/col-xform';
+import ColXform from '../../../../../../../src/formats/xlsx/xml/sheet/col-xform';
 
 const expectations = [
   {

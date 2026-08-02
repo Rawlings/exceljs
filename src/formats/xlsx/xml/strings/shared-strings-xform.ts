@@ -1,8 +1,8 @@
-import XmlStream from '#src/utils/stream/xml-stream';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
-import SharedStringXform from '#src/formats/xlsx/xml/strings/shared-string-xform';
-import type { SharedStringModel } from '#src/formats/xlsx/xml/strings/shared-string-xform';
+import XmlStream from '../../../../utils/stream/xml-stream';
+import BaseXform from '../base-xform';
+import type { SaxNode } from '../base-xform';
+import SharedStringXform from './shared-string-xform';
+import type { SharedStringModel } from './shared-string-xform';
 
 export interface SharedStringsModel {
   values: SharedStringModel[];
@@ -47,7 +47,9 @@ class SharedStringsXform extends BaseXform {
   }
 
   add(value: SharedStringModel): number {
-    return (value as { richText?: unknown }).richText ? this.addRichText(value) : this.addText(value as string);
+    return (value as { richText?: unknown }).richText
+      ? this.addRichText(value)
+      : this.addText(value as string);
   }
 
   addText(value: string): number {

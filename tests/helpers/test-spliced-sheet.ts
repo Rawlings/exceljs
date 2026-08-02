@@ -1,4 +1,4 @@
-import Enums from '#src/core/enums';
+import Enums from '../../src/core/enums';
 
 const self: any = {
   rows: {

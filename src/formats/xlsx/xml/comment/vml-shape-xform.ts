@@ -1,9 +1,17 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import VmlTextboxXform from '#src/formats/xlsx/xml/comment/vml-textbox-xform';
-import VmlClientDataXform from '#src/formats/xlsx/xml/comment/vml-client-data-xform';
+import BaseXform from '../base-xform';
+import VmlTextboxXform from './vml-textbox-xform';
+import VmlClientDataXform from './vml-client-data-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 class VmlShapeXform extends BaseXform {
-  static V_SHAPE_ATTRIBUTES: any;
+  static V_SHAPE_ATTRIBUTES: (model: any, index: any) => Record<string, unknown>;
+
+  override map: {
+    'v:textbox': VmlTextboxXform;
+    'x:ClientData': VmlClientDataXform;
+  };
+
   constructor() {
     super();
     this.map = {
@@ -12,11 +20,11 @@ class VmlShapeXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'v:shape';
   }
 
-  render(xmlStream: any, model: any, index: any) {
+  override render(xmlStream: XmlStream, model: any, index: any) {
     xmlStream.openNode('v:shape', VmlShapeXform.V_SHAPE_ATTRIBUTES(model, index));
 
     xmlStream.leafNode('v:fill', { color2: 'infoBackground [80]' });
@@ -28,7 +36,7 @@ class VmlShapeXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -39,7 +47,7 @@ class VmlShapeXform extends BaseXform {
         this.reset();
         this.model = {
           margins: {
-            insetmode: node.attributes['o:insetmode'],
+            insetmode: (node.attributes as Record<string, string>)['o:insetmode'],
           },
           anchor: '',
           editAs: '',
@@ -47,7 +55,7 @@ class VmlShapeXform extends BaseXform {
         };
         break;
       default:
-        this.parser = this.map[node.name];
+        this.parser = this.map[node.name as keyof VmlShapeXform['map']];
         if (this.parser) {
           this.parser.parseOpen(node);
         }
@@ -56,13 +64,13 @@ class VmlShapeXform extends BaseXform {
     return true;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;

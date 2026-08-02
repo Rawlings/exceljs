@@ -1,6 +1,6 @@
 import testUtils from '../../helpers/index';
 
-import { copyStyle } from '#src/utils/helpers/copy-style';
+import { copyStyle } from '../../../src/utils/helpers/copy-style';
 
 const style1 = {
   numFmt: testUtils.styles.numFmts.numFmt1,

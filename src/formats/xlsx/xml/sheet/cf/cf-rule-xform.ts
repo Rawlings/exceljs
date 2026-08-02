@@ -1,13 +1,15 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import BaseXform from '../../base-xform';
+import CompositeXform from '../../composite-xform';
 
-import Range from '#src/core/range';
+import Range from '../../../../../core/range';
 
-import DatabarXform from '#src/formats/xlsx/xml/sheet/cf/databar-xform';
-import ExtLstRefXform from '#src/formats/xlsx/xml/sheet/cf/ext-lst-ref-xform';
-import FormulaXform from '#src/formats/xlsx/xml/sheet/cf/formula-xform';
-import ColorScaleXform from '#src/formats/xlsx/xml/sheet/cf/color-scale-xform';
-import IconSetXform from '#src/formats/xlsx/xml/sheet/cf/icon-set-xform';
+import DatabarXform, { type DatabarModel } from './databar-xform';
+import ExtLstRefXform, { type ExtModel } from './ext-lst-ref-xform';
+import FormulaXform from './formula-xform';
+import ColorScaleXform, { type ColorScaleModel } from './color-scale-xform';
+import IconSetXform, { type IconSetModel } from './icon-set-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../../base-xform';
 
 const extIcons = {
   '3Triangles': true,
@@ -15,7 +17,44 @@ const extIcons = {
   '5Boxes': true,
 };
 
-const getTextFormula = (model: any) => {
+// NB: this model shape is a loosely-typed union of all cfRule variants
+// (expression/cellIs/top10/aboveAverage/dataBar/colorScale/iconSet/
+// containsText/timePeriod), since a single CfRuleXform instance handles
+// all of them and merges child-xform models (dataBar/colorScale/iconSet/
+// extLst) directly onto `this.model` via Object.assign.
+export interface CfRuleModel extends Partial<ExtModel> {
+  type?: string;
+  operator?: string;
+  dxfId?: number;
+  priority?: number;
+  ref?: string;
+  text?: string;
+  timePeriod?: string;
+  percent?: boolean;
+  bottom?: boolean;
+  rank?: number;
+  aboveAverage?: boolean;
+  formulae?: string[];
+  custom?: boolean;
+  // dataBar / colorScale / iconSet shapes merged onto this model when the
+  // corresponding child xform closes; kept loose since their `cfvo`/`color`
+  // fields collide in shape across the three variants.
+  cfvo?: any[];
+  color?: any;
+  iconSet?: string;
+  reverse?: boolean;
+  showValue?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  border?: boolean;
+  gradient?: boolean;
+  negativeBarColorSameAsPositive?: boolean;
+  negativeBarBorderColorSameAsPositive?: boolean;
+  axisPosition?: string;
+  direction?: string;
+}
+
+const getTextFormula = (model: CfRuleModel) => {
   if (model.formulae && model.formulae[0]) {
     return model.formulae[0];
   }
@@ -38,7 +77,7 @@ const getTextFormula = (model: any) => {
   }
 };
 
-const getTimePeriodFormula = (model: any) => {
+const getTimePeriodFormula = (model: CfRuleModel) => {
   if (model.formulae && model.formulae[0]) {
     return model.formulae[0];
   }
@@ -71,7 +110,7 @@ const getTimePeriodFormula = (model: any) => {
   }
 };
 
-const opType = (attributes: any) => {
+const opType = (attributes: Record<string, string>) => {
   const { type, operator } = attributes;
   switch (type) {
     case 'containsText':
@@ -90,11 +129,11 @@ const opType = (attributes: any) => {
 };
 
 class CfRuleXform extends CompositeXform {
-  databarXform: any;
-  extLstRefXform: any;
-  formulaXform: any;
-  colorScaleXform: any;
-  iconSetXform: any;
+  databarXform: DatabarXform;
+  extLstRefXform: ExtLstRefXform;
+  formulaXform: FormulaXform;
+  colorScaleXform: ColorScaleXform;
+  iconSetXform: IconSetXform;
 
   constructor() {
     super();
@@ -108,21 +147,21 @@ class CfRuleXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'cfRule';
   }
 
-  static isPrimitive(rule: any) {
+  static isPrimitive(rule: CfRuleModel) {
     // is this rule primitive?
     if (rule.type === 'iconSet') {
-      if (rule.custom || (extIcons as Record<string, any>)[rule.iconSet]) {
+      if (rule.custom || (extIcons as Record<string, any>)[rule.iconSet as string]) {
         return false;
       }
     }
     return true;
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: CfRuleModel) {
     switch (model.type) {
       case 'expression':
         this.renderExpression(xmlStream, model);
@@ -154,35 +193,35 @@ class CfRuleXform extends CompositeXform {
     }
   }
 
-  renderExpression(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  renderExpression(xmlStream: XmlStream, model: CfRuleModel) {
+    xmlStream.openNode(this.tag as string, {
       type: 'expression',
       dxfId: model.dxfId,
       priority: model.priority,
     });
 
-    this.formulaXform.render(xmlStream, model.formulae[0]);
+    this.formulaXform.render(xmlStream, (model.formulae as string[])[0]);
 
     xmlStream.closeNode();
   }
 
-  renderCellIs(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  renderCellIs(xmlStream: XmlStream, model: CfRuleModel) {
+    xmlStream.openNode(this.tag as string, {
       type: 'cellIs',
       dxfId: model.dxfId,
       priority: model.priority,
       operator: model.operator,
     });
 
-    model.formulae.forEach((formula: any) => {
+    (model.formulae as string[]).forEach(formula => {
       this.formulaXform.render(xmlStream, formula);
     });
 
     xmlStream.closeNode();
   }
 
-  renderTop10(xmlStream: any, model: any) {
-    xmlStream.leafNode(this.tag, {
+  renderTop10(xmlStream: XmlStream, model: CfRuleModel) {
+    xmlStream.leafNode(this.tag as string, {
       type: 'top10',
       dxfId: model.dxfId,
       priority: model.priority,
@@ -192,8 +231,8 @@ class CfRuleXform extends CompositeXform {
     });
   }
 
-  renderAboveAverage(xmlStream: any, model: any) {
-    xmlStream.leafNode(this.tag, {
+  renderAboveAverage(xmlStream: XmlStream, model: CfRuleModel) {
+    xmlStream.leafNode(this.tag as string, {
       type: 'aboveAverage',
       dxfId: model.dxfId,
       priority: model.priority,
@@ -201,47 +240,47 @@ class CfRuleXform extends CompositeXform {
     });
   }
 
-  renderDataBar(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  renderDataBar(xmlStream: XmlStream, model: CfRuleModel) {
+    xmlStream.openNode(this.tag as string, {
       type: 'dataBar',
       priority: model.priority,
     });
 
-    this.databarXform.render(xmlStream, model);
-    this.extLstRefXform.render(xmlStream, model);
+    this.databarXform.render(xmlStream, model as DatabarModel);
+    this.extLstRefXform.render(xmlStream, model as ExtModel);
 
     xmlStream.closeNode();
   }
 
-  renderColorScale(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  renderColorScale(xmlStream: XmlStream, model: CfRuleModel) {
+    xmlStream.openNode(this.tag as string, {
       type: 'colorScale',
       priority: model.priority,
     });
 
-    this.colorScaleXform.render(xmlStream, model);
+    this.colorScaleXform.render(xmlStream, model as ColorScaleModel);
 
     xmlStream.closeNode();
   }
 
-  renderIconSet(xmlStream: any, model: any) {
+  renderIconSet(xmlStream: XmlStream, model: CfRuleModel) {
     // iconset is all primitive or all extLst
     if (!CfRuleXform.isPrimitive(model)) {
       return;
     }
 
-    xmlStream.openNode(this.tag, {
+    xmlStream.openNode(this.tag as string, {
       type: 'iconSet',
       priority: model.priority,
     });
 
-    this.iconSetXform.render(xmlStream, model);
+    this.iconSetXform.render(xmlStream, model as IconSetModel);
 
     xmlStream.closeNode();
   }
 
-  renderText(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  renderText(xmlStream: XmlStream, model: CfRuleModel) {
+    xmlStream.openNode(this.tag as string, {
       type: model.operator,
       dxfId: model.dxfId,
       priority: model.priority,
@@ -256,8 +295,8 @@ class CfRuleXform extends CompositeXform {
     xmlStream.closeNode();
   }
 
-  renderTimePeriod(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  renderTimePeriod(xmlStream: XmlStream, model: CfRuleModel) {
+    xmlStream.openNode(this.tag as string, {
       type: 'timePeriod',
       dxfId: model.dxfId,
       priority: model.priority,
@@ -272,33 +311,35 @@ class CfRuleXform extends CompositeXform {
     xmlStream.closeNode();
   }
 
-  createNewModel({ attributes }: any) {
+  override createNewModel({ attributes }: SaxNode): CfRuleModel {
+    const attrs = attributes as Record<string, string>;
     return {
-      ...opType(attributes),
-      dxfId: BaseXform.toIntValue(attributes.dxfId),
-      priority: BaseXform.toIntValue(attributes.priority),
-      timePeriod: attributes.timePeriod,
-      percent: BaseXform.toBoolValue(attributes.percent),
-      bottom: BaseXform.toBoolValue(attributes.bottom),
-      rank: BaseXform.toIntValue(attributes.rank),
-      aboveAverage: BaseXform.toBoolValue(attributes.aboveAverage),
+      ...opType(attrs),
+      dxfId: BaseXform.toIntValue(attrs.dxfId),
+      priority: BaseXform.toIntValue(attrs.priority),
+      timePeriod: attrs.timePeriod,
+      percent: BaseXform.toBoolValue(attrs.percent),
+      bottom: BaseXform.toBoolValue(attrs.bottom),
+      rank: BaseXform.toIntValue(attrs.rank),
+      aboveAverage: BaseXform.toBoolValue(attrs.aboveAverage),
     };
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(name: string, parser: { model: any }) {
+    const model = this.model as CfRuleModel;
     switch (name) {
       case 'dataBar':
       case 'extLst':
       case 'colorScale':
       case 'iconSet':
         // merge parser model with ours
-        Object.assign(this.model, parser.model);
+        Object.assign(model, parser.model);
         break;
 
       case 'formula':
         // except - formula is a string and appends to formulae
-        this.model.formulae = this.model.formulae || [];
-        this.model.formulae.push(parser.model);
+        model.formulae = model.formulae || [];
+        model.formulae.push(parser.model);
         break;
     }
   }

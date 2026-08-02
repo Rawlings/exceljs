@@ -1,24 +1,24 @@
 import fs from 'node:fs';
 import { PassThrough } from 'node:stream';
 import { buffer } from 'node:stream/consumers';
-import { ZipWriter } from '#src/utils/stream/zip';
+import { ZipWriter } from '../utils/stream/zip';
 
-import RelType from '#src/formats/xlsx/rel-type';
-import StylesXform from '#src/formats/xlsx/xml/style/styles-xform';
-import SharedStrings from '#src/utils/data/shared-strings';
-import DefinedNames from '#src/core/defined-names';
+import RelType from '../formats/xlsx/rel-type';
+import StylesXform from '../formats/xlsx/xml/style/styles-xform';
+import SharedStrings from '../utils/data/shared-strings';
+import DefinedNames from '../core/defined-names';
 
-import CoreXform from '#src/formats/xlsx/xml/core/core-xform';
-import RelationshipsXform from '#src/formats/xlsx/xml/core/relationships-xform';
-import ContentTypesXform from '#src/formats/xlsx/xml/core/content-types-xform';
-import AppXform from '#src/formats/xlsx/xml/core/app-xform';
-import WorkbookXform from '#src/formats/xlsx/xml/book/workbook-xform';
-import SharedStringsXform from '#src/formats/xlsx/xml/strings/shared-strings-xform';
+import CoreXform from '../formats/xlsx/xml/core/core-xform';
+import RelationshipsXform from '../formats/xlsx/xml/core/relationships-xform';
+import ContentTypesXform from '../formats/xlsx/xml/core/content-types-xform';
+import AppXform from '../formats/xlsx/xml/core/app-xform';
+import WorkbookXform from '../formats/xlsx/xml/book/workbook-xform';
+import SharedStringsXform from '../formats/xlsx/xml/strings/shared-strings-xform';
 
-import WorksheetWriter from '#src/streaming/worksheet-writer';
+import WorksheetWriter from './worksheet-writer';
 
 // @ts-ignore
-import theme1Xml from '#src/formats/xlsx/theme1';
+import theme1Xml from '../formats/xlsx/theme1';
 
 export interface WorkbookWriterOptions {
   created?: Date;
@@ -298,7 +298,9 @@ class WorkbookWriter {
         if (medium.type === 'image') {
           const filename = `xl/media/${medium.name}`;
           if (medium.filename) {
-            return this.zip.append(buffer(fs.createReadStream(medium.filename)), { name: filename });
+            return this.zip.append(buffer(fs.createReadStream(medium.filename)), {
+              name: filename,
+            });
           }
           if (medium.buffer) {
             return this.zip.append(medium.buffer, { name: filename });

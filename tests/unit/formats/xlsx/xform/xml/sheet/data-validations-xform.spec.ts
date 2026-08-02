@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import DataValidationsXform from '#src/formats/xlsx/xml/sheet/data-validations-xform';
+import DataValidationsXform from '../../../../../../../src/formats/xlsx/xml/sheet/data-validations-xform';
 
 const expectations = [
   {

@@ -1,10 +1,10 @@
-import XmlStream from '#src/utils/stream/xml-stream';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import StringXform from '#src/formats/xlsx/xml/simple/string-xform';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import XmlStream from '../../../../utils/stream/xml-stream';
+import BaseXform from '../base-xform';
+import StringXform from '../simple/string-xform';
+import type { SaxNode } from '../base-xform';
 
-import AppHeadingPairsXform from '#src/formats/xlsx/xml/core/app-heading-pairs-xform';
-import AppTitleOfPartsXform from '#src/formats/xlsx/xml/core/app-titles-of-parts-xform';
+import AppHeadingPairsXform from './app-heading-pairs-xform';
+import AppTitleOfPartsXform from './app-titles-of-parts-xform';
 
 export interface AppModel {
   worksheets: { name: string }[];

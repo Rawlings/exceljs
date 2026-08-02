@@ -1,6 +1,6 @@
 import testXformHelper from './test-xform-helper';
 
-import StaticXform from '#src/formats/xlsx/xml/static-xform';
+import StaticXform from '../../../../../../src/formats/xlsx/xml/static-xform';
 
 const expectations = [
   {

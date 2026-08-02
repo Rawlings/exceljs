@@ -1,9 +1,9 @@
 'use strict';
 
-import PageBreaksXform from '#src/formats/xlsx/xml/sheet/page-breaks-xform';
+import PageBreaksXform from './page-breaks-xform';
 
-import ListXform from '#src/formats/xlsx/xml/list-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
+import ListXform from '../list-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
 
 class RowBreaksXform extends ListXform {
   constructor() {

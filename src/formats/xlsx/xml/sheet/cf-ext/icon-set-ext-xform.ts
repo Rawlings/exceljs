@@ -1,12 +1,22 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import BaseXform from '../../base-xform';
+import CompositeXform from '../../composite-xform';
 
-import CfvoExtXform from '#src/formats/xlsx/xml/sheet/cf-ext/cfvo-ext-xform';
-import CfIconExtXform from '#src/formats/xlsx/xml/sheet/cf-ext/cf-icon-ext-xform';
+import CfvoExtXform, { type CfvoExtModel } from './cfvo-ext-xform';
+import CfIconExtXform, { type CfIconExtModel } from './cf-icon-ext-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../../base-xform';
+
+export interface IconSetExtModel {
+  cfvo: CfvoExtModel[];
+  iconSet?: string;
+  reverse?: boolean;
+  showValue?: boolean;
+  icons?: CfIconExtModel[];
+}
 
 class IconSetExtXform extends CompositeXform {
-  cfvoXform: any;
-  cfIconXform: any;
+  cfvoXform: CfvoExtXform;
+  cfIconXform: CfIconExtXform;
 
   constructor() {
     super();
@@ -17,24 +27,24 @@ class IconSetExtXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'x14:iconSet';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  override render(xmlStream: XmlStream, model: IconSetExtModel) {
+    xmlStream.openNode(this.tag as string, {
       iconSet: BaseXform.toStringAttribute(model.iconSet),
       reverse: BaseXform.toBoolAttribute(model.reverse, false),
       showValue: BaseXform.toBoolAttribute(model.showValue, true),
       custom: BaseXform.toBoolAttribute(model.icons, false),
     });
 
-    model.cfvo.forEach((cfvo: any) => {
+    model.cfvo.forEach((cfvo) => {
       this.cfvoXform.render(xmlStream, cfvo);
     });
 
     if (model.icons) {
-      model.icons.forEach((icon: any, i: any) => {
+      model.icons.forEach((icon, i) => {
         icon.iconId = i;
         this.cfIconXform.render(xmlStream, icon);
       });
@@ -43,31 +53,33 @@ class IconSetExtXform extends CompositeXform {
     xmlStream.closeNode();
   }
 
-  createNewModel({ attributes }: any) {
+  override createNewModel({ attributes }: SaxNode): IconSetExtModel {
+    const attrs = attributes as Record<string, string>;
     return {
       cfvo: [],
-      iconSet: BaseXform.toStringValue(attributes.iconSet, '3TrafficLights'),
-      reverse: BaseXform.toBoolValue(attributes.reverse, false),
-      showValue: BaseXform.toBoolValue(attributes.showValue, true),
+      iconSet: BaseXform.toStringValue(attrs.iconSet, '3TrafficLights') as string,
+      reverse: BaseXform.toBoolValue(attrs.reverse, false),
+      showValue: BaseXform.toBoolValue(attrs.showValue, true),
     };
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(name: string, parser: { model: any }) {
     const [, prop] = name.split(':');
+    const model = this.model as IconSetExtModel;
     switch (prop) {
       case 'cfvo':
-        this.model.cfvo.push(parser.model);
+        model.cfvo.push(parser.model);
         break;
 
       case 'cfIcon':
-        if (!this.model.icons) {
-          this.model.icons = [];
+        if (!model.icons) {
+          model.icons = [];
         }
-        this.model.icons.push(parser.model);
+        model.icons.push(parser.model);
         break;
 
       default:
-        this.model[prop] = parser.model;
+        (model as Record<string, any>)[prop] = parser.model;
         break;
     }
   }

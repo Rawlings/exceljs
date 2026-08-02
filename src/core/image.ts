@@ -1,6 +1,6 @@
-import colCache from '#src/utils/data/col-cache';
-import Anchor from '#src/core/anchor';
-import type { AnchorWorksheet, AnchorModel } from '#src/core/anchor';
+import colCache from '../utils/data/col-cache';
+import Anchor from './anchor';
+import type { AnchorWorksheet, AnchorModel } from './anchor';
 
 export type ImageType = 'background' | 'image';
 

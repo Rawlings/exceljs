@@ -1,9 +1,9 @@
-import XmlStream from '#src/utils/stream/xml-stream';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import DateXform from '#src/formats/xlsx/xml/simple/date-xform';
-import StringXform from '#src/formats/xlsx/xml/simple/string-xform';
-import IntegerXform from '#src/formats/xlsx/xml/simple/integer-xform';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import XmlStream from '../../../../utils/stream/xml-stream';
+import BaseXform from '../base-xform';
+import DateXform from '../simple/date-xform';
+import StringXform from '../simple/string-xform';
+import IntegerXform from '../simple/integer-xform';
+import type { SaxNode } from '../base-xform';
 
 export interface CorePropertiesModel {
   creator?: string;

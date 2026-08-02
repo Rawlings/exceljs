@@ -1,7 +1,9 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 class VmlTextboxXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'v:textbox';
   }
 
@@ -15,7 +17,7 @@ class VmlTextboxXform extends BaseXform {
     });
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: any) {
     const attributes: { style: string; inset?: any } = {
       style: 'mso-direction-alt:auto',
     };
@@ -37,11 +39,11 @@ class VmlTextboxXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     switch (node.name) {
       case this.tag:
         this.model = {
-          inset: this.reverseConversionUnit(node.attributes.inset),
+          inset: this.reverseConversionUnit((node.attributes as Record<string, string>).inset),
         };
         return true;
       default:
@@ -49,9 +51,9 @@ class VmlTextboxXform extends BaseXform {
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     switch (name) {
       case this.tag:
         return false;

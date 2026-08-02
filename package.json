@@ -22,9 +22,6 @@
     }
   },
   "imports": {
-    "#src": "./src/index.ts",
-    "#src/*.js": "./src/*.ts",
-    "#src/*": "./src/*.ts",
     "#fixtures/*": "./fixtures/*"
   },
   "files": [

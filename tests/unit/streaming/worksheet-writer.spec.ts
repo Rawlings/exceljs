@@ -1,4 +1,4 @@
-import WorksheetWriter from '#src/streaming/worksheet-writer';
+import WorksheetWriter from '../../../src/streaming/worksheet-writer';
 import { PassThrough } from 'node:stream';
 
 describe('Workbook Writer', () => {

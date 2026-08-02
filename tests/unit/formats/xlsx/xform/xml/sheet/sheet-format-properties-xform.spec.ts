@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import SheetFormatPropertiesXform from '#src/formats/xlsx/xml/sheet/sheet-format-properties-xform';
+import SheetFormatPropertiesXform from '../../../../../../../src/formats/xlsx/xml/sheet/sheet-format-properties-xform';
 
 const expectations = [
   {

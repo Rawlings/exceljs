@@ -1,12 +1,10 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import ListXform from '#src/formats/xlsx/xml/list-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import ListXform from '../list-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
-import CustomFilterXform, {
-  type CustomFilterModel,
-} from '#src/formats/xlsx/xml/table/custom-filter-xform';
-import FilterXform, { type FilterModel } from '#src/formats/xlsx/xml/table/filter-xform';
+import CustomFilterXform, { type CustomFilterModel } from './custom-filter-xform';
+import FilterXform, { type FilterModel } from './filter-xform';
 
 export interface FilterColumnModel {
   colId?: string;

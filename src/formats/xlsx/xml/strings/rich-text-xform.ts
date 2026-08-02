@@ -1,10 +1,10 @@
-import TextXform from '#src/formats/xlsx/xml/strings/text-xform';
-import FontXform from '#src/formats/xlsx/xml/style/font-xform';
-import type { FontXformOptions } from '#src/formats/xlsx/xml/style/font-xform';
+import TextXform from './text-xform';
+import FontXform from '../style/font-xform';
+import type { FontXformOptions } from '../style/font-xform';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 // <r>
 //   <rPr>

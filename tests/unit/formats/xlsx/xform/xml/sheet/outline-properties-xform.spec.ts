@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import OutlinePropertiesXform from '#src/formats/xlsx/xml/sheet/outline-properties-xform';
+import OutlinePropertiesXform from '../../../../../../../src/formats/xlsx/xml/sheet/outline-properties-xform';
 
 const expectations = [
   {

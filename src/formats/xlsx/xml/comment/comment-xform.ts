@@ -1,15 +1,17 @@
-import RichTextXform from '#src/formats/xlsx/xml/strings/rich-text-xform';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import RichTextXform from '../strings/rich-text-xform';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export default class CommentXform extends BaseXform {
-  _richTextXform: any;
+  _richTextXform: RichTextXform | undefined;
 
   constructor(model?: any) {
     super();
     this.model = model;
   }
 
-  get tag() {
+  override get tag() {
     return 'r';
   }
 
@@ -20,7 +22,7 @@ export default class CommentXform extends BaseXform {
     return this._richTextXform;
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: any) {
     model = model || this.model;
 
     xmlStream.openNode('comment', {
@@ -37,7 +39,7 @@ export default class CommentXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -61,13 +63,13 @@ export default class CommentXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     switch (name) {
       case 'comment':
         return false;

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import SharedStringsXform from '#src/formats/xlsx/xml/strings/shared-strings-xform';
+import SharedStringsXform from '../../../../../../../src/formats/xlsx/xml/strings/shared-strings-xform';
 import sharedStringsData from '#fixtures/json/sharedStrings.json' with { type: 'json' };
 
 const expectations = [

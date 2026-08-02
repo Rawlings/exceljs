@@ -1,8 +1,8 @@
 import testXformHelper from '../test-xform-helper';
 
-import CellXform from '#src/formats/xlsx/xml/sheet/cell-xform';
-import SharedStringsXform from '#src/formats/xlsx/xml/strings/shared-strings-xform';
-import Enums from '#src/core/enums';
+import CellXform from '../../../../../../../src/formats/xlsx/xml/sheet/cell-xform';
+import SharedStringsXform from '../../../../../../../src/formats/xlsx/xml/strings/shared-strings-xform';
+import Enums from '../../../../../../../src/core/enums';
 
 const fakeStyles = {
   addStyleModel(style: any, effectiveType: any) {

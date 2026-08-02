@@ -1,11 +1,11 @@
 /* eslint-disable max-classes-per-file */
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import utils from '#src/utils/helpers/utils';
+import BaseXform from '../base-xform';
+import utils from '../../../../utils/helpers/utils';
 
-import ColorXform from '#src/formats/xlsx/xml/style/color-xform';
-import type { ColorModel } from '#src/formats/xlsx/xml/style/color-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import ColorXform from './color-xform';
+import type { ColorModel } from './color-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export interface EdgeModel {
   style?: string;

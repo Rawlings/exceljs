@@ -1,4 +1,4 @@
-import DefinedNames from '#src/core/defined-names';
+import DefinedNames from '../../../src/core/defined-names';
 
 describe('DefinedNames', () => {
   it('adds names for cells', () => {

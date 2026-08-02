@@ -1,4 +1,4 @@
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 const fs = require('fs');
 
 describe('github issues: Date field with cache style', () => {

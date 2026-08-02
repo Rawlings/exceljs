@@ -1,6 +1,6 @@
 import { createSheetMock } from '../../helpers/index';
 
-import Anchor from '#src/core/anchor';
+import Anchor from '../../../src/core/anchor';
 
 describe('Anchor', () => {
   describe('colWidth', () => {

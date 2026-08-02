@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import DrawingXform from '#src/formats/xlsx/xml/drawing/drawing-xform';
+import DrawingXform from '../../../../../../../src/formats/xlsx/xml/drawing/drawing-xform';
 
 import drawing10 from './data/drawing.1.0';
 import drawing11 from './data/drawing.1.1';

@@ -1,22 +1,22 @@
-import _ from '#src/utils/helpers/under-dash';
-import colCache from '#src/utils/data/col-cache';
-import Range from '#src/core/range';
-import Row from '#src/core/row';
-import Column from '#src/core/column';
-import Enums from '#src/core/enums';
-import Image from '#src/core/image';
-import Table from '#src/core/table';
-import DataValidations from '#src/core/data-validations';
-import { makePivotTable } from '#src/core/pivot-table';
-import Encryptor from '#src/utils/crypto/encryptor';
-import { copyStyle } from '#src/utils/helpers/copy-style';
+import _ from '../utils/helpers/under-dash';
+import colCache from '../utils/data/col-cache';
+import Range from './range';
+import Row from './row';
+import Column from './column';
+import Enums from './enums';
+import Image from './image';
+import Table from './table';
+import DataValidations from './data-validations';
+import { makePivotTable } from './pivot-table';
+import Encryptor from '../utils/crypto/encryptor';
+import { copyStyle } from '../utils/helpers/copy-style';
 import type {
   WorksheetLike,
   ColumnLike,
   CellLike,
   WorkbookLike,
   EachRowOptions,
-} from '#src/core/internal-types';
+} from './internal-types';
 
 // Worksheet requirements
 //  Operate as sheet inside workbook or standalone
@@ -272,7 +272,7 @@ class Worksheet implements WorksheetLike {
     value.forEach((defn) => {
       const column = new Column(this, count++, false);
       columns.push(column);
-      column.defn = defn as unknown as import('#src/core/column').ColumnDefinition;
+      column.defn = defn as unknown as import('./column').ColumnDefinition;
     });
   }
 
@@ -817,10 +817,10 @@ class Worksheet implements WorksheetLike {
   // =========================================================================
   // Images
   addImage(imageId: number, range: unknown) {
-    const model: import('#src/core/image').ImageModel = {
+    const model: import('./image').ImageModel = {
       type: 'image',
       imageId,
-      range: range as import('#src/core/image').ImageRangeInput | string,
+      range: range as import('./image').ImageRangeInput | string,
     };
     this._media.push(new Image(this, model));
   }
@@ -830,7 +830,7 @@ class Worksheet implements WorksheetLike {
   }
 
   addBackgroundImage(imageId: number) {
-    const model: import('#src/core/image').ImageModel = {
+    const model: import('./image').ImageModel = {
       type: 'background',
       imageId,
     };
@@ -885,7 +885,7 @@ class Worksheet implements WorksheetLike {
 
   // =========================================================================
   // Tables
-  addTable(model: import('#src/core/table').TableModel): Table {
+  addTable(model: import('./table').TableModel): Table {
     const table = new Table(this, model);
     this.tables[model.name] = table;
     return table;
@@ -905,7 +905,7 @@ class Worksheet implements WorksheetLike {
 
   // =========================================================================
   // Pivot Tables
-  addPivotTable(model: import('#src/core/pivot-table').PivotTableModel) {
+  addPivotTable(model: import('./pivot-table').PivotTableModel) {
     // eslint-disable-next-line no-console
     console.warn(
       `Warning: Pivot Table support is experimental.
@@ -1036,7 +1036,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     autoFilter: unknown;
     media: unknown[];
     sheetProtection: Record<string, unknown> | null;
-    tables: import('#src/core/table').TableModel[];
+    tables: import('./table').TableModel[];
     pivotTables: unknown[];
     conditionalFormattings: unknown[];
   }) {
@@ -1058,7 +1058,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     this.views = value.views;
     this.autoFilter = value.autoFilter;
     this._media = value.media.map(
-      (medium) => new Image(this, medium as import('#src/core/image').ImageModel)
+      (medium) => new Image(this, medium as import('./image').ImageModel)
     );
     this.sheetProtection = value.sheetProtection;
     this.tables = value.tables.reduce((tables: Record<string, Table>, table) => {

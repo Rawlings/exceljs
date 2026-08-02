@@ -1,9 +1,9 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import utils from '#src/utils/helpers/utils';
+import BaseXform from '../base-xform';
+import utils from '../../../../utils/helpers/utils';
 
-import CellXform from '#src/formats/xlsx/xml/sheet/cell-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import CellXform from './cell-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 class RowXform extends BaseXform {
   maxItems: number | undefined;

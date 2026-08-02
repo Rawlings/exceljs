@@ -1,4 +1,4 @@
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 describe('github issues', () => {
   it('issue 257 - worksheet order is not respected', () => {

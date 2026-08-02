@@ -1,31 +1,36 @@
 /* eslint-disable max-classes-per-file */
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import BaseXform from '../../base-xform';
+import CompositeXform from '../../composite-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+
+export interface ExtModel {
+  x14Id?: string;
+}
 
 class X14IdXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'x14:id';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.leafNode(this.tag, null, model);
+  override render(xmlStream: XmlStream, model: string) {
+    xmlStream.leafNode(this.tag as string, undefined, model);
   }
 
-  parseOpen() {
+  override parseOpen() {
     this.model = '';
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     this.model += text;
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string) {
     return name !== this.tag;
   }
 }
 
 class ExtXform extends CompositeXform {
-  idXform: any;
+  idXform: X14IdXform;
 
   constructor() {
     super();
@@ -35,26 +40,26 @@ class ExtXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'ext';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  override render(xmlStream: XmlStream, model: ExtModel) {
+    xmlStream.openNode(this.tag as string, {
       uri: '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}',
       'xmlns:x14': 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
     });
 
-    this.idXform.render(xmlStream, model.x14Id);
+    this.idXform.render(xmlStream, model.x14Id as string);
 
     xmlStream.closeNode();
   }
 
-  createNewModel() {
+  override createNewModel() {
     return {};
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(name: string, parser: BaseXform) {
     this.model.x14Id = parser.model;
   }
 }
@@ -67,21 +72,21 @@ class ExtLstRefXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'extLst';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag);
+  override render(xmlStream: XmlStream, model: ExtModel) {
+    xmlStream.openNode(this.tag as string);
     this.map.ext.render(xmlStream, model);
     xmlStream.closeNode();
   }
 
-  createNewModel() {
+  override createNewModel() {
     return {};
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(_name: string, parser: BaseXform) {
     Object.assign(this.model, parser.model);
   }
 }

@@ -1,30 +1,40 @@
-import XmlStream from '#src/utils/stream/xml-stream';
+import XmlStream from '../../../../utils/stream/xml-stream';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import type { SaxNode } from '../base-xform';
+import type { CacheFieldOptions } from './cache-field';
+
+export interface PivotCacheRecordsModel {
+  sourceSheet: {
+    getSheetValues(): unknown[][];
+  };
+  cacheFields: CacheFieldOptions[];
+}
 
 class PivotCacheRecordsXform extends BaseXform {
-  static PIVOT_CACHE_RECORDS_ATTRIBUTES: any;
+  static PIVOT_CACHE_RECORDS_ATTRIBUTES: Record<string, string>;
+
   constructor() {
     super();
 
     this.map = {};
   }
 
-  prepare(_model: any) {
+  override prepare(_model?: PivotCacheRecordsModel) {
     // TK
   }
 
-  get tag() {
+  override get tag() {
     // http://www.datypic.com/sc/ooxml/e-ssml_pivotCacheRecords.html
     return 'pivotCacheRecords';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: PivotCacheRecordsModel) {
     const { sourceSheet, cacheFields } = model;
     const sourceBodyRows = sourceSheet.getSheetValues().slice(2);
 
     xmlStream.openXml(XmlStream.StdDocAttributes);
-    xmlStream.openNode(this.tag, {
+    xmlStream.openNode(this.tag as string, {
       ...PivotCacheRecordsXform.PIVOT_CACHE_RECORDS_ATTRIBUTES,
       count: sourceBodyRows.length,
     });
@@ -33,15 +43,15 @@ class PivotCacheRecordsXform extends BaseXform {
 
     // Helpers
 
-    function renderTable() {
-      const rowsInXML = sourceBodyRows.map((row: any) => {
+    function renderTable(): string {
+      const rowsInXML = sourceBodyRows.map((row: unknown[]) => {
         const realRow = row.slice(1);
         return [...renderRowLines(realRow)].join('');
       });
       return rowsInXML.join('');
     }
 
-    function* renderRowLines(row: any) {
+    function* renderRowLines(row: unknown[]): Generator<string> {
       // PivotCache Record: http://www.datypic.com/sc/ooxml/e-ssml_r-1.html
       // Note: pretty-printing this for now to ease debugging.
       yield '\n  <r>';
@@ -52,7 +62,7 @@ class PivotCacheRecordsXform extends BaseXform {
       yield '\n  </r>';
     }
 
-    function renderCell(value: any, sharedItems: any) {
+    function renderCell(value: unknown, sharedItems: string[] | null): string {
       // no shared items
       // --------------------------------------------------
       if (sharedItems === null) {
@@ -66,7 +76,7 @@ class PivotCacheRecordsXform extends BaseXform {
 
       // shared items
       // --------------------------------------------------
-      const sharedItemsIndex = sharedItems.indexOf(value);
+      const sharedItemsIndex = sharedItems.indexOf(value as string);
       if (sharedItemsIndex < 0) {
         throw new Error(
           `${JSON.stringify(value)} not in sharedItems ${JSON.stringify(sharedItems)}`
@@ -77,19 +87,19 @@ class PivotCacheRecordsXform extends BaseXform {
     }
   }
 
-  parseOpen(_node: any) {
+  override parseOpen(_node?: SaxNode) {
     // TK
   }
 
-  parseText(_text: any) {
+  override parseText(_text?: string) {
     // TK
   }
 
-  parseClose(_name: any) {
+  override parseClose(_name?: string) {
     // TK
   }
 
-  reconcile(_model: any, _options: any) {
+  override reconcile(_model?: PivotCacheRecordsModel, _options?: any) {
     // TK
   }
 }

@@ -1,4 +1,4 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../../../../../../src/formats/xlsx/xml/base-xform';
 
 export interface CompyChildOption {
   name?: string;

@@ -1,4 +1,4 @@
-import srcUnderDash from '#src/utils/helpers/under-dash';
+import srcUnderDash from '../../src/utils/helpers/under-dash';
 
 const _ = Object.assign(
   {

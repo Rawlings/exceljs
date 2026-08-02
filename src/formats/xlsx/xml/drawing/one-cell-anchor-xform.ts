@@ -1,12 +1,10 @@
-import BaseCellAnchorXform, {
-  type CellAnchorModel,
-} from '#src/formats/xlsx/xml/drawing/base-cell-anchor-xform';
-import StaticXform from '#src/formats/xlsx/xml/static-xform';
+import BaseCellAnchorXform, { type CellAnchorModel } from './base-cell-anchor-xform';
+import StaticXform from '../static-xform';
 
-import CellPositionXform from '#src/formats/xlsx/xml/drawing/cell-position-xform';
-import ExtXform from '#src/formats/xlsx/xml/drawing/ext-xform';
-import PicXform, { type PicModel } from '#src/formats/xlsx/xml/drawing/pic-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
+import CellPositionXform from './cell-position-xform';
+import ExtXform from './ext-xform';
+import PicXform, { type PicModel } from './pic-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
 
 export type OneCellAnchorModel = CellAnchorModel;
 

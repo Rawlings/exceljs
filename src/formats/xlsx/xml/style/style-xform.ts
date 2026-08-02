@@ -1,11 +1,11 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
 
-import AlignmentXform from '#src/formats/xlsx/xml/style/alignment-xform';
-import type { AlignmentModel } from '#src/formats/xlsx/xml/style/alignment-xform';
-import ProtectionXform from '#src/formats/xlsx/xml/style/protection-xform';
-import type { ProtectionModel } from '#src/formats/xlsx/xml/style/protection-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import AlignmentXform from './alignment-xform';
+import type { AlignmentModel } from './alignment-xform';
+import ProtectionXform from './protection-xform';
+import type { ProtectionModel } from './protection-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 // <xf numFmtId="[numFmtId]" fontId="[fontId]" fillId="[fillId]" borderId="[xf.borderId]" xfId="[xfId]">
 //   Optional <alignment>

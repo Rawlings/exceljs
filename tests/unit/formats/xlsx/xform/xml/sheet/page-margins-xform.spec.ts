@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import PageMarginsXform from '#src/formats/xlsx/xml/sheet/page-margins-xform';
+import PageMarginsXform from '../../../../../../../src/formats/xlsx/xml/sheet/page-margins-xform';
 
 const expectations = [
   {

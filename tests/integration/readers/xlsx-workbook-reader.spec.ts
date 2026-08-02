@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import testutils from '../../helpers/index';
 
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 
 const TEST_FILE_NAME = './fixtures/out/wb.test.xlsx';

@@ -1,10 +1,10 @@
-import _ from '#src/utils/helpers/under-dash';
-import utils from '#src/utils/helpers/utils';
-import colCache from '#src/utils/data/col-cache';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import Range from '#src/core/range';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import _ from '../../../../utils/helpers/under-dash';
+import utils from '../../../../utils/helpers/utils';
+import colCache from '../../../../utils/data/col-cache';
+import BaseXform from '../base-xform';
+import Range from '../../../../core/range';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export interface DataValidationModel {
   type: string;
@@ -198,10 +198,25 @@ class DataValidationsXform extends BaseXform {
         const dataValidation: DataValidationModel = { type: attrs.type || 'any', formulae: [] };
 
         if (attrs.type) {
-          assignBool(dataValidation as unknown as Record<string, unknown>, attrs, 'allowBlank', undefined);
+          assignBool(
+            dataValidation as unknown as Record<string, unknown>,
+            attrs,
+            'allowBlank',
+            undefined
+          );
         }
-        assignBool(dataValidation as unknown as Record<string, unknown>, attrs, 'showInputMessage', undefined);
-        assignBool(dataValidation as unknown as Record<string, unknown>, attrs, 'showErrorMessage', undefined);
+        assignBool(
+          dataValidation as unknown as Record<string, unknown>,
+          attrs,
+          'showInputMessage',
+          undefined
+        );
+        assignBool(
+          dataValidation as unknown as Record<string, unknown>,
+          attrs,
+          'showErrorMessage',
+          undefined
+        );
 
         switch (dataValidation.type) {
           case 'any':
@@ -209,13 +224,33 @@ class DataValidationsXform extends BaseXform {
           case 'custom':
             break;
           default:
-            assign(dataValidation as unknown as Record<string, unknown>, attrs, 'operator', 'between');
+            assign(
+              dataValidation as unknown as Record<string, unknown>,
+              attrs,
+              'operator',
+              'between'
+            );
             break;
         }
-        assign(dataValidation as unknown as Record<string, unknown>, attrs, 'promptTitle', undefined);
+        assign(
+          dataValidation as unknown as Record<string, unknown>,
+          attrs,
+          'promptTitle',
+          undefined
+        );
         assign(dataValidation as unknown as Record<string, unknown>, attrs, 'prompt', undefined);
-        assign(dataValidation as unknown as Record<string, unknown>, attrs, 'errorStyle', undefined);
-        assign(dataValidation as unknown as Record<string, unknown>, attrs, 'errorTitle', undefined);
+        assign(
+          dataValidation as unknown as Record<string, unknown>,
+          attrs,
+          'errorStyle',
+          undefined
+        );
+        assign(
+          dataValidation as unknown as Record<string, unknown>,
+          attrs,
+          'errorTitle',
+          undefined
+        );
         assign(dataValidation as unknown as Record<string, unknown>, attrs, 'error', undefined);
 
         this._dataValidation = dataValidation;

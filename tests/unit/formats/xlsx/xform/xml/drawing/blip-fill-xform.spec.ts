@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import BlipFillXform from '#src/formats/xlsx/xml/drawing/blip-fill-xform';
+import BlipFillXform from '../../../../../../../src/formats/xlsx/xml/drawing/blip-fill-xform';
 
 const expectations = [
   {

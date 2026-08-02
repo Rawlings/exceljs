@@ -1,8 +1,19 @@
-import XmlStream from '#src/utils/stream/xml-stream';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import XmlStream from '../../../../utils/stream/xml-stream';
+import BaseXform from '../base-xform';
+import type { SaxNode } from '../base-xform';
+import type { CacheFieldOptions } from './cache-field';
+
+export interface PivotTableModel {
+  rows: number[];
+  columns: number[];
+  values: number[];
+  metric: string;
+  cacheFields: CacheFieldOptions[];
+  cacheId: string;
+}
 
 class PivotTableXform extends BaseXform {
-  static PIVOT_TABLE_ATTRIBUTES: any;
+  static PIVOT_TABLE_ATTRIBUTES: Record<string, string>;
 
   constructor() {
     super();
@@ -10,16 +21,16 @@ class PivotTableXform extends BaseXform {
     this.map = {};
   }
 
-  prepare(_model: any) {
+  override prepare(_model?: PivotTableModel) {
     // TK
   }
 
-  get tag() {
+  override get tag() {
     // http://www.datypic.com/sc/ooxml/e-ssml_pivotTableDefinition.html
     return 'pivotTableDefinition';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: PivotTableModel) {
     // eslint-disable-next-line no-unused-vars
     const { rows, columns, values, metric, cacheFields, cacheId } = model;
 
@@ -33,7 +44,7 @@ class PivotTableXform extends BaseXform {
     // the numbers are indices into `cacheFields`.
 
     xmlStream.openXml(XmlStream.StdDocAttributes);
-    xmlStream.openNode(this.tag, {
+    xmlStream.openNode(this.tag as string, {
       ...PivotTableXform.PIVOT_TABLE_ATTRIBUTES,
       'xr:uid': '{267EE50F-B116-784D-8DC2-BA77DE3F4F4A}',
       name: 'PivotTable2',
@@ -70,13 +81,13 @@ class PivotTableXform extends BaseXform {
         ${renderPivotFields(model)}
       </pivotFields>
       <rowFields count="${rows.length}">
-        ${rows.map((rowIndex: any) => `<field x="${rowIndex}" />`).join('\n    ')}
+        ${rows.map((rowIndex) => `<field x="${rowIndex}" />`).join('\n    ')}
       </rowFields>
       <rowItems count="1">
         <i t="grand"><x /></i>
       </rowItems>
       <colFields count="${columns.length}">
-        ${columns.map((columnIndex: any) => `<field x="${columnIndex}" />`).join('\n    ')}
+        ${columns.map((columnIndex) => `<field x="${columnIndex}" />`).join('\n    ')}
       </colFields>
       <colItems count="1">
         <i t="grand"><x /></i>
@@ -122,29 +133,29 @@ class PivotTableXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(_node: any) {
+  override parseOpen(_node?: SaxNode) {
     // TK
   }
 
-  parseText(_text: any) {
+  override parseText(_text?: string) {
     // TK
   }
 
-  parseClose(_name: any) {
+  override parseClose(_name?: string) {
     // TK
   }
 
-  reconcile(_model: any, _options: any) {
+  override reconcile(_model?: PivotTableModel, _options?: any) {
     // TK
   }
 }
 
 // Helpers
 
-function renderPivotFields(pivotTable: any) {
+function renderPivotFields(pivotTable: PivotTableModel): string {
   /* eslint-disable no-nested-ternary */
   return pivotTable.cacheFields
-    .map((cacheField: any, fieldIndex: any) => {
+    .map((cacheField, fieldIndex) => {
       const fieldType =
         pivotTable.rows.indexOf(fieldIndex) >= 0
           ? 'row'
@@ -158,17 +169,23 @@ function renderPivotFields(pivotTable: any) {
     .join('');
 }
 
-function renderPivotField(fieldType: any, sharedItems: any) {
+function renderPivotField(
+  fieldType: 'row' | 'column' | 'value' | null,
+  sharedItems: string[] | null
+): string {
   // fieldType: 'row', 'column', 'value', null
 
   const defaultAttributes = 'compact="0" outline="0" showAll="0" defaultSubtotal="0"';
 
   if (fieldType === 'row' || fieldType === 'column') {
     const axis = fieldType === 'row' ? 'axisRow' : 'axisCol';
+    // NB: pre-existing behavior assumes sharedItems is non-null whenever
+    // fieldType is 'row' or 'column' (no null-check before .length/.map).
+    const items = sharedItems as string[];
     return `
       <pivotField axis="${axis}" ${defaultAttributes}>
-        <items count="${sharedItems.length + 1}">
-          ${sharedItems.map((item: any, index: any) => `<item x="${index}" />`).join('\n              ')}
+        <items count="${items.length + 1}">
+          ${items.map((item, index) => `<item x="${index}" />`).join('\n              ')}
         </items>
       </pivotField>
     `;

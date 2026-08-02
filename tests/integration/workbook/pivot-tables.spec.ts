@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { unzipSync } from 'fflate';
 
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 const PIVOT_TABLE_FILEPATHS = [
   'xl/pivotCache/pivotCacheRecords1.xml',

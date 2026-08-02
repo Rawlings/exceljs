@@ -1,5 +1,5 @@
-import parseSax from '#src/utils/helpers/parse-sax';
-import XmlStream from '#src/utils/stream/xml-stream';
+import parseSax from '../../../utils/helpers/parse-sax';
+import XmlStream from '../../../utils/stream/xml-stream';
 
 /* 'virtual' methods used as a form of documentation */
 /* eslint-disable class-methods-use-this */

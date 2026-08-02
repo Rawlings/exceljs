@@ -1,4 +1,4 @@
-import _ from '#src/utils/helpers/under-dash';
+import _ from '../utils/helpers/under-dash';
 
 export interface NoteMargins {
   insetmode: 'auto' | 'custom';

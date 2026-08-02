@@ -1,4 +1,4 @@
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 describe('github issues', () => {
   it('issue 1669 - optional autofilter and custom autofilter on tables', function (this: any) {

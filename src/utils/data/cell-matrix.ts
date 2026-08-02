@@ -1,5 +1,5 @@
-import colCache from '#src/utils/data/col-cache';
-import type { DecodedExAddress } from '#src/utils/data/col-cache';
+import colCache from './col-cache';
+import type { DecodedExAddress } from './col-cache';
 
 export interface MatrixCell {
   sheetName: string;

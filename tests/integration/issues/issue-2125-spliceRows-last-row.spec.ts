@@ -1,4 +1,4 @@
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 describe('github issues', () => {
   it('issue 2125 - spliceRows remove last row', () => {

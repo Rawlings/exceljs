@@ -1,4 +1,4 @@
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 describe('github issues', () => {
   describe('pull request 1487 - lastColumn with an empty column', () => {

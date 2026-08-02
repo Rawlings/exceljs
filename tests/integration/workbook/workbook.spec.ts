@@ -1,6 +1,6 @@
 import testUtils from '../../helpers/index';
 
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 const TEST_CSV_FILE_NAME = './fixtures/out/wb.test.csv';

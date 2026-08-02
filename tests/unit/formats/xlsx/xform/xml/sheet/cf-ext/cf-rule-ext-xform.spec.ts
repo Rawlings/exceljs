@@ -1,6 +1,6 @@
 import testXformHelper from '../../test-xform-helper';
 
-import CfRuleExtXform from '#src/formats/xlsx/xml/sheet/cf-ext/cf-rule-ext-xform';
+import CfRuleExtXform from '../../../../../../../../src/formats/xlsx/xml/sheet/cf-ext/cf-rule-ext-xform';
 
 const expectations = [
   {

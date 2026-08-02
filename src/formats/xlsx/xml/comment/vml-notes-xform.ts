@@ -1,12 +1,18 @@
-import XmlStream from '#src/utils/stream/xml-stream';
+import XmlStream from '../../../../utils/stream/xml-stream';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import VmlShapeXform from '#src/formats/xlsx/xml/comment/vml-shape-xform';
+import BaseXform from '../base-xform';
+import VmlShapeXform from './vml-shape-xform';
+import type { SaxNode } from '../base-xform';
 
 // This class is (currently) single purposed to insert the triangle
 // drawing icons on commented cells
 class VmlNotesXform extends BaseXform {
-  static DRAWING_ATTRIBUTES: any;
+  static DRAWING_ATTRIBUTES: Record<string, string>;
+
+  override map: {
+    'v:shape': VmlShapeXform;
+  };
+
   constructor() {
     super();
     this.map = {
@@ -14,11 +20,11 @@ class VmlNotesXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'xml';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: any) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode(this.tag, VmlNotesXform.DRAWING_ATTRIBUTES);
 
@@ -43,7 +49,7 @@ class VmlNotesXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -56,7 +62,7 @@ class VmlNotesXform extends BaseXform {
         };
         break;
       default:
-        this.parser = this.map[node.name];
+        this.parser = this.map[node.name as keyof VmlNotesXform['map']];
         if (this.parser) {
           this.parser.parseOpen(node);
         }
@@ -65,13 +71,13 @@ class VmlNotesXform extends BaseXform {
     return true;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.model.comments.push(this.parser.model);
@@ -88,12 +94,15 @@ class VmlNotesXform extends BaseXform {
     }
   }
 
-  reconcile(model: any, options: any) {
+  // NB: this.map only has a 'v:shape' entry — 'xdr:twoCellAnchor'/'xdr:oneCellAnchor'
+  // don't exist on it, so this method throws at runtime if ever invoked. Pre-existing
+  // latent bug, left unchanged; using `as any` to preserve the exact runtime behavior.
+  override reconcile(model: any, options: any) {
     model.anchors.forEach((anchor: any) => {
       if (anchor.br) {
-        this.map['xdr:twoCellAnchor'].reconcile(anchor, options);
+        (this.map as any)['xdr:twoCellAnchor'].reconcile(anchor, options);
       } else {
-        this.map['xdr:oneCellAnchor'].reconcile(anchor, options);
+        (this.map as any)['xdr:oneCellAnchor'].reconcile(anchor, options);
       }
     });
   }

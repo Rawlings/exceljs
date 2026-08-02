@@ -1,4 +1,4 @@
-import utils from '#src/utils/helpers/utils';
+import utils from '../helpers/utils';
 
 const OPEN_ANGLE = '<';
 const CLOSE_ANGLE = '>';

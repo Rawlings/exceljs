@@ -1,8 +1,13 @@
+export interface CacheFieldOptions {
+  name: string;
+  sharedItems: string[] | null;
+}
+
 class CacheField {
   name: string;
-  sharedItems: any;
+  sharedItems: string[] | null;
 
-  constructor({ name, sharedItems }: any = {}) {
+  constructor({ name, sharedItems }: CacheFieldOptions) {
     // string type
     //
     // {
@@ -22,7 +27,7 @@ class CacheField {
     this.sharedItems = sharedItems;
   }
 
-  render() {
+  render(): string {
     // PivotCache Field: http://www.datypic.com/sc/ooxml/e-ssml_cacheField-1.html
     // Shared Items: http://www.datypic.com/sc/ooxml/e-ssml_sharedItems-1.html
 
@@ -37,7 +42,7 @@ class CacheField {
     // string types
     return `<cacheField name="${this.name}" numFmtId="0">
       <sharedItems count="${this.sharedItems.length}">
-        ${this.sharedItems.map((item: any) => `<s v="${item}" />`).join('')}
+        ${this.sharedItems.map((item) => `<s v="${item}" />`).join('')}
       </sharedItems>
     </cacheField>`;
   }

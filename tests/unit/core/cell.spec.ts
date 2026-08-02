@@ -1,6 +1,6 @@
-import colCache from '#src/utils/data/col-cache';
-import Cell from '#src/core/cell';
-import Enums from '#src/core/enums';
+import colCache from '../../../src/utils/data/col-cache';
+import Cell from '../../../src/core/cell';
+import Enums from '../../../src/core/enums';
 
 const sheetMock: any = {
   reset() {

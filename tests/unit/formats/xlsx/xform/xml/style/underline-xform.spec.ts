@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import UnderlineXform from '#src/formats/xlsx/xml/style/underline-xform';
+import UnderlineXform from '../../../../../../../src/formats/xlsx/xml/style/underline-xform';
 
 const expectations = [
   {

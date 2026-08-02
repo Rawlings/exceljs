@@ -1,37 +1,37 @@
-import _ from '#src/utils/helpers/under-dash';
+import _ from '../utils/helpers/under-dash';
 
-import RelType from '#src/formats/xlsx/rel-type';
+import RelType from '../formats/xlsx/rel-type';
 
-import colCache from '#src/utils/data/col-cache';
-import Encryptor from '#src/utils/crypto/encryptor';
-import Dimensions from '#src/core/range';
-import Row from '#src/core/row';
-import Column from '#src/core/column';
-import type { WorksheetLike, CellLike } from '#src/core/internal-types';
-import type WorkbookWriter from '#src/streaming/workbook-writer';
+import colCache from '../utils/data/col-cache';
+import Encryptor from '../utils/crypto/encryptor';
+import Dimensions from '../core/range';
+import Row from '../core/row';
+import Column from '../core/column';
+import type { WorksheetLike, CellLike } from '../core/internal-types';
+import type WorkbookWriter from './workbook-writer';
 
-import SheetRelsWriter from '#src/streaming/sheet-rels-writer';
-import SheetCommentsWriter from '#src/streaming/sheet-comments-writer';
-import DataValidations from '#src/core/data-validations';
+import SheetRelsWriter from './sheet-rels-writer';
+import SheetCommentsWriter from './sheet-comments-writer';
+import DataValidations from '../core/data-validations';
 // ============================================================================================
 // Xforms
-import ListXform from '#src/formats/xlsx/xml/list-xform';
-import DataValidationsXform from '#src/formats/xlsx/xml/sheet/data-validations-xform';
-import SheetPropertiesXform from '#src/formats/xlsx/xml/sheet/sheet-properties-xform';
-import SheetFormatPropertiesXform from '#src/formats/xlsx/xml/sheet/sheet-format-properties-xform';
-import ColXform from '#src/formats/xlsx/xml/sheet/col-xform';
-import RowXform from '#src/formats/xlsx/xml/sheet/row-xform';
-import HyperlinkXform from '#src/formats/xlsx/xml/sheet/hyperlink-xform';
-import SheetViewXform from '#src/formats/xlsx/xml/sheet/sheet-view-xform';
-import SheetProtectionXform from '#src/formats/xlsx/xml/sheet/sheet-protection-xform';
-import PageMarginsXform from '#src/formats/xlsx/xml/sheet/page-margins-xform';
-import PageSetupXform from '#src/formats/xlsx/xml/sheet/page-setup-xform';
-import AutoFilterXform from '#src/formats/xlsx/xml/sheet/auto-filter-xform';
-import PictureXform from '#src/formats/xlsx/xml/sheet/picture-xform';
-import ConditionalFormattingsXform from '#src/formats/xlsx/xml/sheet/cf/conditional-formattings-xform';
-import HeaderFooterXform from '#src/formats/xlsx/xml/sheet/header-footer-xform';
-import RowBreaksXform from '#src/formats/xlsx/xml/sheet/row-breaks-xform';
-import PrintOptionsXform from '#src/formats/xlsx/xml/sheet/print-options-xform';
+import ListXform from '../formats/xlsx/xml/list-xform';
+import DataValidationsXform from '../formats/xlsx/xml/sheet/data-validations-xform';
+import SheetPropertiesXform from '../formats/xlsx/xml/sheet/sheet-properties-xform';
+import SheetFormatPropertiesXform from '../formats/xlsx/xml/sheet/sheet-format-properties-xform';
+import ColXform from '../formats/xlsx/xml/sheet/col-xform';
+import RowXform from '../formats/xlsx/xml/sheet/row-xform';
+import HyperlinkXform from '../formats/xlsx/xml/sheet/hyperlink-xform';
+import SheetViewXform from '../formats/xlsx/xml/sheet/sheet-view-xform';
+import SheetProtectionXform from '../formats/xlsx/xml/sheet/sheet-protection-xform';
+import PageMarginsXform from '../formats/xlsx/xml/sheet/page-margins-xform';
+import PageSetupXform from '../formats/xlsx/xml/sheet/page-setup-xform';
+import AutoFilterXform from '../formats/xlsx/xml/sheet/auto-filter-xform';
+import PictureXform from '../formats/xlsx/xml/sheet/picture-xform';
+import ConditionalFormattingsXform from '../formats/xlsx/xml/sheet/cf/conditional-formattings-xform';
+import HeaderFooterXform from '../formats/xlsx/xml/sheet/header-footer-xform';
+import RowBreaksXform from '../formats/xlsx/xml/sheet/row-breaks-xform';
+import PrintOptionsXform from '../formats/xlsx/xml/sheet/print-options-xform';
 
 // since prepare and render are functional, we can use singletons
 const xform = {
@@ -131,7 +131,7 @@ class WorksheetWriter {
     this._sheetRelsWriter = new SheetRelsWriter(
       options as unknown as {
         id: number;
-        workbook: import('#src/streaming/sheet-rels-writer').RelsWorkbook;
+        workbook: import('./sheet-rels-writer').RelsWorkbook;
       }
     );
 
@@ -140,7 +140,7 @@ class WorksheetWriter {
       this._sheetRelsWriter,
       options as unknown as {
         id: number;
-        workbook: import('#src/streaming/sheet-comments-writer').CommentsWorkbook;
+        workbook: import('./sheet-comments-writer').CommentsWorkbook;
       }
     );
 
@@ -359,7 +359,7 @@ class WorksheetWriter {
     value.forEach((defn) => {
       const column = new Column(this as unknown as WorksheetLike, count++, false);
       columns.push(column);
-      column.defn = defn as unknown as import('#src/core/column').ColumnDefinition;
+      column.defn = defn as unknown as import('../core/column').ColumnDefinition;
     });
   }
 

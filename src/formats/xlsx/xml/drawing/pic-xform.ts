@@ -1,12 +1,12 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import StaticXform from '#src/formats/xlsx/xml/static-xform';
+import BaseXform from '../base-xform';
+import StaticXform from '../static-xform';
 
-import BlipFillXform, { type BlipFillModel } from '#src/formats/xlsx/xml/drawing/blip-fill-xform';
-import NvPicPrXform, { type NvPicPrModel } from '#src/formats/xlsx/xml/drawing/nv-pic-pr-xform';
+import BlipFillXform, { type BlipFillModel } from './blip-fill-xform';
+import NvPicPrXform, { type NvPicPrModel } from './nv-pic-pr-xform';
 
-import spPrJSON from '#src/formats/xlsx/xml/drawing/sp-pr';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import spPrJSON from './sp-pr';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export interface PicModel extends NvPicPrModel, BlipFillModel {
   index?: number;

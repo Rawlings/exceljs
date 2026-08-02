@@ -21,8 +21,6 @@
     "incremental": true,
     "noEmit": true,
     "paths": {
-      "#src": ["./src/index.ts"],
-      "#src/*": ["./src/*"],
       "#fixtures/*": ["./fixtures/*"]
     }
   },

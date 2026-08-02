@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import DimensionXform from '#src/formats/xlsx/xml/sheet/dimension-xform';
+import DimensionXform from '../../../../../../../src/formats/xlsx/xml/sheet/dimension-xform';
 
 const expectations = [
   {

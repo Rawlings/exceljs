@@ -1,4 +1,4 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from './base-xform';
 
 class ListXform extends BaseXform {
   _tag: any;

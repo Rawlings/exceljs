@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import colCache from '#src/utils/data/col-cache';
-import type { WorksheetLike, CellLike } from '#src/core/internal-types';
+import colCache from '../utils/data/col-cache';
+import type { WorksheetLike, CellLike } from './internal-types';
 
 export interface TableColumnModel {
   name: string;

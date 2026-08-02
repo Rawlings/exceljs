@@ -1,18 +1,18 @@
-import _ from '#src/utils/helpers/under-dash';
+import _ from '../../../../utils/helpers/under-dash';
 
-import colCache from '#src/utils/data/col-cache';
-import XmlStream from '#src/utils/stream/xml-stream';
+import colCache from '../../../../utils/data/col-cache';
+import XmlStream from '../../../../utils/stream/xml-stream';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import StaticXform from '#src/formats/xlsx/xml/static-xform';
-import ListXform from '#src/formats/xlsx/xml/list-xform';
-import DefinedNameXform from '#src/formats/xlsx/xml/book/defined-name-xform';
-import SheetXform from '#src/formats/xlsx/xml/book/sheet-xform';
-import WorkbookViewXform from '#src/formats/xlsx/xml/book/workbook-view-xform';
-import WorkbookPropertiesXform from '#src/formats/xlsx/xml/book/workbook-properties-xform';
-import WorkbookCalcPropertiesXform from '#src/formats/xlsx/xml/book/workbook-calc-properties-xform';
-import WorkbookPivotCacheXform from '#src/formats/xlsx/xml/book/workbook-pivot-cache-xform';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import StaticXform from '../static-xform';
+import ListXform from '../list-xform';
+import DefinedNameXform from './defined-name-xform';
+import SheetXform from './sheet-xform';
+import WorkbookViewXform from './workbook-view-xform';
+import WorkbookPropertiesXform from './workbook-properties-xform';
+import WorkbookCalcPropertiesXform from './workbook-calc-properties-xform';
+import WorkbookPivotCacheXform from './workbook-pivot-cache-xform';
+import type { SaxNode } from '../base-xform';
 
 type AnyModel = Record<string, any>;
 

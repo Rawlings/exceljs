@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import HeaderFooterXform from '#src/formats/xlsx/xml/sheet/header-footer-xform';
+import HeaderFooterXform from '../../../../../../../src/formats/xlsx/xml/sheet/header-footer-xform';
 
 const expectations = [
   {

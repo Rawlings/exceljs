@@ -1,5 +1,5 @@
 import path from 'node:path';
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 const TEST_XLSX_FILE_NAME = path.resolve(__dirname, '../../../fixtures/xlsx/test-issue-1364.xlsx');
 

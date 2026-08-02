@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import TableXform from '#src/formats/xlsx/xml/table/table-xform';
+import TableXform from '../../../../../../../src/formats/xlsx/xml/table/table-xform';
 import table11 from '#fixtures/json/table.1.1.json' with { type: 'json' };
 import table13 from '#fixtures/json/table.1.3.json' with { type: 'json' };
 

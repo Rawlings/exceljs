@@ -1,6 +1,6 @@
 import testUtils from '../../helpers/index';
 
-import Excel from '#src/index';
+import Excel from '../../../src/index';
 
 describe('Worksheet', () => {
   describe('Styles', () => {

@@ -1,7 +1,7 @@
-import XmlStream from '#src/utils/stream/xml-stream';
+import XmlStream from '../../../../utils/stream/xml-stream';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import type { SaxNode } from '../base-xform';
 
 export interface ContentTypesModel {
   media?: { type: string; extension: string }[];

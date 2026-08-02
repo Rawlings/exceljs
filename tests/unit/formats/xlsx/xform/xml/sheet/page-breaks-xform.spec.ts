@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import PageBreaksXform from '#src/formats/xlsx/xml/sheet/page-breaks-xform';
+import PageBreaksXform from '../../../../../../../src/formats/xlsx/xml/sheet/page-breaks-xform';
 
 const expectations = [
   {

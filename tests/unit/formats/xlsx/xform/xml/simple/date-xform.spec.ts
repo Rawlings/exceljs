@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import DateXform from '#src/formats/xlsx/xml/simple/date-xform';
+import DateXform from '../../../../../../../src/formats/xlsx/xml/simple/date-xform';
 
 const expectations = [
   {

@@ -1,9 +1,9 @@
-import _ from '#src/utils/helpers/under-dash';
-import colCache from '#src/utils/data/col-cache';
-import type { DecodedExAddress } from '#src/utils/data/col-cache';
-import CellMatrix from '#src/utils/data/cell-matrix';
-import type { MatrixCell } from '#src/utils/data/cell-matrix';
-import Range from '#src/core/range';
+import _ from '../utils/helpers/under-dash';
+import colCache from '../utils/data/col-cache';
+import type { DecodedExAddress } from '../utils/data/col-cache';
+import CellMatrix from '../utils/data/cell-matrix';
+import type { MatrixCell } from '../utils/data/cell-matrix';
+import Range from './range';
 
 const rangeRegexp = /[$](\w+)[$](\d+)(:[$](\w+)[$](\d+))?/;
 

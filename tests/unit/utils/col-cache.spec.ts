@@ -1,4 +1,4 @@
-import colCache from '#src/utils/data/col-cache';
+import colCache from '../../../src/utils/data/col-cache';
 
 describe('colCache', () => {
   it('converts numbers to letters', () => {

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import CoreXform from '#src/formats/xlsx/xml/core/core-xform';
+import CoreXform from '../../../../../../../src/formats/xlsx/xml/core/core-xform';
 
 function readXml(name: string): string {
   return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');

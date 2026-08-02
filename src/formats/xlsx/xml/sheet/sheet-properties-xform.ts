@@ -1,12 +1,12 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import ColorXform from '#src/formats/xlsx/xml/style/color-xform';
-import type { ColorModel } from '#src/formats/xlsx/xml/style/color-xform';
-import PageSetupPropertiesXform from '#src/formats/xlsx/xml/sheet/page-setup-properties-xform';
-import type { PageSetupPropertiesModel } from '#src/formats/xlsx/xml/sheet/page-setup-properties-xform';
-import OutlinePropertiesXform from '#src/formats/xlsx/xml/sheet/outline-properties-xform';
-import type { OutlinePropertiesModel } from '#src/formats/xlsx/xml/sheet/outline-properties-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import ColorXform from '../style/color-xform';
+import type { ColorModel } from '../style/color-xform';
+import PageSetupPropertiesXform from './page-setup-properties-xform';
+import type { PageSetupPropertiesModel } from './page-setup-properties-xform';
+import OutlinePropertiesXform from './outline-properties-xform';
+import type { OutlinePropertiesModel } from './outline-properties-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export interface SheetPropertiesModel {
   tabColor?: ColorModel;

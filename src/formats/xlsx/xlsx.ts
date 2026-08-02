@@ -1,29 +1,29 @@
 import fs from 'fs';
-import { unzip, ZipWriter } from '#src/utils/stream/zip';
+import { unzip, ZipWriter } from '../../utils/stream/zip';
 import { PassThrough } from 'stream';
 
-import XmlStream from '#src/utils/stream/xml-stream';
+import XmlStream from '../../utils/stream/xml-stream';
 
-import StylesXform from '#src/formats/xlsx/xml/style/styles-xform';
+import StylesXform from './xml/style/styles-xform';
 
-import CoreXform from '#src/formats/xlsx/xml/core/core-xform';
-import SharedStringsXform from '#src/formats/xlsx/xml/strings/shared-strings-xform';
-import RelationshipsXform from '#src/formats/xlsx/xml/core/relationships-xform';
-import ContentTypesXform from '#src/formats/xlsx/xml/core/content-types-xform';
-import AppXform from '#src/formats/xlsx/xml/core/app-xform';
-import WorkbookXform from '#src/formats/xlsx/xml/book/workbook-xform';
-import WorksheetXform from '#src/formats/xlsx/xml/sheet/worksheet-xform';
-import DrawingXform from '#src/formats/xlsx/xml/drawing/drawing-xform';
-import TableXform from '#src/formats/xlsx/xml/table/table-xform';
-import PivotCacheRecordsXform from '#src/formats/xlsx/xml/pivot-table/pivot-cache-records-xform';
-import PivotCacheDefinitionXform from '#src/formats/xlsx/xml/pivot-table/pivot-cache-definition-xform';
-import PivotTableXform from '#src/formats/xlsx/xml/pivot-table/pivot-table-xform';
-import CommentsXform from '#src/formats/xlsx/xml/comment/comments-xform';
-import VmlNotesXform from '#src/formats/xlsx/xml/comment/vml-notes-xform';
-import RelType from '#src/formats/xlsx/rel-type';
+import CoreXform from './xml/core/core-xform';
+import SharedStringsXform from './xml/strings/shared-strings-xform';
+import RelationshipsXform from './xml/core/relationships-xform';
+import ContentTypesXform from './xml/core/content-types-xform';
+import AppXform from './xml/core/app-xform';
+import WorkbookXform from './xml/book/workbook-xform';
+import WorksheetXform from './xml/sheet/worksheet-xform';
+import DrawingXform from './xml/drawing/drawing-xform';
+import TableXform from './xml/table/table-xform';
+import PivotCacheRecordsXform from './xml/pivot-table/pivot-cache-records-xform';
+import PivotCacheDefinitionXform from './xml/pivot-table/pivot-cache-definition-xform';
+import PivotTableXform from './xml/pivot-table/pivot-table-xform';
+import CommentsXform from './xml/comment/comments-xform';
+import VmlNotesXform from './xml/comment/vml-notes-xform';
+import RelType from './rel-type';
 
 // @ts-ignore
-import theme1Xml from '#src/formats/xlsx/theme1';
+import theme1Xml from './theme1';
 
 function fsReadFileAsync(filename: any, options?: any) {
   return new Promise((resolve, reject) => {
@@ -117,7 +117,7 @@ class XLSX {
       styles: model.styles,
     };
     Object.values(model.tables).forEach((table) => {
-      tableXform.reconcile(table, tableOptions);
+      tableXform.reconcile(table as any, tableOptions);
     });
 
     const sheetOptions = {

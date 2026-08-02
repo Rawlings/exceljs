@@ -1,11 +1,11 @@
 /* eslint-disable max-classes-per-file */
-import colCache from '#src/utils/data/col-cache';
-import _ from '#src/utils/helpers/under-dash';
-import Enums from '#src/core/enums';
-import { slideFormula } from '#src/utils/data/shared-formula';
-import Note from '#src/core/note';
-import type { NoteModel } from '#src/core/note';
-import type { RowLike, ColumnLike, FullAddress } from '#src/core/internal-types';
+import colCache from '../utils/data/col-cache';
+import _ from '../utils/helpers/under-dash';
+import Enums from './enums';
+import { slideFormula } from '../utils/data/shared-formula';
+import Note from './note';
+import type { NoteModel } from './note';
+import type { RowLike, ColumnLike, FullAddress } from './internal-types';
 
 // Cell requirements
 //  Operate inside a worksheet

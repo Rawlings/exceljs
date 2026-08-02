@@ -1,15 +1,33 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import BaseXform from '../../base-xform';
+import CompositeXform from '../../composite-xform';
 
-import ColorXform from '#src/formats/xlsx/xml/style/color-xform';
-import CfvoExtXform from '#src/formats/xlsx/xml/sheet/cf-ext/cfvo-ext-xform';
+import ColorXform, { type ColorModel } from '../../style/color-xform';
+import CfvoExtXform, { type CfvoExtModel } from './cfvo-ext-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../../base-xform';
+
+export interface DatabarExtModel {
+  cfvo: CfvoExtModel[];
+  minLength?: number;
+  maxLength?: number;
+  border?: boolean;
+  gradient?: boolean;
+  negativeBarColorSameAsPositive?: boolean;
+  negativeBarBorderColorSameAsPositive?: boolean;
+  axisPosition?: string;
+  direction?: string;
+  borderColor?: ColorModel;
+  negativeBorderColor?: ColorModel;
+  negativeFillColor?: ColorModel;
+  axisColor?: ColorModel;
+}
 
 class DatabarExtXform extends CompositeXform {
-  cfvoXform: any;
-  borderColorXform: any;
-  negativeBorderColorXform: any;
-  negativeFillColorXform: any;
-  axisColorXform: any;
+  cfvoXform: CfvoExtXform;
+  borderColorXform: ColorXform;
+  negativeBorderColorXform: ColorXform;
+  negativeFillColorXform: ColorXform;
+  axisColorXform: ColorXform;
 
   constructor() {
     super();
@@ -33,12 +51,12 @@ class DatabarExtXform extends CompositeXform {
     return !rule.gradient;
   }
 
-  get tag() {
+  override get tag() {
     return 'x14:dataBar';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  override render(xmlStream: XmlStream, model: DatabarExtModel) {
+    xmlStream.openNode(this.tag as string, {
       minLength: BaseXform.toIntAttribute(model.minLength, 0, true),
       maxLength: BaseXform.toIntAttribute(model.maxLength, 100, true),
       gradient: BaseXform.toBoolAttribute(model.gradient, true),
@@ -55,7 +73,7 @@ class DatabarExtXform extends CompositeXform {
       direction: BaseXform.toAttribute(model.direction, 'leftToRight'),
     });
 
-    model.cfvo.forEach((cfvo: any) => {
+    model.cfvo.forEach((cfvo) => {
       this.cfvoXform.render(xmlStream, cfvo);
     });
 
@@ -67,35 +85,37 @@ class DatabarExtXform extends CompositeXform {
     xmlStream.closeNode();
   }
 
-  createNewModel({ attributes }: any) {
+  override createNewModel({ attributes }: SaxNode): DatabarExtModel {
+    const attrs = attributes as Record<string, string>;
     return {
       cfvo: [],
-      minLength: BaseXform.toIntValue(attributes.minLength, 0),
-      maxLength: BaseXform.toIntValue(attributes.maxLength, 100),
-      border: BaseXform.toBoolValue(attributes.border, false),
-      gradient: BaseXform.toBoolValue(attributes.gradient, true),
+      minLength: BaseXform.toIntValue(attrs.minLength, 0),
+      maxLength: BaseXform.toIntValue(attrs.maxLength, 100),
+      border: BaseXform.toBoolValue(attrs.border, false),
+      gradient: BaseXform.toBoolValue(attrs.gradient, true),
       negativeBarColorSameAsPositive: BaseXform.toBoolValue(
-        attributes.negativeBarColorSameAsPositive,
+        attrs.negativeBarColorSameAsPositive,
         true
       ),
       negativeBarBorderColorSameAsPositive: BaseXform.toBoolValue(
-        attributes.negativeBarBorderColorSameAsPositive,
+        attrs.negativeBarBorderColorSameAsPositive,
         true
       ),
-      axisPosition: BaseXform.toStringValue(attributes.axisPosition, 'auto'),
-      direction: BaseXform.toStringValue(attributes.direction, 'leftToRight'),
+      axisPosition: BaseXform.toStringValue(attrs.axisPosition, 'auto') as string,
+      direction: BaseXform.toStringValue(attrs.direction, 'leftToRight') as string,
     };
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(name: string, parser: { model: any }) {
     const [, prop] = name.split(':');
+    const model = this.model as DatabarExtModel;
     switch (prop) {
       case 'cfvo':
-        this.model.cfvo.push(parser.model);
+        model.cfvo.push(parser.model);
         break;
 
       default:
-        this.model[prop] = parser.model;
+        (model as Record<string, any>)[prop] = parser.model;
         break;
     }
   }

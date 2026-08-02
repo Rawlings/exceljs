@@ -1,7 +1,7 @@
 import testUtils from '../../helpers/index';
 
-import _ from '#src/utils/helpers/under-dash';
-import Excel from '#src/index';
+import _ from '../../../src/utils/helpers/under-dash';
+import Excel from '../../../src/index';
 
 describe('Worksheet', () => {
   describe('Values', () => {

@@ -1,36 +1,36 @@
-import _ from '#src/utils/helpers/under-dash';
+import _ from '../../../../utils/helpers/under-dash';
 
-import colCache from '#src/utils/data/col-cache';
-import XmlStream from '#src/utils/stream/xml-stream';
+import colCache from '../../../../utils/data/col-cache';
+import XmlStream from '../../../../utils/stream/xml-stream';
 
-import RelType from '#src/formats/xlsx/rel-type';
+import RelType from '../../rel-type';
 
-import Merges from '#src/formats/xlsx/xml/sheet/merges';
+import Merges from './merges';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import ListXform from '#src/formats/xlsx/xml/list-xform';
-import RowXform from '#src/formats/xlsx/xml/sheet/row-xform';
-import ColXform from '#src/formats/xlsx/xml/sheet/col-xform';
-import DimensionXform from '#src/formats/xlsx/xml/sheet/dimension-xform';
-import HyperlinkXform from '#src/formats/xlsx/xml/sheet/hyperlink-xform';
-import MergeCellXform from '#src/formats/xlsx/xml/sheet/merge-cell-xform';
-import DataValidationsXform from '#src/formats/xlsx/xml/sheet/data-validations-xform';
-import SheetPropertiesXform from '#src/formats/xlsx/xml/sheet/sheet-properties-xform';
-import SheetFormatPropertiesXform from '#src/formats/xlsx/xml/sheet/sheet-format-properties-xform';
-import SheetViewXform from '#src/formats/xlsx/xml/sheet/sheet-view-xform';
-import SheetProtectionXform from '#src/formats/xlsx/xml/sheet/sheet-protection-xform';
-import PageMarginsXform from '#src/formats/xlsx/xml/sheet/page-margins-xform';
-import PageSetupXform from '#src/formats/xlsx/xml/sheet/page-setup-xform';
-import PrintOptionsXform from '#src/formats/xlsx/xml/sheet/print-options-xform';
-import AutoFilterXform from '#src/formats/xlsx/xml/sheet/auto-filter-xform';
-import PictureXform from '#src/formats/xlsx/xml/sheet/picture-xform';
-import DrawingXform from '#src/formats/xlsx/xml/sheet/drawing-xform';
-import TablePartXform from '#src/formats/xlsx/xml/sheet/table-part-xform';
-import RowBreaksXform from '#src/formats/xlsx/xml/sheet/row-breaks-xform';
-import HeaderFooterXform from '#src/formats/xlsx/xml/sheet/header-footer-xform';
-import ConditionalFormattingsXform from '#src/formats/xlsx/xml/sheet/cf/conditional-formattings-xform';
-import ExtListXform from '#src/formats/xlsx/xml/sheet/ext-lst-xform';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import ListXform from '../list-xform';
+import RowXform from './row-xform';
+import ColXform from './col-xform';
+import DimensionXform from './dimension-xform';
+import HyperlinkXform from './hyperlink-xform';
+import MergeCellXform from './merge-cell-xform';
+import DataValidationsXform from './data-validations-xform';
+import SheetPropertiesXform from './sheet-properties-xform';
+import SheetFormatPropertiesXform from './sheet-format-properties-xform';
+import SheetViewXform from './sheet-view-xform';
+import SheetProtectionXform from './sheet-protection-xform';
+import PageMarginsXform from './page-margins-xform';
+import PageSetupXform from './page-setup-xform';
+import PrintOptionsXform from './print-options-xform';
+import AutoFilterXform from './auto-filter-xform';
+import PictureXform from './picture-xform';
+import DrawingXform from './drawing-xform';
+import TablePartXform from './table-part-xform';
+import RowBreaksXform from './row-breaks-xform';
+import HeaderFooterXform from './header-footer-xform';
+import ConditionalFormattingsXform from './cf/conditional-formattings-xform';
+import ExtListXform from './ext-lst-xform';
+import type { SaxNode } from '../base-xform';
 
 const mergeRule = (rule: any, extRule: any) => {
   Object.keys(extRule).forEach((key) => {
@@ -393,7 +393,10 @@ class WorkSheetXform extends BaseXform {
       return true;
     }
 
-    if (this.map[node.name as keyof WorkSheetXform['map']] && !this.ignoreNodes.includes(node.name)) {
+    if (
+      this.map[node.name as keyof WorkSheetXform['map']] &&
+      !this.ignoreNodes.includes(node.name)
+    ) {
       this.parser = this.map[node.name as keyof WorkSheetXform['map']];
       this.parser.parseOpen(node);
     }

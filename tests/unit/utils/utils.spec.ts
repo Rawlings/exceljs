@@ -1,4 +1,4 @@
-import utils from '#src/utils/helpers/utils';
+import utils from '../../../src/utils/helpers/utils';
 
 describe('utils', () => {
   describe('xmlEncode', () => {

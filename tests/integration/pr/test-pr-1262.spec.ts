@@ -1,4 +1,4 @@
-import ExcelJS from '#src/index';
+import ExcelJS from '../../../src/index';
 
 describe('github issues', () => {
   it('pull request 1262 - protect should work with streaming workbook writer', async () => {

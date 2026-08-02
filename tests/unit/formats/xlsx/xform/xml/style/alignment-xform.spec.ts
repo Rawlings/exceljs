@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import AlignmentXform from '#src/formats/xlsx/xml/style/alignment-xform';
+import AlignmentXform from '../../../../../../../src/formats/xlsx/xml/style/alignment-xform';
 
 const expectations = [
   {

@@ -1,7 +1,7 @@
-import _ from '#src/utils/helpers/under-dash';
-import Enums from '#src/core/enums';
-import colCache from '#src/utils/data/col-cache';
-import type { WorksheetLike, ColumnLike, CellLike, EachRowOptions } from '#src/core/internal-types';
+import _ from '../utils/helpers/under-dash';
+import Enums from './enums';
+import colCache from '../utils/data/col-cache';
+import type { WorksheetLike, ColumnLike, CellLike, EachRowOptions } from './internal-types';
 
 const DEFAULT_COLUMN_WIDTH = 9;
 

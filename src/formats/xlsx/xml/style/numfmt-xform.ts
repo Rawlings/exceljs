@@ -1,9 +1,9 @@
-import _ from '#src/utils/helpers/under-dash';
-import defaultNumFormats from '#src/formats/xlsx/defaultnumformats';
+import _ from '../../../../utils/helpers/under-dash';
+import defaultNumFormats from '../../defaultnumformats';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export interface NumFmtModel {
   id: number;
@@ -26,7 +26,7 @@ function hashDefaultFormats(): Record<string, number> {
 }
 const defaultFmtHash: Record<string, number> = hashDefaultFormats();
 
-import utils from '#src/utils/helpers/utils';
+import utils from '../../../../utils/helpers/utils';
 
 // NumFmt encapsulates translation between number format and xlsx
 class NumFmtXform extends BaseXform {

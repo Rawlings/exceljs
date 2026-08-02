@@ -2,12 +2,12 @@ import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import Enums from '#src/core/enums';
-import XmlStream from '#src/utils/stream/xml-stream';
-import WorksheetXform from '#src/formats/xlsx/xml/sheet/worksheet-xform';
+import Enums from '../../../../../../../src/core/enums';
+import XmlStream from '../../../../../../../src/utils/stream/xml-stream';
+import WorksheetXform from '../../../../../../../src/formats/xlsx/xml/sheet/worksheet-xform';
 
-import SharedStringsXform from '#src/formats/xlsx/xml/strings/shared-strings-xform';
-import StylesXform from '#src/formats/xlsx/xml/style/styles-xform';
+import SharedStringsXform from '../../../../../../../src/formats/xlsx/xml/strings/shared-strings-xform';
+import StylesXform from '../../../../../../../src/formats/xlsx/xml/style/styles-xform';
 
 import sheet10 from '#fixtures/json/sheet.1.0.json' with { type: 'json' };
 import sheet11 from '#fixtures/json/sheet.1.1.json' with { type: 'json' };

@@ -1,5 +1,5 @@
-import utils from '#src/utils/helpers/utils';
-import type { WorksheetLike } from '#src/core/internal-types';
+import utils from '../utils/helpers/utils';
+import type { WorksheetLike } from './internal-types';
 
 const { range, toSortedArray } = utils;
 // NB: `objectFromProps` does not exist on `utils` — this is a pre-existing

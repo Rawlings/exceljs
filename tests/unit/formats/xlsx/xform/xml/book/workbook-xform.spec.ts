@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import WorkbookXform from '#src/formats/xlsx/xml/book/workbook-xform';
+import WorkbookXform from '../../../../../../../src/formats/xlsx/xml/book/workbook-xform';
 import book11 from '#fixtures/json/book.1.1.json' with { type: 'json' };
 import book13 from '#fixtures/json/book.1.3.json' with { type: 'json' };
 import book23 from '#fixtures/json/book.2.3.json' with { type: 'json' };

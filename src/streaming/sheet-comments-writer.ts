@@ -1,8 +1,8 @@
-import XmlStream from '#src/utils/stream/xml-stream';
-import RelType from '#src/formats/xlsx/rel-type';
-import colCache from '#src/utils/data/col-cache';
-import CommentXform from '#src/formats/xlsx/xml/comment/comment-xform';
-import VmlShapeXform from '#src/formats/xlsx/xml/comment/vml-shape-xform';
+import XmlStream from '../utils/stream/xml-stream';
+import RelType from '../formats/xlsx/rel-type';
+import colCache from '../utils/data/col-cache';
+import CommentXform from '../formats/xlsx/xml/comment/comment-xform';
+import VmlShapeXform from '../formats/xlsx/xml/comment/vml-shape-xform';
 
 interface CommentsWriterStream {
   write(text: string): void;

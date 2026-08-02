@@ -1,10 +1,10 @@
-import TextXform from '#src/formats/xlsx/xml/strings/text-xform';
-import RichTextXform from '#src/formats/xlsx/xml/strings/rich-text-xform';
-import type { RichTextRunModel } from '#src/formats/xlsx/xml/strings/rich-text-xform';
+import TextXform from './text-xform';
+import RichTextXform from './rich-text-xform';
+import type { RichTextRunModel } from './rich-text-xform';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 // <rPh sb="0" eb="1">
 //   <t>(its pronounciation in KATAKANA)</t>

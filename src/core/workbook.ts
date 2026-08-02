@@ -1,9 +1,9 @@
-import Worksheet from '#src/core/worksheet';
-import type { WorksheetOptions } from '#src/core/worksheet';
-import DefinedNames from '#src/core/defined-names';
-import XLSX from '#src/formats/xlsx/xlsx';
-import CSV from '#src/formats/csv/csv';
-import type { WorkbookLike } from '#src/core/internal-types';
+import Worksheet from './worksheet';
+import type { WorksheetOptions } from './worksheet';
+import DefinedNames from './defined-names';
+import XLSX from '../formats/xlsx/xlsx';
+import CSV from '../formats/csv/csv';
+import type { WorkbookLike } from './internal-types';
 
 // Workbook requirements
 //  Load and Save from file and stream

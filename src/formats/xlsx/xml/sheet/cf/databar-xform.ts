@@ -1,11 +1,17 @@
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import CompositeXform from '../../composite-xform';
 
-import ColorXform from '#src/formats/xlsx/xml/style/color-xform';
-import CfvoXform from '#src/formats/xlsx/xml/sheet/cf/cfvo-xform';
+import ColorXform, { type ColorModel } from '../../style/color-xform';
+import CfvoXform, { type CfvoModel } from './cfvo-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+
+export interface DatabarModel {
+  cfvo: CfvoModel[];
+  color?: ColorModel;
+}
 
 class DatabarXform extends CompositeXform {
-  cfvoXform: any;
-  colorXform: any;
+  cfvoXform: CfvoXform;
+  colorXform: ColorXform;
 
   constructor() {
     super();
@@ -16,14 +22,14 @@ class DatabarXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'dataBar';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag);
+  override render(xmlStream: XmlStream, model: DatabarModel) {
+    xmlStream.openNode(this.tag as string);
 
-    model.cfvo.forEach((cfvo: any) => {
+    model.cfvo.forEach((cfvo) => {
       this.cfvoXform.render(xmlStream, cfvo);
     });
     this.colorXform.render(xmlStream, model.color);
@@ -31,19 +37,19 @@ class DatabarXform extends CompositeXform {
     xmlStream.closeNode();
   }
 
-  createNewModel() {
+  override createNewModel(): DatabarModel {
     return {
       cfvo: [],
     };
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(name: string, parser: { model: any }) {
     switch (name) {
       case 'cfvo':
-        this.model.cfvo.push(parser.model);
+        (this.model as DatabarModel).cfvo.push(parser.model);
         break;
       case 'color':
-        this.model.color = parser.model;
+        (this.model as DatabarModel).color = parser.model;
         break;
     }
   }

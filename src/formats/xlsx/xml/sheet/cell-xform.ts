@@ -1,11 +1,11 @@
-import utils from '#src/utils/helpers/utils';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import Range from '#src/core/range';
-import Enums from '#src/core/enums';
+import utils from '../../../../utils/helpers/utils';
+import BaseXform from '../base-xform';
+import Range from '../../../../core/range';
+import Enums from '../../../../core/enums';
 
-import RichTextXform from '#src/formats/xlsx/xml/strings/rich-text-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import RichTextXform from '../strings/rich-text-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 function getValueType(v: any) {
   if (v === null || v === undefined) {

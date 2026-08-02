@@ -1,4 +1,4 @@
-import Excel from '#src/index';
+import Excel from '../../../src/index';
 
 describe('Worksheet', () => {
   describe('Page Breaks', () => {

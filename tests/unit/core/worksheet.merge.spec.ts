@@ -1,7 +1,7 @@
 import testUtils from '../../helpers/index';
 
-import Excel from '#src/index';
-import Dimensions from '#src/core/range';
+import Excel from '../../../src/index';
+import Dimensions from '../../../src/core/range';
 
 describe('Worksheet', () => {
   describe('Merge Cells', () => {

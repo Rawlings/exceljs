@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import CustomFilterXform from '#src/formats/xlsx/xml/table/custom-filter-xform';
+import CustomFilterXform from '../../../../../../../src/formats/xlsx/xml/table/custom-filter-xform';
 
 const expectations = [
   {

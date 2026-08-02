@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import AppXform from '#src/formats/xlsx/xml/core/app-xform';
+import AppXform from '../../../../../../../src/formats/xlsx/xml/core/app-xform';
 
 const expectations = [
   {

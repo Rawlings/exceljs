@@ -1,10 +1,8 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
-import FilterColumnXform, {
-  type FilterColumnModel,
-} from '#src/formats/xlsx/xml/table/filter-column-xform';
+import FilterColumnXform, { type FilterColumnModel } from './filter-column-xform';
 
 export interface AutoFilterModel {
   autoFilterRef?: string;
@@ -33,7 +31,7 @@ class AutoFilterXform extends BaseXform {
   override render(xmlStream: XmlStream, model: AutoFilterModel) {
     xmlStream.openNode(this.tag as string, { ref: model.autoFilterRef });
 
-    model.columns.forEach(column => {
+    model.columns.forEach((column) => {
       this.map.filterColumn.render(xmlStream, column);
     });
 

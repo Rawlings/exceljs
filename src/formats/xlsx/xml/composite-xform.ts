@@ -1,4 +1,4 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from './base-xform';
 
 /* 'virtual' methods used as a form of documentation */
 /* eslint-disable class-methods-use-this */

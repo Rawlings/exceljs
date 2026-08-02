@@ -1,6 +1,6 @@
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export interface OutlinePropertiesModel {
   summaryBelow?: boolean;
@@ -29,8 +29,12 @@ class OutlinePropertiesXform extends BaseXform {
     if (node.name === this.tag) {
       const attrs = node.attributes as Record<string, string>;
       this.model = {
-        summaryBelow: isDefined(attrs.summaryBelow) ? Boolean(Number(attrs.summaryBelow)) : undefined,
-        summaryRight: isDefined(attrs.summaryRight) ? Boolean(Number(attrs.summaryRight)) : undefined,
+        summaryBelow: isDefined(attrs.summaryBelow)
+          ? Boolean(Number(attrs.summaryBelow))
+          : undefined,
+        summaryRight: isDefined(attrs.summaryRight)
+          ? Boolean(Number(attrs.summaryRight))
+          : undefined,
       };
       return true;
     }

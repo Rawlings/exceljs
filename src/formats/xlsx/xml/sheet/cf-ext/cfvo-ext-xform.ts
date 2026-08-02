@@ -1,9 +1,16 @@
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import CompositeXform from '../../composite-xform';
 
-import FExtXform from '#src/formats/xlsx/xml/sheet/cf-ext/f-ext-xform';
+import FExtXform from './f-ext-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../../base-xform';
+
+export interface CfvoExtModel {
+  type: string;
+  value?: number;
+}
 
 class CfvoExtXform extends CompositeXform {
-  fExtXform: any;
+  fExtXform: FExtXform;
 
   constructor() {
     super();
@@ -13,30 +20,31 @@ class CfvoExtXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'x14:cfvo';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag, {
+  override render(xmlStream: XmlStream, model: CfvoExtModel) {
+    xmlStream.openNode(this.tag as string, {
       type: model.type,
     });
     if (model.value !== undefined) {
-      this.fExtXform.render(xmlStream, model.value);
+      this.fExtXform.render(xmlStream, model.value as unknown as string);
     }
     xmlStream.closeNode();
   }
 
-  createNewModel(node: any) {
+  override createNewModel(node: SaxNode): CfvoExtModel {
+    const attrs = node.attributes as Record<string, string>;
     return {
-      type: node.attributes.type,
+      type: attrs.type,
     };
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(name: string, parser: { model: any }) {
     switch (name) {
       case 'xm:f':
-        this.model.value = parser.model ? parseFloat(parser.model) : 0;
+        (this.model as CfvoExtModel).value = parser.model ? parseFloat(parser.model) : 0;
         break;
     }
   }

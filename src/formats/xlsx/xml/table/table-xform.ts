@@ -1,14 +1,28 @@
-import XmlStream from '#src/utils/stream/xml-stream';
+import XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import ListXform from '#src/formats/xlsx/xml/list-xform';
+import BaseXform from '../base-xform';
+import ListXform from '../list-xform';
 
-import AutoFilterXform from '#src/formats/xlsx/xml/table/auto-filter-xform';
-import TableColumnXform from '#src/formats/xlsx/xml/table/table-column-xform';
-import TableStyleInfoXform from '#src/formats/xlsx/xml/table/table-style-info-xform';
+import AutoFilterXform, { type AutoFilterModel } from './auto-filter-xform';
+import TableColumnXform, { type TableColumnModel } from './table-column-xform';
+import TableStyleInfoXform, { type TableStyleInfoModel } from './table-style-info-xform';
+
+export interface TableModel {
+  id?: unknown;
+  name: string;
+  displayName?: string;
+  tableRef?: string;
+  ref?: string;
+  autoFilterRef?: string;
+  totalsRow?: boolean;
+  headerRow?: boolean;
+  columns: TableColumnModel[];
+  style?: TableStyleInfoModel;
+}
 
 class TableXform extends BaseXform {
-  static TABLE_ATTRIBUTES: any;
+  static TABLE_ATTRIBUTES: Record<string, string>;
 
   constructor() {
     super();
@@ -25,18 +39,18 @@ class TableXform extends BaseXform {
     };
   }
 
-  prepare(model: any, options: any) {
+  override prepare(model: TableModel, options: any) {
     this.map.autoFilter.prepare(model);
     this.map.tableColumns.prepare(model.columns, options);
   }
 
-  get tag() {
+  override get tag() {
     return 'table';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: TableModel) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
-    xmlStream.openNode(this.tag, {
+    xmlStream.openNode(this.tag as string, {
       ...TableXform.TABLE_ATTRIBUTES,
       id: model.id,
       name: model.name,
@@ -54,12 +68,13 @@ class TableXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
     }
-    const { name, attributes } = node;
+    const { name } = node;
+    const attributes = node.attributes as Record<string, string>;
     switch (name) {
       case this.tag:
         this.reset();
@@ -82,13 +97,13 @@ class TableXform extends BaseXform {
     return true;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name?: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;
@@ -96,25 +111,28 @@ class TableXform extends BaseXform {
       return true;
     }
     switch (name) {
-      case this.tag:
-        this.model.columns = this.map.tableColumns.model;
+      case this.tag: {
+        const model = this.model as TableModel;
+        model.columns = this.map.tableColumns.model;
         if (this.map.autoFilter.model) {
-          this.model.autoFilterRef = this.map.autoFilter.model.autoFilterRef;
-          this.map.autoFilter.model.columns.forEach((column: any, index: any) => {
-            this.model.columns[index].filterButton = column.filterButton;
+          const autoFilterModel = this.map.autoFilter.model as AutoFilterModel;
+          model.autoFilterRef = autoFilterModel.autoFilterRef;
+          autoFilterModel.columns.forEach((column, index) => {
+            model.columns[index].filterButton = column.filterButton;
           });
         }
-        this.model.style = this.map.tableStyleInfo.model;
+        model.style = this.map.tableStyleInfo.model;
         return false;
+      }
       default:
         // could be some unrecognised tags
         return true;
     }
   }
 
-  reconcile(model: any, options: any) {
+  override reconcile(model: TableModel, options: any) {
     // fetch the dfxs from styles
-    model.columns.forEach((column: any) => {
+    model.columns.forEach((column) => {
       if (column.dxfId !== undefined) {
         column.style = options.styles.getDxfStyle(column.dxfId);
       }

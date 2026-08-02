@@ -1,10 +1,10 @@
 import crypto from 'crypto';
 const uuidv4 = () => crypto.randomUUID();
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import BaseXform from '../../base-xform';
+import CompositeXform from '../../composite-xform';
 
-import DatabarExtXform from '#src/formats/xlsx/xml/sheet/cf-ext/databar-ext-xform';
-import IconSetExtXform from '#src/formats/xlsx/xml/sheet/cf-ext/icon-set-ext-xform';
+import DatabarExtXform from './databar-ext-xform';
+import IconSetExtXform from './icon-set-ext-xform';
 
 const extIcons = {
   '3Triangles': true,

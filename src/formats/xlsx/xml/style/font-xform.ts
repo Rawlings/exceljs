@@ -1,15 +1,15 @@
 'use strict';
 
-import ColorXform from '#src/formats/xlsx/xml/style/color-xform';
-import BooleanXform from '#src/formats/xlsx/xml/simple/boolean-xform';
-import IntegerXform from '#src/formats/xlsx/xml/simple/integer-xform';
-import StringXform from '#src/formats/xlsx/xml/simple/string-xform';
-import UnderlineXform from '#src/formats/xlsx/xml/style/underline-xform';
+import ColorXform from './color-xform';
+import BooleanXform from '../simple/boolean-xform';
+import IntegerXform from '../simple/integer-xform';
+import StringXform from '../simple/string-xform';
+import UnderlineXform from './underline-xform';
 
-import _ from '#src/utils/helpers/under-dash';
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import type XmlStream from '#src/utils/stream/xml-stream';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import _ from '../../../../utils/helpers/under-dash';
+import BaseXform from '../base-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../base-xform';
 
 export interface FontXformOptions {
   tagName: string;

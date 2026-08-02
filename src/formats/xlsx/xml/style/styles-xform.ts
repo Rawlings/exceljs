@@ -1,22 +1,22 @@
 /* eslint-disable max-classes-per-file */
-import Enums from '#src/core/enums';
-import XmlStream from '#src/utils/stream/xml-stream';
+import Enums from '../../../../core/enums';
+import XmlStream from '../../../../utils/stream/xml-stream';
 
-import BaseXform from '#src/formats/xlsx/xml/base-xform';
-import StaticXform from '#src/formats/xlsx/xml/static-xform';
-import ListXform from '#src/formats/xlsx/xml/list-xform';
-import FontXform from '#src/formats/xlsx/xml/style/font-xform';
-import FillXform from '#src/formats/xlsx/xml/style/fill-xform';
-import type { FillModel } from '#src/formats/xlsx/xml/style/fill-xform';
-import BorderXform from '#src/formats/xlsx/xml/style/border-xform';
-import type { BorderModel } from '#src/formats/xlsx/xml/style/border-xform';
-import NumFmtXform from '#src/formats/xlsx/xml/style/numfmt-xform';
-import StyleXform from '#src/formats/xlsx/xml/style/style-xform';
-import type { StyleXfModel } from '#src/formats/xlsx/xml/style/style-xform';
-import DxfXform from '#src/formats/xlsx/xml/style/dxf-xform';
-import type { AlignmentModel } from '#src/formats/xlsx/xml/style/alignment-xform';
-import type { ProtectionModel } from '#src/formats/xlsx/xml/style/protection-xform';
-import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+import BaseXform from '../base-xform';
+import StaticXform from '../static-xform';
+import ListXform from '../list-xform';
+import FontXform from './font-xform';
+import FillXform from './fill-xform';
+import type { FillModel } from './fill-xform';
+import BorderXform from './border-xform';
+import type { BorderModel } from './border-xform';
+import NumFmtXform from './numfmt-xform';
+import StyleXform from './style-xform';
+import type { StyleXfModel } from './style-xform';
+import DxfXform from './dxf-xform';
+import type { AlignmentModel } from './alignment-xform';
+import type { ProtectionModel } from './protection-xform';
+import type { SaxNode } from '../base-xform';
 
 // custom numfmt ids start here
 const NUMFMT_BASE = 164;

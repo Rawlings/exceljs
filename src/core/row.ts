@@ -1,8 +1,8 @@
-import _ from '#src/utils/helpers/under-dash';
-import Enums from '#src/core/enums';
-import colCache from '#src/utils/data/col-cache';
-import Cell from '#src/core/cell';
-import type { WorksheetLike, RowLike, CellLike, EachRowOptions } from '#src/core/internal-types';
+import _ from '../utils/helpers/under-dash';
+import Enums from './enums';
+import colCache from '../utils/data/col-cache';
+import Cell from './cell';
+import type { WorksheetLike, RowLike, CellLike, EachRowOptions } from './internal-types';
 
 export interface RowModel {
   cells: Record<string, unknown>[];

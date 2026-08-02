@@ -1,8 +1,8 @@
-import _ from '#src/utils/helpers/under-dash';
+import _ from '../../../../utils/helpers/under-dash';
 
-import Range from '#src/core/range';
-import colCache from '#src/utils/data/col-cache';
-import Enums from '#src/core/enums';
+import Range from '../../../../core/range';
+import colCache from '../../../../utils/data/col-cache';
+import Enums from '../../../../core/enums';
 
 interface MergeInput {
   address: string;

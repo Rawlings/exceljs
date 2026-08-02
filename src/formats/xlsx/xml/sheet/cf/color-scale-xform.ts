@@ -1,11 +1,18 @@
-import CompositeXform from '#src/formats/xlsx/xml/composite-xform';
+import CompositeXform from '../../composite-xform';
 
-import ColorXform from '#src/formats/xlsx/xml/style/color-xform';
-import CfvoXform from '#src/formats/xlsx/xml/sheet/cf/cfvo-xform';
+import ColorXform, { type ColorModel } from '../../style/color-xform';
+import CfvoXform, { type CfvoModel } from './cfvo-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../../base-xform';
+
+export interface ColorScaleModel {
+  cfvo: CfvoModel[];
+  color: ColorModel[];
+}
 
 class ColorScaleXform extends CompositeXform {
-  cfvoXform: any;
-  colorXform: any;
+  cfvoXform: CfvoXform;
+  colorXform: ColorXform;
 
   constructor() {
     super();
@@ -16,32 +23,32 @@ class ColorScaleXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'colorScale';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag);
+  override render(xmlStream: XmlStream, model: ColorScaleModel) {
+    xmlStream.openNode(this.tag as string);
 
-    model.cfvo.forEach((cfvo: any) => {
+    model.cfvo.forEach((cfvo) => {
       this.cfvoXform.render(xmlStream, cfvo);
     });
-    model.color.forEach((color: any) => {
+    model.color.forEach((color) => {
       this.colorXform.render(xmlStream, color);
     });
 
     xmlStream.closeNode();
   }
 
-  createNewModel(_node?: any) {
+  override createNewModel(_node?: SaxNode): ColorScaleModel {
     return {
       cfvo: [],
       color: [],
     };
   }
 
-  onParserClose(name: any, parser: any) {
-    this.model[name].push(parser.model);
+  override onParserClose(name: string, parser: { model: any }) {
+    (this.model as Record<string, any[]>)[name].push(parser.model);
   }
 }
 
