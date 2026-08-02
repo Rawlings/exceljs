@@ -5,7 +5,7 @@ describe('github issues', () => {
     it('Reading 1904.xlsx', () => {
       const wb = new ExcelJS.Workbook();
       return wb.xlsx.readFile('./fixtures/xlsx/1904.xlsx').then(() => {
-        const ws = wb.getWorksheet('Sheet1');
+        const ws = wb.getWorksheet('Sheet1')!;
         expect(ws.lastColumn).to.equal(ws.getColumn(2));
       });
     });

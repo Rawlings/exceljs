@@ -1,7 +1,7 @@
 import testUtils from '../../utils/index';
 
 import Excel from '#src/index';
-import Dimensions from '#src/doc/range';
+import Dimensions from '#src/models/range';
 
 describe('Worksheet', () => {
   describe('Merge Cells', () => {
@@ -64,7 +64,7 @@ describe('Worksheet', () => {
           for (let j = d.left; j <= d.right; j++) {
             const cell = ws.getCell(i, j);
             const masterCell = master ? ws.getCell(master) : cell;
-            expect(cell.master.address).to.equal(masterCell.address);
+            expect((cell as any).master.address).to.equal(masterCell.address);
           }
         }
       };
@@ -193,9 +193,9 @@ describe('Worksheet', () => {
       const r2 = ws.getRow(2);
       const r3 = ws.getRow(3);
 
-      const cellVals = [];
+      const cellVals: any[] = [];
       for (const r of [r2, r3]) {
-        for (const cell of r._cells) {
+        for (const cell of (r as any)._cells) {
           cellVals.push(cell._value);
         }
       }

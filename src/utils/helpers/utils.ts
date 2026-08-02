@@ -1,52 +1,7 @@
-import fsSync from 'node:fs';
-import fs from 'node:fs/promises';
-
-// Legacy inheritance helper shim
-const inherits = function (cls: any, superCtor: any, statics?: any, prototype?: any) {
-  cls.super_ = superCtor;
-
-  if (!prototype) {
-    prototype = statics;
-    statics = null;
-  }
-
-  if (statics) {
-    Object.keys(statics).forEach((i) => {
-      Object.defineProperty(cls, i, Object.getOwnPropertyDescriptor(statics, i)!);
-    });
-  }
-
-  const properties: Record<string, any> = {
-    constructor: {
-      value: cls,
-      enumerable: false,
-      writable: false,
-      configurable: true,
-    },
-  };
-  if (prototype) {
-    Object.keys(prototype).forEach((i) => {
-      properties[i] = Object.getOwnPropertyDescriptor(prototype, i);
-    });
-  }
-
-  cls.prototype = Object.create(superCtor.prototype, properties);
-};
-
 // eslint-disable-next-line no-control-regex
 const xmlDecodeRegex = /[<>&'"\x7F\x00-\x08\x0B-\x0C\x0E-\x1F]/;
 
 const utils = {
-  nop() {},
-
-  promiseImmediate<T>(value?: T): Promise<T> {
-    return new Promise((resolve) => {
-      setImmediate(() => resolve(value!));
-    });
-  },
-
-  inherits,
-
   dateToExcel(d: Date | string | number, date1904?: boolean): number {
     const dt = d instanceof Date ? d : new Date(d);
     return 25569 + dt.getTime() / (24 * 3600 * 1000) - (date1904 ? 1462 : 0);
@@ -155,21 +110,6 @@ const utils = {
     // remove all chars inside quotes and []
     const cleaned = fmt.replace(/\[[^\]]*]/g, '').replace(/"[^"]*"/g, '');
     return /[ymdhMsb]+/.test(cleaned);
-  },
-
-  fs: {
-    async exists(path: string): Promise<boolean> {
-      try {
-        await fs.access(path, fsSync.constants.F_OK);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-  },
-
-  toIsoDateString(dt: Date): string {
-    return dt.toISOString().slice(0, 10);
   },
 
   parseBoolean(value: any): boolean {

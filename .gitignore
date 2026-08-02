@@ -3,6 +3,7 @@ dist/
 build/
 out/
 fixtures/out/
+*.tsbuildinfo
 
 # Dependencies
 node_modules/

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
-import Enums from '#src/doc/enums';
+import Enums from '#src/models/enums';
 import XmlStream from '#src/utils/stream/xml-stream';
 import WorksheetXform from '#src/xlsx/xform/sheet/worksheet-xform';
 

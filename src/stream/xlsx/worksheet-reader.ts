@@ -1,13 +1,55 @@
 import { EventEmitter } from 'events';
-import parseSax from '#src/utils/helpers/parse-sax';
+import { XMLParser } from 'fast-xml-parser';
 
 import _ from '#src/utils/helpers/under-dash';
 import utils from '#src/utils/helpers/utils';
 import colCache from '#src/utils/data/col-cache';
-import Dimensions from '#src/doc/range';
+import Dimensions from '#src/models/range';
 
-import Row from '#src/doc/row';
-import Column from '#src/doc/column';
+import Row from '#src/models/row';
+import Column from '#src/models/column';
+import type { WorksheetLike } from '#src/models/internal-types';
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+const textDecoder = new TextDecoder('utf-8');
+
+function decodeChunk(chunk: unknown): string {
+  if (typeof chunk === 'string') return chunk;
+  if (chunk instanceof Uint8Array) return textDecoder.decode(chunk);
+  if (Buffer.isBuffer(chunk)) return textDecoder.decode(chunk);
+  return String(chunk);
+}
+
+/** Extract text content from a fast-xml-parser node value. */
+function getNodeText(val: unknown): string {
+  if (val === undefined || val === null) return '';
+  if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
+    return String(val);
+  }
+  if (typeof val === 'object' && '#text' in (val as Record<string, unknown>)) {
+    return String((val as Record<string, unknown>)['#text']);
+  }
+  return '';
+}
+
+// Shared XMLParser for worksheet XML
+const worksheetParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '',
+  parseAttributeValue: false,
+  htmlEntities: true,
+  trimValues: false,
+  parseTagValue: false,
+  textNodeName: '#text',
+  isArray: (name: string) => ['col', 'row', 'c', 'hyperlink'].includes(name),
+});
+
+// ---------------------------------------------------------------------------
+// WorksheetReader
+// ---------------------------------------------------------------------------
 
 class WorksheetReader extends EventEmitter {
   workbook: any;
@@ -36,7 +78,7 @@ class WorksheetReader extends EventEmitter {
     this._keys = {};
 
     // keep a record of dimensions
-    this._dimensions = new Dimensions(undefined);
+    this._dimensions = new Dimensions();
   }
 
   // destroy - not a valid operation for a streaming writer
@@ -77,7 +119,7 @@ class WorksheetReader extends EventEmitter {
     if (c > this._columns.length) {
       let n = this._columns.length + 1;
       while (n <= c) {
-        this._columns.push(new Column(this, n++));
+        this._columns.push(new Column(this as unknown as WorksheetLike, n++));
       }
     }
     return this._columns[c - 1];
@@ -126,7 +168,8 @@ class WorksheetReader extends EventEmitter {
     const { iterator, options } = this;
     let emitSheet = false;
     let emitHyperlinks = false;
-    let hyperlinks = null;
+    let hyperlinks: Record<string, any> | null = null;
+
     switch (options.worksheets) {
       case 'emit':
         emitSheet = true;
@@ -153,229 +196,190 @@ class WorksheetReader extends EventEmitter {
     // references
     const { sharedStrings, styles, properties } = this.workbook;
 
-    // xml position
-    let inCols = false;
-    let inRows = false;
-    let inHyperlinks = false;
+    // Collect all XML chunks
+    const parts: string[] = [];
+    for await (const chunk of iterator) {
+      parts.push(decodeChunk(chunk));
+    }
+    const xml = parts.join('');
+    if (!xml) return;
 
-    // parse state
-    let cols: any = null;
-    let row: any = null;
-    let c: any = null;
-    let current: any = null;
-    for await (const events of parseSax(iterator)) {
-      const worksheetEvents = [];
-      for (const { eventType, value } of events) {
-        if (eventType === 'opentag') {
-          const node: any = value;
-          if (emitSheet) {
-            switch (node.name) {
-              case 'cols':
-                inCols = true;
-                cols = [];
-                break;
-              case 'sheetData':
-                inRows = true;
-                break;
+    const doc = worksheetParser.parse(xml);
+    const ws = doc.worksheet;
+    if (!ws) return;
 
-              case 'col':
-                if (inCols) {
-                  cols.push({
-                    min: parseInt(node.attributes.min, 10),
-                    max: parseInt(node.attributes.max, 10),
-                    width: parseFloat(node.attributes.width),
-                    styleId: parseInt(node.attributes.style || '0', 10),
-                  });
-                }
-                break;
+    // -----------------------------------------------------------------------
+    // Hyperlinks from <hyperlinks> element — parsed FIRST so we can apply
+    // them to cells during row processing (fixes ordering issue in old code).
+    // -----------------------------------------------------------------------
+    if ((emitHyperlinks || hyperlinks) && ws.hyperlinks?.hyperlink) {
+      for (const hl of ws.hyperlinks.hyperlink as any[]) {
+        const hyperlink = {
+          ref: hl.ref,
+          rId: hl['r:id'],
+        };
+        if (hyperlinks) {
+          (hyperlinks as Record<string, any>)[hyperlink.ref] = hyperlink;
+        }
+      }
+    }
 
-              case 'row':
-                if (inRows) {
-                  const r = parseInt(node.attributes.r, 10);
-                  row = new Row(this, r);
-                  if (node.attributes.ht) {
-                    row.height = parseFloat(node.attributes.ht);
-                  }
-                  if (node.attributes.s) {
-                    const styleId = parseInt(node.attributes.s, 10);
-                    const style = styles.getStyleModel(styleId);
-                    if (style) {
-                      row.style = style;
-                    }
-                  }
-                }
-                break;
-              case 'c':
-                if (row) {
-                  c = {
-                    ref: node.attributes.r,
-                    s: parseInt(node.attributes.s, 10),
-                    t: node.attributes.t,
-                  };
-                }
-                break;
-              case 'f':
-                if (c) {
-                  current = c.f = { text: '' };
-                }
-                break;
-              case 'v':
-                if (c) {
-                  current = c.v = { text: '' };
-                }
-                break;
-              case 'is':
-              case 't':
-                if (c) {
-                  current = c.v = { text: '' };
-                }
-                break;
-              case 'mergeCell':
-                break;
-              default:
-                break;
+    // -----------------------------------------------------------------------
+    // Columns
+    // -----------------------------------------------------------------------
+    if (emitSheet && ws.cols?.col) {
+      const cols: any[] = (ws.cols.col as any[]).map((col: any) => ({
+        min: parseInt(col.min, 10),
+        max: parseInt(col.max, 10),
+        width: parseFloat(col.width),
+        styleId: parseInt(col.style || '0', 10),
+      }));
+      this._columns = Column.fromModel(this as unknown as WorksheetLike, cols);
+    }
+
+    // -----------------------------------------------------------------------
+    // Rows & cells
+    // -----------------------------------------------------------------------
+    if (emitSheet && ws.sheetData?.row) {
+      for (const rowNode of ws.sheetData.row as any[]) {
+        const worksheetEvents: any[] = [];
+
+        const r = parseInt(rowNode.r, 10);
+        const row = new Row(this as unknown as WorksheetLike, r);
+
+        if (rowNode.ht) {
+          row.height = parseFloat(rowNode.ht);
+        }
+        if (rowNode.s) {
+          const styleId = parseInt(rowNode.s, 10);
+          const style = styles.getStyleModel(styleId);
+          if (style) {
+            row.style = style;
+          }
+        }
+
+        for (const cellNode of (rowNode.c as any[]) || []) {
+          const address = colCache.decodeAddress(cellNode.r);
+          const cell = row.getCell(address.col);
+
+          // Cell style
+          if (cellNode.s) {
+            const style = styles.getStyleModel(parseInt(cellNode.s, 10));
+            if (style) {
+              cell.style = style;
             }
           }
 
-          // =================================================================
-          //
-          if (emitHyperlinks || hyperlinks) {
-            switch (node.name) {
-              case 'hyperlinks':
-                inHyperlinks = true;
-                break;
-              case 'hyperlink':
-                if (inHyperlinks) {
-                  const hyperlink = {
-                    ref: node.attributes.ref,
-                    rId: node.attributes['r:id'],
-                  };
-                  if (emitHyperlinks) {
-                    worksheetEvents.push({ eventType: 'hyperlink', value: hyperlink });
-                  } else {
-                    (hyperlinks as any)[hyperlink.ref] = hyperlink;
-                  }
+          const cellType: string | undefined = cellNode.t;
+          const fNode = cellNode.f;
+          const vNode = cellNode.v;
+
+          if (fNode !== undefined) {
+            // ---------------------------------------------------------------
+            // Formula cell
+            // ---------------------------------------------------------------
+            const formulaText = getNodeText(fNode);
+            const fAttrs: Record<string, any> =
+              typeof fNode === 'object' && fNode !== null ? (fNode as Record<string, any>) : {};
+
+            const cellValue: any = {};
+            if (formulaText) cellValue.formula = formulaText;
+            if (fAttrs.t) cellValue.shareType = fAttrs.t;
+            if (fAttrs.ref) cellValue.ref = fAttrs.ref;
+            if (fAttrs.si !== undefined) cellValue.si = fAttrs.si;
+
+            if (vNode !== undefined) {
+              const vText = getNodeText(vNode);
+              if (cellType === 'str') {
+                cellValue.result = vText;
+              } else if (cellType === 'b') {
+                cellValue.result = parseInt(vText, 10) !== 0;
+              } else if (cellType === 'e') {
+                cellValue.result = { error: vText };
+              } else {
+                cellValue.result = parseFloat(vText);
+              }
+            }
+            cell.value = cellValue;
+          } else if (vNode !== undefined) {
+            // ---------------------------------------------------------------
+            // Value cell
+            // ---------------------------------------------------------------
+            const vText = getNodeText(vNode);
+            switch (cellType) {
+              case 's': {
+                const index = parseInt(vText, 10);
+                if (sharedStrings) {
+                  cell.value = sharedStrings[index];
+                } else {
+                  cell.value = { sharedString: index };
                 }
                 break;
+              }
+
+              case 'inlineStr':
+              case 'str':
+                cell.value = vText;
+                break;
+
+              case 'e':
+                cell.value = { error: vText };
+                break;
+
+              case 'b':
+                cell.value = parseInt(vText, 10) !== 0;
+                break;
+
               default:
-                break;
-            }
-          }
-        } else if (eventType === 'text') {
-          // only text data is for sheet values
-          if (emitSheet) {
-            if (current) {
-              current.text += value;
-            }
-          }
-        } else if (eventType === 'closetag') {
-          const node: any = value;
-          if (emitSheet) {
-            switch (node.name) {
-              case 'cols':
-                inCols = false;
-                this._columns = Column.fromModel(cols, this.options);
-                break;
-              case 'sheetData':
-                inRows = false;
-                break;
-
-              case 'row':
-                this._dimensions.expandRow(row);
-                worksheetEvents.push({ eventType: 'row', value: row });
-                row = null;
-                break;
-
-              case 'c':
-                if (row && c) {
-                  const address = colCache.decodeAddress(c.ref);
-                  const cell = row.getCell(address.col);
-                  if (c.s) {
-                    const style = styles.getStyleModel(c.s);
-                    if (style) {
-                      cell.style = style;
-                    }
-                  }
-
-                  if (c.f) {
-                    const cellValue: any = {
-                      formula: c.f.text,
-                    };
-                    if (c.v) {
-                      if (c.t === 'str') {
-                        cellValue.result = utils.xmlDecode(c.v.text);
-                      } else {
-                        cellValue.result = parseFloat(c.v.text);
-                      }
-                    }
-                    cell.value = cellValue;
-                  } else if (c.v) {
-                    switch (c.t) {
-                      case 's': {
-                        const index = parseInt(c.v.text, 10);
-                        if (sharedStrings) {
-                          cell.value = sharedStrings[index];
-                        } else {
-                          cell.value = {
-                            sharedString: index,
-                          };
-                        }
-                        break;
-                      }
-
-                      case 'inlineStr':
-                      case 'str':
-                        cell.value = utils.xmlDecode(c.v.text);
-                        break;
-
-                      case 'e':
-                        cell.value = { error: c.v.text };
-                        break;
-
-                      case 'b':
-                        cell.value = parseInt(c.v.text, 10) !== 0;
-                        break;
-
-                      default:
-                        if (utils.isDateFmt(cell.numFmt)) {
-                          cell.value = utils.excelToDate(
-                            parseFloat(c.v.text),
-                            properties.model && properties.model.date1904
-                          );
-                        } else {
-                          cell.value = parseFloat(c.v.text);
-                        }
-                        break;
-                    }
-                  }
-                  if (hyperlinks) {
-                    const hyperlink = (hyperlinks as any)[c.ref];
-                    if (hyperlink) {
-                      cell.text = cell.value;
-                      cell.value = undefined;
-                      cell.hyperlink = hyperlink;
-                    }
-                  }
-                  c = null;
+                if (utils.isDateFmt(cell.numFmt as string)) {
+                  cell.value = utils.excelToDate(parseFloat(vText), properties?.model?.date1904);
+                } else {
+                  cell.value = parseFloat(vText);
                 }
                 break;
-              default:
-                break;
             }
+          } else if (cellNode.is !== undefined) {
+            // ---------------------------------------------------------------
+            // Inline string cell
+            // ---------------------------------------------------------------
+            const isNode = cellNode.is;
+            const tNode = typeof isNode === 'object' && isNode !== null ? isNode.t : undefined;
+            cell.value = tNode !== undefined ? getNodeText(tNode) : '';
           }
-          if (emitHyperlinks || hyperlinks) {
-            switch (node.name) {
-              case 'hyperlinks':
-                inHyperlinks = false;
-                break;
-              default:
-                break;
+
+          // Apply cached hyperlink if present
+          if (hyperlinks) {
+            const hyperlink = (hyperlinks as Record<string, any>)[cellNode.r];
+            if (hyperlink) {
+              cell.text = cell.value;
+              cell.value = undefined;
+              cell.hyperlink = hyperlink;
             }
           }
         }
+
+        this._dimensions.expandRow(row);
+        worksheetEvents.push({ eventType: 'row', value: row });
+
+        if (worksheetEvents.length > 0) {
+          yield worksheetEvents;
+        }
       }
-      if (worksheetEvents.length > 0) {
-        yield worksheetEvents;
+    }
+
+    // -----------------------------------------------------------------------
+    // Emit hyperlink events (emit mode — emit after rows are done)
+    // -----------------------------------------------------------------------
+    if (emitHyperlinks && ws.hyperlinks?.hyperlink) {
+      const hyperlinkEvents: any[] = [];
+      for (const hl of ws.hyperlinks.hyperlink as any[]) {
+        hyperlinkEvents.push({
+          eventType: 'hyperlink',
+          value: { ref: hl.ref, rId: hl['r:id'] },
+        });
+      }
+      if (hyperlinkEvents.length > 0) {
+        yield hyperlinkEvents;
       }
     }
   }

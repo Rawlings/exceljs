@@ -9,7 +9,7 @@ describe('github issues', () => {
       .readFile('./fixtures/xlsx/test-issue-623.xlsx')
       .then(() => {
         // styles of each cell should be read as is without merging
-        const worksheet = wb.getWorksheet(1);
+        const worksheet = wb.getWorksheet(1)!;
         checkBorder(worksheet.getCell('B2'), ['left', 'top']);
         checkBorder(worksheet.getCell('B3'), ['left', 'bottom']);
         checkBorder(worksheet.getCell('C2'), ['right', 'top']);

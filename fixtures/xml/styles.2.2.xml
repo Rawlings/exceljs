@@ -7,9 +7,9 @@
         <font>
             <color theme="1"/>
             <family val="2"/>
+            <scheme val="minor"/>
             <sz val="11"/>
             <name val="Calibri"/>
-            <scheme val="minor"/>
         </font>
     </fonts>
     <fills count="2">

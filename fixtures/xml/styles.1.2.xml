@@ -14,23 +14,23 @@
         <font>
             <color theme="1"/>
             <family val="5"/>
+            <scheme val="minor"/>
             <sz val="18"/>
             <name val="Bauhaus 93"/>
-            <scheme val="minor"/>
         </font>
         <font>
             <b/>
             <u val="double"/>
+            <family val="4"/>
             <sz val="16"/>
             <name val="Comic Sans MS"/>
-            <family val="4"/>
         </font>
         <font>
             <i/>
             <u/>
+            <family val="2"/>
             <sz val="14"/>
             <name val="Arial Black"/>
-            <family val="2"/>
         </font>
     </fonts>
     <fills count="6">

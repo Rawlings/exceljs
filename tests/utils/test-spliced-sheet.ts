@@ -1,4 +1,4 @@
-import Enums from '#src/doc/enums';
+import Enums from '#src/models/enums';
 
 const self: any = {
   rows: {

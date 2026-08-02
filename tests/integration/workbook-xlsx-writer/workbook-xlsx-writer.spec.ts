@@ -62,7 +62,7 @@ describe('WorkbookWriter', () => {
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
         .then((wb2: any) => {
-          const ws2 = wb2.getWorksheet('Hello');
+          const ws2 = wb2.getWorksheet('Hello')!;
           expect(ws2.getCell('A1').value).to.deep.equal({
             formula: 'ROW()+COLUMN()',
             shareType: 'shared',
@@ -108,7 +108,7 @@ describe('WorkbookWriter', () => {
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
         .then((wb2: any) => {
-          const ws2 = wb2.getWorksheet('Hello');
+          const ws2 = wb2.getWorksheet('Hello')!;
           expect(ws2.autoFilter).to.equal('A1:B1');
         });
     });
@@ -227,7 +227,7 @@ describe('WorkbookWriter', () => {
           return wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
         })
         .then((wb2: any) => {
-          const ws2 = wb2.getWorksheet('Hello');
+          const ws2 = wb2.getWorksheet('Hello')!;
           expect(ws2.getCell('A1').value).to.deep.equal({
             richText: [
               {
@@ -428,15 +428,15 @@ describe('WorkbookWriter', () => {
 
       const wb2 = new ExcelJS.Workbook();
       await wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
-      const ws2 = wb2.getWorksheet('Hello');
+      const ws2 = wb2.getWorksheet('Hello')!;
 
       expect(ws2.getCell('B2').value).to.equal(5);
       expect(ws2.getCell('B2').note).to.equal('five');
       expect(ws2.getCell('D2').value).to.equal(7);
-      expect(ws2.getCell('D2').note.texts).to.deep.equal(note.texts);
-      expect(ws2.getCell('D2').note.margins).to.deep.equal(note.margins);
-      expect(ws2.getCell('D2').note.protection).to.deep.equal(note.protection);
-      expect(ws2.getCell('D2').note.editAs).to.deep.equal(note.editAs);
+      expect((ws2.getCell('D2').note as any).texts).to.deep.equal(note.texts);
+      expect((ws2.getCell('D2').note as any).margins).to.deep.equal(note.margins);
+      expect((ws2.getCell('D2').note as any).protection).to.deep.equal(note.protection);
+      expect((ws2.getCell('D2').note as any).editAs).to.deep.equal(note.editAs);
     });
 
     it('Cell annotation supports setting margins and protection properties', async () => {
@@ -476,15 +476,15 @@ describe('WorkbookWriter', () => {
 
       const wb2 = new ExcelJS.Workbook();
       await wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
-      const ws2 = wb2.getWorksheet('Hello');
+      const ws2 = wb2.getWorksheet('Hello')!;
       expect(ws2.getCell('B2').value).to.equal(5);
       expect(ws2.getCell('B2').note).to.equal('five');
 
       expect(ws2.getCell('D2').value).to.equal(7);
-      expect(ws2.getCell('D2').note.texts).to.deep.equal(note.texts);
-      expect(ws2.getCell('D2').note.margins).to.deep.equal(note.margins);
-      expect(ws2.getCell('D2').note.protection).to.deep.equal(note.protection);
-      expect(ws2.getCell('D2').note.editAs).to.deep.equal(note.editAs);
+      expect((ws2.getCell('D2').note as any).texts).to.deep.equal(note.texts);
+      expect((ws2.getCell('D2').note as any).margins).to.deep.equal(note.margins);
+      expect((ws2.getCell('D2').note as any).protection).to.deep.equal(note.protection);
+      expect((ws2.getCell('D2').note as any).editAs).to.deep.equal(note.editAs);
     });
 
     it('with background image', async () => {
@@ -505,10 +505,10 @@ describe('WorkbookWriter', () => {
 
       const wb2 = new ExcelJS.Workbook();
       await wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
-      const ws2 = wb2.getWorksheet('Hello');
+      const ws2 = wb2.getWorksheet('Hello')!;
 
       const backgroundId2 = ws2.getBackgroundImageId();
-      const image = wb2.getImage(backgroundId2);
+      const image = wb2.getImage(backgroundId2!) as any;
       const imageData = await fsReadFileAsync(IMAGE_FILENAME);
       expect(Buffer.compare(imageData, image.buffer)).to.equal(0);
     });
@@ -532,10 +532,10 @@ describe('WorkbookWriter', () => {
 
       const wb2 = new ExcelJS.Workbook();
       await wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
-      const ws2 = wb2.getWorksheet('Hello');
+      const ws2 = wb2.getWorksheet('Hello')!;
 
       const backgroundId2 = ws2.getBackgroundImageId();
-      const image = wb2.getImage(backgroundId2);
+      const image = wb2.getImage(backgroundId2!) as any;
       const imageData = await fsReadFileAsync(IMAGE_FILENAME);
       expect(Buffer.compare(imageData, image.buffer)).to.equal(0);
     });
@@ -575,8 +575,8 @@ describe('WorkbookWriter', () => {
       // read generated file and extract saved conditional formatting rule
       const wb2 = new ExcelJS.Workbook();
       await wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
-      const ws2 = wb2.getWorksheet(sheet);
-      const [cf2] = ws2.conditionalFormattings;
+      const ws2 = wb2.getWorksheet(sheet)!;
+      const [cf2] = ws2.conditionalFormattings as any[];
 
       // verify that rules from generated file contain styles with valid numFmt
       cf2.rules.forEach((rule: any) => {

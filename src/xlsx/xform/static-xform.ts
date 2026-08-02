@@ -48,6 +48,17 @@ class StaticXform extends BaseXform {
     xmlStream.writeXml(this._xml);
   }
 
+  override reset(): void {
+    // StaticXform is stateless by design — _model holds the static config, not parse state
+  }
+
+  override get model() {
+    return null;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  override set model(_val: any) {}
+
   parseOpen() {
     return true;
   }

@@ -1,7 +1,9 @@
-import Worksheet from '#src/doc/worksheet';
-import DefinedNames from '#src/doc/defined-names';
+import Worksheet from '#src/models/worksheet';
+import type { WorksheetOptions } from '#src/models/worksheet';
+import DefinedNames from '#src/models/defined-names';
 import XLSX from '#src/xlsx/xlsx';
 import CSV from '#src/csv/csv';
+import type { WorkbookLike } from '#src/models/internal-types';
 
 // Workbook requirements
 //  Load and Save from file and stream
@@ -9,7 +11,34 @@ import CSV from '#src/csv/csv';
 //  Manage String table, Hyperlink table, etc.
 //  Manage scaffolding for contained objects to write to/read from
 
-class Workbook {
+export interface WorkbookModel {
+  creator: string;
+  lastModifiedBy: string;
+  lastPrinted: unknown;
+  created: Date;
+  modified: Date;
+  properties: Record<string, unknown>;
+  worksheets: Record<string, unknown>[];
+  sheets: Record<string, unknown>[];
+  definedNames: unknown;
+  views: unknown[];
+  company: string;
+  manager: string;
+  title: string;
+  subject: string;
+  keywords: string;
+  category: string;
+  description: string;
+  language: unknown;
+  revision: unknown;
+  contentStatus: unknown;
+  themes: unknown;
+  media: unknown[];
+  pivotTables: unknown[];
+  calcProperties: Record<string, unknown>;
+}
+
+class Workbook implements WorkbookLike {
   category: string;
   company: string;
   created: Date;
@@ -17,24 +46,24 @@ class Workbook {
   keywords: string;
   manager: string;
   modified: Date;
-  properties: any;
-  calcProperties: any;
-  _worksheets: any[];
+  properties: Record<string, unknown>;
+  calcProperties: Record<string, unknown>;
+  _worksheets: (Worksheet | undefined)[];
   subject: string;
   title: string;
-  views: any[];
-  media: any[];
-  pivotTables: any[];
-  _definedNames: any;
-  _xlsx: any;
-  _csv: any;
-  _themes: any;
-  creator: any;
-  lastModifiedBy: any;
-  lastPrinted: any;
-  language: any;
-  revision: any;
-  contentStatus: any;
+  views: unknown[];
+  media: unknown[];
+  pivotTables: unknown[];
+  _definedNames: DefinedNames;
+  _xlsx: XLSX | undefined;
+  _csv: CSV | undefined;
+  _themes: unknown;
+  creator: unknown;
+  lastModifiedBy: unknown;
+  lastPrinted: unknown;
+  language: unknown;
+  revision: unknown;
+  contentStatus: unknown;
 
   constructor() {
     this.category = '';
@@ -55,17 +84,17 @@ class Workbook {
     this._definedNames = new DefinedNames();
   }
 
-  get xlsx() {
+  get xlsx(): XLSX {
     if (!this._xlsx) this._xlsx = new XLSX(this);
     return this._xlsx;
   }
 
-  get csv() {
+  get csv(): CSV {
     if (!this._csv) this._csv = new CSV(this);
     return this._csv;
   }
 
-  get nextId() {
+  get nextId(): number {
     // find the next unique spot to add worksheet
     for (let i = 1; i < this._worksheets.length; i++) {
       if (!this._worksheets[i]) {
@@ -75,7 +104,7 @@ class Workbook {
     return this._worksheets.length || 1;
   }
 
-  addWorksheet(name?: any, options?: any) {
+  addWorksheet(name?: string, options?: Record<string, unknown> | string): Worksheet {
     const id = this.nextId;
 
     // if options is a color, call it tabColor (and signal deprecated message)
@@ -104,10 +133,10 @@ class Workbook {
     }
 
     const lastOrderNo = this._worksheets.reduce(
-      (acc, ws) => ((ws && ws.orderNo) > acc ? ws.orderNo : acc),
+      (acc: number, ws) => (ws && (ws.orderNo as number) > acc ? (ws.orderNo as number) : acc),
       0
     );
-    const worksheetOptions = Object.assign({}, options, {
+    const worksheetOptions: WorksheetOptions = Object.assign({}, options, {
       id,
       name,
       orderNo: lastOrderNo + 1,
@@ -120,18 +149,18 @@ class Workbook {
     return worksheet;
   }
 
-  removeWorksheetEx(worksheet: any) {
+  removeWorksheetEx(worksheet: Worksheet) {
     delete this._worksheets[worksheet.id];
   }
 
-  removeWorksheet(id: any) {
+  removeWorksheet(id: number | string) {
     const worksheet = this.getWorksheet(id);
     if (worksheet) {
       worksheet.destroy();
     }
   }
 
-  getWorksheet(id: any) {
+  getWorksheet(id?: number | string): Worksheet | undefined {
     if (id === undefined) {
       return this._worksheets.find(Boolean);
     }
@@ -144,21 +173,21 @@ class Workbook {
     return undefined;
   }
 
-  get worksheets() {
+  get worksheets(): Worksheet[] {
     // return a clone of _worksheets
-    return this._worksheets
+    return (this._worksheets as Worksheet[])
       .slice(1)
-      .sort((a, b) => a.orderNo - b.orderNo)
+      .sort((a, b) => (a?.orderNo as number) - (b?.orderNo as number))
       .filter(Boolean);
   }
 
-  eachSheet(iteratee: any) {
+  eachSheet(iteratee: (sheet: Worksheet, id: number) => void) {
     this.worksheets.forEach((sheet) => {
       iteratee(sheet, sheet.id);
     });
   }
 
-  get definedNames() {
+  get definedNames(): DefinedNames {
     return this._definedNames;
   }
 
@@ -167,28 +196,34 @@ class Workbook {
     this._themes = undefined;
   }
 
-  addImage(image: any) {
+  addImage(image: Record<string, unknown>): number {
     // TODO:  validation?
     const id = this.media.length;
     this.media.push(Object.assign({}, image, { type: 'image' }));
     return id;
   }
 
-  getImage(id: any) {
+  getImage(id: number): unknown {
     return this.media[id];
   }
 
-  get model() {
+  get model(): WorkbookModel {
     return {
-      creator: this.creator || 'Unknown',
-      lastModifiedBy: this.lastModifiedBy || 'Unknown',
+      creator: (this.creator as string) || 'Unknown',
+      lastModifiedBy: (this.lastModifiedBy as string) || 'Unknown',
       lastPrinted: this.lastPrinted,
       created: this.created,
       modified: this.modified,
       properties: this.properties,
-      worksheets: this.worksheets.map((worksheet) => worksheet.model),
-      sheets: this.worksheets.map((ws) => ws.model).filter(Boolean),
-      definedNames: this._definedNames.model,
+      worksheets: this.worksheets.map((worksheet) => worksheet.model) as unknown as Record<
+        string,
+        unknown
+      >[],
+      sheets: this.worksheets.map((ws) => ws.model).filter(Boolean) as unknown as Record<
+        string,
+        unknown
+      >[],
+      definedNames: (this._definedNames as unknown as { model: unknown }).model,
       views: this.views,
       company: this.company,
       manager: this.manager,
@@ -207,7 +242,7 @@ class Workbook {
     };
   }
 
-  set model(value: any) {
+  set model(value: WorkbookModel) {
     this.creator = value.creator;
     this.lastModifiedBy = value.lastModifiedBy;
     this.lastPrinted = value.lastPrinted;
@@ -227,11 +262,11 @@ class Workbook {
     this.properties = value.properties;
     this.calcProperties = value.calcProperties;
     this._worksheets = [];
-    value.worksheets.forEach((worksheetModel: any, index: number) => {
-      const id = worksheetModel.id || index + 1;
-      const name = worksheetModel.name;
-      const state = worksheetModel.state;
-      const orderNo = value.sheets && value.sheets.findIndex((ws: any) => ws.id === id);
+    value.worksheets.forEach((worksheetModel: Record<string, unknown>, index: number) => {
+      const id = (worksheetModel.id as number) || index + 1;
+      const name = worksheetModel.name as string;
+      const state = worksheetModel.state as string;
+      const orderNo = value.sheets && value.sheets.findIndex((ws) => ws.id === id);
       const worksheet = (this._worksheets[id] = new Worksheet({
         id,
         name,
@@ -239,10 +274,10 @@ class Workbook {
         state,
         workbook: this,
       }));
-      worksheet.model = worksheetModel;
+      (worksheet as unknown as { model: unknown }).model = worksheetModel;
     });
 
-    this._definedNames.model = value.definedNames;
+    (this._definedNames as unknown as { model: unknown }).model = value.definedNames;
     this.views = value.views;
     this._themes = value.themes;
     this.media = value.media || [];

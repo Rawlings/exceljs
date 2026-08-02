@@ -10,8 +10,8 @@ describe('github issues', () => {
       return wb.xlsx.readFile('./fixtures/xlsx/1904.xlsx').then(() => {
         expect(wb.properties.date1904).to.equal(true);
 
-        const ws = wb.getWorksheet('Sheet1');
-        expect(ws.getCell('B4').value.toISOString()).to.equal('1904-01-01T00:00:00.000Z');
+        const ws = wb.getWorksheet('Sheet1')!;
+        expect((ws.getCell('B4').value as Date).toISOString()).to.equal('1904-01-01T00:00:00.000Z');
       });
     });
     it('Writing and Reading', () => {

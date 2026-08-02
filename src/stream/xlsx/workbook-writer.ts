@@ -5,7 +5,7 @@ import { ZipWriter } from '#src/utils/stream/zip';
 import RelType from '#src/xlsx/rel-type';
 import StylesXform from '#src/xlsx/xform/style/styles-xform';
 import SharedStrings from '#src/utils/data/shared-strings';
-import DefinedNames from '#src/doc/defined-names';
+import DefinedNames from '#src/models/defined-names';
 
 import CoreXform from '#src/xlsx/xform/core/core-xform';
 import RelationshipsXform from '#src/xlsx/xform/core/relationships-xform';
@@ -157,7 +157,7 @@ class WorkbookWriter {
     return this.media[id];
   }
 
-  addWorksheet(name: any, options: any) {
+  addWorksheet(name?: any, options?: any) {
     // it's possible to add a worksheet with different than default
     // shared string handling
     // in fact, it's even possible to switch it mid-sheet
@@ -358,8 +358,12 @@ class WorkbookWriter {
   async _finalize() {
     const zipBuffer = await this.zip.generateAsync();
     if (typeof this.stream.write === 'function') {
-      this.stream.write(zipBuffer);
-      this.stream.end();
+      await new Promise<void>((resolve, reject) => {
+        this.stream.once('finish', resolve);
+        this.stream.once('error', reject);
+        this.stream.write(zipBuffer);
+        this.stream.end();
+      });
     }
     return this;
   }

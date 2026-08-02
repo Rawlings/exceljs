@@ -1,8 +1,8 @@
 import _ from '#src/utils/helpers/under-dash';
 
-import Range from '#src/doc/range';
+import Range from '#src/models/range';
 import colCache from '#src/utils/data/col-cache';
-import Enums from '#src/doc/enums';
+import Enums from '#src/models/enums';
 
 class Merges {
   merges: any;

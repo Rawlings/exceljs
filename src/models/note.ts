@@ -1,5 +1,35 @@
 import _ from '#src/utils/helpers/under-dash';
 
+export interface NoteMargins {
+  insetmode: 'auto' | 'custom';
+  inset: number[];
+}
+
+export interface NoteProtection {
+  locked: 'True' | 'False';
+  lockText: 'True' | 'False';
+}
+
+export type NoteEditAs = 'twoCells' | 'oneCells' | 'absolute';
+
+export interface NoteText {
+  text: string;
+}
+
+export interface NoteObject {
+  texts?: NoteText[];
+  margins?: Partial<NoteMargins>;
+  protection?: Partial<NoteProtection>;
+  editAs?: NoteEditAs;
+}
+
+export type NoteValue = string | NoteObject;
+
+export interface NoteModel {
+  type: 'note';
+  note: NoteObject;
+}
+
 export class Note {
   static DEFAULT_CONFIGS = {
     note: {
@@ -15,14 +45,14 @@ export class Note {
     },
   };
 
-  note: any;
+  note: NoteValue | undefined;
 
-  constructor(note?: any) {
+  constructor(note?: NoteValue) {
     this.note = note;
   }
 
-  get model() {
-    let value = null;
+  get model(): NoteModel {
+    let value: NoteModel;
     switch (typeof this.note) {
       case 'string':
         value = {
@@ -39,7 +69,7 @@ export class Note {
       default:
         value = {
           type: 'note',
-          note: this.note,
+          note: this.note as NoteObject,
         };
         break;
     }
@@ -47,7 +77,7 @@ export class Note {
     return _.deepMerge({}, Note.DEFAULT_CONFIGS, value);
   }
 
-  set model(value: any) {
+  set model(value: NoteModel) {
     const { note } = value;
     const { texts } = note;
     if (texts && texts.length === 1 && Object.keys(texts[0]).length === 1) {
@@ -57,7 +87,7 @@ export class Note {
     }
   }
 
-  static fromModel(model: any) {
+  static fromModel(model: NoteModel): Note {
     const note = new Note();
     note.model = model;
     return note;

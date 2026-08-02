@@ -1,13 +1,41 @@
 import colCache from '#src/utils/data/col-cache';
 
+export interface AnchorModel {
+  nativeCol: number;
+  nativeColOff: number;
+  nativeRow: number;
+  nativeRowOff: number;
+}
+
+export interface AnchorAddressInput {
+  col?: number;
+  row?: number;
+  nativeCol?: number;
+  nativeColOff?: number;
+  nativeRow?: number;
+  nativeRowOff?: number;
+}
+
+// The minimal worksheet surface Anchor needs — the full Worksheet class
+// is typed in a later phase; this forward-declared shape avoids a circular
+// import while still typing the two calls Anchor actually makes.
+export interface AnchorWorksheet {
+  getColumn(number: number): { isCustomWidth: boolean; width: number } | undefined;
+  getRow(number: number): { height: number } | undefined;
+}
+
 export class Anchor {
-  worksheet: any;
+  worksheet: AnchorWorksheet | undefined;
   nativeCol: number;
   nativeColOff: number;
   nativeRow: number;
   nativeRowOff: number;
 
-  constructor(worksheet?: any, address?: any, offset: number = 0) {
+  constructor(
+    worksheet?: AnchorWorksheet,
+    address?: string | AnchorAddressInput,
+    offset: number = 0
+  ) {
     this.worksheet = worksheet;
 
     if (!address) {
@@ -32,7 +60,7 @@ export class Anchor {
       this.nativeRow = 0;
       this.nativeRowOff = 0;
       this.col = address.col + offset;
-      this.row = address.row + offset;
+      this.row = (address.row || 0) + offset;
     } else {
       this.nativeCol = 0;
       this.nativeColOff = 0;
@@ -41,10 +69,16 @@ export class Anchor {
     }
   }
 
-  static asInstance(model: any) {
+  static asInstance(
+    model: Anchor | AnchorAddressInput | null | undefined
+  ): Anchor | null | undefined {
+    // NB: preserves original (likely unintended) behavior: `model` is passed
+    // as the `worksheet` positional arg, not `address` — since `address` is
+    // then undefined, the resulting Anchor's natives are zeroed, not built
+    // from `model`. Not fixing here; a typing pass must not change behavior.
     return model instanceof Anchor || model === null || model === undefined
       ? model
-      : new Anchor(model);
+      : new Anchor(model as unknown as AnchorWorksheet);
   }
 
   get col(): number {
@@ -66,22 +100,16 @@ export class Anchor {
   }
 
   get colWidth(): number {
-    return this.worksheet &&
-      this.worksheet.getColumn(this.nativeCol + 1) &&
-      this.worksheet.getColumn(this.nativeCol + 1).isCustomWidth
-      ? Math.floor(this.worksheet.getColumn(this.nativeCol + 1).width * 10000)
-      : 640000;
+    const column = this.worksheet && this.worksheet.getColumn(this.nativeCol + 1);
+    return column && column.isCustomWidth ? Math.floor(column.width * 10000) : 640000;
   }
 
   get rowHeight(): number {
-    return this.worksheet &&
-      this.worksheet.getRow(this.nativeRow + 1) &&
-      this.worksheet.getRow(this.nativeRow + 1).height
-      ? Math.floor(this.worksheet.getRow(this.nativeRow + 1).height * 10000)
-      : 180000;
+    const row = this.worksheet && this.worksheet.getRow(this.nativeRow + 1);
+    return row && row.height ? Math.floor(row.height * 10000) : 180000;
   }
 
-  get model() {
+  get model(): AnchorModel {
     return {
       nativeCol: this.nativeCol,
       nativeColOff: this.nativeColOff,
@@ -90,7 +118,7 @@ export class Anchor {
     };
   }
 
-  set model(value: any) {
+  set model(value: AnchorModel) {
     this.nativeCol = value.nativeCol;
     this.nativeColOff = value.nativeColOff;
     this.nativeRow = value.nativeRow;

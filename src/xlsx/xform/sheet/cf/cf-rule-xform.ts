@@ -1,7 +1,7 @@
 import BaseXform from '#src/xlsx/xform/base-xform';
 import CompositeXform from '#src/xlsx/xform/composite-xform';
 
-import Range from '#src/doc/range';
+import Range from '#src/models/range';
 
 import DatabarXform from '#src/xlsx/xform/sheet/cf/databar-xform';
 import ExtLstRefXform from '#src/xlsx/xform/sheet/cf/ext-lst-ref-xform';

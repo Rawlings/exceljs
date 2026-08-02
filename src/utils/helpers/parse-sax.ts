@@ -1,91 +1,147 @@
-import { PassThrough } from 'stream';
+import { XMLParser } from 'fast-xml-parser';
 
-const textDecoder = typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8') : null;
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
-function decodeChunk(chunk: any): string {
-  if (typeof chunk === 'string') {
-    return chunk;
-  }
-  if (textDecoder && chunk instanceof Uint8Array) {
-    return textDecoder.decode(chunk);
-  }
-  return chunk.toString();
+interface OpenTagEvent {
+  eventType: 'opentag';
+  value: { name: string; attributes: Record<string, string> };
 }
 
-function parseAttributes(attrStr: any) {
-  const attributes: Record<string, any> = {};
-  const regex = /([a-zA-Z0-9_:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
-  let match;
-  while ((match = regex.exec(attrStr)) !== null) {
-    attributes[match[1]] = match[2] !== undefined ? match[2] : match[3];
-  }
-  return attributes;
+interface TextEvent {
+  eventType: 'text';
+  value: string;
 }
 
-export default async function* parseSax(iterable: any) {
-  if (iterable.pipe && !iterable[Symbol.asyncIterator]) {
-    iterable = iterable.pipe(new PassThrough());
+interface CloseTagEvent {
+  eventType: 'closetag';
+  value: { name: string };
+}
+
+type SaxEvent = OpenTagEvent | TextEvent | CloseTagEvent;
+
+// ---------------------------------------------------------------------------
+// Chunk collection
+// ---------------------------------------------------------------------------
+
+const textDecoder = new TextDecoder('utf-8');
+
+function decodeChunk(chunk: unknown): string {
+  if (typeof chunk === 'string') return chunk;
+  if (chunk instanceof Uint8Array) return textDecoder.decode(chunk);
+  return String(chunk);
+}
+
+async function readAllChunks(iterable: any): Promise<string> {
+  if (typeof iterable.on !== 'function') {
+    // Async iterable (not a Node.js EventEmitter stream)
+    const parts: string[] = [];
+    for await (const chunk of iterable) {
+      parts.push(decodeChunk(chunk));
+    }
+    return parts.join('');
   }
 
-  let xml = '';
-  for await (const chunk of iterable) {
-    xml += decodeChunk(chunk);
-    const events = [];
-    let pos = 0;
+  const chunks: string[] = [];
 
-    while (pos < xml.length) {
-      const openIdx = xml.indexOf('<', pos);
-      if (openIdx === -1) {
-        break;
+  // If the readable stream has already ended, drain its buffer synchronously.
+  const state = (iterable as any)._readableState;
+  if (state?.ended) {
+    let chunk: unknown;
+    while ((chunk = iterable.read()) !== null) {
+      chunks.push(decodeChunk(chunk));
+    }
+    return chunks.join('');
+  }
+
+  // Live stream — collect via event listeners.
+  return new Promise<string>((resolve, reject) => {
+    const onData = (chunk: unknown) => chunks.push(decodeChunk(chunk));
+    const onEnd = () => {
+      cleanup();
+      resolve(chunks.join(''));
+    };
+    const onError = (err: unknown) => {
+      cleanup();
+      reject(err);
+    };
+    const cleanup = () => {
+      iterable.removeListener('data', onData);
+      iterable.removeListener('end', onEnd);
+      iterable.removeListener('error', onError);
+    };
+
+    iterable.on('data', onData);
+    iterable.on('end', onEnd);
+    iterable.on('error', onError);
+    if (typeof iterable.resume === 'function') iterable.resume();
+  });
+}
+
+// ---------------------------------------------------------------------------
+// XML parser (shared instance — XMLParser is stateless after construction)
+// ---------------------------------------------------------------------------
+
+const xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '',
+  parseAttributeValue: false, // keep all attribute values as raw strings
+  htmlEntities: true,
+  trimValues: false,
+  parseTagValue: false,
+  preserveOrder: true, // returns an ordered array of nodes, perfect for SAX-style walk
+  processEntities: true,
+  stopNodes: ['worksheet.sheetData.row.c.f'], // don't recurse into formula text
+});
+
+// ---------------------------------------------------------------------------
+// Tree → SAX event walk
+// ---------------------------------------------------------------------------
+
+// Nodes to skip entirely (XML declaration, processing instructions, comments, CDATA wrappers)
+const SKIP_PREFIXES = ['?', '!'];
+
+function* walkNodes(nodes: any[]): Generator<SaxEvent> {
+  for (const node of nodes) {
+    const nodeKeys = Object.keys(node);
+
+    // Text node: { '#text': '...' }
+    if (nodeKeys.length === 1 && nodeKeys[0] === '#text') {
+      const text = String(node['#text']);
+      if (text) {
+        yield { eventType: 'text', value: text };
       }
-
-      if (openIdx > pos) {
-        const text = xml.slice(pos, openIdx);
-        if (text) {
-          events.push({ eventType: 'text', value: text });
-        }
-      }
-
-      const closeIdx = xml.indexOf('>', openIdx);
-      if (closeIdx === -1) {
-        pos = openIdx;
-        break;
-      }
-
-      const tagContent = xml.slice(openIdx + 1, closeIdx).trim();
-      pos = closeIdx + 1;
-
-      if (!tagContent || tagContent.startsWith('?') || tagContent.startsWith('!')) {
-        continue;
-      }
-
-      if (tagContent.startsWith('/')) {
-        const name = tagContent.slice(1).trim();
-        events.push({ eventType: 'closetag', value: { name } });
-      } else {
-        const isSelfClosing = tagContent.endsWith('/');
-        const cleanContent = isSelfClosing ? tagContent.slice(0, -1).trim() : tagContent;
-        const spaceIdx = cleanContent.search(/\s/);
-        let name;
-        let attrStr;
-        if (spaceIdx === -1) {
-          name = cleanContent;
-          attrStr = '';
-        } else {
-          name = cleanContent.slice(0, spaceIdx);
-          attrStr = cleanContent.slice(spaceIdx + 1);
-        }
-        const attributes = parseAttributes(attrStr);
-        events.push({ eventType: 'opentag', value: { name, attributes, isSelfClosing } });
-        if (isSelfClosing) {
-          events.push({ eventType: 'closetag', value: { name } });
-        }
-      }
+      continue;
     }
 
-    xml = xml.slice(pos);
-    if (events.length > 0) {
-      yield events;
-    }
+    // Find the element tag name (everything except the attributes key ':@')
+    const tagName = nodeKeys.find((k) => k !== ':@');
+    if (!tagName) continue;
+
+    // Skip XML declarations, processing instructions, comments
+    if (SKIP_PREFIXES.some((p) => tagName.startsWith(p))) continue;
+
+    const attributes: Record<string, string> = node[':@'] ?? {};
+    const children: any[] = node[tagName] ?? [];
+
+    yield { eventType: 'opentag', value: { name: tagName, attributes } };
+    yield* walkNodes(children);
+    yield { eventType: 'closetag', value: { name: tagName } };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Public API — drop-in replacement for the old hand-rolled parseSax
+// ---------------------------------------------------------------------------
+
+export default async function* parseSax(iterable: any): AsyncGenerator<SaxEvent[]> {
+  const xml = await readAllChunks(iterable);
+  if (!xml) return;
+
+  const tree: any[] = xmlParser.parse(xml);
+  const events = Array.from(walkNodes(tree));
+  if (events.length > 0) {
+    yield events;
   }
 }

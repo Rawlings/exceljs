@@ -1,4 +1,4 @@
-import Enums from '#src/doc/enums';
+import Enums from '#src/models/enums';
 
 import utils from '#src/utils/helpers/utils';
 import BaseXform from '#src/xlsx/xform/base-xform';

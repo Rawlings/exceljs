@@ -4,13 +4,14 @@ import RelType from '#src/xlsx/rel-type';
 
 import colCache from '#src/utils/data/col-cache';
 import Encryptor from '#src/utils/crypto/encryptor';
-import Dimensions from '#src/doc/range';
-import Row from '#src/doc/row';
-import Column from '#src/doc/column';
+import Dimensions from '#src/models/range';
+import Row from '#src/models/row';
+import Column from '#src/models/column';
+import type { WorksheetLike } from '#src/models/internal-types';
 
 import SheetRelsWriter from '#src/stream/xlsx/sheet-rels-writer';
 import SheetCommentsWriter from '#src/stream/xlsx/sheet-comments-writer';
-import DataValidations from '#src/doc/data-validations';
+import DataValidations from '#src/models/data-validations';
 // ============================================================================================
 // Xforms
 import ListXform from '#src/xlsx/xform/list-xform';
@@ -325,7 +326,7 @@ class WorksheetWriter {
     let count = 1;
     const columns: any[] = (this._columns = []);
     value.forEach((defn: any) => {
-      const column = new Column(this, count++, false);
+      const column = new Column(this as unknown as WorksheetLike, count++, false);
       columns.push(column);
       column.defn = defn;
     });
@@ -364,7 +365,7 @@ class WorksheetWriter {
     if (c > this._columns.length) {
       let n = this._columns.length + 1;
       while (n <= c) {
-        this._columns.push(new Column(this, n++));
+        this._columns.push(new Column(this as unknown as WorksheetLike, n++));
       }
     }
     return this._columns[c - 1];
@@ -433,13 +434,13 @@ class WorksheetWriter {
     }
     let row = this._rows[index];
     if (!row) {
-      this._rows[index] = row = new Row(this, rowNumber);
+      this._rows[index] = row = new Row(this as unknown as WorksheetLike, rowNumber);
     }
     return row;
   }
 
   addRow(value: any) {
-    const row = new Row(this, this._nextRow);
+    const row = new Row(this as unknown as WorksheetLike, this._nextRow);
     this._rows[row.number - this._rowZero] = row;
     row.values = value;
     return row;
@@ -456,7 +457,7 @@ class WorksheetWriter {
   }
 
   // return the cell at [r,c] or address given by r. If not found, create a new one.
-  getCell(r: any, c: any) {
+  getCell(r: any, c?: any) {
     const address = colCache.getAddress(r, c);
     const row = this.getRow(address.row);
     return row.getCellEx(address);

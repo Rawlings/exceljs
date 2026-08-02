@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import Enums from '#src/doc/enums';
+import Enums from '#src/models/enums';
 import XmlStream from '#src/utils/stream/xml-stream';
 
 import BaseXform from '#src/xlsx/xform/base-xform';

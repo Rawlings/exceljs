@@ -24,7 +24,7 @@ describe('github issues', () => {
     const checkBook = new ExcelJS.Workbook();
     await checkBook.xlsx.readFile('./fixtures/out/wb-pr-1262.test.xlsx');
 
-    const checkSheet = checkBook.getWorksheet('data');
-    expect(checkSheet.sheetProtection.spinCount).to.equal(1);
+    const checkSheet = checkBook.getWorksheet('data')!;
+    expect((checkSheet.sheetProtection as any).spinCount).to.equal(1);
   });
 });

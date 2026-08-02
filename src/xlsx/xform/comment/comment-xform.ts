@@ -1,48 +1,24 @@
 import RichTextXform from '#src/xlsx/xform/strings/rich-text-xform';
-import utils from '#src/utils/helpers/utils';
 import BaseXform from '#src/xlsx/xform/base-xform';
 
-/**
-  <comment ref="B1" authorId="0">
-    <text>
-      <r>
-        <rPr>
-          <b/>
-          <sz val="9"/>
-          <rFont val="宋体"/>
-          <charset val="134"/>
-        </rPr>
-        <t>51422:</t>
-      </r>
-      <r>
-        <rPr>
-          <sz val="9"/>
-          <rFont val="宋体"/>
-          <charset val="134"/>
-        </rPr>
-        <t xml:space="preserve">&#10;test</t>
-      </r>
-    </text>
-  </comment>
- */
+export default class CommentXform extends BaseXform {
+  _richTextXform: any;
 
-const CommentXform = function (this: any, model: any) {
-  this.model = model;
-} as any;
+  constructor(model?: any) {
+    super();
+    this.model = model;
+  }
 
-export default CommentXform;
-
-utils.inherits(CommentXform, BaseXform, undefined, {
   get tag() {
     return 'r';
-  },
+  }
 
   get richTextXform() {
     if (!this._richTextXform) {
       this._richTextXform = new RichTextXform();
     }
     return this._richTextXform;
-  },
+  }
 
   render(xmlStream: any, model: any) {
     model = model || this.model;
@@ -59,7 +35,7 @@ utils.inherits(CommentXform, BaseXform, undefined, {
     }
     xmlStream.closeNode();
     xmlStream.closeNode();
-  },
+  }
 
   parseOpen(node: any) {
     if (this.parser) {
@@ -83,12 +59,14 @@ utils.inherits(CommentXform, BaseXform, undefined, {
       default:
         return false;
     }
-  },
+  }
+
   parseText(text: any) {
     if (this.parser) {
       this.parser.parseText(text);
     }
-  },
+  }
+
   parseClose(name: any) {
     switch (name) {
       case 'comment':
@@ -103,5 +81,5 @@ utils.inherits(CommentXform, BaseXform, undefined, {
         }
         return true;
     }
-  },
-});
+  }
+}

@@ -1,6 +1,6 @@
 import colCache from '#src/utils/data/col-cache';
-import Cell from '#src/doc/cell';
-import Enums from '#src/doc/enums';
+import Cell from '#src/models/cell';
+import Enums from '#src/models/enums';
 
 const sheetMock: any = {
   reset() {
@@ -147,19 +147,19 @@ describe('Cell', () => {
       new Cell(row);
     }).to.throw(Error);
     expect(() => {
-      new Cell(row, 'A');
+      new Cell(row, 'A' as any);
     }).to.throw(Error);
     expect(() => {
-      new Cell(row, 'Hello, World!');
+      new Cell(row, 'Hello, World!' as any);
     }).to.throw(Error);
     expect(() => {
-      new Cell(null, null, 'A1');
+      new Cell(null as any, null as any, 'A1');
     }).to.throw(Error);
     expect(() => {
-      new Cell(row, null, 'A1');
+      new Cell(row, null as any, 'A1');
     }).to.throw(Error);
     expect(() => {
-      new Cell(null, column, 'A1');
+      new Cell(null as any, column, 'A1');
     }).to.throw(Error);
   });
   it('merges', () => {

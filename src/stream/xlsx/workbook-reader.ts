@@ -1,9 +1,9 @@
-import fs from 'node:fs';
 import { EventEmitter } from 'node:events';
 import { PassThrough, Readable } from 'node:stream';
+import fs from 'node:fs';
+import { XMLParser } from 'fast-xml-parser';
 import { ZipReader as JSZip } from '#src/utils/stream/zip';
 import iterateStream from '#src/utils/stream/iterate-stream';
-import parseSax from '#src/utils/helpers/parse-sax';
 
 import StyleManager from '#src/xlsx/xform/style/styles-xform';
 import WorkbookXform from '#src/xlsx/xform/book/workbook-xform';
@@ -11,6 +11,55 @@ import RelationshipsXform from '#src/xlsx/xform/core/relationships-xform';
 
 import WorksheetReader from '#src/stream/xlsx/worksheet-reader';
 import HyperlinkReader from '#src/stream/xlsx/hyperlink-reader';
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+const textDecoder = new TextDecoder('utf-8');
+
+function decodeChunk(chunk: unknown): string {
+  if (typeof chunk === 'string') return chunk;
+  if (chunk instanceof Uint8Array) return textDecoder.decode(chunk);
+  if (Buffer.isBuffer(chunk)) return textDecoder.decode(chunk);
+  return String(chunk);
+}
+
+async function collectXml(iterable: AsyncIterable<unknown>): Promise<string> {
+  const parts: string[] = [];
+  for await (const chunk of iterable) {
+    parts.push(decodeChunk(chunk));
+  }
+  return parts.join('');
+}
+
+/** Safely extract text from a fast-xml-parser node value. */
+function getNodeText(val: unknown): string {
+  if (val === undefined || val === null) return '';
+  if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
+    return String(val);
+  }
+  if (typeof val === 'object' && '#text' in (val as Record<string, unknown>)) {
+    return String((val as Record<string, unknown>)['#text']);
+  }
+  return '';
+}
+
+// Shared parser for sharedStrings.xml
+const sharedStringsParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '',
+  parseAttributeValue: false,
+  htmlEntities: true,
+  trimValues: false,
+  parseTagValue: false,
+  textNodeName: '#text',
+  isArray: (name: string) => name === 'si' || name === 'r',
+});
+
+// ---------------------------------------------------------------------------
+// WorkbookReader
+// ---------------------------------------------------------------------------
 
 class WorkbookReader extends EventEmitter {
   static Options: any;
@@ -195,6 +244,7 @@ class WorkbookReader extends EventEmitter {
 
   async *_parseSharedStrings(entry: any) {
     this._emitEntry({ type: 'shared-strings' });
+
     switch (this.options.sharedStrings) {
       case 'cache':
         this.sharedStrings = [];
@@ -205,102 +255,80 @@ class WorkbookReader extends EventEmitter {
         return;
     }
 
-    let text: any = null;
-    let richText: any[] = [];
+    const xml = await collectXml(iterateStream(entry));
+    if (!xml) return;
+
+    const doc = sharedStringsParser.parse(xml);
+    const sst = doc.sst;
+    if (!sst || !sst.si) return;
+
     let index = 0;
-    let font: any = null;
-    for await (const events of parseSax(iterateStream(entry))) {
-      for (const { eventType, value } of events) {
-        if (eventType === 'opentag') {
-          const node: any = value;
-          switch (node.name) {
-            case 'b':
-              font = font || {};
-              font.bold = true;
-              break;
-            case 'charset':
-              font = font || {};
-              font.charset = parseInt(node.attributes.charset, 10);
-              break;
-            case 'color':
-              font = font || {};
+    for (const si of sst.si as any[]) {
+      let text: string | null = null;
+      const richText: any[] = [];
+
+      // Plain text: <si><t>...</t></si>
+      if (si.t !== undefined) {
+        text = getNodeText(si.t);
+      }
+
+      // Rich text runs: <si><r>...</r></si>
+      if (si.r) {
+        for (const run of si.r as any[]) {
+          let font: any = null;
+          const rPr = run.rPr;
+          if (rPr) {
+            font = {};
+            if (rPr.b !== undefined) font.bold = true;
+            if (rPr.i !== undefined) font.italic = true;
+            if (rPr.u !== undefined) font.underline = true;
+            if (rPr.outline !== undefined) font.outline = true;
+            if (rPr.strike !== undefined) font.strike = true;
+            if (rPr.sz !== undefined) {
+              font.size = parseInt(typeof rPr.sz === 'object' ? rPr.sz.val : String(rPr.sz), 10);
+            }
+            if (rPr.rFont !== undefined) {
+              font.name =
+                typeof rPr.rFont === 'object'
+                  ? (rPr.rFont.val ?? getNodeText(rPr.rFont))
+                  : String(rPr.rFont);
+            }
+            if (rPr.family !== undefined) {
+              font.family = parseInt(
+                typeof rPr.family === 'object' ? rPr.family.val : String(rPr.family),
+                10
+              );
+            }
+            if (rPr.charset !== undefined) {
+              font.charset = parseInt(
+                typeof rPr.charset === 'object' ? rPr.charset.val : String(rPr.charset),
+                10
+              );
+            }
+            if (rPr.vertAlign !== undefined) {
+              font.vertAlign =
+                typeof rPr.vertAlign === 'object' ? rPr.vertAlign.val : String(rPr.vertAlign);
+            }
+            if (rPr.color !== undefined) {
+              const c = rPr.color;
               font.color = {};
-              if (node.attributes.rgb) {
-                font.color.argb = node.attributes.argb;
-              }
-              if (node.attributes.val) {
-                font.color.argb = node.attributes.val;
-              }
-              if (node.attributes.theme) {
-                font.color.theme = node.attributes.theme;
-              }
-              break;
-            case 'family':
-              font = font || {};
-              font.family = parseInt(node.attributes.val, 10);
-              break;
-            case 'i':
-              font = font || {};
-              font.italic = true;
-              break;
-            case 'outline':
-              font = font || {};
-              font.outline = true;
-              break;
-            case 'rFont':
-              font = font || {};
-              font.name = (node as any).value;
-              break;
-            case 'si':
-              font = null;
-              richText = [];
-              text = null;
-              break;
-            case 'sz':
-              font = font || {};
-              font.size = parseInt(node.attributes.val, 10);
-              break;
-            case 'strike':
-              break;
-            case 't':
-              text = null;
-              break;
-            case 'u':
-              font = font || {};
-              font.underline = true;
-              break;
-            case 'vertAlign':
-              font = font || {};
-              font.vertAlign = node.attributes.val;
-              break;
+              if (c.rgb) font.color.argb = c.rgb;
+              if (c.argb) font.color.argb = c.argb;
+              if (c.theme !== undefined) font.color.theme = c.theme;
+            }
           }
-        } else if (eventType === 'text') {
-          text = text ? text + (value as any) : value;
-        } else if (eventType === 'closetag') {
-          const node: any = value;
-          switch (node.name) {
-            case 'r':
-              richText.push({
-                font,
-                text,
-              });
 
-              font = null;
-              text = null;
-              break;
-            case 'si':
-              if (this.options.sharedStrings === 'cache') {
-                this.sharedStrings.push(richText.length ? { richText } : text);
-              } else if (this.options.sharedStrings === 'emit') {
-                yield { index: index++, text: richText.length ? { richText } : text };
-              }
-
-              richText = [];
-              font = null;
-              text = null;
-              break;
-          }
+          const runText = run.t !== undefined ? getNodeText(run.t) : null;
+          richText.push({ font, text: runText });
         }
+      }
+
+      const value = richText.length > 0 ? { richText } : text;
+
+      if (this.options.sharedStrings === 'cache') {
+        this.sharedStrings.push(value);
+      } else if (this.options.sharedStrings === 'emit') {
+        yield { index: index++, text: value };
       }
     }
   }

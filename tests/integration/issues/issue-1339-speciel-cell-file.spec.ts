@@ -33,7 +33,7 @@ describe('github issues', () => {
     await wb.commit();
     const wb2 = new ExcelJS.Workbook();
     await wb2.xlsx.readFile(TEST_XLSX_FILE_NAME);
-    const ws2 = wb2.getWorksheet('Sheet1');
+    const ws2 = wb2.getWorksheet('Sheet1')!;
     for (let i = 0, len = specialValues.length; i < len; i++) {
       const value = specialValues[i];
       expect(ws2.getCell(`A${i + 1}`).value).to.equal(value);

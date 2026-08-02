@@ -1,8 +1,8 @@
 import tools from './tools';
 
 import _ from './under-dash';
-import Row from '#src/doc/row';
-import Column from '#src/doc/column';
+import Row from '#src/models/row';
+import Column from '#src/models/column';
 import testWorkbookReader from './test-workbook-reader';
 
 import dataValidationsSheet from './test-data-validation-sheet';

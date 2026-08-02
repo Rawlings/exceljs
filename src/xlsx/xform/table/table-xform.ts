@@ -67,7 +67,6 @@ class TableXform extends BaseXform {
           name: attributes.name,
           displayName: attributes.displayName || attributes.name,
           tableRef: attributes.ref,
-          ref: attributes.ref,
           totalsRow: attributes.totalsRowCount === '1',
           headerRow: attributes.headerRowCount === '1',
         };

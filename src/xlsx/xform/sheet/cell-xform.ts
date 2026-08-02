@@ -1,7 +1,7 @@
 import utils from '#src/utils/helpers/utils';
 import BaseXform from '#src/xlsx/xform/base-xform';
-import Range from '#src/doc/range';
-import Enums from '#src/doc/enums';
+import Range from '#src/models/range';
+import Enums from '#src/models/enums';
 
 import RichTextXform from '#src/xlsx/xform/strings/rich-text-xform';
 

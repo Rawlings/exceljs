@@ -50,7 +50,7 @@ class XLSX {
   // =========================================================================
   // Read
 
-  async readFile(filename: any, options: any) {
+  async readFile(filename: any, options?: any) {
     if (!fs.existsSync(filename)) {
       throw new Error(`File not found: ${filename}`);
     }
@@ -241,7 +241,7 @@ class XLSX {
     );
   }
 
-  async read(stream: any, options: any) {
+  async read(stream: any, options?: any) {
     // TODO: Remove once node v8 is deprecated
     // Detect and upgrade old streams
     if (!stream[Symbol.asyncIterator] && stream.pipe) {
@@ -254,7 +254,7 @@ class XLSX {
     return this.load(Buffer.concat(chunks), options);
   }
 
-  async load(data: any, options: any) {
+  async load(data: any, options?: any) {
     let buffer;
     if (options && options.base64) {
       buffer = Buffer.from(data.toString(), 'base64');
@@ -731,7 +731,7 @@ class XLSX {
     // TODO: workbook drawing list
   }
 
-  async write(stream: any, options: any) {
+  async write(stream: any, options?: any) {
     options = options || {};
     const { model } = this.workbook;
     const zip = new ZipWriter(options.zip);
@@ -754,7 +754,7 @@ class XLSX {
     return this._finalize(zip, stream);
   }
 
-  writeFile(filename: any, options: any) {
+  writeFile(filename: any, options?: any) {
     const stream = fs.createWriteStream(filename);
 
     return new Promise<void>((resolve, reject) => {

@@ -2,7 +2,7 @@ import testutils from '../utils/index';
 
 import ExcelJS from '#src/index';
 
-import Range from '#src/doc/range';
+import Range from '#src/models/range';
 
 describe('Worksheet', () => {
   describe('Values', () => {
@@ -51,17 +51,17 @@ describe('Worksheet', () => {
       expect(ws.getCell('C1').value).to.equal(3.14);
       expect(ws.getCell('D1').value).to.equal(now);
       expect(ws.getCell('E1').value).to.equal('Hello, World!');
-      expect(ws.getCell('F1').value.text).to.equal('www.google.com');
-      expect(ws.getCell('F1').value.hyperlink).to.equal('http://www.google.com');
+      expect((ws.getCell('F1').value as any).text).to.equal('www.google.com');
+      expect((ws.getCell('F1').value as any).hyperlink).to.equal('http://www.google.com');
 
-      expect(ws.getCell('A2').value.formula).to.equal('A1');
-      expect(ws.getCell('A2').value.result).to.equal(7);
+      expect((ws.getCell('A2').value as any).formula).to.equal('A1');
+      expect((ws.getCell('A2').value as any).result).to.equal(7);
 
-      expect(ws.getCell('B2').value.formula).to.equal('CONCATENATE("Hello", ", ", "World!")');
-      expect(ws.getCell('B2').value.result).to.equal('Hello, World!');
+      expect((ws.getCell('B2').value as any).formula).to.equal('CONCATENATE("Hello", ", ", "World!")');
+      expect((ws.getCell('B2').value as any).result).to.equal('Hello, World!');
 
-      expect(ws.getCell('C2').value.formula).to.equal('D1');
-      expect(ws.getCell('C2').value.result).to.equal(now);
+      expect((ws.getCell('C2').value as any).formula).to.equal('D1');
+      expect((ws.getCell('C2').value as any).result).to.equal(now);
     });
 
     it('stores shared string values properly', () => {
@@ -83,7 +83,7 @@ describe('Worksheet', () => {
       expect(ws.getCell('A1').value).to.equal(ws.getCell('A3').value);
 
       // A1 and C2 should not reference the same object
-      expect(ws.getCell('A1').value).to.equal(ws.getCell('C2').value.result);
+      expect(ws.getCell('A1').value).to.equal((ws.getCell('C2').value as any).result);
     });
 
     it('assigns cell types properly', () => {
@@ -267,7 +267,7 @@ describe('Worksheet', () => {
         });
       });
 
-      const fetchedRows = ws.getRows(1, 2);
+      const fetchedRows = ws.getRows(1, 2)!;
       for (let i = 0; i < 2; i++) {
         expect(fetchedRows[i].values).to.deep.equal(values[i + 1]);
       }
@@ -298,7 +298,7 @@ describe('Worksheet', () => {
         [, 1, 'John Doe', dateValue1],
         [, 2, 'Jane Doe', dateValue2],
       ];
-      const fetchedRows = ws.getRows(1, 2);
+      const fetchedRows = ws.getRows(1, 2)!;
       for (let i = 0; i < 2; i++) {
         expect(fetchedRows[i].values).to.deep.equal(values[i]);
       }
@@ -345,7 +345,7 @@ describe('Worksheet', () => {
         });
       });
 
-      const fetchedRows = ws.getRows(1, 2);
+      const fetchedRows = ws.getRows(1, 2)!;
       for (let i = 0; i < 2; i++) {
         expect(fetchedRows[i].values).to.deep.equal(rows[i + 1]);
       }
@@ -417,7 +417,7 @@ describe('Worksheet', () => {
         });
       });
 
-      const fetchedRows = ws.getRows(1, 2);
+      const fetchedRows = ws.getRows(1, 2)!;
       for (let i = 0; i < 2; i++) {
         expect(fetchedRows[i].values).to.deep.equal(values[i + 1]);
       }
@@ -459,7 +459,7 @@ describe('Worksheet', () => {
       expect(ws.getRow(2).values).to.deep.equal(values[1]);
       expect(ws.getRow(3).values).to.deep.equal(values[2]);
 
-      const fetchedRows = ws.getRows(1, 3);
+      const fetchedRows = ws.getRows(1, 3)!;
       for (let i = 0; i < 3; i++) {
         expect(fetchedRows[i].values).to.deep.equal(values[i]);
       }
@@ -504,7 +504,7 @@ describe('Worksheet', () => {
         });
       });
 
-      const fetchedRows = ws.getRows(1, 3);
+      const fetchedRows = ws.getRows(1, 3)!;
       for (let i = 0; i < 3; i++) {
         expect(fetchedRows[i].values).to.deep.equal(rows[rows.length - i - 1]);
       }
@@ -654,7 +654,7 @@ describe('Worksheet', () => {
 
         expect(() => {
           const ws = wb.addWorksheet();
-          ws.name = 0;
+          ws.name = 0 as any;
         }).to.throw('The name has to be a string.');
       });
     });
@@ -919,7 +919,7 @@ describe('Worksheet', () => {
           for (let j = d.left; j <= d.right; j++) {
             const cell = ws.getCell(i, j);
             const masterCell = master ? ws.getCell(master) : cell;
-            expect(cell.master.address).to.equal(masterCell.address);
+            expect((cell as any).master.address).to.equal(masterCell.address);
           }
         }
       };

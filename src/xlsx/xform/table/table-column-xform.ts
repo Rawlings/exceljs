@@ -23,12 +23,12 @@ class TableColumnXform extends BaseXform {
   parseOpen(node: any) {
     if (node.name === this.tag) {
       const { attributes } = node;
-      this.model = {
-        name: attributes.name,
-        totalsRowLabel: attributes.totalsRowLabel,
-        totalsRowFunction: attributes.totalsRowFunction,
-        dxfId: attributes.dxfId,
-      };
+      this.model = { name: attributes.name };
+      if (attributes.totalsRowLabel !== undefined)
+        this.model.totalsRowLabel = attributes.totalsRowLabel;
+      if (attributes.totalsRowFunction !== undefined)
+        this.model.totalsRowFunction = attributes.totalsRowFunction;
+      if (attributes.dxfId !== undefined) this.model.dxfId = attributes.dxfId;
       return true;
     }
     return false;

@@ -1,4 +1,4 @@
-import Enums from '#src/doc/enums';
+import Enums from '#src/models/enums';
 import ExcelJS from '#src/index';
 
 describe('github issues', () => {
@@ -9,7 +9,7 @@ describe('github issues', () => {
       it('copied cells should have the right formulas', () => {
         const wb = new ExcelJS.Workbook();
         return wb.xlsx.readFile('./fixtures/xlsx/fibonacci.xlsx').then(() => {
-          const ws = wb.getWorksheet('fib');
+          const ws = wb.getWorksheet('fib')!;
           expect(ws.getCell('A4').value).to.deep.equal({
             formula: 'A3+1',
             shareType: 'shared',
@@ -22,7 +22,7 @@ describe('github issues', () => {
       it('copied cells should have the right types', () => {
         const wb = new ExcelJS.Workbook();
         return wb.xlsx.readFile('./fixtures/xlsx/fibonacci.xlsx').then(() => {
-          const ws = wb.getWorksheet('fib');
+          const ws = wb.getWorksheet('fib')!;
           expect(ws.getCell('A4').type).to.equal(Enums.ValueType.Formula);
           expect(ws.getCell('A5').type).to.equal(Enums.ValueType.Formula);
         });
@@ -31,7 +31,7 @@ describe('github issues', () => {
         // to see if there are other fields on the object worth comparing
         const wb = new ExcelJS.Workbook();
         return wb.xlsx.readFile('./fixtures/xlsx/fibonacci.xlsx').then(() => {
-          const ws = wb.getWorksheet('fib');
+          const ws = wb.getWorksheet('fib')!;
           const A4 = ws.getCell('A4');
           const A5 = ws.getCell('A5');
           expect(Object.keys(A4).join()).to.equal(Object.keys(A5).join());

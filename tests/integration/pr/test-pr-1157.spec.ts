@@ -22,7 +22,7 @@ describe('github issues', () => {
         operator: 'greaterThan',
       },
     };
-    const ws = wb.getWorksheet(1);
+    const ws = wb.getWorksheet(1)!;
     expect(ws.dataValidations.model).to.deep.equal(expected);
     await wb.xlsx.writeFile(TEST_XLSX_FILE_NAME);
   });

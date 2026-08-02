@@ -1,7 +1,35 @@
 import { EventEmitter } from 'node:events';
-import parseSax from '#src/utils/helpers/parse-sax';
-import Enums from '#src/doc/enums';
+import { XMLParser } from 'fast-xml-parser';
+import Enums from '#src/models/enums';
 import RelType from '#src/xlsx/rel-type';
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+const textDecoder = new TextDecoder('utf-8');
+
+function decodeChunk(chunk: unknown): string {
+  if (typeof chunk === 'string') return chunk;
+  if (chunk instanceof Uint8Array) return textDecoder.decode(chunk);
+  if (Buffer.isBuffer(chunk)) return textDecoder.decode(chunk);
+  return String(chunk);
+}
+
+// Shared parser for relationships XML (xl/worksheets/_rels/sheetN.xml.rels)
+const relsParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '',
+  parseAttributeValue: false,
+  htmlEntities: true,
+  trimValues: false,
+  parseTagValue: false,
+  isArray: (name: string) => name === 'Relationship',
+});
+
+// ---------------------------------------------------------------------------
+// HyperlinkReader
+// ---------------------------------------------------------------------------
 
 class HyperlinkReader extends EventEmitter {
   workbook: any;
@@ -38,6 +66,7 @@ class HyperlinkReader extends EventEmitter {
     const { iterator, options } = this;
     let emitHyperlinks = false;
     let hyperlinks: Record<string, any> | null = null;
+
     switch (options.hyperlinks) {
       case 'emit':
         emitHyperlinks = true;
@@ -46,45 +75,44 @@ class HyperlinkReader extends EventEmitter {
         this.hyperlinks = hyperlinks = {};
         break;
       default:
-        break;
+        this.emit('finished');
+        return;
     }
 
-    if (!emitHyperlinks && !hyperlinks) {
+    // Collect raw XML from the .rels stream
+    const parts: string[] = [];
+    for await (const chunk of iterator) {
+      parts.push(decodeChunk(chunk));
+    }
+    const xml = parts.join('');
+
+    if (!xml) {
       this.emit('finished');
       return;
     }
 
     try {
-      for await (const events of parseSax(iterator)) {
-        for (const { eventType, value } of events) {
-          if (eventType === 'opentag') {
-            const node = value;
-            if ((node as any).name === 'Relationship') {
-              const rId = (node as any).attributes.Id;
-              switch ((node as any).attributes.Type) {
-                case RelType.Hyperlink:
-                  {
-                    const relationship = {
-                      type: Enums.RelationshipType.Styles,
-                      rId,
-                      target: (node as any).attributes.Target,
-                      targetMode: (node as any).attributes.TargetMode,
-                    };
-                    if (emitHyperlinks) {
-                      this.emit('hyperlink', relationship);
-                    } else if (hyperlinks) {
-                      hyperlinks[relationship.rId] = relationship;
-                    }
-                  }
-                  break;
+      const doc = relsParser.parse(xml);
+      const relationships = doc.Relationships;
 
-                default:
-                  break;
-              }
+      if (relationships?.Relationship) {
+        for (const rel of relationships.Relationship as any[]) {
+          if (rel.Type === RelType.Hyperlink) {
+            const relationship = {
+              type: Enums.RelationshipType.Styles,
+              rId: rel.Id,
+              target: rel.Target,
+              targetMode: rel.TargetMode,
+            };
+            if (emitHyperlinks) {
+              this.emit('hyperlink', relationship);
+            } else if (hyperlinks) {
+              hyperlinks[relationship.rId] = relationship;
             }
           }
         }
       }
+
       this.emit('finished');
     } catch (error: any) {
       this.emit('error', error);

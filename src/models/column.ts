@@ -1,23 +1,38 @@
 import _ from '#src/utils/helpers/under-dash';
-import Enums from '#src/doc/enums';
+import Enums from '#src/models/enums';
 import colCache from '#src/utils/data/col-cache';
+import type {
+  WorksheetLike,
+  ColumnLike,
+  CellLike,
+  EachRowOptions,
+} from '#src/models/internal-types';
 
 const DEFAULT_COLUMN_WIDTH = 9;
+
+export interface ColumnDefinition {
+  header?: string | string[];
+  key?: string;
+  width?: number;
+  style?: Record<string, unknown>;
+  hidden?: boolean;
+  outlineLevel?: number;
+}
 
 // Column defines the column properties for 1 column.
 // This includes header rows, widths, key, (style), etc.
 // Worksheet will condense the columns as appropriate during serialization
-class Column {
-  _worksheet: any;
-  _number: any;
-  _header: any;
-  _key: any;
-  width: any;
-  style: any;
-  _hidden: any;
-  _outlineLevel: any;
+class Column implements ColumnLike {
+  _worksheet: WorksheetLike;
+  _number: number;
+  _header: string | string[] | undefined;
+  _key: string | undefined;
+  width: number | undefined;
+  style: Record<string, unknown> = {};
+  _hidden: boolean | undefined;
+  _outlineLevel: number | undefined;
 
-  constructor(worksheet: any, number: any, defn?: any) {
+  constructor(worksheet: WorksheetLike, number: number, defn?: ColumnDefinition | false) {
     this._worksheet = worksheet;
     this._number = number;
     if (defn !== false) {
@@ -26,23 +41,23 @@ class Column {
     }
   }
 
-  get number() {
+  get number(): number {
     return this._number;
   }
 
-  get worksheet() {
+  get worksheet(): WorksheetLike {
     return this._worksheet;
   }
 
-  get letter() {
+  get letter(): string {
     return colCache.n2l(this._number);
   }
 
-  get isCustomWidth() {
+  get isCustomWidth(): boolean {
     return this.width !== undefined && this.width !== DEFAULT_COLUMN_WIDTH;
   }
 
-  get defn() {
+  get defn(): ColumnDefinition {
     return {
       header: this._header,
       key: this.key,
@@ -53,11 +68,11 @@ class Column {
     };
   }
 
-  set defn(value: any) {
+  set defn(value: ColumnDefinition | undefined) {
     if (value) {
-      this.key = value.key;
+      this.key = value.key as string;
       this.width = value.width !== undefined ? value.width : DEFAULT_COLUMN_WIDTH;
-      this.outlineLevel = value.outlineLevel;
+      this.outlineLevel = value.outlineLevel as number;
       if (value.style) {
         this.style = value.style;
       } else {
@@ -65,7 +80,7 @@ class Column {
       }
 
       // headers must be set after style
-      this.header = value.header;
+      this.header = value.header as string;
       this._hidden = !!value.hidden;
     } else {
       delete this._header;
@@ -76,15 +91,15 @@ class Column {
     }
   }
 
-  get headers() {
+  get headers(): (string | string[] | undefined)[] {
     return this._header && this._header instanceof Array ? this._header : [this._header];
   }
 
-  get header() {
+  get header(): string | string[] | undefined {
     return this._header;
   }
 
-  set header(value: any) {
+  set header(value: string | string[] | undefined) {
     if (value !== undefined) {
       this._header = value;
       this.headers.forEach((text, index) => {
@@ -95,45 +110,45 @@ class Column {
     }
   }
 
-  get key() {
+  get key(): string | undefined {
     return this._key;
   }
 
-  set key(value: any) {
+  set key(value: string | undefined) {
     const column = this._key && this._worksheet.getColumnKey(this._key);
-    if (column === this) {
-      this._worksheet.deleteColumnKey(this._key);
+    if (column === (this as unknown as ColumnLike)) {
+      this._worksheet.deleteColumnKey(this._key as string);
     }
 
     this._key = value;
     if (value) {
-      this._worksheet.setColumnKey(this._key, this);
+      this._worksheet.setColumnKey(value, this);
     }
   }
 
-  get hidden() {
+  get hidden(): boolean {
     return !!this._hidden;
   }
 
-  set hidden(value: any) {
+  set hidden(value: boolean) {
     this._hidden = value;
   }
 
-  get outlineLevel() {
+  get outlineLevel(): number {
     return this._outlineLevel || 0;
   }
 
-  set outlineLevel(value: any) {
+  set outlineLevel(value: number) {
     this._outlineLevel = value;
   }
 
-  get collapsed() {
+  get collapsed(): boolean {
     return !!(
       this._outlineLevel && this._outlineLevel >= this._worksheet.properties.outlineLevelCol
     );
   }
 
-  toString() {
+  toString(): string {
     return JSON.stringify({
       key: this.key,
       width: this.width,
@@ -141,7 +156,7 @@ class Column {
     });
   }
 
-  equivalentTo(other: any) {
+  equivalentTo(other: ColumnLike): boolean {
     return (
       this.width === other.width &&
       this.hidden === other.hidden &&
@@ -150,7 +165,7 @@ class Column {
     );
   }
 
-  get isDefault() {
+  get isDefault(): boolean {
     if (this.isCustomWidth) {
       return false;
     }
@@ -160,31 +175,45 @@ class Column {
     if (this.outlineLevel) {
       return false;
     }
-    const s = this.style;
+    const s = this.style as Record<string, unknown> | undefined;
     if (s && (s.font || s.numFmt || s.alignment || s.border || s.fill || s.protection)) {
       return false;
     }
     return true;
   }
 
-  get headerCount() {
+  get headerCount(): number {
     return this.headers.length;
   }
 
-  eachCell(options: any, iteratee?: any) {
+  eachCell(iteratee: (cell: CellLike, rowNumber: number) => void): void;
+  eachCell(
+    options: EachRowOptions | null,
+    iteratee: (cell: CellLike, rowNumber: number) => void
+  ): void;
+  eachCell(
+    options: EachRowOptions | null | ((cell: CellLike, rowNumber: number) => void),
+    iteratee?: (cell: CellLike, rowNumber: number) => void
+  ) {
     const colNumber = this.number;
     if (!iteratee) {
-      iteratee = options;
+      iteratee = options as (cell: CellLike, rowNumber: number) => void;
       options = null;
     }
-    this._worksheet.eachRow(options, (row: any, rowNumber: any) => {
-      iteratee(row.getCell(colNumber), rowNumber);
-    });
+    this._worksheet.eachRow(
+      options as EachRowOptions | null,
+      (row: { getCell(n: number): CellLike }, rowNumber: number) => {
+        (iteratee as (cell: CellLike, rowNumber: number) => void)(
+          row.getCell(colNumber),
+          rowNumber
+        );
+      }
+    );
   }
 
-  get values() {
-    const v: any[] = [];
-    this.eachCell((cell: any, rowNumber: any) => {
+  get values(): unknown[] {
+    const v: unknown[] = [];
+    this.eachCell((cell: CellLike, rowNumber: number) => {
       if (cell && cell.type !== Enums.ValueType.Null) {
         v[rowNumber] = cell.value;
       }
@@ -192,93 +221,93 @@ class Column {
     return v;
   }
 
-  set values(v: any) {
+  set values(v: unknown[] | undefined) {
     if (!v) {
       return;
     }
     const colNumber = this.number;
     let offset = 0;
-    if (v.hasOwnProperty('0')) {
+    if (Object.prototype.hasOwnProperty.call(v, '0')) {
       // assume contiguous array, start at row 1
       offset = 1;
     }
-    v.forEach((value: any, index: any) => {
+    v.forEach((value, index) => {
       this._worksheet.getCell(index + offset, colNumber).value = value;
     });
   }
 
   // =========================================================================
   // styles
-  _applyStyle(name: any, value: any) {
-    this.style[name] = value;
-    this.eachCell((cell: any) => {
-      cell[name] = value;
+  _applyStyle(name: string, value: unknown) {
+    (this.style as Record<string, unknown>)[name] = value;
+    this.eachCell((cell: CellLike) => {
+      (cell as unknown as Record<string, unknown>)[name] = value;
     });
     return value;
   }
 
-  get numFmt() {
-    return this.style.numFmt;
+  get numFmt(): unknown {
+    return (this.style as Record<string, unknown>).numFmt;
   }
 
-  set numFmt(value: any) {
+  set numFmt(value: unknown) {
     this._applyStyle('numFmt', value);
   }
 
-  get font() {
-    return this.style.font;
+  get font(): unknown {
+    return (this.style as Record<string, unknown>).font;
   }
 
-  set font(value: any) {
+  set font(value: unknown) {
     this._applyStyle('font', value);
   }
 
-  get alignment() {
-    return this.style.alignment;
+  get alignment(): unknown {
+    return (this.style as Record<string, unknown>).alignment;
   }
 
-  set alignment(value: any) {
+  set alignment(value: unknown) {
     this._applyStyle('alignment', value);
   }
 
-  get protection() {
-    return this.style.protection;
+  get protection(): unknown {
+    return (this.style as Record<string, unknown>).protection;
   }
 
-  set protection(value: any) {
+  set protection(value: unknown) {
     this._applyStyle('protection', value);
   }
 
-  get border() {
-    return this.style.border;
+  get border(): unknown {
+    return (this.style as Record<string, unknown>).border;
   }
 
-  set border(value: any) {
+  set border(value: unknown) {
     this._applyStyle('border', value);
   }
 
-  get fill() {
-    return this.style.fill;
+  get fill(): unknown {
+    return (this.style as Record<string, unknown>).fill;
   }
 
-  set fill(value: any) {
+  set fill(value: unknown) {
     this._applyStyle('fill', value);
   }
 
   // =============================================================================
   // static functions
 
-  static toModel(columns: any) {
+  static toModel(columns: Column[] | undefined) {
     // Convert array of Column into compressed list cols
-    const cols: any[] = [];
-    let col: any = null;
+    const cols: Record<string, unknown>[] = [];
+    let col: Record<string, unknown> | null = null;
     if (columns) {
-      columns.forEach((column: any, index: any) => {
+      columns.forEach((column: Column, index: number) => {
         if (column.isDefault) {
           if (col) {
             col = null;
           }
-        } else if (!col || !column.equivalentTo(col)) {
+        } else if (!col || !column.equivalentTo(col as unknown as ColumnLike)) {
           col = {
             min: index + 1,
             max: index + 1,
@@ -291,32 +320,33 @@ class Column {
           };
           cols.push(col);
         } else {
-          col.max = index + 1;
+          (col as Record<string, unknown>).max = index + 1;
         }
       });
     }
     return cols.length ? cols : undefined;
   }
 
-  static fromModel(worksheet: any, cols: any) {
+  static fromModel(
+    worksheet: WorksheetLike,
+    cols: Array<Record<string, unknown> & { min: number; max: number }> | undefined
+  ) {
     cols = cols || [];
-    const columns = [];
+    const columns: Column[] = [];
     let count = 1;
     let index = 0;
     /**
      * sort cols by min
      * If it is not sorted, the subsequent column configuration will be overwritten
      * */
-    cols = cols.sort(function (pre: any, next: any) {
-      return pre.min - next.min;
-    });
+    cols = cols.sort((pre, next) => pre.min - next.min);
     while (index < cols.length) {
       const col = cols[index++];
       while (count < col.min) {
         columns.push(new Column(worksheet, count++));
       }
       while (count <= col.max) {
-        columns.push(new Column(worksheet, count++, col));
+        columns.push(new Column(worksheet, count++, col as unknown as ColumnDefinition));
       }
     }
     return columns.length ? columns : null;

@@ -1,53 +1,76 @@
 import colCache from '#src/utils/data/col-cache';
 
+export interface RangeModel {
+  top: number;
+  left: number;
+  bottom: number;
+  right: number;
+  sheetName?: string;
+}
+
+interface RowLike {
+  number: number;
+  dimensions: { min: number; max: number } | null;
+}
+
 // used by worksheet to calculate sheet dimensions
 class Range {
-  model: any;
+  // decode() always assigns model synchronously in the constructor, but TS
+  // can't see through the indirection — definite assignment is correct here.
+  model!: RangeModel;
 
-  constructor(...args: any[]) {
+  constructor(...args: unknown[]) {
     this.decode(args);
   }
 
-  setTLBR(t: any, l: any, b?: any, r?: any, s?: any) {
+  setTLBR(t: number | string, l: number | string, b?: number, r?: number, s?: string) {
     if (arguments.length < 4) {
       // setTLBR(tl, br, s)
-      const tl = colCache.decodeAddress(t);
-      const br = colCache.decodeAddress(l);
+      const tl = colCache.decodeAddress(t as string);
+      const br = colCache.decodeAddress(l as string);
       this.model = {
         top: Math.min(tl.row, br.row),
         left: Math.min(tl.col, br.col),
         bottom: Math.max(tl.row, br.row),
         right: Math.max(tl.col, br.col),
-        sheetName: b,
+        sheetName: b as unknown as string | undefined,
       };
 
       this.setTLBR(tl.row, tl.col, br.row, br.col, s);
     } else {
       // setTLBR(t, l, b, r, s)
+      const tn = t as number;
+      const ln = l as number;
       this.model = {
-        top: Math.min(t, b),
-        left: Math.min(l, r),
-        bottom: Math.max(t, b),
-        right: Math.max(l, r),
+        top: Math.min(tn, b as number),
+        left: Math.min(ln, r as number),
+        bottom: Math.max(tn, b as number),
+        right: Math.max(ln, r as number),
         sheetName: s,
       };
     }
   }
 
-  decode(argv: any) {
+  decode(argv: unknown[]) {
     switch (argv.length) {
       case 5: // [t,l,b,r,s]
-        this.setTLBR(argv[0], argv[1], argv[2], argv[3], argv[4]);
+        this.setTLBR(
+          argv[0] as number,
+          argv[1] as number,
+          argv[2] as number,
+          argv[3] as number,
+          argv[4] as string
+        );
         break;
       case 4: // [t,l,b,r]
-        this.setTLBR(argv[0], argv[1], argv[2], argv[3]);
+        this.setTLBR(argv[0] as number, argv[1] as number, argv[2] as number, argv[3] as number);
         break;
 
       case 3: // [tl,br,s]
-        this.setTLBR(argv[0], argv[1], argv[2]);
+        this.setTLBR(argv[0] as string, argv[1] as string, argv[2] as unknown as number);
         break;
       case 2: // [tl,br]
-        this.setTLBR(argv[0], argv[1]);
+        this.setTLBR(argv[0] as string, argv[1] as string);
         break;
 
       case 1: {
@@ -67,36 +90,37 @@ class Range {
         } else if (
           value &&
           typeof value === 'object' &&
-          value.top &&
-          value.left &&
-          value.bottom &&
-          value.right
+          'top' in value &&
+          'left' in value &&
+          'bottom' in value &&
+          'right' in value
         ) {
           // a model
+          const v = value as RangeModel;
           this.model = {
-            top: value.top,
-            left: value.left,
-            bottom: value.bottom,
-            right: value.right,
-            sheetName: value.sheetName,
+            top: v.top,
+            left: v.left,
+            bottom: v.bottom,
+            right: v.right,
+            sheetName: v.sheetName,
           };
         } else {
           // [sheetName!]tl:br
-          const tlbr = colCache.decodeEx(value);
-          if (tlbr.top) {
+          const tlbr = colCache.decodeEx(value as string);
+          if (tlbr.top !== undefined) {
             this.model = {
               top: tlbr.top,
-              left: tlbr.left,
-              bottom: tlbr.bottom,
-              right: tlbr.right,
+              left: tlbr.left as number,
+              bottom: tlbr.bottom as number,
+              right: tlbr.right as number,
               sheetName: tlbr.sheetName,
             };
           } else {
             this.model = {
-              top: tlbr.row,
-              left: tlbr.col,
-              bottom: tlbr.row,
-              right: tlbr.col,
+              top: tlbr.row as number,
+              left: tlbr.col as number,
+              bottom: tlbr.row as number,
+              right: tlbr.col as number,
               sheetName: tlbr.sheetName,
             };
           }
@@ -118,47 +142,47 @@ class Range {
     }
   }
 
-  get top() {
+  get top(): number {
     return this.model.top || 1;
   }
 
-  set top(value: any) {
+  set top(value: number) {
     this.model.top = value;
   }
 
-  get left() {
+  get left(): number {
     return this.model.left || 1;
   }
 
-  set left(value: any) {
+  set left(value: number) {
     this.model.left = value;
   }
 
-  get bottom() {
+  get bottom(): number {
     return this.model.bottom || 1;
   }
 
-  set bottom(value: any) {
+  set bottom(value: number) {
     this.model.bottom = value;
   }
 
-  get right() {
+  get right(): number {
     return this.model.right || 1;
   }
 
-  set right(value: any) {
+  set right(value: number) {
     this.model.right = value;
   }
 
-  get sheetName() {
+  get sheetName(): string | undefined {
     return this.model.sheetName;
   }
 
-  set sheetName(value: any) {
+  set sheetName(value: string | undefined) {
     this.model.sheetName = value;
   }
 
-  get _serialisedSheetName() {
+  get _serialisedSheetName(): string {
     const { sheetName } = this.model;
     if (sheetName) {
       if (/^[a-zA-Z0-9]*$/.test(sheetName)) {
@@ -169,14 +193,14 @@ class Range {
     return '';
   }
 
-  expand(top: any, left: any, bottom: any, right: any) {
+  expand(top: number, left: number, bottom: number, right: number) {
     if (!this.model.top || top < this.top) this.top = top;
     if (!this.model.left || left < this.left) this.left = left;
     if (!this.model.bottom || bottom > this.bottom) this.bottom = bottom;
     if (!this.model.right || right > this.right) this.right = right;
   }
 
-  expandRow(row: any) {
+  expandRow(row: RowLike | undefined) {
     if (row) {
       const { dimensions, number } = row;
       if (dimensions) {
@@ -185,52 +209,57 @@ class Range {
     }
   }
 
-  expandToAddress(addressStr: any) {
+  expandToAddress(addressStr: string) {
     const address = colCache.decodeEx(addressStr);
-    this.expand(address.row, address.col, address.row, address.col);
+    this.expand(
+      address.row as number,
+      address.col as number,
+      address.row as number,
+      address.col as number
+    );
   }
 
-  get tl() {
+  get tl(): string {
     return colCache.n2l(this.left) + this.top;
   }
 
-  get $t$l() {
+  get $t$l(): string {
     return `$${colCache.n2l(this.left)}$${this.top}`;
   }
 
-  get br() {
+  get br(): string {
     return colCache.n2l(this.right) + this.bottom;
   }
 
-  get $b$r() {
+  get $b$r(): string {
     return `$${colCache.n2l(this.right)}$${this.bottom}`;
   }
 
-  get range() {
+  get range(): string {
     return `${this._serialisedSheetName + this.tl}:${this.br}`;
   }
 
-  get $range() {
+  get $range(): string {
     return `${this._serialisedSheetName + this.$t$l}:${this.$b$r}`;
   }
 
-  get shortRange() {
+  get shortRange(): string {
     return this.count > 1 ? this.range : this._serialisedSheetName + this.tl;
   }
 
-  get $shortRange() {
+  get $shortRange(): string {
     return this.count > 1 ? this.$range : this._serialisedSheetName + this.$t$l;
   }
 
-  get count() {
+  get count(): number {
     return (1 + this.bottom - this.top) * (1 + this.right - this.left);
   }
 
-  toString() {
+  toString(): string {
     return this.range;
   }
 
-  intersects(other: any) {
+  intersects(other: RangeModel): boolean {
     if (other.sheetName && this.sheetName && other.sheetName !== this.sheetName) return false;
     if (other.bottom < this.top) return false;
     if (other.top > this.bottom) return false;
@@ -239,12 +268,12 @@ class Range {
     return true;
   }
 
-  contains(addressStr: any) {
+  contains(addressStr: string): boolean {
     const address = colCache.decodeEx(addressStr);
-    return this.containsEx(address);
+    return this.containsEx(address as { sheetName?: string; row: number; col: number });
   }
 
-  containsEx(address: any) {
+  containsEx(address: { sheetName?: string; row: number; col: number }): boolean {
     if (address.sheetName && this.sheetName && address.sheetName !== this.sheetName) return false;
     return (
       address.row >= this.top &&
@@ -254,7 +283,7 @@ class Range {
     );
   }
 
-  forEachAddress(cb: any) {
+  forEachAddress(cb: (address: string, row: number, col: number) => void) {
     for (let col = this.left; col <= this.right; col++) {
       for (let row = this.top; row <= this.bottom; row++) {
         cb(colCache.encodeAddress(row, col), row, col);

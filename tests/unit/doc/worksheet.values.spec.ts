@@ -50,17 +50,17 @@ describe('Worksheet', () => {
       expect(ws.getCell('C1').value).to.equal(3.14);
       expect(ws.getCell('D1').value).to.equal(now);
       expect(ws.getCell('E1').value).to.equal('Hello, World!');
-      expect(ws.getCell('F1').value.text).to.equal('www.google.com');
-      expect(ws.getCell('F1').value.hyperlink).to.equal('http://www.google.com');
+      expect((ws.getCell('F1').value as any).text).to.equal('www.google.com');
+      expect((ws.getCell('F1').value as any).hyperlink).to.equal('http://www.google.com');
 
-      expect(ws.getCell('A2').value.formula).to.equal('A1');
-      expect(ws.getCell('A2').value.result).to.equal(7);
+      expect((ws.getCell('A2').value as any).formula).to.equal('A1');
+      expect((ws.getCell('A2').value as any).result).to.equal(7);
 
-      expect(ws.getCell('B2').value.formula).to.equal('CONCATENATE("Hello", ", ", "World!")');
-      expect(ws.getCell('B2').value.result).to.equal('Hello, World!');
+      expect((ws.getCell('B2').value as any).formula).to.equal('CONCATENATE("Hello", ", ", "World!")');
+      expect((ws.getCell('B2').value as any).result).to.equal('Hello, World!');
 
-      expect(ws.getCell('C2').value.formula).to.equal('D1');
-      expect(ws.getCell('C2').value.result).to.equal(now);
+      expect((ws.getCell('C2').value as any).formula).to.equal('D1');
+      expect((ws.getCell('C2').value as any).result).to.equal(now);
     });
 
     it('stores shared string values properly', () => {
@@ -82,7 +82,7 @@ describe('Worksheet', () => {
       expect(ws.getCell('A1').value).to.equal(ws.getCell('A3').value);
 
       // A1 and C2 should not reference the same object
-      expect(ws.getCell('A1').value).to.equal(ws.getCell('C2').value.result);
+      expect(ws.getCell('A1').value).to.equal((ws.getCell('C2').value as any).result);
     });
 
     it('assigns cell types properly', () => {

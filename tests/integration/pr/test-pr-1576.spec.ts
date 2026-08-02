@@ -5,7 +5,7 @@ describe('github issues', () => {
     it('Reading test-issue-1575.xlsx', () => {
       const wb = new ExcelJS.Workbook();
       return wb.xlsx.readFile('./fixtures/xlsx/test-issue-1575.xlsx').then(() => {
-        const ws = wb.getWorksheet('Sheet1');
+        const ws = wb.getWorksheet('Sheet1')!;
         expect(ws.getCell('A1').value).to.equal('A');
         expect(ws.getCell('B1').value).to.equal('B');
         expect(ws.getCell('C1').value).to.equal('C');
