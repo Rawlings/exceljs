@@ -10,7 +10,7 @@ class PivotTableXform extends BaseXform {
     this.map = {};
   }
 
-  prepare(model: any) {
+  prepare(_model: any) {
     // TK
   }
 
@@ -122,19 +122,19 @@ class PivotTableXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  parseOpen(_node: any) {
     // TK
   }
 
-  parseText(text: any) {
+  parseText(_text: any) {
     // TK
   }
 
-  parseClose(name: any) {
+  parseClose(_name: any) {
     // TK
   }
 
-  reconcile(model: any, options: any) {
+  reconcile(_model: any, _options: any) {
     // TK
   }
 }

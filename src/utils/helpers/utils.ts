@@ -72,7 +72,7 @@ const utils = {
   },
 
   xmlEncode(text: any): string {
-    if (text == null) return '';
+    if (text === null || text === undefined) return '';
     const str = typeof text === 'string' ? text : String(text);
     const regexResult = xmlDecodeRegex.exec(str);
     if (!regexResult) return str;
@@ -119,7 +119,7 @@ const utils = {
   },
 
   xmlEncodeText(text: any): string {
-    if (text == null) return '';
+    if (text === null || text === undefined) return '';
     const str = typeof text !== 'string' ? String(text) : text;
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   },

@@ -1,8 +1,9 @@
 process.env.EXCEL_NATIVE = 'yes';
 
-const verquire = require('../../../utils/verquire');
-const tools = require('../../../utils/tools');
+import tools from '../../../utils/tools';
 import Excel from '#src/exceljs.nodejs';
+import sheetProperties from '#fixtures/json/sheet-properties.json' with { type: 'json' };
+import pageSetupData from '#fixtures/json/page-setup.json' with { type: 'json' };
 
 const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 const RT_ARR = [
@@ -21,8 +22,8 @@ const TEST_NOTE = {
 describe('pr related issues', () => {
   describe('pr 896 add xml:space="preserve" for all whitespaces', () => {
     it('should store cell text and comment with leading new line', () => {
-      const properties = tools.fix(require('../../../utils/data/sheet-properties.json'));
-      const pageSetup = tools.fix(require('../../../utils/data/page-setup.json'));
+      const properties = tools.fix(sheetProperties);
+      const pageSetup = tools.fix(pageSetupData);
 
       const wb = new Excel.Workbook();
       const ws = wb.addWorksheet('sheet1', {

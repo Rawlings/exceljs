@@ -10,13 +10,14 @@
   "engines": {
     "node": ">=24.0.0"
   },
+  "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./src/index.d.ts",
+  "types": "./dist/index.d.ts",
   "browser": "./dist/exceljs.bare.js",
   "exports": {
     ".": {
-      "types": "./src/index.d.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "browser": "./dist/exceljs.bare.js"
@@ -33,7 +34,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"fs.copyFileSync('dist/index.js', 'dist/index.cjs')\"",
     "lint": "oxlint src tests",
     "lint:fix": "oxlint --fix src tests",
     "format": "oxfmt src",

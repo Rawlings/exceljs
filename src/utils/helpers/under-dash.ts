@@ -48,7 +48,7 @@ const _ = {
 
   isEqual(a: any, b: any): boolean {
     if (a === b) return true;
-    if (a == null || b == null) return a === b;
+    if (a === null || a === undefined || b === null || b === undefined) return a === b;
     if (typeof a !== typeof b) return false;
 
     if (Array.isArray(a)) {
@@ -70,7 +70,7 @@ const _ = {
   },
 
   escapeHtml(html: any): string {
-    if (html == null) return '';
+    if (html === null || html === undefined) return '';
     const str = typeof html === 'string' ? html : String(html);
     return str.replace(ESCAPE_REGEX, (ch) => HTML_ESCAPES[ch]);
   },

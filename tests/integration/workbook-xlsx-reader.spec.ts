@@ -258,10 +258,11 @@ describe('WorkbookReader', () => {
 
   describe('with a spreadsheet that contains images', () => {
     let worksheet: any;
-    before(async () => {
+    before(async function (this: any) {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.read(fs.createReadStream('./fixtures/xlsx/images.xlsx'));
       worksheet = workbook.getWorksheet();
+      this.worksheet = worksheet;
     });
 
     describe('with image`s tl anchor', () => {

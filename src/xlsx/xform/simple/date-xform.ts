@@ -29,7 +29,7 @@ class DateXform extends BaseXform {
         try {
           if (Number.isNaN(dt.getTime())) return '';
           return dt.toISOString();
-        } catch (e: any) {
+        } catch {
           return '';
         }
       };

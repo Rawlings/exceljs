@@ -6,7 +6,7 @@ import BaseXform from '#src/xlsx/xform/base-xform';
 // base class for xforms that are composed of other xforms
 // offers some default implementations
 class CompositeXform extends BaseXform {
-  createNewModel(node: any) {
+  createNewModel(_node: any) {
     return {};
   }
 

@@ -4,9 +4,9 @@
     "correctness": "error"
   },
   "rules": {
-    "no-unused-vars": "warn",
+    "no-unused-vars": "error",
     "no-console": "off",
-    "eqeqeq": "warn",
+    "eqeqeq": "error",
     "no-sparse-arrays": "off",
     "no-underscore-dangle": "off",
     "no-dupe-class-members": "off",
