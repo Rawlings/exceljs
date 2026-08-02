@@ -1,9 +1,9 @@
-import XmlStream from '../../../utils/xml-stream';
-import BaseXform from '../base-xform';
-import StringXform from '../simple/string-xform';
+import XmlStream from '#src/utils/xml-stream';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import StringXform from '#src/xlsx/xform/simple/string-xform';
 
-import AppHeadingPairsXform from './app-heading-pairs-xform';
-import AppTitleOfPartsXform from './app-titles-of-parts-xform';
+import AppHeadingPairsXform from '#src/xlsx/xform/core/app-heading-pairs-xform';
+import AppTitleOfPartsXform from '#src/xlsx/xform/core/app-titles-of-parts-xform';
 
 class AppXform extends BaseXform {
   static PROPERTY_ATTRIBUTES: any;

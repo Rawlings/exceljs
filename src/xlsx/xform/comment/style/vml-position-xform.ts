@@ -1,4 +1,4 @@
-import BaseXform from '../../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 class VmlPositionXform extends BaseXform {
   declare _model: any;

@@ -1,4 +1,4 @@
-import colCache from '../../../src/utils/col-cache';
+import colCache from '#src/utils/col-cache';
 
 describe('colCache', () => {
   it('caches values', () => {

@@ -1,4 +1,4 @@
-import ExcelJS from '../../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 describe('github issues', () => {
   describe('pull request 1576 - inlineStr cell type support', () => {

@@ -1,17 +1,17 @@
-import _ from '../../../utils/under-dash';
+import _ from '#src/utils/under-dash';
 
-import colCache from '../../../utils/col-cache';
-import XmlStream from '../../../utils/xml-stream';
+import colCache from '#src/utils/col-cache';
+import XmlStream from '#src/utils/xml-stream';
 
-import BaseXform from '../base-xform';
-import StaticXform from '../static-xform';
-import ListXform from '../list-xform';
-import DefinedNameXform from './defined-name-xform';
-import SheetXform from './sheet-xform';
-import WorkbookViewXform from './workbook-view-xform';
-import WorkbookPropertiesXform from './workbook-properties-xform';
-import WorkbookCalcPropertiesXform from './workbook-calc-properties-xform';
-import WorkbookPivotCacheXform from './workbook-pivot-cache-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import StaticXform from '#src/xlsx/xform/static-xform';
+import ListXform from '#src/xlsx/xform/list-xform';
+import DefinedNameXform from '#src/xlsx/xform/book/defined-name-xform';
+import SheetXform from '#src/xlsx/xform/book/sheet-xform';
+import WorkbookViewXform from '#src/xlsx/xform/book/workbook-view-xform';
+import WorkbookPropertiesXform from '#src/xlsx/xform/book/workbook-properties-xform';
+import WorkbookCalcPropertiesXform from '#src/xlsx/xform/book/workbook-calc-properties-xform';
+import WorkbookPivotCacheXform from '#src/xlsx/xform/book/workbook-pivot-cache-xform';
 
 class WorkbookXform extends BaseXform {
   static STATIC_XFORMS: any;

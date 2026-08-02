@@ -1,7 +1,7 @@
-import Worksheet from './worksheet';
-import DefinedNames from './defined-names';
-import XLSX from '../xlsx/xlsx';
-import CSV from '../csv/csv';
+import Worksheet from '#src/doc/worksheet';
+import DefinedNames from '#src/doc/defined-names';
+import XLSX from '#src/xlsx/xlsx';
+import CSV from '#src/csv/csv';
 
 // Workbook requirements
 //  Load and Save from file and stream

@@ -1,16 +1,16 @@
 /* eslint-disable max-classes-per-file */
-import Enums from '../../../doc/enums';
-import XmlStream from '../../../utils/xml-stream';
+import Enums from '#src/doc/enums';
+import XmlStream from '#src/utils/xml-stream';
 
-import BaseXform from '../base-xform';
-import StaticXform from '../static-xform';
-import ListXform from '../list-xform';
-import FontXform from './font-xform';
-import FillXform from './fill-xform';
-import BorderXform from './border-xform';
-import NumFmtXform from './numfmt-xform';
-import StyleXform from './style-xform';
-import DxfXform from './dxf-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import StaticXform from '#src/xlsx/xform/static-xform';
+import ListXform from '#src/xlsx/xform/list-xform';
+import FontXform from '#src/xlsx/xform/style/font-xform';
+import FillXform from '#src/xlsx/xform/style/fill-xform';
+import BorderXform from '#src/xlsx/xform/style/border-xform';
+import NumFmtXform from '#src/xlsx/xform/style/numfmt-xform';
+import StyleXform from '#src/xlsx/xform/style/style-xform';
+import DxfXform from '#src/xlsx/xform/style/dxf-xform';
 
 // custom numfmt ids start here
 const NUMFMT_BASE = 164;

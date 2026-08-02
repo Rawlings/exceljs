@@ -1,4 +1,4 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 // render the triangle in the cell for the comment
 class VmlAnchorXform extends BaseXform {

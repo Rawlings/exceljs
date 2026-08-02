@@ -1,6 +1,6 @@
 import testXformHelper from '../../test-xform-helper';
 
-import CfvoXform from '../../../../../../src/xlsx/xform/sheet/cf/cfvo-xform';
+import CfvoXform from '#src/xlsx/xform/sheet/cf/cfvo-xform';
 
 const expectations = [
   {

@@ -1,4 +1,4 @@
-import ExcelJS from '../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 const libs: Record<string, any> = {
   exceljs: ExcelJS,

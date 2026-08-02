@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import MergeCellXform from '../../../../../src/xlsx/xform/sheet/merge-cell-xform';
+import MergeCellXform from '#src/xlsx/xform/sheet/merge-cell-xform';
 
 const expectations = [
   {

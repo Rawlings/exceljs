@@ -1,6 +1,6 @@
-import BaseXform from '../base-xform';
-import VmlTextboxXform from './vml-textbox-xform';
-import VmlClientDataXform from './vml-client-data-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import VmlTextboxXform from '#src/xlsx/xform/comment/vml-textbox-xform';
+import VmlClientDataXform from '#src/xlsx/xform/comment/vml-client-data-xform';
 
 class VmlShapeXform extends BaseXform {
   static V_SHAPE_ATTRIBUTES: any;

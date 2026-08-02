@@ -1,7 +1,7 @@
 import events from 'events';
-import { NativeZipWriter as JSZip } from './native-zip';
+import { NativeZipWriter as JSZip } from '#src/utils/native-zip';
 
-import StreamBuf from './stream-buf';
+import StreamBuf from '#src/utils/stream-buf';
 
 // =============================================================================
 // The ZipWriter class

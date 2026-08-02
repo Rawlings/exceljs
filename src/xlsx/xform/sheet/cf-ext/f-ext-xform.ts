@@ -1,4 +1,4 @@
-import BaseXform from '../../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 class FExtXform extends BaseXform {
   get tag() {

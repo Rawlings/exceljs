@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
-import parseSax from '../../utils/parse-sax';
+import parseSax from '#src/utils/parse-sax';
 
-import Enums from '../../doc/enums';
-import RelType from '../../xlsx/rel-type';
+import Enums from '#src/doc/enums';
+import RelType from '#src/xlsx/rel-type';
 
 class HyperlinkReader extends EventEmitter {
   workbook: any;

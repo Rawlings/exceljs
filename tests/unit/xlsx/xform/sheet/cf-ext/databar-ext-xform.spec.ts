@@ -1,6 +1,6 @@
 import testXformHelper from '../../test-xform-helper';
 
-import DatabarExtXform from '../../../../../../src/xlsx/xform/sheet/cf-ext/databar-ext-xform';
+import DatabarExtXform from '#src/xlsx/xform/sheet/cf-ext/databar-ext-xform';
 
 const expectations = [
   {

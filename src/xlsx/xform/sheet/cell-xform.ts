@@ -1,9 +1,9 @@
-import utils from '../../../utils/utils';
-import BaseXform from '../base-xform';
-import Range from '../../../doc/range';
-import Enums from '../../../doc/enums';
+import utils from '#src/utils/utils';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import Range from '#src/doc/range';
+import Enums from '#src/doc/enums';
 
-import RichTextXform from '../strings/rich-text-xform';
+import RichTextXform from '#src/xlsx/xform/strings/rich-text-xform';
 
 function getValueType(v: any) {
   if (v === null || v === undefined) {

@@ -1,7 +1,7 @@
-import XmlStream from '../../../utils/xml-stream';
-import BaseXform from '../base-xform';
+import XmlStream from '#src/utils/xml-stream';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
-import RelationshipXform from './relationship-xform';
+import RelationshipXform from '#src/xlsx/xform/core/relationship-xform';
 
 class RelationshipsXform extends BaseXform {
   _values: any;

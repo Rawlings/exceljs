@@ -1,5 +1,5 @@
-import Enums from '../../../src/doc/enums';
-import ExcelJS from '../../../src/exceljs.nodejs';
+import Enums from '#src/doc/enums';
+import ExcelJS from '#src/exceljs.nodejs';
 
 describe('github issues', () => {
   describe('Shared Formulas', () => {

@@ -1,13 +1,13 @@
-import BaseXform from '../../base-xform';
-import CompositeXform from '../../composite-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import CompositeXform from '#src/xlsx/xform/composite-xform';
 
-import Range from '../../../../doc/range';
+import Range from '#src/doc/range';
 
-import DatabarXform from './databar-xform';
-import ExtLstRefXform from './ext-lst-ref-xform';
-import FormulaXform from './formula-xform';
-import ColorScaleXform from './color-scale-xform';
-import IconSetXform from './icon-set-xform';
+import DatabarXform from '#src/xlsx/xform/sheet/cf/databar-xform';
+import ExtLstRefXform from '#src/xlsx/xform/sheet/cf/ext-lst-ref-xform';
+import FormulaXform from '#src/xlsx/xform/sheet/cf/formula-xform';
+import ColorScaleXform from '#src/xlsx/xform/sheet/cf/color-scale-xform';
+import IconSetXform from '#src/xlsx/xform/sheet/cf/icon-set-xform';
 
 const extIcons = {
   '3Triangles': true,
@@ -186,9 +186,9 @@ class CfRuleXform extends CompositeXform {
       type: 'top10',
       dxfId: model.dxfId,
       priority: model.priority,
+      rank: BaseXform.toIntValue(model.rank, 10),
       percent: BaseXform.toBoolAttribute(model.percent, false),
       bottom: BaseXform.toBoolAttribute(model.bottom, false),
-      rank: BaseXform.toIntValue(model.rank, 10),
     });
   }
 

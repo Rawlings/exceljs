@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import FloatXform from '../../../../../src/xlsx/xform/simple/float-xform';
+import FloatXform from '#src/xlsx/xform/simple/float-xform';
 
 const expectations = [
   {

@@ -1,7 +1,7 @@
 const { join } = require('path');
 const { readFileSync } = require('fs');
 
-import ExcelJS from '../../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 const fileName = './spec/integration/data/test-issue-1842.xlsx';
 

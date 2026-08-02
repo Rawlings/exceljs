@@ -1,4 +1,4 @@
-import ExcelJS from '../../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 describe('github issues', () => {
   describe('issue 539 - <contentType /> element', () => {

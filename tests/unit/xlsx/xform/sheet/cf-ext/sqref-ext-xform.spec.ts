@@ -1,6 +1,6 @@
 import testXformHelper from '../../test-xform-helper';
 
-import SqrefExtXform from '../../../../../../src/xlsx/xform/sheet/cf-ext/sqref-ext-xform';
+import SqrefExtXform from '#src/xlsx/xform/sheet/cf-ext/sqref-ext-xform';
 
 const expectations = [
   {

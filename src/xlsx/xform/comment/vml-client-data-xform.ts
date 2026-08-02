@@ -1,8 +1,8 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
-import VmlAnchorXform from './vml-anchor-xform';
-import VmlProtectionXform from './style/vml-protection-xform';
-import VmlPositionXform from './style/vml-position-xform';
+import VmlAnchorXform from '#src/xlsx/xform/comment/vml-anchor-xform';
+import VmlProtectionXform from '#src/xlsx/xform/comment/style/vml-protection-xform';
+import VmlPositionXform from '#src/xlsx/xform/comment/style/vml-position-xform';
 
 const POSITION_TYPE = ['twoCells', 'oneCells', 'absolute'];
 

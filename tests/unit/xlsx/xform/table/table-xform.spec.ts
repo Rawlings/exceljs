@@ -2,7 +2,7 @@ const fs = require('fs');
 
 import testXformHelper from '../test-xform-helper';
 
-import TableXform from '../../../../../src/xlsx/xform/table/table-xform';
+import TableXform from '#src/xlsx/xform/table/table-xform';
 
 const expectations = [
   {

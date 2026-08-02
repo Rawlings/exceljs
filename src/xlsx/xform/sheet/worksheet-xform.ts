@@ -1,35 +1,35 @@
-import _ from '../../../utils/under-dash';
+import _ from '#src/utils/under-dash';
 
-import colCache from '../../../utils/col-cache';
-import XmlStream from '../../../utils/xml-stream';
+import colCache from '#src/utils/col-cache';
+import XmlStream from '#src/utils/xml-stream';
 
-import RelType from '../../rel-type';
+import RelType from '#src/xlsx/rel-type';
 
-import Merges from './merges';
+import Merges from '#src/xlsx/xform/sheet/merges';
 
-import BaseXform from '../base-xform';
-import ListXform from '../list-xform';
-import RowXform from './row-xform';
-import ColXform from './col-xform';
-import DimensionXform from './dimension-xform';
-import HyperlinkXform from './hyperlink-xform';
-import MergeCellXform from './merge-cell-xform';
-import DataValidationsXform from './data-validations-xform';
-import SheetPropertiesXform from './sheet-properties-xform';
-import SheetFormatPropertiesXform from './sheet-format-properties-xform';
-import SheetViewXform from './sheet-view-xform';
-import SheetProtectionXform from './sheet-protection-xform';
-import PageMarginsXform from './page-margins-xform';
-import PageSetupXform from './page-setup-xform';
-import PrintOptionsXform from './print-options-xform';
-import AutoFilterXform from './auto-filter-xform';
-import PictureXform from './picture-xform';
-import DrawingXform from './drawing-xform';
-import TablePartXform from './table-part-xform';
-import RowBreaksXform from './row-breaks-xform';
-import HeaderFooterXform from './header-footer-xform';
-import ConditionalFormattingsXform from './cf/conditional-formattings-xform';
-import ExtListXform from './ext-lst-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import ListXform from '#src/xlsx/xform/list-xform';
+import RowXform from '#src/xlsx/xform/sheet/row-xform';
+import ColXform from '#src/xlsx/xform/sheet/col-xform';
+import DimensionXform from '#src/xlsx/xform/sheet/dimension-xform';
+import HyperlinkXform from '#src/xlsx/xform/sheet/hyperlink-xform';
+import MergeCellXform from '#src/xlsx/xform/sheet/merge-cell-xform';
+import DataValidationsXform from '#src/xlsx/xform/sheet/data-validations-xform';
+import SheetPropertiesXform from '#src/xlsx/xform/sheet/sheet-properties-xform';
+import SheetFormatPropertiesXform from '#src/xlsx/xform/sheet/sheet-format-properties-xform';
+import SheetViewXform from '#src/xlsx/xform/sheet/sheet-view-xform';
+import SheetProtectionXform from '#src/xlsx/xform/sheet/sheet-protection-xform';
+import PageMarginsXform from '#src/xlsx/xform/sheet/page-margins-xform';
+import PageSetupXform from '#src/xlsx/xform/sheet/page-setup-xform';
+import PrintOptionsXform from '#src/xlsx/xform/sheet/print-options-xform';
+import AutoFilterXform from '#src/xlsx/xform/sheet/auto-filter-xform';
+import PictureXform from '#src/xlsx/xform/sheet/picture-xform';
+import DrawingXform from '#src/xlsx/xform/sheet/drawing-xform';
+import TablePartXform from '#src/xlsx/xform/sheet/table-part-xform';
+import RowBreaksXform from '#src/xlsx/xform/sheet/row-breaks-xform';
+import HeaderFooterXform from '#src/xlsx/xform/sheet/header-footer-xform';
+import ConditionalFormattingsXform from '#src/xlsx/xform/sheet/cf/conditional-formattings-xform';
+import ExtListXform from '#src/xlsx/xform/sheet/ext-lst-xform';
 
 const mergeRule = (rule: any, extRule: any) => {
   Object.keys(extRule).forEach((key) => {
@@ -356,11 +356,11 @@ class WorkSheetXform extends BaseXform {
     // For some reason hyperlinks have to be after the data validations
     this.map.hyperlinks.render(xmlStream, model.hyperlinks);
 
+    this.map.rowBreaks.render(xmlStream, model.rowBreaks);
     this.map.printOptions.render(xmlStream, printOptionsModel); // Note: must be before pageMargins
     this.map.pageMargins.render(xmlStream, pageMarginsModel);
     this.map.pageSetup.render(xmlStream, model.pageSetup);
     this.map.headerFooter.render(xmlStream, model.headerFooter);
-    this.map.rowBreaks.render(xmlStream, model.rowBreaks);
     this.map.drawing.render(xmlStream, model.drawing); // Note: must be after rowBreaks
     this.map.picture.render(xmlStream, model.background); // Note: must be after drawing
     this.map.tableParts.render(xmlStream, model.tables);

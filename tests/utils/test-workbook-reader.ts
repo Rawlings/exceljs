@@ -3,8 +3,8 @@ import sheetValuesData from './data/sheet-values.json';
 import stylesData from './data/styles.json';
 import sheetPropertiesData from './data/sheet-properties.json';
 import pageSetupData from './data/page-setup.json';
-import utils from '../../src/utils/utils';
-import ExcelJS from '../../src/exceljs.nodejs';
+import utils from '#src/utils/utils';
+import ExcelJS from '#src/exceljs.nodejs';
 
 function fillFormula(f: any) {
   return Object.assign({ formula: undefined }, f);

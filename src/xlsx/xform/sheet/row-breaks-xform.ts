@@ -1,8 +1,8 @@
 'use strict';
 
-import PageBreaksXform from './page-breaks-xform';
+import PageBreaksXform from '#src/xlsx/xform/sheet/page-breaks-xform';
 
-import ListXform from '../list-xform';
+import ListXform from '#src/xlsx/xform/list-xform';
 
 class RowBreaksXform extends ListXform {
   constructor() {

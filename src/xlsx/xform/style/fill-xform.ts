@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
-import ColorXform from './color-xform';
+import ColorXform from '#src/xlsx/xform/style/color-xform';
 
 class StopXform extends BaseXform {
   constructor() {

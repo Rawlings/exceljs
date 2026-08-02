@@ -1,15 +1,15 @@
-import _ from '../utils/under-dash';
-import colCache from '../utils/col-cache';
-import Range from './range';
-import Row from './row';
-import Column from './column';
-import Enums from './enums';
-import Image from './image';
-import Table from './table';
-import DataValidations from './data-validations';
-import { makePivotTable } from './pivot-table';
-import Encryptor from '../utils/encryptor';
-import { copyStyle } from '../utils/copy-style';
+import _ from '#src/utils/under-dash';
+import colCache from '#src/utils/col-cache';
+import Range from '#src/doc/range';
+import Row from '#src/doc/row';
+import Column from '#src/doc/column';
+import Enums from '#src/doc/enums';
+import Image from '#src/doc/image';
+import Table from '#src/doc/table';
+import DataValidations from '#src/doc/data-validations';
+import { makePivotTable } from '#src/doc/pivot-table';
+import Encryptor from '#src/utils/encryptor';
+import { copyStyle } from '#src/utils/copy-style';
 
 // Worksheet requirements
 //  Operate as sheet inside workbook or standalone

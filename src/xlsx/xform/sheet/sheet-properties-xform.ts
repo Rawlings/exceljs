@@ -1,7 +1,7 @@
-import BaseXform from '../base-xform';
-import ColorXform from '../style/color-xform';
-import PageSetupPropertiesXform from './page-setup-properties-xform';
-import OutlinePropertiesXform from './outline-properties-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import ColorXform from '#src/xlsx/xform/style/color-xform';
+import PageSetupPropertiesXform from '#src/xlsx/xform/sheet/page-setup-properties-xform';
+import OutlinePropertiesXform from '#src/xlsx/xform/sheet/outline-properties-xform';
 
 class SheetPropertiesXform extends BaseXform {
   constructor() {

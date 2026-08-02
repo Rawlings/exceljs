@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import colCache from '../utils/col-cache';
+import colCache from '#src/utils/col-cache';
 
 class Column {
   // wrapper around column model, allowing access and manipulation

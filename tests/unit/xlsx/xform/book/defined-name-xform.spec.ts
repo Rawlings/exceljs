@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import DefinedNameXform from '../../../../../src/xlsx/xform/book/defined-name-xform';
+import DefinedNameXform from '#src/xlsx/xform/book/defined-name-xform';
 
 const expectations = [
   {

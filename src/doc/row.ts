@@ -1,7 +1,7 @@
-import _ from '../utils/under-dash';
-import Enums from './enums';
-import colCache from '../utils/col-cache';
-import Cell from './cell';
+import _ from '#src/utils/under-dash';
+import Enums from '#src/doc/enums';
+import colCache from '#src/utils/col-cache';
+import Cell from '#src/doc/cell';
 
 class Row {
   _worksheet: any;

@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import AppTitlesOfPartsXform from '../../../../../src/xlsx/xform/core/app-titles-of-parts-xform';
+import AppTitlesOfPartsXform from '#src/xlsx/xform/core/app-titles-of-parts-xform';
 
 const expectations = [
   {

@@ -1,4 +1,4 @@
-import XLSX from '../xlsx/xlsx';
+import XLSX from '#src/xlsx/xlsx';
 
 export class ModelContainer {
   model: any;

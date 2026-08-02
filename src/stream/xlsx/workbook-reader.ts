@@ -1,16 +1,16 @@
 import fs from 'fs';
 import { EventEmitter } from 'events';
 import { PassThrough, Readable } from 'stream';
-import { NativeZipReader as JSZip } from '../../utils/native-zip';
-import iterateStream from '../../utils/iterate-stream';
-import parseSax from '../../utils/parse-sax';
+import { NativeZipReader as JSZip } from '#src/utils/native-zip';
+import iterateStream from '#src/utils/iterate-stream';
+import parseSax from '#src/utils/parse-sax';
 
-import StyleManager from '../../xlsx/xform/style/styles-xform';
-import WorkbookXform from '../../xlsx/xform/book/workbook-xform';
-import RelationshipsXform from '../../xlsx/xform/core/relationships-xform';
+import StyleManager from '#src/xlsx/xform/style/styles-xform';
+import WorkbookXform from '#src/xlsx/xform/book/workbook-xform';
+import RelationshipsXform from '#src/xlsx/xform/core/relationships-xform';
 
-import WorksheetReader from './worksheet-reader';
-import HyperlinkReader from './hyperlink-reader';
+import WorksheetReader from '#src/stream/xlsx/worksheet-reader';
+import HyperlinkReader from '#src/stream/xlsx/hyperlink-reader';
 
 class WorkbookReader extends EventEmitter {
   static Options: any;

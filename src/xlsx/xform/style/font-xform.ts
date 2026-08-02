@@ -1,13 +1,13 @@
 'use strict';
 
-import ColorXform from './color-xform';
-import BooleanXform from '../simple/boolean-xform';
-import IntegerXform from '../simple/integer-xform';
-import StringXform from '../simple/string-xform';
-import UnderlineXform from './underline-xform';
+import ColorXform from '#src/xlsx/xform/style/color-xform';
+import BooleanXform from '#src/xlsx/xform/simple/boolean-xform';
+import IntegerXform from '#src/xlsx/xform/simple/integer-xform';
+import StringXform from '#src/xlsx/xform/simple/string-xform';
+import UnderlineXform from '#src/xlsx/xform/style/underline-xform';
 
-import _ from '../../../utils/under-dash';
-import BaseXform from '../base-xform';
+import _ from '#src/utils/under-dash';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 // Font encapsulates translation from font model to xlsx
 class FontXform extends BaseXform {

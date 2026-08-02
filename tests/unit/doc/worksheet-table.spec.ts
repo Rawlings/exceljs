@@ -1,5 +1,5 @@
-import colCache from '../../../src/utils/col-cache';
-import Excel from '../../../src/exceljs.nodejs';
+import colCache from '#src/utils/col-cache';
+import Excel from '#src/exceljs.nodejs';
 
 const spliceArray = (a, index, count, ...rest) => {
   const clone = [...a];

@@ -1,5 +1,5 @@
-import _ from './under-dash';
-import colCache from './col-cache';
+import _ from '#src/utils/under-dash';
+import colCache from '#src/utils/col-cache';
 
 class CellMatrix {
   template: any;

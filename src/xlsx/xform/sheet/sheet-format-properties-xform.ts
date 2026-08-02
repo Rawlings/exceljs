@@ -1,5 +1,5 @@
-import _ from '../../../utils/under-dash';
-import BaseXform from '../base-xform';
+import _ from '#src/utils/under-dash';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 class SheetFormatPropertiesXform extends BaseXform {
   get tag() {
@@ -10,18 +10,12 @@ class SheetFormatPropertiesXform extends BaseXform {
     if (model) {
       const attributes: any = {
         defaultRowHeight: model.defaultRowHeight,
+        defaultColWidth: model.defaultColWidth,
+        customHeight: (!model.defaultRowHeight || model.defaultRowHeight !== 15) ? '1' : undefined,
+        'x14ac:dyDescent': model.dyDescent,
         outlineLevelRow: model.outlineLevelRow,
         outlineLevelCol: model.outlineLevelCol,
-        'x14ac:dyDescent': model.dyDescent,
       };
-      if (model.defaultColWidth) {
-        attributes.defaultColWidth = model.defaultColWidth;
-      }
-
-      // default value for 'defaultRowHeight' is 15, this should not be 'custom'
-      if (!model.defaultRowHeight || model.defaultRowHeight !== 15) {
-        attributes.customHeight = '1';
-      }
 
       if (_.some(attributes, (value: any) => value !== undefined)) {
         xmlStream.leafNode('sheetFormatPr', attributes);

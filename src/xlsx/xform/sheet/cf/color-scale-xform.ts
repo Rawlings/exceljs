@@ -1,7 +1,7 @@
-import CompositeXform from '../../composite-xform';
+import CompositeXform from '#src/xlsx/xform/composite-xform';
 
-import ColorXform from '../../style/color-xform';
-import CfvoXform from './cfvo-xform';
+import ColorXform from '#src/xlsx/xform/style/color-xform';
+import CfvoXform from '#src/xlsx/xform/sheet/cf/cfvo-xform';
 
 class ColorScaleXform extends CompositeXform {
   cfvoXform: any;

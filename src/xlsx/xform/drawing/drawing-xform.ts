@@ -1,9 +1,9 @@
-import colCache from '../../../utils/col-cache';
-import XmlStream from '../../../utils/xml-stream';
+import colCache from '#src/utils/col-cache';
+import XmlStream from '#src/utils/xml-stream';
 
-import BaseXform from '../base-xform';
-import TwoCellAnchorXform from './two-cell-anchor-xform';
-import OneCellAnchorXform from './one-cell-anchor-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import TwoCellAnchorXform from '#src/xlsx/xform/drawing/two-cell-anchor-xform';
+import OneCellAnchorXform from '#src/xlsx/xform/drawing/one-cell-anchor-xform';
 
 function getAnchorType(model: any) {
   const range = typeof model.range === 'string' ? colCache.decode(model.range) : model.range;

@@ -1,6 +1,6 @@
-import _ from '../utils/under-dash';
-import Enums from './enums';
-import colCache from '../utils/col-cache';
+import _ from '#src/utils/under-dash';
+import Enums from '#src/doc/enums';
+import colCache from '#src/utils/col-cache';
 
 const DEFAULT_COLUMN_WIDTH = 9;
 

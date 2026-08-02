@@ -1,8 +1,8 @@
-import XmlStream from '../../../utils/xml-stream';
-import utils from '../../../utils/utils';
-import BaseXform from '../base-xform';
+import XmlStream from '#src/utils/xml-stream';
+import utils from '#src/utils/utils';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
-import CommentXform from './comment-xform';
+import CommentXform from '#src/xlsx/xform/comment/comment-xform';
 
 const CommentsXform = function (this: any) {
   this.map = {

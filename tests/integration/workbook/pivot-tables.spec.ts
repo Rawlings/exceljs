@@ -7,7 +7,7 @@ const fsReadFileAsync = promisify(fs.readFile);
 
 const JSZip = require('jszip');
 
-import ExcelJS from '../../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 const PIVOT_TABLE_FILEPATHS = [
   'xl/pivotCache/pivotCacheRecords1.xml',

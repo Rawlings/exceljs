@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import WorkbookViewXform from '../../../../../src/xlsx/xform/book/workbook-view-xform';
+import WorkbookViewXform from '#src/xlsx/xform/book/workbook-view-xform';
 
 const expectations = [
   {

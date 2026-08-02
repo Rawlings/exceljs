@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import PrintOptionsXform from '../../../../../src/xlsx/xform/sheet/print-options-xform';
+import PrintOptionsXform from '#src/xlsx/xform/sheet/print-options-xform';
 
 const expectations = [
   {

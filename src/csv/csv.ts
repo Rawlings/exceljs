@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { access } from 'fs/promises';
-import StreamBuf from '../utils/stream-buf';
+import StreamBuf from '#src/utils/stream-buf';
 
 async function fileExists(filename: string): Promise<boolean> {
   try {

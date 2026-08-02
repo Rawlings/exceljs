@@ -1,4 +1,4 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 // Color encapsulates translation from color model to/from xlsx
 class ColorXform extends BaseXform {

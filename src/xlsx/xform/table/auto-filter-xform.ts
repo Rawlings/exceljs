@@ -1,6 +1,6 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
-import FilterColumnXform from './filter-column-xform';
+import FilterColumnXform from '#src/xlsx/xform/table/filter-column-xform';
 
 class AutoFilterXform extends BaseXform {
   constructor() {

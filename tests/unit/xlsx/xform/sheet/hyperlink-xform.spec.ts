@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import HyperlinkXform from '../../../../../src/xlsx/xform/sheet/hyperlink-xform';
+import HyperlinkXform from '#src/xlsx/xform/sheet/hyperlink-xform';
 
 const expectations = [
   {

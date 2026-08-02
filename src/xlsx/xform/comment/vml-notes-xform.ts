@@ -1,7 +1,7 @@
-import XmlStream from '../../../utils/xml-stream';
+import XmlStream from '#src/utils/xml-stream';
 
-import BaseXform from '../base-xform';
-import VmlShapeXform from './vml-shape-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import VmlShapeXform from '#src/xlsx/xform/comment/vml-shape-xform';
 
 // This class is (currently) single purposed to insert the triangle
 // drawing icons on commented cells

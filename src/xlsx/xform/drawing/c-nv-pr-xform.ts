@@ -1,6 +1,6 @@
-import BaseXform from '../base-xform';
-import HlickClickXform from './hlink-click-xform';
-import ExtLstXform from './ext-lst-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import HlickClickXform from '#src/xlsx/xform/drawing/hlink-click-xform';
+import ExtLstXform from '#src/xlsx/xform/drawing/ext-lst-xform';
 
 class CNvPrXform extends BaseXform {
   constructor() {

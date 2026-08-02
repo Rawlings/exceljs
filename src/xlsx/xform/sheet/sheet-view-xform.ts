@@ -1,5 +1,5 @@
-import colCache from '../../../utils/col-cache';
-import BaseXform from '../base-xform';
+import colCache from '#src/utils/col-cache';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 const VIEW_STATES: any = {
   frozen: 'frozen',

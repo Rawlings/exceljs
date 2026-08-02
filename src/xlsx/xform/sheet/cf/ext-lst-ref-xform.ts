@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import BaseXform from '../../base-xform';
-import CompositeXform from '../../composite-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import CompositeXform from '#src/xlsx/xform/composite-xform';
 
 class X14IdXform extends BaseXform {
   get tag() {

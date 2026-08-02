@@ -1,8 +1,8 @@
-import TextXform from './text-xform';
-import RichTextXform from './rich-text-xform';
-import PhoneticTextXform from './phonetic-text-xform';
+import TextXform from '#src/xlsx/xform/strings/text-xform';
+import RichTextXform from '#src/xlsx/xform/strings/rich-text-xform';
+import PhoneticTextXform from '#src/xlsx/xform/strings/phonetic-text-xform';
 
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 // <si>
 //   <r></r><r></r>...

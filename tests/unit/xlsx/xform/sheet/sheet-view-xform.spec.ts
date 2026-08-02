@@ -1,7 +1,7 @@
 import testXformHelper from '../test-xform-helper';
 
-import SheetViewXform from '../../../../../src/xlsx/xform/sheet/sheet-view-xform';
-import ListXform from '../../../../../src/xlsx/xform/list-xform';
+import SheetViewXform from '#src/xlsx/xform/sheet/sheet-view-xform';
+import ListXform from '#src/xlsx/xform/list-xform';
 
 const expectations = [
   {

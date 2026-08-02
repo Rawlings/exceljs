@@ -1,4 +1,6 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+
+import utils from '../../../utils/utils';
 
 class HeaderFooterXform extends BaseXform {
   currentNode: any;
@@ -98,6 +100,7 @@ class HeaderFooterXform extends BaseXform {
   }
 
   parseText(text: any) {
+    text = utils.xmlDecode(text);
     switch (this.currentNode) {
       case 'oddHeader':
         this.model.oddHeader = text;

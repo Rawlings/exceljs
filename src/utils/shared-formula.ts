@@ -1,4 +1,4 @@
-import colCache from './col-cache';
+import colCache from '#src/utils/col-cache';
 
 // const cellRefRegex = /(([a-z_\-0-9]*)!)?[$]?([a-z]+)[$]?([1-9][0-9]*)/i;
 const replacementCandidateRx = /(([a-z_\-0-9]*)!)?([a-z0-9_$]{2,})([(])?/gi;

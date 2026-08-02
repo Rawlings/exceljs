@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import SheetProtectionXform from '../../../../../src/xlsx/xform/sheet/sheet-protection-xform';
+import SheetProtectionXform from '#src/xlsx/xform/sheet/sheet-protection-xform';
 
 const expectations = [
   {

@@ -1,24 +1,24 @@
 import fs from 'fs';
-import { NativeZipWriter } from '../../utils/native-zip';
+import { NativeZipWriter } from '#src/utils/native-zip';
 
-import StreamBuf from '../../utils/stream-buf';
+import StreamBuf from '#src/utils/stream-buf';
 
-import RelType from '../../xlsx/rel-type';
-import StylesXform from '../../xlsx/xform/style/styles-xform';
-import SharedStrings from '../../utils/shared-strings';
-import DefinedNames from '../../doc/defined-names';
+import RelType from '#src/xlsx/rel-type';
+import StylesXform from '#src/xlsx/xform/style/styles-xform';
+import SharedStrings from '#src/utils/shared-strings';
+import DefinedNames from '#src/doc/defined-names';
 
-import CoreXform from '../../xlsx/xform/core/core-xform';
-import RelationshipsXform from '../../xlsx/xform/core/relationships-xform';
-import ContentTypesXform from '../../xlsx/xform/core/content-types-xform';
-import AppXform from '../../xlsx/xform/core/app-xform';
-import WorkbookXform from '../../xlsx/xform/book/workbook-xform';
-import SharedStringsXform from '../../xlsx/xform/strings/shared-strings-xform';
+import CoreXform from '#src/xlsx/xform/core/core-xform';
+import RelationshipsXform from '#src/xlsx/xform/core/relationships-xform';
+import ContentTypesXform from '#src/xlsx/xform/core/content-types-xform';
+import AppXform from '#src/xlsx/xform/core/app-xform';
+import WorkbookXform from '#src/xlsx/xform/book/workbook-xform';
+import SharedStringsXform from '#src/xlsx/xform/strings/shared-strings-xform';
 
-import WorksheetWriter from './worksheet-writer';
+import WorksheetWriter from '#src/stream/xlsx/worksheet-writer';
 
 // @ts-ignore
-import theme1Xml from '../../xlsx/theme1';
+import theme1Xml from '#src/xlsx/theme1';
 
 class WorkbookWriter {
   created: any;

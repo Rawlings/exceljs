@@ -1,4 +1,4 @@
-import ExcelJS from '../../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 const TEST_XLSX_FILE_NAME = './spec/out/test-issue-623.xlsx';
 

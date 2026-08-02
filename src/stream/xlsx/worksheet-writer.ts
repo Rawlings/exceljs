@@ -1,39 +1,39 @@
-import _ from '../../utils/under-dash';
+import _ from '#src/utils/under-dash';
 
-import RelType from '../../xlsx/rel-type';
+import RelType from '#src/xlsx/rel-type';
 
-import colCache from '../../utils/col-cache';
-import Encryptor from '../../utils/encryptor';
-import Dimensions from '../../doc/range';
-import StringBuf from '../../utils/string-buf';
+import colCache from '#src/utils/col-cache';
+import Encryptor from '#src/utils/encryptor';
+import Dimensions from '#src/doc/range';
+import StringBuf from '#src/utils/string-buf';
 
-import Row from '../../doc/row';
-import Column from '../../doc/column';
+import Row from '#src/doc/row';
+import Column from '#src/doc/column';
 
-import SheetRelsWriter from './sheet-rels-writer';
-import SheetCommentsWriter from './sheet-comments-writer';
-import DataValidations from '../../doc/data-validations';
+import SheetRelsWriter from '#src/stream/xlsx/sheet-rels-writer';
+import SheetCommentsWriter from '#src/stream/xlsx/sheet-comments-writer';
+import DataValidations from '#src/doc/data-validations';
 
 const xmlBuffer = new StringBuf(undefined);
 
 // ============================================================================================
 // Xforms
-import ListXform from '../../xlsx/xform/list-xform';
-import DataValidationsXform from '../../xlsx/xform/sheet/data-validations-xform';
-import SheetPropertiesXform from '../../xlsx/xform/sheet/sheet-properties-xform';
-import SheetFormatPropertiesXform from '../../xlsx/xform/sheet/sheet-format-properties-xform';
-import ColXform from '../../xlsx/xform/sheet/col-xform';
-import RowXform from '../../xlsx/xform/sheet/row-xform';
-import HyperlinkXform from '../../xlsx/xform/sheet/hyperlink-xform';
-import SheetViewXform from '../../xlsx/xform/sheet/sheet-view-xform';
-import SheetProtectionXform from '../../xlsx/xform/sheet/sheet-protection-xform';
-import PageMarginsXform from '../../xlsx/xform/sheet/page-margins-xform';
-import PageSetupXform from '../../xlsx/xform/sheet/page-setup-xform';
-import AutoFilterXform from '../../xlsx/xform/sheet/auto-filter-xform';
-import PictureXform from '../../xlsx/xform/sheet/picture-xform';
-import ConditionalFormattingsXform from '../../xlsx/xform/sheet/cf/conditional-formattings-xform';
-import HeaderFooterXform from '../../xlsx/xform/sheet/header-footer-xform';
-import RowBreaksXform from '../../xlsx/xform/sheet/row-breaks-xform';
+import ListXform from '#src/xlsx/xform/list-xform';
+import DataValidationsXform from '#src/xlsx/xform/sheet/data-validations-xform';
+import SheetPropertiesXform from '#src/xlsx/xform/sheet/sheet-properties-xform';
+import SheetFormatPropertiesXform from '#src/xlsx/xform/sheet/sheet-format-properties-xform';
+import ColXform from '#src/xlsx/xform/sheet/col-xform';
+import RowXform from '#src/xlsx/xform/sheet/row-xform';
+import HyperlinkXform from '#src/xlsx/xform/sheet/hyperlink-xform';
+import SheetViewXform from '#src/xlsx/xform/sheet/sheet-view-xform';
+import SheetProtectionXform from '#src/xlsx/xform/sheet/sheet-protection-xform';
+import PageMarginsXform from '#src/xlsx/xform/sheet/page-margins-xform';
+import PageSetupXform from '#src/xlsx/xform/sheet/page-setup-xform';
+import AutoFilterXform from '#src/xlsx/xform/sheet/auto-filter-xform';
+import PictureXform from '#src/xlsx/xform/sheet/picture-xform';
+import ConditionalFormattingsXform from '#src/xlsx/xform/sheet/cf/conditional-formattings-xform';
+import HeaderFooterXform from '#src/xlsx/xform/sheet/header-footer-xform';
+import RowBreaksXform from '#src/xlsx/xform/sheet/row-breaks-xform';
 
 // since prepare and render are functional, we can use singletons
 const xform = {

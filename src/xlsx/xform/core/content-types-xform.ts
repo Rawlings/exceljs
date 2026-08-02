@@ -1,6 +1,6 @@
-import XmlStream from '../../../utils/xml-stream';
+import XmlStream from '#src/utils/xml-stream';
 
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 // used for rendering the [Content_Types].xml file
 // not used for parsing

@@ -2,8 +2,8 @@ const fs = require('fs');
 
 import testXformHelper from '../test-xform-helper';
 
-import StylesXform from '../../../../../src/xlsx/xform/style/styles-xform';
-import XmlStream from '../../../../../src/utils/xml-stream';
+import StylesXform from '#src/xlsx/xform/style/styles-xform';
+import XmlStream from '#src/utils/xml-stream';
 
 const expectations = [
   {

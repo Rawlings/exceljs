@@ -1,4 +1,4 @@
-import ExcelJS from '../../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 const TEST_CSV_FILE_NAME = './spec/out/issue-995-encoding.test.csv';
 const HEBREW_TEST_STRING = 'משהו שכתוב בעברית';

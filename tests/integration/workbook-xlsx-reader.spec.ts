@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const testutils = require('../utils/index');
 
-import ExcelJS from '../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 const TEST_FILE_NAME = './spec/out/wb.test.xlsx';
 

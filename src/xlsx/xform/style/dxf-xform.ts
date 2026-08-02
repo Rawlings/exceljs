@@ -1,11 +1,11 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
-import AlignmentXform from './alignment-xform';
-import BorderXform from './border-xform';
-import FillXform from './fill-xform';
-import FontXform from './font-xform';
-import NumFmtXform from './numfmt-xform';
-import ProtectionXform from './protection-xform';
+import AlignmentXform from '#src/xlsx/xform/style/alignment-xform';
+import BorderXform from '#src/xlsx/xform/style/border-xform';
+import FillXform from '#src/xlsx/xform/style/fill-xform';
+import FontXform from '#src/xlsx/xform/style/font-xform';
+import NumFmtXform from '#src/xlsx/xform/style/numfmt-xform';
+import ProtectionXform from '#src/xlsx/xform/style/protection-xform';
 
 // <xf numFmtId="[numFmtId]" fontId="[fontId]" fillId="[fillId]" borderId="[xf.borderId]" xfId="[xfId]">
 //   Optional <alignment>

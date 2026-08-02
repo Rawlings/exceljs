@@ -1,4 +1,4 @@
-import ExcelJS from '../../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 describe('github issues', () => {
   it('issue 257 - worksheet order is not respected', () => {

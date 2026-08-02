@@ -1,5 +1,5 @@
-import _ from '../../../utils/under-dash';
-import BaseXform from '../base-xform';
+import _ from '#src/utils/under-dash';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 class PageMarginsXform extends BaseXform {
   get tag() {

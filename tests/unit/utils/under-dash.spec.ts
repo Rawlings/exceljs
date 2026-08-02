@@ -1,4 +1,4 @@
-import _ from '../../../src/utils/under-dash';
+import _ from '#src/utils/under-dash';
 import util from 'node:util';
 
 describe('under-dash', () => {

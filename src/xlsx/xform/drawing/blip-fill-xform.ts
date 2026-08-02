@@ -1,5 +1,5 @@
-import BaseXform from '../base-xform';
-import BlipXform from './blip-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import BlipXform from '#src/xlsx/xform/drawing/blip-xform';
 
 class BlipFillXform extends BaseXform {
   constructor() {

@@ -1,4 +1,4 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 class WorkbookPivotCacheXform extends BaseXform {
   render(xmlStream: any, model: any) {

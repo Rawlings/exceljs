@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import PhoneticTextXform from '../../../../../src/xlsx/xform/strings/phonetic-text-xform';
+import PhoneticTextXform from '#src/xlsx/xform/strings/phonetic-text-xform';
 
 const expectations = [
   {

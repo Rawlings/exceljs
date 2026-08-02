@@ -10,6 +10,7 @@
     "no-sparse-arrays": "off",
     "no-underscore-dangle": "off",
     "no-dupe-class-members": "off",
+    "no-unused-expressions": "off",
     "unicorn/no-empty-file": "off"
   },
   "env": {

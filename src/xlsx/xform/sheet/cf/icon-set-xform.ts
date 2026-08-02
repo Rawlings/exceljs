@@ -1,7 +1,7 @@
-import BaseXform from '../../base-xform';
-import CompositeXform from '../../composite-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import CompositeXform from '#src/xlsx/xform/composite-xform';
 
-import CfvoXform from './cfvo-xform';
+import CfvoXform from '#src/xlsx/xform/sheet/cf/cfvo-xform';
 
 class IconSetXform extends CompositeXform {
   cfvoXform: any;

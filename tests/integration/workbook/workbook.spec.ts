@@ -1,6 +1,6 @@
 import testUtils from '../../utils/index';
 
-import ExcelJS from '../../../src/exceljs.nodejs';
+import ExcelJS from '#src/exceljs.nodejs';
 
 const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
 const TEST_CSV_FILE_NAME = './spec/out/wb.test.csv';

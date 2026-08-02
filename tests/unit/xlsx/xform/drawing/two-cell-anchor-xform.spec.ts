@@ -1,4 +1,4 @@
-import TwoCellAnchorXform from '../../../../../src/xlsx/xform/drawing/two-cell-anchor-xform';
+import TwoCellAnchorXform from '#src/xlsx/xform/drawing/two-cell-anchor-xform';
 
 describe('TwoCellAnchorXform', () => {
   describe('reconcile', () => {

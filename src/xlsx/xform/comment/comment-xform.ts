@@ -1,6 +1,6 @@
-import RichTextXform from '../strings/rich-text-xform';
-import utils from '../../../utils/utils';
-import BaseXform from '../base-xform';
+import RichTextXform from '#src/xlsx/xform/strings/rich-text-xform';
+import utils from '#src/utils/utils';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 /**
   <comment ref="B1" authorId="0">

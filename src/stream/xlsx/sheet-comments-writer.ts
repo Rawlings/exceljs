@@ -1,8 +1,8 @@
-import XmlStream from '../../utils/xml-stream';
-import RelType from '../../xlsx/rel-type';
-import colCache from '../../utils/col-cache';
-import CommentXform from '../../xlsx/xform/comment/comment-xform';
-import VmlShapeXform from '../../xlsx/xform/comment/vml-shape-xform';
+import XmlStream from '#src/utils/xml-stream';
+import RelType from '#src/xlsx/rel-type';
+import colCache from '#src/utils/col-cache';
+import CommentXform from '#src/xlsx/xform/comment/comment-xform';
+import VmlShapeXform from '#src/xlsx/xform/comment/vml-shape-xform';
 
 class SheetCommentsWriter {
   id: any;

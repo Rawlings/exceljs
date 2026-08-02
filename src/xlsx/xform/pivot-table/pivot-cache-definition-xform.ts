@@ -1,6 +1,6 @@
-import BaseXform from '../base-xform';
-import CacheField from './cache-field';
-import XmlStream from '../../../utils/xml-stream';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import CacheField from '#src/xlsx/xform/pivot-table/cache-field';
+import XmlStream from '#src/utils/xml-stream';
 
 class PivotCacheDefinitionXform extends BaseXform {
   static PIVOT_CACHE_DEFINITION_ATTRIBUTES: any;

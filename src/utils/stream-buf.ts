@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import Stream from 'stream';
-import utils from './utils';
-import StringBuf from './string-buf';
+import utils from '#src/utils/utils';
+import StringBuf from '#src/utils/string-buf';
 
 // =============================================================================
 // data chunks - encapsulating incoming data

@@ -2,7 +2,7 @@ const fs = require('fs');
 
 import testXformHelper from '../test-xform-helper';
 
-import WorkbookXform from '../../../../../src/xlsx/xform/book/workbook-xform';
+import WorkbookXform from '#src/xlsx/xform/book/workbook-xform';
 
 const expectations = [
   {

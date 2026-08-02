@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
-import CompositeXform from '../composite-xform';
+import CompositeXform from '#src/xlsx/xform/composite-xform';
 
-import ConditionalFormattingsExt from './cf-ext/conditional-formattings-ext-xform';
+import ConditionalFormattingsExt from '#src/xlsx/xform/sheet/cf-ext/conditional-formattings-ext-xform';
 
 class ExtXform extends CompositeXform {
   conditionalFormattings: any;

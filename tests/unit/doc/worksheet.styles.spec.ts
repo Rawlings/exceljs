@@ -1,6 +1,6 @@
 import testUtils from '../../utils/index';
 
-import Excel from '../../../src/exceljs.nodejs';
+import Excel from '#src/exceljs.nodejs';
 
 describe('Worksheet', () => {
   describe('Styles', () => {

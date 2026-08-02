@@ -2,15 +2,28 @@ import { PassThrough } from 'node:stream';
 import { cloneDeep, each } from '../../../utils/under-dash';
 import CompyXform from './compy-xform';
 
-import parseSax from '../../../../src/utils/parse-sax';
-import XmlStream from '../../../../src/utils/xml-stream';
-import BooleanXform from '../../../../src/xlsx/xform/simple/boolean-xform';
+import parseSax from '#src/utils/parse-sax';
+import XmlStream from '#src/utils/xml-stream';
+import BooleanXform from '#src/xlsx/xform/simple/boolean-xform';
 
-function getExpectation(expectation, name: string) {
+function normalizeXml(xml: string): string {
+  if (typeof xml !== 'string') return xml;
+  return xml
+    .replace(/\s+\/>/g, '/>')
+    .replace(/<([^>]+)>/g, (_m, content) => '<' + content.replace(/\s+/g, ' ').trim() + '>')
+    .replace(/(?<=>)\s+(?=<)/g, '')
+    .trim();
+}
+
+function getExpectation(expectation: any, name: string) {
   if (!expectation.hasOwnProperty(name)) {
     throw new Error(`Expectation missing required field: ${name}`);
   }
-  return cloneDeep(expectation[name]);
+  const value = cloneDeep(expectation[name]);
+  if (name === 'xml' && typeof value === 'string') {
+    return normalizeXml(value);
+  }
+  return value;
 }
 
 // ===============================================================================================================
@@ -44,7 +57,7 @@ const its: Record<string, (expectation: any) => void> = {
         const xmlStream = new XmlStream();
         xform.render(xmlStream, model, 0);
 
-        expect(xmlStream.xml).xml.to.equal(result);
+        expect(normalizeXml(xmlStream.xml)).toBe(result);
         resolve(undefined as any);
       }));
   },
@@ -61,7 +74,7 @@ const its: Record<string, (expectation: any) => void> = {
         xform.prepare(model, expectation.options);
         xform.render(xmlStream, model);
 
-        expect(xmlStream.xml).xml.to.equal(result);
+        expect(normalizeXml(xmlStream.xml)).toBe(result);
         resolve(undefined as any);
       }));
   },
@@ -94,7 +107,7 @@ const its: Record<string, (expectation: any) => void> = {
         const xmlStream = new XmlStream();
         xform.render(xmlStream, model);
 
-        expect(xmlStream.xml).xml.to.equal(result);
+        expect(normalizeXml(xmlStream.xml)).toBe(result);
         resolve(undefined as any);
       }));
   },

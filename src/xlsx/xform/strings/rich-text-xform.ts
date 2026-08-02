@@ -1,7 +1,7 @@
-import TextXform from './text-xform';
-import FontXform from '../style/font-xform';
+import TextXform from '#src/xlsx/xform/strings/text-xform';
+import FontXform from '#src/xlsx/xform/style/font-xform';
 
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 // <r>
 //   <rPr>

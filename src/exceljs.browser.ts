@@ -1,10 +1,10 @@
-import Workbook from './doc/workbook';
+import Workbook from '#src/doc/workbook';
 
 const ExcelJS = {
   Workbook,
 };
 
-import Enums from './doc/enums';
+import Enums from '#src/doc/enums';
 
 Object.keys(Enums).forEach((key) => {
   (ExcelJS as Record<string, any>)[key] = (Enums as Record<string, any>)[key];

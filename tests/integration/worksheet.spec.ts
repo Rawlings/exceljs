@@ -2,8 +2,8 @@ const path = require('path');
 
 const testutils = require('../utils/index');
 
-import ExcelJS from '../../src/exceljs.nodejs';
-import Range from '../../src/doc/range';
+import ExcelJS from '#src/exceljs.nodejs';
+import Range from '#src/doc/range';
 
 describe('Worksheet', () => {
   describe('Values', () => {

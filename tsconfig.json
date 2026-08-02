@@ -15,7 +15,11 @@
     "types": ["node", "vitest/globals"],
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {
+      "#src/*": ["./src/*"],
+      "#fixtures/*": ["./fixtures/*"]
+    }
   },
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]

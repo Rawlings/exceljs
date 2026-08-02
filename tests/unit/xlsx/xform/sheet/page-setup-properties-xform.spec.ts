@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import PageSetupPropertiesXform from '../../../../../src/xlsx/xform/sheet/page-setup-properties-xform';
+import PageSetupPropertiesXform from '#src/xlsx/xform/sheet/page-setup-properties-xform';
 
 const expectations = [
   {

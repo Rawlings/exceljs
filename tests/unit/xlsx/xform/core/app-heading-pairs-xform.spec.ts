@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import AppHeadingPairsXform from '../../../../../src/xlsx/xform/core/app-heading-pairs-xform';
+import AppHeadingPairsXform from '#src/xlsx/xform/core/app-heading-pairs-xform';
 
 const expectations = [
   {

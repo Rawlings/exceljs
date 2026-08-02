@@ -1,6 +1,6 @@
 import testXformHelper from '../test-xform-helper';
 
-import PageSetupXform from '../../../../../src/xlsx/xform/sheet/page-setup-xform';
+import PageSetupXform from '#src/xlsx/xform/sheet/page-setup-xform';
 
 // -  "blackAndWhite": false
 // -  "cellComments": "None"

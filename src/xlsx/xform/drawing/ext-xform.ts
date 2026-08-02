@@ -1,13 +1,19 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 /** https://en.wikipedia.org/wiki/Office_Open_XML_file_formats#DrawingML */
 const EMU_PER_PIXEL_AT_96_DPI = 9525;
 
 class ExtXform extends BaseXform {
+  _tag: any;
+
+  override get tag() {
+    return this._tag;
+  }
+
   constructor(options: any) {
     super();
 
-    (this as any).tag = options.tag;
+    this._tag = options.tag;
     this.map = {};
   }
 

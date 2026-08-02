@@ -1,4 +1,4 @@
-import _ from '../utils/under-dash';
+import _ from '#src/utils/under-dash';
 
 export class Note {
   static DEFAULT_CONFIGS = {

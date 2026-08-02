@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import utils from '../../utils/utils';
-import RelType from '../../xlsx/rel-type';
+import utils from '#src/utils/utils';
+import RelType from '#src/xlsx/rel-type';
 
 class HyperlinksProxy {
   writer: any;

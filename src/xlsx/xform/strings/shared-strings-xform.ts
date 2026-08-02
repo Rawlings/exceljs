@@ -1,6 +1,6 @@
-import XmlStream from '../../../utils/xml-stream';
-import BaseXform from '../base-xform';
-import SharedStringXform from './shared-string-xform';
+import XmlStream from '#src/utils/xml-stream';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import SharedStringXform from '#src/xlsx/xform/strings/shared-string-xform';
 
 class SharedStringsXform extends BaseXform {
   hash: any;

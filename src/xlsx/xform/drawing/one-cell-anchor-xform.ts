@@ -1,9 +1,9 @@
-import BaseCellAnchorXform from './base-cell-anchor-xform';
-import StaticXform from '../static-xform';
+import BaseCellAnchorXform from '#src/xlsx/xform/drawing/base-cell-anchor-xform';
+import StaticXform from '#src/xlsx/xform/static-xform';
 
-import CellPositionXform from './cell-position-xform';
-import ExtXform from './ext-xform';
-import PicXform from './pic-xform';
+import CellPositionXform from '#src/xlsx/xform/drawing/cell-position-xform';
+import ExtXform from '#src/xlsx/xform/drawing/ext-xform';
+import PicXform from '#src/xlsx/xform/drawing/pic-xform';
 
 class OneCellAnchorXform extends BaseCellAnchorXform {
   constructor() {

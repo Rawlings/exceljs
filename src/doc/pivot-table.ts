@@ -1,4 +1,4 @@
-import utils from '../utils/utils';
+import utils from '#src/utils/utils';
 const { objectFromProps, range, toSortedArray } = utils;
 
 export { makePivotTable };

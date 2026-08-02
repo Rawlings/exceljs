@@ -2,7 +2,7 @@ process.env.EXCEL_NATIVE = 'yes';
 
 const verquire = require('../../../utils/verquire');
 const tools = require('../../../utils/tools');
-import Excel from '../../../../src/exceljs.nodejs';
+import Excel from '#src/exceljs.nodejs';
 
 const TEST_XLSX_FILE_NAME = './spec/out/wb.test.xlsx';
 const RT_ARR = [

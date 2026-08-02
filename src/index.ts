@@ -1,12 +1,12 @@
-import Workbook from './doc/workbook';
-import ModelContainer from './doc/modelcontainer';
-import WorkbookWriter from './stream/xlsx/workbook-writer';
-import WorkbookReader from './stream/xlsx/workbook-reader';
-import * as Enums from './doc/enums';
+import Workbook from '#src/doc/workbook';
+import ModelContainer from '#src/doc/modelcontainer';
+import WorkbookWriter from '#src/stream/xlsx/workbook-writer';
+import WorkbookReader from '#src/stream/xlsx/workbook-reader';
+import * as Enums from '#src/doc/enums';
 
 export { Workbook, ModelContainer, WorkbookWriter, WorkbookReader };
 
-export * from './doc/enums';
+export * from '#src/doc/enums';
 
 const ExcelJS = {
   Workbook,

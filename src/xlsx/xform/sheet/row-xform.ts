@@ -1,7 +1,7 @@
-import BaseXform from '../base-xform';
-import utils from '../../../utils/utils';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import utils from '#src/utils/utils';
 
-import CellXform from './cell-xform';
+import CellXform from '#src/xlsx/xform/sheet/cell-xform';
 
 class RowXform extends BaseXform {
   maxItems: any;

@@ -1,7 +1,7 @@
 import testUtils from '../../utils/index';
 
-import Excel from '../../../src/exceljs.nodejs';
-import Dimensions from '../../../src/doc/range';
+import Excel from '#src/exceljs.nodejs';
+import Dimensions from '#src/doc/range';
 
 describe('Worksheet', () => {
   describe('Merge Cells', () => {

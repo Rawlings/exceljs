@@ -1,7 +1,7 @@
-import Enums from '../../../doc/enums';
+import Enums from '#src/doc/enums';
 
-import utils from '../../../utils/utils';
-import BaseXform from '../base-xform';
+import utils from '#src/utils/utils';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 const validation: any = {
   horizontalValues: [

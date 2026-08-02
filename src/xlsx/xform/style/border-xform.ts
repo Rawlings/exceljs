@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
-import BaseXform from '../base-xform';
-import utils from '../../../utils/utils';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import utils from '#src/utils/utils';
 
-import ColorXform from './color-xform';
+import ColorXform from '#src/xlsx/xform/style/color-xform';
 
 class EdgeXform extends BaseXform {
   static validStyleValues: any;

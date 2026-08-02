@@ -1,6 +1,6 @@
 import http from 'http';
 import testutils from '../utils/index';
-import Excel from '../../src/exceljs.nodejs';
+import Excel from '#src/exceljs.nodejs';
 
 describe('Express / HTTP Server', () => {
   let server: http.Server;

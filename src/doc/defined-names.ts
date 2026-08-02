@@ -1,7 +1,7 @@
-import _ from '../utils/under-dash';
-import colCache from '../utils/col-cache';
-import CellMatrix from '../utils/cell-matrix';
-import Range from './range';
+import _ from '#src/utils/under-dash';
+import colCache from '#src/utils/col-cache';
+import CellMatrix from '#src/utils/cell-matrix';
+import Range from '#src/doc/range';
 
 const rangeRegexp = /[$](\w+)[$](\d+)(:[$](\w+)[$](\d+))?/;
 

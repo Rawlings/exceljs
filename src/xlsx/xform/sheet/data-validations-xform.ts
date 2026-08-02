@@ -1,8 +1,8 @@
-import _ from '../../../utils/under-dash';
-import utils from '../../../utils/utils';
-import colCache from '../../../utils/col-cache';
-import BaseXform from '../base-xform';
-import Range from '../../../doc/range';
+import _ from '#src/utils/under-dash';
+import utils from '#src/utils/utils';
+import colCache from '#src/utils/col-cache';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import Range from '#src/doc/range';
 
 function assign(definedName: any, attributes: any, name: any, defaultValue: any) {
   const value = attributes[name];

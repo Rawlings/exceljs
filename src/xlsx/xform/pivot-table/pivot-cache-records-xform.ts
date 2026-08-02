@@ -1,6 +1,6 @@
-import XmlStream from '../../../utils/xml-stream';
+import XmlStream from '#src/utils/xml-stream';
 
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 class PivotCacheRecordsXform extends BaseXform {
   static PIVOT_CACHE_RECORDS_ATTRIBUTES: any;

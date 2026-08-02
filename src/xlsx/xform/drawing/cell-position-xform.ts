@@ -1,5 +1,5 @@
-import BaseXform from '../base-xform';
-import IntegerXform from '../simple/integer-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import IntegerXform from '#src/xlsx/xform/simple/integer-xform';
 
 class CellPositionXform extends BaseXform {
   _tag: string;

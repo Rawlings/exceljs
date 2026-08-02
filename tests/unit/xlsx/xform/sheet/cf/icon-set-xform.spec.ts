@@ -1,6 +1,6 @@
 import testXformHelper from '../../test-xform-helper';
 
-import IconSetXform from '../../../../../../src/xlsx/xform/sheet/cf/icon-set-xform';
+import IconSetXform from '#src/xlsx/xform/sheet/cf/icon-set-xform';
 
 const expectations = [
   {

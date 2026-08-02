@@ -1,4 +1,4 @@
-import SharedStrings from '../../../src/utils/shared-strings';
+import SharedStrings from '#src/utils/shared-strings';
 
 describe('SharedStrings', () => {
   it('Stores and shares string values', () => {

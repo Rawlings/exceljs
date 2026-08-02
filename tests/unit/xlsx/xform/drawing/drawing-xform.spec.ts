@@ -2,7 +2,7 @@ const fs = require('fs');
 
 import testXformHelper from '../test-xform-helper';
 
-import DrawingXform from '../../../../../src/xlsx/xform/drawing/drawing-xform';
+import DrawingXform from '#src/xlsx/xform/drawing/drawing-xform';
 
 const options = {
   rels: {

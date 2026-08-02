@@ -1,11 +1,11 @@
-import XmlStream from '../../../utils/xml-stream';
+import XmlStream from '#src/utils/xml-stream';
 
-import BaseXform from '../base-xform';
-import ListXform from '../list-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import ListXform from '#src/xlsx/xform/list-xform';
 
-import AutoFilterXform from './auto-filter-xform';
-import TableColumnXform from './table-column-xform';
-import TableStyleInfoXform from './table-style-info-xform';
+import AutoFilterXform from '#src/xlsx/xform/table/auto-filter-xform';
+import TableColumnXform from '#src/xlsx/xform/table/table-column-xform';
+import TableStyleInfoXform from '#src/xlsx/xform/table/table-style-info-xform';
 
 class TableXform extends BaseXform {
   static TABLE_ATTRIBUTES: any;

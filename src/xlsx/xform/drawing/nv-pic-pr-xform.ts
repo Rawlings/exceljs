@@ -1,6 +1,6 @@
-import BaseXform from '../base-xform';
-import CNvPrXform from './c-nv-pr-xform';
-import CNvPicPrXform from './c-nv-pic-pr-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import CNvPrXform from '#src/xlsx/xform/drawing/c-nv-pr-xform';
+import CNvPicPrXform from '#src/xlsx/xform/drawing/c-nv-pic-pr-xform';
 
 class NvPicPrXform extends BaseXform {
   constructor() {

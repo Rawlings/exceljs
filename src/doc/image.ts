@@ -1,5 +1,5 @@
-import colCache from '../utils/col-cache';
-import Anchor from './anchor';
+import colCache from '#src/utils/col-cache';
+import Anchor from '#src/doc/anchor';
 
 class Image {
   worksheet: any;

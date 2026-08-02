@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file */
-import colCache from '../utils/col-cache';
-import _ from '../utils/under-dash';
-import Enums from './enums';
-import { slideFormula } from '../utils/shared-formula';
-import Note from './note';
+import colCache from '#src/utils/col-cache';
+import _ from '#src/utils/under-dash';
+import Enums from '#src/doc/enums';
+import { slideFormula } from '#src/utils/shared-formula';
+import Note from '#src/doc/note';
 // Cell requirements
 //  Operate inside a worksheet
 //  Store and retrieve a value with a range of types: text, number, date, hyperlink, reference, formula, etc.

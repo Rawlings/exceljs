@@ -1,13 +1,13 @@
 import { EventEmitter } from 'events';
-import parseSax from '../../utils/parse-sax';
+import parseSax from '#src/utils/parse-sax';
 
-import _ from '../../utils/under-dash';
-import utils from '../../utils/utils';
-import colCache from '../../utils/col-cache';
-import Dimensions from '../../doc/range';
+import _ from '#src/utils/under-dash';
+import utils from '#src/utils/utils';
+import colCache from '#src/utils/col-cache';
+import Dimensions from '#src/doc/range';
 
-import Row from '../../doc/row';
-import Column from '../../doc/column';
+import Row from '#src/doc/row';
+import Column from '#src/doc/column';
 
 class WorksheetReader extends EventEmitter {
   workbook: any;

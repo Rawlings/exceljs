@@ -1,4 +1,4 @@
-import colCache from '../utils/col-cache';
+import colCache from '#src/utils/col-cache';
 
 // used by worksheet to calculate sheet dimensions
 class Range {
@@ -64,7 +64,7 @@ class Range {
         } else if (value instanceof Array) {
           // an arguments array
           this.decode(value);
-        } else if (value.top && value.left && value.bottom && value.right) {
+        } else if (value && typeof value === 'object' && value.top && value.left && value.bottom && value.right) {
           // a model
           this.model = {
             top: value.top,

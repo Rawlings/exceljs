@@ -1,4 +1,4 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 class CustomFilterXform extends BaseXform {
   get tag() {
@@ -7,8 +7,8 @@ class CustomFilterXform extends BaseXform {
 
   render(xmlStream: any, model: any) {
     xmlStream.leafNode(this.tag, {
-      val: model.val,
       operator: model.operator,
+      val: model.val,
     });
   }
 

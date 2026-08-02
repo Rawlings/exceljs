@@ -1,8 +1,8 @@
-import XmlStream from '../../../utils/xml-stream';
-import BaseXform from '../base-xform';
-import DateXform from '../simple/date-xform';
-import StringXform from '../simple/string-xform';
-import IntegerXform from '../simple/integer-xform';
+import XmlStream from '#src/utils/xml-stream';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import DateXform from '#src/xlsx/xform/simple/date-xform';
+import StringXform from '#src/xlsx/xform/simple/string-xform';
+import IntegerXform from '#src/xlsx/xform/simple/integer-xform';
 
 class CoreXform extends BaseXform {
   static DateFormat: any;

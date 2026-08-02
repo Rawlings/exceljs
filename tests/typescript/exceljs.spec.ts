@@ -1,4 +1,4 @@
-import ExcelJS from '../../src/index';
+import ExcelJS from '#src/index';
 
 describe('typescript', () => {
   it('can create and buffer xlsx', async () => {

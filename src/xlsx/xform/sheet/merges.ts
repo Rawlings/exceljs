@@ -1,8 +1,8 @@
-import _ from '../../../utils/under-dash';
+import _ from '#src/utils/under-dash';
 
-import Range from '../../../doc/range';
-import colCache from '../../../utils/col-cache';
-import Enums from '../../../doc/enums';
+import Range from '#src/doc/range';
+import colCache from '#src/utils/col-cache';
+import Enums from '#src/doc/enums';
 
 class Merges {
   merges: any;

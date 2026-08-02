@@ -1,7 +1,7 @@
-import _ from '../../../utils/under-dash';
-import defaultNumFormats from '../../defaultnumformats';
+import _ from '#src/utils/under-dash';
+import defaultNumFormats from '#src/xlsx/defaultnumformats';
 
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 function hashDefaultFormats() {
   const hash: any = {};

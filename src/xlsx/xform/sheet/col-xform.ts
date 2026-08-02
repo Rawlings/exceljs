@@ -1,5 +1,5 @@
-import utils from '../../../utils/utils';
-import BaseXform from '../base-xform';
+import utils from '#src/utils/utils';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 class ColXform extends BaseXform {
   get tag() {

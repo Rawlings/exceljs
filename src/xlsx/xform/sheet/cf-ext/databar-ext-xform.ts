@@ -1,8 +1,8 @@
-import BaseXform from '../../base-xform';
-import CompositeXform from '../../composite-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import CompositeXform from '#src/xlsx/xform/composite-xform';
 
-import ColorXform from '../../style/color-xform';
-import CfvoExtXform from './cfvo-ext-xform';
+import ColorXform from '#src/xlsx/xform/style/color-xform';
+import CfvoExtXform from '#src/xlsx/xform/sheet/cf-ext/cfvo-ext-xform';
 
 class DatabarExtXform extends CompositeXform {
   cfvoXform: any;
@@ -41,8 +41,8 @@ class DatabarExtXform extends CompositeXform {
     xmlStream.openNode(this.tag, {
       minLength: BaseXform.toIntAttribute(model.minLength, 0, true),
       maxLength: BaseXform.toIntAttribute(model.maxLength, 100, true),
-      border: BaseXform.toBoolAttribute(model.border, false),
       gradient: BaseXform.toBoolAttribute(model.gradient, true),
+      border: BaseXform.toBoolAttribute(model.border, false),
       negativeBarColorSameAsPositive: BaseXform.toBoolAttribute(
         model.negativeBarColorSameAsPositive,
         true

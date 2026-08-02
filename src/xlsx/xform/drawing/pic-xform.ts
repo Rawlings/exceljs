@@ -1,10 +1,10 @@
-import BaseXform from '../base-xform';
-import StaticXform from '../static-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import StaticXform from '#src/xlsx/xform/static-xform';
 
-import BlipFillXform from './blip-fill-xform';
-import NvPicPrXform from './nv-pic-pr-xform';
+import BlipFillXform from '#src/xlsx/xform/drawing/blip-fill-xform';
+import NvPicPrXform from '#src/xlsx/xform/drawing/nv-pic-pr-xform';
 
-import spPrJSON from './sp-pr';
+import spPrJSON from '#src/xlsx/xform/drawing/sp-pr';
 
 class PicXform extends BaseXform {
   constructor() {

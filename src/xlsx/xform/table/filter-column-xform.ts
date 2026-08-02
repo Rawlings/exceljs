@@ -1,8 +1,8 @@
-import BaseXform from '../base-xform';
-import ListXform from '../list-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
+import ListXform from '#src/xlsx/xform/list-xform';
 
-import CustomFilterXform from './custom-filter-xform';
-import FilterXform from './filter-xform';
+import CustomFilterXform from '#src/xlsx/xform/table/custom-filter-xform';
+import FilterXform from '#src/xlsx/xform/table/filter-xform';
 
 class FilterColumnXform extends BaseXform {
   constructor() {

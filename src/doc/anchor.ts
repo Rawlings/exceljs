@@ -1,4 +1,4 @@
-import colCache from '../utils/col-cache';
+import colCache from '#src/utils/col-cache';
 
 export class Anchor {
   worksheet: any;

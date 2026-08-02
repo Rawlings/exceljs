@@ -1,4 +1,4 @@
-import BaseXform from '../base-xform';
+import BaseXform from '#src/xlsx/xform/base-xform';
 
 const isDefined = (attr: any) => typeof attr !== 'undefined';
 
