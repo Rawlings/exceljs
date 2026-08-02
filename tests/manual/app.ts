@@ -1,8 +1,8 @@
 import fs from 'fs';
 import http from 'http';
 import path from 'path';
+import { PassThrough } from 'stream';
 import ExcelJS from '#src/exceljs.nodejs';
-import StreamBuf from '#src/utils/stream/stream-buf';
 
 console.log('Copying bundle.js to public folder');
 fs.createReadStream(path.join(__dirname, '../../dist/exceljs.min.js')).pipe(
@@ -16,11 +16,13 @@ const server = http.createServer((req: any, res: any) => {
   if (req.method === 'POST' && req.url === '/api/upload') {
     const wb = new ExcelJS.Workbook();
 
-    const stream = new StreamBuf();
+    const stream = new PassThrough();
+    const chunks: Buffer[] = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
     stream.on('finish', () => {
-      const base64 = stream.read();
+      const base64 = Buffer.concat(chunks);
 
-      wb.xlsx.load(base64, { base64: true }).then(() => {
+      wb.xlsx.load(base64).then(() => {
         const ws = wb.getWorksheet('blort');
 
         console.log('XLSX uploaded:');
@@ -30,12 +32,9 @@ const server = http.createServer((req: any, res: any) => {
         ws.getCell('A1').value = 'Hey Ho!';
         ws.getCell('A2').value = 14;
 
-        const outStream = new StreamBuf();
+        const outStream = new PassThrough();
         wb.xlsx.write(outStream).then(() => {
-          const b = outStream.read();
-          const s = b.toString('base64');
-          res.write(s);
-          res.end();
+          outStream.pipe(res);
         });
       });
     });

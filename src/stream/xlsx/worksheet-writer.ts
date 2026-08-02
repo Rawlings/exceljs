@@ -5,17 +5,12 @@ import RelType from '#src/xlsx/rel-type';
 import colCache from '#src/utils/data/col-cache';
 import Encryptor from '#src/utils/crypto/encryptor';
 import Dimensions from '#src/doc/range';
-import StringBuf from '#src/utils/stream/string-buf';
-
 import Row from '#src/doc/row';
 import Column from '#src/doc/column';
 
 import SheetRelsWriter from '#src/stream/xlsx/sheet-rels-writer';
 import SheetCommentsWriter from '#src/stream/xlsx/sheet-comments-writer';
 import DataValidations from '#src/doc/data-validations';
-
-const xmlBuffer = new StringBuf(undefined);
-
 // ============================================================================================
 // Xforms
 import ListXform from '#src/xlsx/xform/list-xform';
@@ -304,6 +299,10 @@ class WorksheetWriter {
     return this._views;
   }
 
+  set views(value: any) {
+    this._views = value;
+  }
+
   // =========================================================================
   // Columns
 
@@ -559,12 +558,10 @@ class WorksheetWriter {
   // ================================================================================
 
   _write(text: any) {
-    xmlBuffer.reset(undefined);
-    xmlBuffer.addText(text);
-    this.stream.write(xmlBuffer);
+    this.stream.write(text);
   }
 
-  _writeSheetProperties(xmlBuf: any, properties: any, pageSetup: any) {
+  _writeSheetProperties(parts: string[], properties: any, pageSetup: any) {
     const sheetPropertiesModel = {
       outlineProperties: properties && properties.outlineProperties,
       tabColor: properties && properties.tabColor,
@@ -576,10 +573,10 @@ class WorksheetWriter {
           : undefined,
     };
 
-    xmlBuf.addText(xform.sheetProperties.toXml(sheetPropertiesModel));
+    parts.push(xform.sheetProperties.toXml(sheetPropertiesModel));
   }
 
-  _writeSheetFormatProperties(xmlBuf: any, properties: any) {
+  _writeSheetFormatProperties(parts: string[], properties: any) {
     const sheetFormatPropertiesModel = properties
       ? {
           defaultRowHeight: properties.defaultRowHeight,
@@ -592,28 +589,26 @@ class WorksheetWriter {
       (sheetFormatPropertiesModel as any).defaultColWidth = properties.defaultColWidth;
     }
 
-    xmlBuf.addText(xform.sheetFormatProperties.toXml(sheetFormatPropertiesModel));
+    parts.push(xform.sheetFormatProperties.toXml(sheetFormatPropertiesModel));
   }
 
   _writeOpenWorksheet() {
-    xmlBuffer.reset(undefined);
-
-    xmlBuffer.addText('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-    xmlBuffer.addText(
+    const parts = [
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
       '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"' +
         ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' +
         ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"' +
         ' mc:Ignorable="x14ac"' +
-        ' xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">'
-    );
+        ' xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">',
+    ];
 
-    this._writeSheetProperties(xmlBuffer, this.properties, this.pageSetup);
+    this._writeSheetProperties(parts, this.properties, this.pageSetup);
 
-    xmlBuffer.addText(xform.sheetViews.toXml(this.views));
+    parts.push(xform.sheetViews.toXml(this.views));
 
-    this._writeSheetFormatProperties(xmlBuffer, this.properties);
+    this._writeSheetFormatProperties(parts, this.properties);
 
-    this.stream.write(xmlBuffer);
+    this.stream.write(parts.join(''));
   }
 
   _writeColumns() {
@@ -662,14 +657,13 @@ class WorksheetWriter {
 
   _writeMergeCells() {
     if (this._merges.length) {
-      xmlBuffer.reset(undefined);
-      xmlBuffer.addText(`<mergeCells count="${this._merges.length}">`);
+      const parts = [`<mergeCells count="${this._merges.length}">`];
       this._merges.forEach((merge: any) => {
-        xmlBuffer.addText(`<mergeCell ref="${merge}"/>`);
+        parts.push(`<mergeCell ref="${merge}"/>`);
       });
-      xmlBuffer.addText('</mergeCells>');
+      parts.push('</mergeCells>');
 
-      this.stream.write(xmlBuffer);
+      this.stream.write(parts.join(''));
     }
   }
 
@@ -734,9 +728,7 @@ class WorksheetWriter {
 
   _writeLegacyData() {
     if (this.hasComments) {
-      xmlBuffer.reset(undefined);
-      xmlBuffer.addText(`<legacyDrawing r:id="${this._sheetCommentsWriter.vmlRelId}"/>`);
-      this.stream.write(xmlBuffer);
+      this.stream.write(`<legacyDrawing r:id="${this._sheetCommentsWriter.vmlRelId}"/>`);
     }
   }
 

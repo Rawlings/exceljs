@@ -7,8 +7,8 @@ const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
 // =============================================================================
 // Sample Data
+import richTextSample = require('../data/rich-text-sample');
 import richTextSampleA1 from '#fixtures/json/rich-text-sample-a1.json';
-const richTextSample = richTextSampleA1;
 
 // =============================================================================
 // Tests

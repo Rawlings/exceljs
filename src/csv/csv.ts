@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { access } from 'node:fs/promises';
-import StreamBuf from '#src/utils/stream/stream-buf';
+import { PassThrough } from 'node:stream';
 
 async function fileExists(filename: string): Promise<boolean> {
   try {
@@ -203,9 +203,11 @@ export class CSV {
   }
 
   async writeBuffer(options: Record<string, any> = {}): Promise<any> {
-    const stream = new (StreamBuf as unknown as new (options?: any) => any)();
+    const chunks: Buffer[] = [];
+    const stream = new PassThrough();
+    stream.on('data', (chunk: Buffer) => chunks.push(chunk));
     await this.write(stream, options);
-    return stream.read();
+    return Buffer.concat(chunks);
   }
 }
 

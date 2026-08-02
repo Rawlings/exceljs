@@ -1,7 +1,6 @@
 import fs from 'node:fs';
-import { NativeZipWriter } from '#src/utils/stream/native-zip';
-
-import StreamBuf from '#src/utils/stream/stream-buf';
+import { PassThrough } from 'node:stream';
+import { ZipWriter } from '#src/utils/stream/zip';
 
 import RelType from '#src/xlsx/rel-type';
 import StylesXform from '#src/xlsx/xform/style/styles-xform';
@@ -68,13 +67,14 @@ class WorkbookWriter {
     this.media = [];
     this.commentRefs = [];
 
-    this.zip = new NativeZipWriter(this.zipOptions);
+    this.zip = new ZipWriter(this.zipOptions);
+
     if (options.stream) {
       this.stream = options.stream;
     } else if (options.filename) {
       this.stream = fs.createWriteStream(options.filename);
     } else {
-      this.stream = new (StreamBuf as any)();
+      this.stream = new PassThrough();
     }
 
     // these bits can be added right now
@@ -86,8 +86,9 @@ class WorkbookWriter {
   }
 
   _openStream(path: any) {
-    const stream = new (StreamBuf as any)({ bufSize: 65536, batch: true });
-    this.zip.append(stream, { name: path });
+    const cleanPath = typeof path === 'string' ? path.replace(/^\//, '') : path;
+    const stream = new PassThrough();
+    this.zip.append(stream, { name: cleanPath });
     stream.on('finish', () => {
       stream.emit('zipped');
     });
@@ -298,7 +299,7 @@ class WorkbookWriter {
       return new Promise((resolve) => {
         const sharedStringsXform = new SharedStringsXform();
         const xml = sharedStringsXform.toXml(this.sharedStrings);
-        this.zip.append(xml, { name: '/xl/sharedStrings.xml' });
+        this.zip.append(xml, { name: 'xl/sharedStrings.xml' });
         resolve(undefined);
       });
     }
@@ -349,24 +350,18 @@ class WorkbookWriter {
     return new Promise((resolve) => {
       const xform = new WorkbookXform();
       xform.prepare(model);
-      zip.append(xform.toXml(model), { name: '/xl/workbook.xml' });
+      zip.append(xform.toXml(model), { name: 'xl/workbook.xml' });
       resolve(undefined);
     });
   }
 
-  _finalize() {
-    return new Promise((resolve, reject) => {
-      try {
-        const zipBuffer = this.zip.generateSync();
-        if (typeof this.stream.write === 'function') {
-          this.stream.write(zipBuffer);
-          this.stream.end();
-        }
-        resolve(this);
-      } catch (err: any) {
-        reject(err);
-      }
-    });
+  async _finalize() {
+    const zipBuffer = await this.zip.generateAsync();
+    if (typeof this.stream.write === 'function') {
+      this.stream.write(zipBuffer);
+      this.stream.end();
+    }
+    return this;
   }
 }
 

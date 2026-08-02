@@ -51,7 +51,7 @@ function isValidRange(range: any) {
   try {
     colCache.decodeEx(range);
     return true;
-  } catch (err: any) {
+  } catch {
     return false;
   }
 }

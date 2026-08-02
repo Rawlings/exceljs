@@ -5,7 +5,7 @@ const HEBREW_TEST_STRING = 'משהו שכתוב בעברית';
 
 describe('github issues', () => {
   it('issue 995 - encoding option works fine', function (this: any) {
-    this.timeout(6000);
+    this?.timeout?.(6000);
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('wheee');
     ws.getCell('A1').value = HEBREW_TEST_STRING;

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { EventEmitter } from 'node:events';
 import { PassThrough, Readable } from 'node:stream';
-import { NativeZipReader as JSZip } from '#src/utils/stream/native-zip';
+import { ZipReader as JSZip } from '#src/utils/stream/zip';
 import iterateStream from '#src/utils/stream/iterate-stream';
 import parseSax from '#src/utils/helpers/parse-sax';
 

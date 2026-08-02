@@ -13,7 +13,7 @@ const TEST_FILE_NAME = './fixtures/out/wb.test.xlsx';
 describe('WorkbookReader', () => {
   describe('Serialise', () => {
     it('xlsx file', function (this: any) {
-      this.timeout(10000);
+      this?.timeout?.(10000);
       const wb = testutils.createTestBook(new ExcelJS.Workbook(), 'xlsx');
 
       return wb.xlsx
@@ -40,7 +40,7 @@ describe('WorkbookReader', () => {
       });
 
       it('should fail fast on a huge file', function (this: any) {
-        this.timeout(5000);
+      this?.timeout?.(5000);
         const workbook = new ExcelJS.Workbook();
         return workbook.xlsx.readFile('./fixtures/xlsx/huge.xlsx', { maxRows: 100 }).then(
           () => {
@@ -77,7 +77,7 @@ describe('WorkbookReader', () => {
       });
 
       it('should fail fast on a huge file', function (this: any) {
-        this.timeout(5000);
+      this?.timeout?.(5000);
         const workbook = new ExcelJS.Workbook();
         return workbook.xlsx.readFile('./fixtures/xlsx/huge.xlsx', { maxCols: 10 }).then(
           () => {

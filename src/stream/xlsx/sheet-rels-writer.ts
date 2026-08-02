@@ -83,7 +83,11 @@ class SheetRelsWriter {
     );
   }
 
-  private _writeRelationship(relationship: { Type: string; Target: string; TargetMode?: string }): string {
+  private _writeRelationship(relationship: {
+    Type: string;
+    Target: string;
+    TargetMode?: string;
+  }): string {
     if (!this.count) {
       this._writeOpen();
     }

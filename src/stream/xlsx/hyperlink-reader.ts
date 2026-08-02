@@ -10,7 +10,12 @@ class HyperlinkReader extends EventEmitter {
   options: any;
   hyperlinks: Record<string, any> | null;
 
-  constructor({ workbook, id, iterator, options }: { workbook?: any; id?: number; iterator?: any; options?: any } = {}) {
+  constructor({
+    workbook,
+    id,
+    iterator,
+    options,
+  }: { workbook?: any; id?: number; iterator?: any; options?: any } = {}) {
     super();
     this.workbook = workbook;
     this.id = id || 0;

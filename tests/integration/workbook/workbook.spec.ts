@@ -416,7 +416,7 @@ describe('Workbook', () => {
     });
 
     it('a lot of sheets to xlsx file', function (this: any) {
-      this.timeout(10000);
+      this?.timeout?.(10000);
 
       let i;
       const wb = new ExcelJS.Workbook();
@@ -442,7 +442,7 @@ describe('Workbook', () => {
     });
 
     it('csv file', function (this: any) {
-      this.timeout(5000);
+      this?.timeout?.(5000);
 
       const wb = testUtils.createTestBook(new ExcelJS.Workbook(), 'csv');
 
@@ -458,7 +458,7 @@ describe('Workbook', () => {
     });
 
     it('CSV file and its configuration', function (this: any) {
-      this.timeout(5000);
+      this?.timeout?.(5000);
       const writeOptions = {
         dateFormat: 'DD/MM/YYYY HH:mm:ss',
         dateUTC: false,

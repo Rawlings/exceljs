@@ -56,7 +56,7 @@ class StaticXform extends BaseXform {
 
   parseClose(name: any) {
     switch (name) {
-      case this._model.tag:
+      case this._model?.tag:
         return false;
       default:
         return true;

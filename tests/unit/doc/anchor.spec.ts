@@ -101,7 +101,7 @@ describe('Anchor', () => {
     it('should update nativeRowOff after row has been changed', () => {
       const pre = anchor.nativeRowOff;
       anchor.row -= 0.321;
-      expect(anchor.nativeColOff).to.not.equal(pre);
+      expect(anchor.nativeRowOff).to.not.equal(pre);
     });
   });
 });

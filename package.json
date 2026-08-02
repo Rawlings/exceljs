@@ -47,7 +47,9 @@
     "typecheck": "tsc --noEmit",
     "clean": "node -e \"fs.rmSync('dist', {recursive: true, force: true})\""
   },
-  "dependencies": {},
+  "dependencies": {
+    "fflate": "^0.8.3"
+  },
   "devDependencies": {
     "@types/node": "^26.1.2",
     "oxfmt": "^0.61.0",

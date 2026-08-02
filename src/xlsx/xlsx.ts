@@ -1,8 +1,6 @@
 import fs from 'fs';
-import { NativeZipReader as JSZip } from '#src/utils/stream/native-zip';
+import { ZipReader as JSZip, ZipWriter } from '#src/utils/stream/zip';
 import { PassThrough } from 'stream';
-import ZipStream from '#src/utils/stream/zip-stream';
-import StreamBuf from '#src/utils/stream/stream-buf';
 
 import XmlStream from '#src/utils/stream/xml-stream';
 
@@ -155,9 +153,11 @@ class XLSX {
   async _processWorksheetEntry(stream: any, model: any, sheetNo: any, options: any, path: any) {
     const xform = new WorksheetXform(options);
     const worksheet = await xform.parseStream(stream);
-    worksheet.sheetNo = sheetNo;
-    model.worksheetHash[path] = worksheet;
-    model.worksheets.push(worksheet);
+    if (worksheet) {
+      worksheet.sheetNo = sheetNo;
+      model.worksheetHash[path] = worksheet;
+      model.worksheets.push(worksheet);
+    }
   }
 
   async _processCommentEntry(stream: any, model: any, name: any) {
@@ -184,25 +184,17 @@ class XLSX {
     if (lastDot >= 1) {
       const extension = filename.substr(lastDot + 1);
       const name = filename.substr(0, lastDot);
-      await new Promise<void>((resolve, reject) => {
-        const streamBuf = new (StreamBuf as unknown as new (options?: any) => any)();
-        streamBuf.on('finish', () => {
-          model.mediaIndex[filename] = model.media.length;
-          model.mediaIndex[name] = model.media.length;
-          const medium = {
-            type: 'image',
-            name,
-            extension,
-            buffer: streamBuf.toBuffer(),
-          };
-          model.media.push(medium);
-          resolve(undefined);
-        });
-        entry.on('error', (error: any) => {
-          reject(error);
-        });
-        entry.pipe(streamBuf);
-      });
+      const buffer =
+        typeof entry.read === 'function' ? entry.read() : await entry.async('nodebuffer');
+      model.mediaIndex[filename] = model.media.length;
+      model.mediaIndex[name] = model.media.length;
+      const medium = {
+        type: 'image',
+        name,
+        extension,
+        buffer,
+      };
+      model.media.push(medium);
     }
   }
 
@@ -225,17 +217,9 @@ class XLSX {
   }
 
   async _processThemeEntry(entry: any, model: any, name: any) {
-    await new Promise<void>((resolve, reject) => {
-      // TODO: stream entry into buffer and store the xml in the model.themes[]
-      const stream = new (StreamBuf as unknown as new (options?: any) => any)();
-      entry.on('error', reject);
-      stream.on('error', reject);
-      stream.on('finish', () => {
-        model.themes[name] = stream.read().toString();
-        resolve(undefined);
-      });
-      entry.pipe(stream);
-    });
+    const buffer =
+      typeof entry.read === 'function' ? entry.read() : await entry.async('nodebuffer');
+    model.themes[name] = buffer ? buffer.toString() : '';
   }
 
   /**
@@ -371,7 +355,7 @@ class XLSX {
               await this._processThemeEntry(stream, model, match[1]);
               break;
             }
-            match = entryName.match(/xl\/media\/([a-zA-Z0-9]+[.][a-zA-Z0-9]{3,4})$/);
+            match = entryName.match(/xl\/media\/([^/]+)$/);
             if (match) {
               await this._processMediaEntry(stream, model, match[1]);
               break;
@@ -654,14 +638,10 @@ class XLSX {
     });
   }
 
-  _finalize(zip: any) {
-    return new Promise((resolve, reject) => {
-      zip.on('finish', () => {
-        resolve(this);
-      });
-      zip.on('error', reject);
-      zip.finalize();
-    });
+  async _finalize(zip: any, stream: any) {
+    const buffer = await zip.generateAsync();
+    stream.write(buffer);
+    return this;
   }
 
   prepareModel(model: any, options: any) {
@@ -718,8 +698,7 @@ class XLSX {
   async write(stream: any, options: any) {
     options = options || {};
     const { model } = this.workbook;
-    const zip = new ZipStream.ZipWriter(options.zip);
-    zip.pipe(stream);
+    const zip = new ZipWriter(options.zip);
 
     this.prepareModel(model, options);
 
@@ -736,7 +715,7 @@ class XLSX {
     await this.addMedia(zip, model);
     await Promise.all([this.addApp(zip, model), this.addCore(zip, model)]);
     await this.addWorkbook(zip, model);
-    return this._finalize(zip);
+    return this._finalize(zip, stream);
   }
 
   writeFile(filename: any, options: any) {
@@ -761,9 +740,11 @@ class XLSX {
   }
 
   async writeBuffer(options?: any) {
-    const stream = new (StreamBuf as unknown as new (options?: any) => any)();
+    const chunks: Buffer[] = [];
+    const stream = new PassThrough();
+    stream.on('data', (chunk: Buffer) => chunks.push(chunk));
     await this.write(stream, options);
-    return stream.read();
+    return Buffer.concat(chunks);
   }
 }
 

@@ -6,7 +6,7 @@ import testUtils from '../../utils/index';
 import ExcelJS from '#src/exceljs.nodejs';
 
 const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
-const IMAGE_FILENAME = `${__dirname}/../data/image.png`;
+const IMAGE_FILENAME = `${__dirname}/../../../fixtures/images/image.png`;
 const fsReadFileAsync = promisify(fs.readFile);
 
 describe('WorkbookWriter', () => {
@@ -245,7 +245,7 @@ describe('WorkbookWriter', () => {
     });
 
     it('A lot of sheets', function (this: any) {
-      this.timeout(5000);
+      this?.timeout?.(5000);
 
       let i;
       const wb = new ExcelJS.stream.xlsx.WorkbookWriter({

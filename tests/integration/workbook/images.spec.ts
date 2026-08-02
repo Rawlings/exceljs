@@ -3,7 +3,7 @@ const { promisify } = require('util');
 
 import ExcelJS from '#src/exceljs.nodejs';
 
-const IMAGE_FILENAME = `${__dirname}/../data/image.png`;
+const IMAGE_FILENAME = `${__dirname}/../../../fixtures/images/image.png`;
 const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 const fsReadFileAsync = promisify(fs.readFile);
 
