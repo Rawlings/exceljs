@@ -16,6 +16,14 @@ import WorkbookXform from '../formats/xlsx/xml/book/workbook-xform';
 import SharedStringsXform from '../formats/xlsx/xml/strings/shared-strings-xform';
 
 import WorksheetWriter from './worksheet-writer';
+import type {
+  WorksheetProperties,
+  WorksheetState,
+  PageSetup,
+  WorksheetView,
+  AutoFilter,
+  HeaderFooter,
+} from '../core/worksheet';
 
 // @ts-ignore
 import theme1Xml from '../formats/xlsx/theme1';
@@ -218,14 +226,12 @@ export class WorkbookWriter {
       name,
       workbook: this,
       useSharedStrings,
-      properties: options.properties as import('../core/worksheet').WorksheetProperties | undefined,
-      state: options.state as import('../core/worksheet').WorksheetState | undefined,
-      pageSetup: options.pageSetup as Partial<import('../core/worksheet').PageSetup> | undefined,
-      views: options.views as Array<Partial<import('../core/worksheet').WorksheetView>> | undefined,
-      autoFilter: options.autoFilter as import('../core/worksheet').AutoFilter | undefined,
-      headerFooter: options.headerFooter as
-        | Partial<import('../core/worksheet').HeaderFooter>
-        | undefined,
+      properties: options.properties as WorksheetProperties | undefined,
+      state: options.state as WorksheetState | undefined,
+      pageSetup: options.pageSetup as Partial<PageSetup> | undefined,
+      views: options.views as Array<Partial<WorksheetView>> | undefined,
+      autoFilter: options.autoFilter as AutoFilter | undefined,
+      headerFooter: options.headerFooter as Partial<HeaderFooter> | undefined,
     });
 
     this._worksheets[id] = worksheet;

@@ -1,5 +1,6 @@
 import Worksheet from './worksheet';
-import type { WorksheetOptions } from './worksheet';
+import type { WorksheetOptions, WorksheetState } from './worksheet';
+import type { ImagePayload } from './image';
 import DefinedNames from './defined-names';
 import XLSX from '../formats/xlsx/xlsx';
 import CSV from '../formats/csv/csv';
@@ -219,7 +220,7 @@ export class Workbook implements WorkbookLike {
     this._themes = undefined;
   }
 
-  addImage(image: import('./image').ImagePayload): number {
+  addImage(image: ImagePayload): number {
     // TODO:  validation?
     const id = this.media.length;
     this.media.push(Object.assign({}, image, { type: 'image' }));
@@ -288,7 +289,7 @@ export class Workbook implements WorkbookLike {
     value.worksheets.forEach((worksheetModel: Record<string, unknown>, index: number) => {
       const id = (worksheetModel.id as number) || index + 1;
       const name = worksheetModel.name as string;
-      const state = worksheetModel.state as import('./worksheet').WorksheetState;
+      const state = worksheetModel.state as WorksheetState;
       const orderNo = value.sheets && value.sheets.findIndex((ws) => ws.id === id);
       const worksheet = (this._worksheets[id] = new Worksheet({
         id,

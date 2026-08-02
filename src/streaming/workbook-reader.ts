@@ -10,6 +10,7 @@ import WorkbookXform from '../formats/xlsx/xml/book/workbook-xform';
 import RelationshipsXform from '../formats/xlsx/xml/core/relationships-xform';
 
 import WorksheetReader from './worksheet-reader';
+import type { WorksheetReaderOptions } from './worksheet-reader';
 import HyperlinkReader from './hyperlink-reader';
 
 // ---------------------------------------------------------------------------
@@ -380,7 +381,7 @@ export class WorkbookReader extends EventEmitter {
   *_parseWorksheet(iterator: AsyncIterable<unknown>, sheetNo: string): Generator<ParseEvent> {
     this._emitEntry({ type: 'worksheet', id: sheetNo });
     const worksheetReader = new WorksheetReader({
-      workbook: this as unknown as import('./worksheet-reader').WorksheetReaderOptions['workbook'],
+      workbook: this as unknown as WorksheetReaderOptions['workbook'],
       id: sheetNo,
       iterator,
       options: this.options,

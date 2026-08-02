@@ -11,8 +11,11 @@ import type { WorksheetLike, CellLike } from '../core/internal-types';
 import type WorkbookWriter from './workbook-writer';
 
 import SheetRelsWriter from './sheet-rels-writer';
+import type { RelsWorkbook } from './sheet-rels-writer';
 import SheetCommentsWriter from './sheet-comments-writer';
+import type { CommentsWorkbook } from './sheet-comments-writer';
 import DataValidations from '../core/data-validations';
+import type { ColumnDefinition } from '../core/column';
 // ============================================================================================
 // Xforms
 import ListXform from '../formats/xlsx/xml/list-xform';
@@ -140,7 +143,7 @@ class WorksheetWriter {
     this._sheetRelsWriter = new SheetRelsWriter(
       options as unknown as {
         id: number;
-        workbook: import('./sheet-rels-writer').RelsWorkbook;
+        workbook: RelsWorkbook;
       }
     );
 
@@ -149,7 +152,7 @@ class WorksheetWriter {
       this._sheetRelsWriter,
       options as unknown as {
         id: number;
-        workbook: import('./sheet-comments-writer').CommentsWorkbook;
+        workbook: CommentsWorkbook;
       }
     );
 
@@ -368,7 +371,7 @@ class WorksheetWriter {
     value.forEach((defn) => {
       const column = new Column(this as unknown as WorksheetLike, count++, false);
       columns.push(column);
-      column.defn = defn as unknown as import('../core/column').ColumnDefinition;
+      column.defn = defn as unknown as ColumnDefinition;
     });
   }
 

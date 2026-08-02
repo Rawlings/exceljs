@@ -18,6 +18,11 @@ import type {
   EachRowOptions,
 } from './internal-types';
 
+import type { ColumnDefinition } from './column';
+import type { Media, ImageRange, ImagePosition, ImageModel, ImageRangeInput } from './image';
+import type { TableProperties } from './table';
+import type { PivotTableModel } from './pivot-table';
+import type { ConditionalFormattingOptions } from './conditional-formatting';
 import type { Color } from './cell';
 
 export interface WorksheetViewCommon {
@@ -179,7 +184,7 @@ export interface WorksheetModel {
   rowBreaks: RowBreak[];
   views: WorksheetView[];
   autoFilter: AutoFilter;
-  media: import('./image').Media[];
+  media: Media[];
   merges: string[];
 }
 
@@ -447,7 +452,7 @@ export class Worksheet implements WorksheetLike {
     value.forEach((defn) => {
       const column = new Column(this, count++, false);
       columns.push(column);
-      column.defn = defn as unknown as import('./column').ColumnDefinition;
+      column.defn = defn as unknown as ColumnDefinition;
     });
   }
 
@@ -991,14 +996,11 @@ export class Worksheet implements WorksheetLike {
 
   // =========================================================================
   // Images
-  addImage(
-    imageId: number,
-    range: string | import('./image').ImageRange | import('./image').ImagePosition
-  ) {
-    const model: import('./image').ImageModel = {
+  addImage(imageId: number, range: string | ImageRange | ImagePosition) {
+    const model: ImageModel = {
       type: 'image',
       imageId,
-      range: range as import('./image').ImageRangeInput | string,
+      range: range as ImageRangeInput | string,
     };
     this._media.push(new Image(this, model));
   }
@@ -1008,7 +1010,7 @@ export class Worksheet implements WorksheetLike {
   }
 
   addBackgroundImage(imageId: number) {
-    const model: import('./image').ImageModel = {
+    const model: ImageModel = {
       type: 'background',
       imageId,
     };
@@ -1063,7 +1065,7 @@ export class Worksheet implements WorksheetLike {
 
   // =========================================================================
   // Tables
-  addTable(model: import('./table').TableProperties): Table {
+  addTable(model: TableProperties): Table {
     const table = new Table(this, model);
     this.tables[model.name] = table;
     return table;
@@ -1083,7 +1085,7 @@ export class Worksheet implements WorksheetLike {
 
   // =========================================================================
   // Pivot Tables
-  addPivotTable(model: import('./pivot-table').PivotTableModel) {
+  addPivotTable(model: PivotTableModel) {
     // eslint-disable-next-line no-console
     console.warn(
       `Warning: Pivot Table support is experimental.
@@ -1100,7 +1102,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
 
   // ===========================================================================
   // Conditional Formatting
-  addConditionalFormatting(cf: import('./conditional-formatting').ConditionalFormattingOptions) {
+  addConditionalFormatting(cf: ConditionalFormattingOptions) {
     this.conditionalFormattings.push(cf);
   }
 
@@ -1214,7 +1216,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     autoFilter: unknown;
     media: unknown[];
     sheetProtection: Record<string, unknown> | null;
-    tables: import('./table').TableProperties[];
+    tables: TableProperties[];
     pivotTables: unknown[];
     conditionalFormattings: unknown[];
   }) {
@@ -1232,9 +1234,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     this.headerFooter = value.headerFooter;
     this.views = value.views as Array<Partial<WorksheetView>>;
     this.autoFilter = value.autoFilter as AutoFilter;
-    this._media = value.media.map(
-      (medium) => new Image(this, medium as import('./image').ImageModel)
-    );
+    this._media = value.media.map((medium) => new Image(this, medium as ImageModel));
     this.sheetProtection = value.sheetProtection;
     this.tables = value.tables.reduce((tables: Record<string, Table>, table) => {
       const t = new Table(this, table);

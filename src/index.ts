@@ -43,19 +43,6 @@ export type * from './streaming/workbook-writer';
 export type * from './streaming/workbook-reader';
 export type * from './streaming/worksheet-reader';
 
-export namespace config {
-  export function setValue(_key: string, _value: unknown): void { }
-}
-
-export namespace stream {
-  export namespace xlsx {
-    export type WorkbookWriterOptions = import('./streaming/workbook-writer').WorkbookWriterOptions;
-    export type WorkbookWriter = import('./streaming/workbook-writer').WorkbookWriter;
-    export type WorkbookReader = import('./streaming/workbook-reader').WorkbookReader;
-    export type WorksheetReader = import('./streaming/worksheet-reader').WorksheetReader;
-  }
-}
-
 const ExcelJS = {
   Workbook,
   Worksheet,

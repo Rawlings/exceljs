@@ -6,6 +6,7 @@ import { slideFormula } from '../utils/data/shared-formula';
 import Note from './note';
 import type { NoteModel } from './note';
 import type { RowLike, ColumnLike, FullAddress } from './internal-types';
+import type { DataValidation } from './data-validations';
 
 export type FillPatterns =
   | 'none'
@@ -605,13 +606,11 @@ export class Cell {
     };
   }
 
-  get dataValidation(): import('./data-validations').DataValidation | undefined {
-    return this._dataValidations.find(this.address) as
-      | import('./data-validations').DataValidation
-      | undefined;
+  get dataValidation(): DataValidation | undefined {
+    return this._dataValidations.find(this.address) as DataValidation | undefined;
   }
 
-  set dataValidation(value: import('./data-validations').DataValidation | undefined) {
+  set dataValidation(value: DataValidation | undefined) {
     this._dataValidations.add(this.address, value);
   }
 
