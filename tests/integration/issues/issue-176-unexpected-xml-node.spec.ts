@@ -1,4 +1,4 @@
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 describe('github issues', () => {
   it('issue 176 - Unexpected xml node in parseOpen', () => {

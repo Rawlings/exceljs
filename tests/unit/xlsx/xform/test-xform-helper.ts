@@ -5,11 +5,41 @@ import XmlStream from '#src/utils/stream/xml-stream';
 
 function normalizeXml(xml: string): string {
   if (typeof xml !== 'string') return xml;
-  return xml
-    .replace(/\s+\/>/g, '/>')
-    .replace(/<([^>]+)>/g, (_m, content) => '<' + content.replace(/\s+/g, ' ').trim() + '>')
-    .replace(/(?<=>)\s+(?=<)/g, '')
-    .trim();
+
+  // Sort attributes within each tag for order-agnostic comparison
+  let result = xml.replace(/<([^>]+)>/g, (_m, content) => {
+    const trimmed = content.trimEnd();
+    const selfClosing = trimmed.endsWith('/');
+    const inner = selfClosing ? trimmed.slice(0, -1).trim() : trimmed.trim();
+
+    const tagMatch = inner.match(/^([^\s]+)([\s\S]*)$/);
+    if (!tagMatch) return _m;
+
+    const tagName = tagMatch[1];
+    const attrStr = tagMatch[2].trim();
+
+    if (!attrStr) {
+      return `<${tagName}${selfClosing ? '/' : ''}>`;
+    }
+
+    const attrRe = /([^\s=]+)=(?:"([^"]*)"|'([^']*)')/g;
+    const attrs: string[] = [];
+    let am;
+    while ((am = attrRe.exec(attrStr)) !== null) {
+      attrs.push(am[0]);
+    }
+    attrs.sort();
+
+    return `<${tagName} ${attrs.join(' ')}${selfClosing ? '/' : ''}>`;
+  });
+
+  // Normalize empty elements: <tag></tag> -> <tag/>
+  result = result.replace(/<([^\s/>]+)><\/\1>/g, '<$1/>');
+
+  // Remove whitespace between tags
+  result = result.replace(/>\s+</g, '><').trim();
+
+  return result;
 }
 
 function cloneValue(val: any): any {

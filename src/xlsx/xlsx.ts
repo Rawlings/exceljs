@@ -289,7 +289,7 @@ class XLSX {
         if (name.match(/^xl\/drawings\/_rels\//)) return 7;
         if (name.match(/^xl\/drawings\//)) return 8;
         if (name.match(/^xl\/media\//)) return 9;
-        if (name.match(/^xl\/worksheets\/[^\/]+\.xml$/)) return 10;
+        if (name.match(/^xl\/worksheets\/[^/]+\.xml$/)) return 10;
         return 15;
       };
       return getPriority(a.name) - getPriority(b.name);
@@ -370,7 +370,7 @@ class XLSX {
           default: {
             let match = keyName.match(/xl\/worksheets\/sheet(\d+)[.]xml/);
             if (!match) {
-              match = keyName.match(/xl\/worksheets\/(sheet\d+|[^\/]+)[.]xml/);
+              match = keyName.match(/xl\/worksheets\/(sheet\d+|[^/]+)[.]xml/);
             }
             if (match) {
               await this._processWorksheetEntry(stream, model, match[1], options, keyName);
@@ -378,7 +378,7 @@ class XLSX {
             }
             match = keyName.match(/xl\/worksheets\/_rels\/sheet(\d+)[.]xml.rels/);
             if (!match) {
-              match = keyName.match(/xl\/worksheets\/_rels\/(sheet\d+|[^\/]+)[.]xml.rels/);
+              match = keyName.match(/xl\/worksheets\/_rels\/(sheet\d+|[^/]+)[.]xml.rels/);
             }
             if (match) {
               await this._processWorksheetRelsEntry(stream, model, match[1]);

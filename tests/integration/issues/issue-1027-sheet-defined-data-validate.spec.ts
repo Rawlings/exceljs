@@ -1,4 +1,4 @@
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 

@@ -1,6 +1,6 @@
 import testutils from '../utils/index';
 
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 import Range from '#src/doc/range';
 

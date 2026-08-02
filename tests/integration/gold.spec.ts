@@ -1,4 +1,4 @@
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 // =============================================================================
 // This spec is based around a gold standard Excel workbook 'gold.xlsx'

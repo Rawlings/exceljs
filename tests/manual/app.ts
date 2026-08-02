@@ -2,7 +2,7 @@ import fs from 'fs';
 import http from 'http';
 import path from 'path';
 import { PassThrough } from 'stream';
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 console.log('Copying bundle.js to public folder');
 fs.createReadStream(path.join(__dirname, '../../dist/exceljs.min.js')).pipe(

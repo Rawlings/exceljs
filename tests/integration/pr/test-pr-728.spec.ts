@@ -1,4 +1,4 @@
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 describe('github issues', () => {
   it('pull request 728 - Read worksheet hidden state', () => {

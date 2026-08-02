@@ -1,4 +1,4 @@
-import Excel from '#src/exceljs.nodejs';
+import Excel from '#src/index';
 
 describe('Worksheet', () => {
   describe('Shared Formulae', () => {

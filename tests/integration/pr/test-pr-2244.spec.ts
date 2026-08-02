@@ -1,4 +1,4 @@
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 describe('pull request  2244', () => {
   it('pull request 2244- Fix xlsx.writeFile() not catching error when error occurs', async () => {

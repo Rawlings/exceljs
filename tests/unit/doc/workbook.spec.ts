@@ -1,7 +1,7 @@
 import simpleWorkbookModel from '#fixtures/json/simpleWorkbook.json';
 import testUtils from '../../utils/index';
 
-import Excel from '#src/exceljs.nodejs';
+import Excel from '#src/index';
 
 // =============================================================================
 // Helpers

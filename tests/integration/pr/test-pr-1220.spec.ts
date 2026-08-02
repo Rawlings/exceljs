@@ -1,4 +1,4 @@
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 describe('github issues', () => {
   it('pull request 1220 - The worksheet should not be undefined', async () => {

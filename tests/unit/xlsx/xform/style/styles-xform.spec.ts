@@ -1,9 +1,14 @@
-const fs = require('fs');
+import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
 import StylesXform from '#src/xlsx/xform/style/styles-xform';
 import XmlStream from '#src/utils/stream/xml-stream';
+import styles11 from '#fixtures/json/styles.1.1.json' with { type: 'json' };
+
+function readXml(name: string): string {
+  return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8');
+}
 
 const expectations = [
   {
@@ -11,8 +16,8 @@ const expectations = [
     create() {
       return new StylesXform();
     },
-    preparedModel: require('./data/styles.1.1.json'),
-    xml: fs.readFileSync(`${__dirname}/data/styles.1.2.xml`).toString(),
+    preparedModel: styles11,
+    xml: readXml('styles.1.2.xml'),
     get parsedModel() {
       return this.preparedModel;
     },
@@ -26,7 +31,7 @@ describe('StylesXform', () => {
   describe('As StyleManager', () => {
     it('Renders empty model', () => {
       const stylesXform = new StylesXform(true);
-      const expectedXml = fs.readFileSync(`${__dirname}/data/styles.2.2.xml`).toString();
+      const expectedXml = readXml('styles.2.2.xml');
 
       const xmlStream = new XmlStream();
       stylesXform.render(xmlStream);

@@ -1,6 +1,6 @@
 import testutils from '../utils/index';
 
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 const CONCATENATE_HELLO_WORLD = 'CONCATENATE("Hello", ", ", "World!")';
 

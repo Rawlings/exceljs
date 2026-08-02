@@ -18,10 +18,12 @@ export class ZipReader {
 
   parse(buf: Buffer): void {
     if (!buf || buf.length === 0) return;
-    const unzipped = fflate.unzipSync(new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength));
+    const u8input = new Uint8Array(buf.byteLength);
+    u8input.set(buf);
+    const unzipped = fflate.unzipSync(u8input);
     for (const [key, u8] of Object.entries(unzipped)) {
       const cleanName = key.replace(/^\//, '');
-      const content = Buffer.from(u8.buffer, u8.byteOffset, u8.byteLength);
+      const content = Buffer.from(u8);
       this.files[cleanName] = {
         name: cleanName,
         dir: cleanName.endsWith('/'),
@@ -43,7 +45,9 @@ export class ZipReader {
     } else if (
       input &&
       typeof input === 'object' &&
-      (typeof input.read === 'function' || Symbol.asyncIterator in input || typeof input.on === 'function')
+      (typeof input.read === 'function' ||
+        Symbol.asyncIterator in input ||
+        typeof input.on === 'function')
     ) {
       const chunks: Buffer[] = [];
       if (typeof input.read === 'function') {
@@ -98,15 +102,20 @@ export class ZipWriter {
     const name = rawName.replace(/^\//, '');
 
     if (Buffer.isBuffer(data)) {
-      this.files[name] = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+      const u8 = new Uint8Array(data.byteLength);
+      u8.set(data);
+      this.files[name] = u8;
     } else if (data instanceof ArrayBuffer) {
       this.files[name] = new Uint8Array(data);
     } else if (data instanceof Uint8Array) {
-      this.files[name] = data;
+      const u8 = new Uint8Array(data.byteLength);
+      u8.set(data);
+      this.files[name] = u8;
     } else if (typeof data === 'string') {
       const isBase64 = typeof options === 'object' && options?.base64;
-      const buf = Buffer.from(data, isBase64 ? 'base64' : 'utf8');
-      this.files[name] = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+      this.files[name] = isBase64
+        ? fflate.strToU8(Buffer.from(data, 'base64').toString('binary'))
+        : fflate.strToU8(data);
     } else if (data && typeof data.xml === 'string') {
       this.files[name] = fflate.strToU8(data.xml);
     } else if (data && typeof data.toXml === 'function') {
@@ -114,43 +123,45 @@ export class ZipWriter {
     } else if (data && typeof data.toBuffer === 'function') {
       const buf = data.toBuffer();
       if (Buffer.isBuffer(buf)) {
-        this.files[name] = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+        const u8 = new Uint8Array(buf.byteLength);
+        u8.set(buf);
+        this.files[name] = u8;
       } else if (typeof buf === 'string') {
         this.files[name] = fflate.strToU8(buf);
       }
     } else if (data && (typeof data.read === 'function' || typeof data.on === 'function')) {
       const chunks: Buffer[] = [];
-      if (typeof data.read === 'function') {
-        let chunk: any;
-        while ((chunk = data.read()) !== null) {
-          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-        }
-      }
-      if (chunks.length > 0) {
-        const buf = Buffer.concat(chunks);
-        this.files[name] = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
-      } else if (data._buf && Buffer.isBuffer(data._buf)) {
-        this.files[name] = new Uint8Array(data._buf.buffer, data._buf.byteOffset, data._buf.byteLength);
-      } else {
-        const processStream = async () => {
+      const processStream = async () => {
+        await new Promise<void>((resolve) => {
           if (typeof data.on === 'function') {
-            await new Promise<void>((resolve) => {
-              data.on('data', (c: any) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
-              const onEnd = () => resolve();
-              if (data.readableEnded || data._readableState?.ended) {
-                onEnd();
-              } else {
-                data.on('end', onEnd);
-                data.on('finish', onEnd);
-                data.on('close', onEnd);
+            data.on('data', (c: any) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+            const onFinish = () => {
+              // drain any buffered data from the readable side (handles paused streams)
+              if (typeof data.read === 'function') {
+                let chunk: any;
+                while ((chunk = data.read()) !== null) {
+                  chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+                }
               }
-            });
+              resolve();
+            };
+            if (data.readableEnded || data._readableState?.ended) {
+              onFinish();
+            } else {
+              data.on('finish', onFinish);
+              data.on('close', onFinish);
+              data.on('error', () => resolve());
+            }
+          } else {
+            resolve();
           }
-          const buf = Buffer.concat(chunks);
-          this.files[name] = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
-        };
-        this.pending.push(processStream());
-      }
+        });
+        const buf = Buffer.concat(chunks);
+        const u8 = new Uint8Array(buf.byteLength);
+        u8.set(buf);
+        this.files[name] = u8;
+      };
+      this.pending.push(processStream());
     } else {
       this.files[name] = fflate.strToU8(String(data || ''));
     }

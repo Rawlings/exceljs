@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { promisify } = require('util');
 
-import ExcelJS from '#src/exceljs.nodejs';
+import ExcelJS from '#src/index';
 
 const IMAGE_FILENAME = `${__dirname}/../../../fixtures/images/image.png`;
 const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
