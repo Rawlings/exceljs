@@ -32,7 +32,7 @@ class BaseXform {
   set model(val: any) {
     this._model = val;
   }
-  get tag(): any {
+  get tag(): string | undefined {
     return undefined;
   }
 
@@ -105,7 +105,7 @@ class BaseXform {
     return this.parse(parseSax(stream));
   }
 
-  get xml(): string {
+  get xml() {
     // convenience function to get the xml of this.model
     // useful for manager types that are built during the prepare phase
     return this.toXml(this.model);

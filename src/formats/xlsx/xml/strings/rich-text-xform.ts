@@ -37,11 +37,11 @@ class RichTextXform extends BaseXform {
     return 'r';
   }
 
-  get textXform(): TextXform {
+  get textXform() {
     return this._textXform || (this._textXform = new TextXform());
   }
 
-  get fontXform(): FontXform {
+  get fontXform() {
     return this._fontXform || (this._fontXform = new FontXform(RichTextXform.FONT_OPTIONS));
   }
 

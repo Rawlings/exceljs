@@ -16,7 +16,7 @@ class IntegerXform extends BaseXform {
   zero: boolean | undefined;
   text: string[] = [];
 
-  override get tag(): string | undefined {
+  override get tag() {
     return this._tag;
   }
 

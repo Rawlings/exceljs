@@ -48,14 +48,14 @@ class SheetRelsWriter {
     this._workbook = options.workbook;
   }
 
-  get stream(): WriterStream {
+  get stream() {
     if (!this._stream) {
       this._stream = this._workbook._openStream(`xl/worksheets/_rels/sheet${this.id}.xml.rels`);
     }
     return this._stream;
   }
 
-  get length(): number {
+  get length() {
     return this._hyperlinks.length;
   }
 
@@ -63,7 +63,7 @@ class SheetRelsWriter {
     return this._hyperlinks.forEach(fn);
   }
 
-  get hyperlinksProxy(): HyperlinksProxy {
+  get hyperlinksProxy() {
     return this._hyperlinksProxy || (this._hyperlinksProxy = new HyperlinksProxy(this));
   }
 

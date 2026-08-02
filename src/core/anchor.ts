@@ -87,7 +87,7 @@ export class Anchor implements IAnchor {
       : new Anchor(model as unknown as AnchorWorksheet);
   }
 
-  get col(): number {
+  get col() {
     return this.nativeCol + Math.min(this.colWidth - 1, this.nativeColOff) / this.colWidth;
   }
 
@@ -96,7 +96,7 @@ export class Anchor implements IAnchor {
     this.nativeColOff = Math.floor((v - this.nativeCol) * this.colWidth);
   }
 
-  get row(): number {
+  get row() {
     return this.nativeRow + Math.min(this.rowHeight - 1, this.nativeRowOff) / this.rowHeight;
   }
 
@@ -105,19 +105,19 @@ export class Anchor implements IAnchor {
     this.nativeRowOff = Math.floor((v - this.nativeRow) * this.rowHeight);
   }
 
-  get colWidth(): number {
+  get colWidth() {
     const column = this.worksheet && this.worksheet.getColumn(this.nativeCol + 1);
     // NB: matches original — if width is undefined here (shouldn't happen
     // when isCustomWidth is true), this yields NaN, same as untyped original.
     return column && column.isCustomWidth ? Math.floor((column.width as number) * 10000) : 640000;
   }
 
-  get rowHeight(): number {
+  get rowHeight() {
     const row = this.worksheet && this.worksheet.getRow(this.nativeRow + 1);
     return row && row.height ? Math.floor(row.height * 10000) : 180000;
   }
 
-  get model(): AnchorModel {
+  get model() {
     return {
       nativeCol: this.nativeCol,
       nativeColOff: this.nativeColOff,

@@ -14,7 +14,7 @@ class StringXform extends BaseXform {
   attrs: Record<string, unknown> | undefined;
   text: string[] = [];
 
-  override get tag(): string | undefined {
+  override get tag() {
     return this._tag;
   }
 

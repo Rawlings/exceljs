@@ -26,19 +26,19 @@ class SharedStringsXform extends BaseXform {
     this.rich = Object.create(null);
   }
 
-  get sharedStringXform(): SharedStringXform {
+  get sharedStringXform() {
     return this._sharedStringXform || (this._sharedStringXform = new SharedStringXform());
   }
 
-  get values(): SharedStringModel[] {
+  get values() {
     return this.model.values;
   }
 
-  get uniqueCount(): number {
+  get uniqueCount() {
     return this.model.values.length;
   }
 
-  get count(): number {
+  get count() {
     return this.model.count;
   }
 

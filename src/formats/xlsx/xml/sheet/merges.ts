@@ -39,7 +39,7 @@ class Merges {
     }
   }
 
-  get mergeCells(): string[] {
+  get mergeCells() {
     return _.map(this.merges, (merge) => merge.range);
   }
 

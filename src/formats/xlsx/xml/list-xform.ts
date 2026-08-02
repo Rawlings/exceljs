@@ -10,7 +10,7 @@ class ListXform extends BaseXform {
   childXform: any;
   maxItems: any;
 
-  override get tag(): any {
+  override get tag() {
     return this._tag;
   }
 

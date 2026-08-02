@@ -64,7 +64,7 @@ export class Image {
     }
   }
 
-  get model(): Record<string, unknown> {
+  get model(): ImageModel | Record<string, unknown> {
     switch (this.type) {
       case 'background':
         return {

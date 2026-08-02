@@ -37,23 +37,23 @@ export class Column implements ColumnLike {
     }
   }
 
-  get number(): number {
+  get number() {
     return this._number;
   }
 
-  get worksheet(): WorksheetLike {
+  get worksheet() {
     return this._worksheet;
   }
 
-  get letter(): string {
+  get letter() {
     return colCache.n2l(this._number);
   }
 
-  get isCustomWidth(): boolean {
+  get isCustomWidth() {
     return this.width !== undefined && this.width !== DEFAULT_COLUMN_WIDTH;
   }
 
-  get defn(): ColumnDefinition {
+  get defn() {
     return {
       header: this._header,
       key: this.key,
@@ -87,11 +87,11 @@ export class Column implements ColumnLike {
     }
   }
 
-  get headers(): (string | string[] | undefined)[] {
+  get headers() {
     return this._header && this._header instanceof Array ? this._header : [this._header];
   }
 
-  get header(): string | string[] | undefined {
+  get header() {
     return this._header;
   }
 
@@ -106,7 +106,7 @@ export class Column implements ColumnLike {
     }
   }
 
-  get key(): string | undefined {
+  get key() {
     return this._key;
   }
 
@@ -122,7 +122,7 @@ export class Column implements ColumnLike {
     }
   }
 
-  get hidden(): boolean {
+  get hidden() {
     return !!this._hidden;
   }
 
@@ -130,7 +130,7 @@ export class Column implements ColumnLike {
     this._hidden = value;
   }
 
-  get outlineLevel(): number {
+  get outlineLevel() {
     return this._outlineLevel || 0;
   }
 
@@ -138,7 +138,7 @@ export class Column implements ColumnLike {
     this._outlineLevel = value;
   }
 
-  get collapsed(): boolean {
+  get collapsed() {
     return !!(
       this._outlineLevel && this._outlineLevel >= this._worksheet.properties.outlineLevelCol
     );
@@ -161,7 +161,7 @@ export class Column implements ColumnLike {
     );
   }
 
-  get isDefault(): boolean {
+  get isDefault() {
     if (this.isCustomWidth) {
       return false;
     }
@@ -178,7 +178,7 @@ export class Column implements ColumnLike {
     return true;
   }
 
-  get headerCount(): number {
+  get headerCount() {
     return this.headers.length;
   }
 
@@ -204,7 +204,7 @@ export class Column implements ColumnLike {
     );
   }
 
-  get values(): unknown[] {
+  get values() {
     const v: unknown[] = [];
     this.eachCell((cell: CellLike, rowNumber: number) => {
       if (cell && cell.type !== Enums.ValueType.Null) {
@@ -239,7 +239,7 @@ export class Column implements ColumnLike {
     return value;
   }
 
-  get numFmt(): unknown {
+  get numFmt() {
     return this.style.numFmt;
   }
 
@@ -247,7 +247,7 @@ export class Column implements ColumnLike {
     this._applyStyle('numFmt', value);
   }
 
-  get font(): unknown {
+  get font() {
     return this.style.font;
   }
 
@@ -255,7 +255,7 @@ export class Column implements ColumnLike {
     this._applyStyle('font', value);
   }
 
-  get alignment(): unknown {
+  get alignment() {
     return this.style.alignment;
   }
 
@@ -263,7 +263,7 @@ export class Column implements ColumnLike {
     this._applyStyle('alignment', value);
   }
 
-  get protection(): unknown {
+  get protection() {
     return this.style.protection;
   }
 
@@ -271,7 +271,7 @@ export class Column implements ColumnLike {
     this._applyStyle('protection', value);
   }
 
-  get border(): unknown {
+  get border() {
     return this.style.border;
   }
 
@@ -279,7 +279,7 @@ export class Column implements ColumnLike {
     this._applyStyle('border', value);
   }
 
-  get fill(): unknown {
+  get fill() {
     return this.style.fill;
   }
 

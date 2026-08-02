@@ -71,49 +71,49 @@ class Column {
   }
 
   /* eslint-disable lines-between-class-members */
-  get name(): string {
+  get name() {
     return this.column.name;
   }
   set name(value: string) {
     this._set('name', value);
   }
 
-  get filterButton(): boolean | undefined {
+  get filterButton() {
     return this.column.filterButton;
   }
   set filterButton(value: boolean | undefined) {
     this.column.filterButton = value;
   }
 
-  get style(): Record<string, unknown> | undefined {
+  get style() {
     return this.column.style;
   }
   set style(value: Record<string, unknown> | undefined) {
     this.column.style = value;
   }
 
-  get totalsRowLabel(): string | undefined {
+  get totalsRowLabel() {
     return this.column.totalsRowLabel;
   }
   set totalsRowLabel(value: string | undefined) {
     this._set('totalsRowLabel', value);
   }
 
-  get totalsRowFunction(): string | undefined {
+  get totalsRowFunction() {
     return this.column.totalsRowFunction;
   }
   set totalsRowFunction(value: string | undefined) {
     this._set('totalsRowFunction', value);
   }
 
-  get totalsRowResult(): unknown {
+  get totalsRowResult() {
     return this.column.totalsRowResult;
   }
   set totalsRowResult(value: unknown) {
     this._set('totalsRowResult', value);
   }
 
-  get totalsRowFormula(): string | undefined {
+  get totalsRowFormula() {
     return this.column.totalsRowFormula;
   }
   set totalsRowFormula(value: string | undefined) {
@@ -169,22 +169,22 @@ export class Table {
     }
   }
 
-  get width(): number {
+  get width() {
     // width of the table
     return this.table.columns.length;
   }
 
-  get height(): number {
+  get height() {
     // height of the table data
     return this.table.rows.length;
   }
 
-  get filterHeight(): number {
+  get filterHeight() {
     // height of the table data plus optional header row
     return this.height + (this.table.headerRow ? 1 : 0);
   }
 
-  get tableHeight(): number {
+  get tableHeight() {
     // full height of the table on the sheet
     return this.filterHeight + (this.table.totalsRow ? 1 : 0);
   }
@@ -339,7 +339,7 @@ export class Table {
     }
   }
 
-  get model(): TableProperties {
+  get model() {
     return this.table;
   }
 
@@ -457,14 +457,14 @@ export class Table {
   }
 
   /* eslint-disable lines-between-class-members */
-  get ref(): string {
+  get ref() {
     return this.table.ref;
   }
   set ref(value: string) {
     this._assign(this.table as unknown as Record<string, unknown>, 'ref', value);
   }
 
-  get name(): string {
+  get name() {
     return this.table.name;
   }
   set name(value: string) {
@@ -475,7 +475,7 @@ export class Table {
   // `displyName` (not `displayName`), and the setter is named
   // `displayNamename` (not `displayName`), so `table.displayName = x` never
   // actually invokes it. A typing pass must not silently fix behavior.
-  get displayName(): string {
+  get displayName() {
     return (
       ((this.table as unknown as Record<string, unknown>).displyName as string) || this.table.name
     );
@@ -484,49 +484,49 @@ export class Table {
     this.table.displayName = value;
   }
 
-  get headerRow(): boolean | undefined {
+  get headerRow() {
     return this.table.headerRow;
   }
   set headerRow(value: boolean | undefined) {
     this._assign(this.table as unknown as Record<string, unknown>, 'headerRow', value);
   }
 
-  get totalsRow(): boolean | undefined {
+  get totalsRow() {
     return this.table.totalsRow;
   }
   set totalsRow(value: boolean | undefined) {
     this._assign(this.table as unknown as Record<string, unknown>, 'totalsRow', value);
   }
 
-  get theme(): string | undefined {
+  get theme() {
     return (this.table.style as Record<string, unknown>).name as string | undefined;
   }
   set theme(value: string | undefined) {
     (this.table.style as Record<string, unknown>).name = value;
   }
 
-  get showFirstColumn(): boolean | undefined {
+  get showFirstColumn() {
     return (this.table.style as Record<string, unknown>).showFirstColumn as boolean | undefined;
   }
   set showFirstColumn(value: boolean | undefined) {
     (this.table.style as Record<string, unknown>).showFirstColumn = value;
   }
 
-  get showLastColumn(): boolean | undefined {
+  get showLastColumn() {
     return (this.table.style as Record<string, unknown>).showLastColumn as boolean | undefined;
   }
   set showLastColumn(value: boolean | undefined) {
     (this.table.style as Record<string, unknown>).showLastColumn = value;
   }
 
-  get showRowStripes(): boolean | undefined {
+  get showRowStripes() {
     return (this.table.style as Record<string, unknown>).showRowStripes as boolean | undefined;
   }
   set showRowStripes(value: boolean | undefined) {
     (this.table.style as Record<string, unknown>).showRowStripes = value;
   }
 
-  get showColumnStripes(): boolean | undefined {
+  get showColumnStripes() {
     return (this.table.style as Record<string, unknown>).showColumnStripes as boolean | undefined;
   }
   set showColumnStripes(value: boolean | undefined) {

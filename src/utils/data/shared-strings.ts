@@ -9,15 +9,15 @@ class SharedStrings {
     this._hash = new Map<string, number>();
   }
 
-  get count(): number {
+  get count() {
     return this._values.length;
   }
 
-  get values(): unknown[] {
+  get values() {
     return this._values;
   }
 
-  get totalRefs(): number {
+  get totalRefs() {
     return this._totalRefs;
   }
 

@@ -103,17 +103,17 @@ export class Workbook implements WorkbookLike {
     this._definedNames = new DefinedNames();
   }
 
-  get xlsx(): XLSX {
+  get xlsx() {
     if (!this._xlsx) this._xlsx = new XLSX(this);
     return this._xlsx;
   }
 
-  get csv(): CSV {
+  get csv() {
     if (!this._csv) this._csv = new CSV(this);
     return this._csv;
   }
 
-  get nextId(): number {
+  get nextId() {
     // find the next unique spot to add worksheet
     for (let i = 1; i < this._worksheets.length; i++) {
       if (!this._worksheets[i]) {
@@ -197,7 +197,7 @@ export class Workbook implements WorkbookLike {
     return undefined;
   }
 
-  get worksheets(): Worksheet[] {
+  get worksheets() {
     // return a clone of _worksheets
     return (this._worksheets as Worksheet[])
       .slice(1)
@@ -211,7 +211,7 @@ export class Workbook implements WorkbookLike {
     });
   }
 
-  get definedNames(): DefinedNames {
+  get definedNames() {
     return this._definedNames;
   }
 
@@ -231,7 +231,7 @@ export class Workbook implements WorkbookLike {
     return this.media[id];
   }
 
-  get model(): WorkbookModel {
+  get model() {
     return {
       creator: (this.creator as string) || 'Unknown',
       lastModifiedBy: (this.lastModifiedBy as string) || 'Unknown',

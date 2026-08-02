@@ -8,7 +8,7 @@ export class ModelContainer {
     this.model = model;
   }
 
-  get xlsx(): XLSX {
+  get xlsx() {
     if (!this._xlsx) {
       this._xlsx = new XLSX(this);
     }

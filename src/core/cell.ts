@@ -293,7 +293,7 @@ export class Cell {
     return (this._row as unknown as { worksheet: { workbook: unknown } }).worksheet.workbook;
   }
 
-  get sheetName(): string {
+  get sheetName() {
     return (this._row as unknown as { worksheet: { name: string } })?.worksheet?.name || '';
   }
 
@@ -313,7 +313,7 @@ export class Cell {
 
   // =========================================================================
   // Styles stuff
-  get numFmt(): string {
+  get numFmt() {
     return (this.style.numFmt as string) || '';
   }
 
@@ -321,7 +321,7 @@ export class Cell {
     this.style.numFmt = value;
   }
 
-  get font(): Partial<Font> {
+  get font() {
     return this.style.font || {};
   }
 
@@ -329,7 +329,7 @@ export class Cell {
     this.style.font = value;
   }
 
-  get alignment(): Partial<Alignment> {
+  get alignment() {
     return this.style.alignment || {};
   }
 
@@ -337,7 +337,7 @@ export class Cell {
     this.style.alignment = value;
   }
 
-  get border(): Partial<Borders> {
+  get border() {
     return this.style.border || {};
   }
 
@@ -345,7 +345,7 @@ export class Cell {
     this.style.border = value;
   }
 
-  get fill(): Fill {
+  get fill() {
     return this.style.fill || { type: 'pattern', pattern: 'none' };
   }
 
@@ -353,7 +353,7 @@ export class Cell {
     this.style.fill = value;
   }
 
-  get protection(): Partial<Protection> {
+  get protection() {
     return this.style.protection || {};
   }
 
@@ -389,30 +389,30 @@ export class Cell {
 
   // =========================================================================
   // return the address for this cell
-  get address(): string {
+  get address() {
     return this._address;
   }
 
-  get row(): number {
+  get row() {
     return this._row.number;
   }
 
-  get col(): number {
+  get col() {
     return this._column.number;
   }
 
-  get $col$row(): string {
+  get $col$row() {
     return `$${(this._column as unknown as { letter: string }).letter}$${this.row}`;
   }
 
   // =========================================================================
   // Value stuff
 
-  get type(): number {
+  get type() {
     return this._value.type;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return this._value.effectiveType;
   }
 
@@ -431,7 +431,7 @@ export class Cell {
     this._mergeCount--;
   }
 
-  get isMerged(): boolean {
+  get isMerged() {
     return this._mergeCount > 0 || this.type === Cell.Types.Merge;
   }
 
@@ -456,23 +456,23 @@ export class Cell {
     return this._value.isMergedTo!(master);
   }
 
-  get master(): CellValueImpl | Cell {
+  get master(): Cell {
     if (this.type === Cell.Types.Merge) {
-      return this._value.master!;
+      return (this._value.master as Cell) || this;
     }
     return this; // an unmerged cell is its own master
   }
 
-  get isHyperlink(): boolean {
+  get isHyperlink() {
     return this._value.type === Cell.Types.Hyperlink;
   }
 
-  get hyperlink(): string | undefined {
+  get hyperlink() {
     return this._value.hyperlink;
   }
 
   // return the value
-  get value(): unknown {
+  get value() {
     return this._value.value;
   }
 
@@ -490,7 +490,7 @@ export class Cell {
     this._value = Value.create(Value.getType(v), this, v);
   }
 
-  get note(): string | Comment | undefined {
+  get note() {
     return this._comment ? (this._comment.note as string | Comment) : undefined;
   }
 
@@ -498,11 +498,11 @@ export class Cell {
     this._comment = note ? new Note(note) : undefined;
   }
 
-  get text(): string {
+  get text() {
     return this._value.toString();
   }
 
-  get html(): string {
+  get html() {
     return _.escapeHtml(this.text);
   }
 
@@ -522,21 +522,21 @@ export class Cell {
 
   // =========================================================================
   // Formula stuff
-  get formula(): string | undefined {
+  get formula() {
     return this._value.formula;
   }
 
-  get result(): unknown {
+  get result() {
     return this._value.result;
   }
 
-  get formulaType(): number | undefined {
+  get formulaType() {
     return this._value.formulaType;
   }
 
   // =========================================================================
   // Name stuff
-  get fullAddress(): FullAddress {
+  get fullAddress() {
     const { worksheet } = this._row as unknown as { worksheet: { name: string } };
     return {
       sheetName: worksheet.name,
@@ -546,7 +546,7 @@ export class Cell {
     };
   }
 
-  get name(): string {
+  get name() {
     return this.names[0];
   }
 
@@ -554,7 +554,7 @@ export class Cell {
     this.names = [value];
   }
 
-  get names(): string[] {
+  get names() {
     return (
       this.workbook as {
         definedNames: { getNamesEx(address: FullAddress): string[] };
@@ -602,7 +602,7 @@ export class Cell {
     };
   }
 
-  get dataValidation(): DataValidation | undefined {
+  get dataValidation() {
     return this._dataValidations.find(this.address) as DataValidation | undefined;
   }
 
@@ -613,7 +613,7 @@ export class Cell {
   // =========================================================================
   // Model stuff
 
-  get model(): CellModel | CellValueModel {
+  get model() {
     const { model } = this._value;
     model.style = this.style;
     if (this._comment) {
@@ -658,7 +658,7 @@ class NullValue implements CellValueImpl {
     };
   }
 
-  get value(): null {
+  get value() {
     return null;
   }
 
@@ -666,15 +666,15 @@ class NullValue implements CellValueImpl {
     // nothing to do
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.Null;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.Null;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -704,7 +704,7 @@ class NumberValue implements CellValueImpl {
     };
   }
 
-  get value(): number {
+  get value() {
     return this.model.value as number;
   }
 
@@ -712,15 +712,15 @@ class NumberValue implements CellValueImpl {
     this.model.value = value;
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.Number;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.Number;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -750,7 +750,7 @@ class StringValue implements CellValueImpl {
     };
   }
 
-  get value(): string {
+  get value() {
     return this.model.value as string;
   }
 
@@ -758,15 +758,15 @@ class StringValue implements CellValueImpl {
     this.model.value = value;
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.String;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.String;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -805,7 +805,7 @@ class RichTextValue implements CellValueImpl {
     };
   }
 
-  get value(): RichTextValueShape {
+  get value() {
     return this.model.value as RichTextValueShape;
   }
 
@@ -813,7 +813,7 @@ class RichTextValue implements CellValueImpl {
     this.model.value = value;
   }
 
-  get text(): string {
+  get text() {
     return (this.model.value as RichTextValueShape).richText.map((t) => t.text).join('');
   }
 
@@ -821,15 +821,15 @@ class RichTextValue implements CellValueImpl {
     return (this.model.value as RichTextValueShape).richText.map((t) => t.text).join('');
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.RichText;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.RichText;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -854,7 +854,7 @@ class DateValue implements CellValueImpl {
     };
   }
 
-  get value(): Date {
+  get value() {
     return this.model.value as Date;
   }
 
@@ -862,15 +862,15 @@ class DateValue implements CellValueImpl {
     this.model.value = value;
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.Date;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.Date;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -910,7 +910,7 @@ class HyperlinkValue implements CellValueImpl {
     }
   }
 
-  get value(): HyperlinkValueShape {
+  get value() {
     const v: HyperlinkValueShape = {
       text: this.model.text as string,
       hyperlink: this.model.hyperlink as string,
@@ -933,7 +933,7 @@ class HyperlinkValue implements CellValueImpl {
     }
   }
 
-  get text(): string | undefined {
+  get text() {
     return this.model.text as string | undefined;
   }
 
@@ -950,7 +950,7 @@ class HyperlinkValue implements CellValueImpl {
     this.model.tooltip = value;
   } */
 
-  get hyperlink(): string | undefined {
+  get hyperlink() {
     return this.model.hyperlink as string | undefined;
   }
 
@@ -958,15 +958,15 @@ class HyperlinkValue implements CellValueImpl {
     this.model.hyperlink = value;
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.Hyperlink;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.Hyperlink;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -1001,7 +1001,7 @@ class MergeValue implements CellValueImpl {
     }
   }
 
-  get value(): unknown {
+  get value() {
     return (this._master as Cell).value;
   }
 
@@ -1021,19 +1021,19 @@ class MergeValue implements CellValueImpl {
     return master === this._master;
   }
 
-  get master(): Cell | undefined {
+  get master() {
     return this._master;
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.Merge;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return (this._master as Cell).effectiveType;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -1097,7 +1097,7 @@ class FormulaValue implements CellValueImpl {
     return copy;
   }
 
-  get value(): Record<string, unknown> {
+  get value() {
     return this._copyModel(this.model);
   }
 
@@ -1119,7 +1119,7 @@ class FormulaValue implements CellValueImpl {
     }
   }
 
-  get dependencies(): { ranges: string[] | null; cells: string[] | null } {
+  get dependencies() {
     // find all the ranges and cells mentioned in the formula
     const ranges = (this.formula as string).match(
       /([a-zA-Z0-9]+!)?[A-Z]{1,3}\d{1,4}:[A-Z]{1,3}\d{1,4}/g
@@ -1133,7 +1133,7 @@ class FormulaValue implements CellValueImpl {
     };
   }
 
-  get formula(): string | undefined {
+  get formula() {
     return (this.model.formula as string) || this._getTranslatedFormula();
   }
 
@@ -1141,7 +1141,7 @@ class FormulaValue implements CellValueImpl {
     this.model.formula = value;
   }
 
-  get formulaType(): number {
+  get formulaType() {
     if (this.model.formula) {
       return Enums.FormulaType.Master;
     }
@@ -1151,7 +1151,7 @@ class FormulaValue implements CellValueImpl {
     return Enums.FormulaType.None;
   }
 
-  get result(): unknown {
+  get result() {
     return this.model.result;
   }
 
@@ -1159,11 +1159,11 @@ class FormulaValue implements CellValueImpl {
     this.model.result = value;
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.Formula;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     const v = this.model.result;
     if (v === null || v === undefined) {
       return Enums.ValueType.Null;
@@ -1187,7 +1187,7 @@ class FormulaValue implements CellValueImpl {
     return Enums.ValueType.Null;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -1229,7 +1229,7 @@ class SharedStringValue implements CellValueImpl {
     };
   }
 
-  get value(): string {
+  get value() {
     return this.model.value as string;
   }
 
@@ -1237,15 +1237,15 @@ class SharedStringValue implements CellValueImpl {
     this.model.value = value;
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.SharedString;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.SharedString;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -1275,7 +1275,7 @@ class BooleanValue implements CellValueImpl {
     };
   }
 
-  get value(): boolean {
+  get value() {
     return this.model.value as boolean;
   }
 
@@ -1283,15 +1283,15 @@ class BooleanValue implements CellValueImpl {
     this.model.value = value;
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.Boolean;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.Boolean;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -1328,7 +1328,7 @@ class ErrorValue implements CellValueImpl {
     };
   }
 
-  get value(): ErrorValueShape {
+  get value() {
     return this.model.value as ErrorValueShape;
   }
 
@@ -1336,15 +1336,15 @@ class ErrorValue implements CellValueImpl {
     this.model.value = value;
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.Error;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.Error;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 
@@ -1375,7 +1375,7 @@ class JSONValue implements CellValueImpl {
     };
   }
 
-  get value(): unknown {
+  get value() {
     return this.model.rawValue;
   }
 
@@ -1384,15 +1384,15 @@ class JSONValue implements CellValueImpl {
     this.model.value = JSON.stringify(value);
   }
 
-  get type(): number {
+  get type() {
     return Cell.Types.String;
   }
 
-  get effectiveType(): number {
+  get effectiveType() {
     return Cell.Types.String;
   }
 
-  get address(): string {
+  get address() {
     return this.model.address;
   }
 

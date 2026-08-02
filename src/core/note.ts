@@ -27,7 +27,7 @@ export class Note {
     this.note = note;
   }
 
-  get model(): NoteModel {
+  get model() {
     let value: NoteModel;
     switch (typeof this.note) {
       case 'string':

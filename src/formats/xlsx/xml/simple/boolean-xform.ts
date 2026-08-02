@@ -11,7 +11,7 @@ class BooleanXform extends BaseXform {
   _tag: string | undefined;
   attr: string | undefined;
 
-  override get tag(): string | undefined {
+  override get tag() {
     return this._tag;
   }
 

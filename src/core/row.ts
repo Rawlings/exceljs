@@ -42,11 +42,11 @@ export class Row implements RowLike {
   }
 
   // return the row number
-  get number(): number {
+  get number() {
     return this._number;
   }
 
-  get worksheet(): WorksheetLike {
+  get worksheet() {
     return this._worksheet;
   }
 
@@ -199,7 +199,7 @@ export class Row implements RowLike {
     ws.rowBreaks.push(pb);
   }
 
-  get values(): RowValues {
+  get values() {
     const values: CellValue[] = [];
     this._cells.forEach((cell) => {
       if (cell && cell.type !== Enums.ValueType.Null) {
@@ -245,18 +245,18 @@ export class Row implements RowLike {
   }
 
   // returns true if the row includes at least one cell with a value
-  get hasValues(): boolean {
+  get hasValues() {
     return _.some(
       this._cells,
       (cell: CellLike | undefined) => !!cell && cell.type !== Enums.ValueType.Null
     );
   }
 
-  get cellCount(): number {
+  get cellCount() {
     return this._cells.length;
   }
 
-  get actualCellCount(): number {
+  get actualCellCount() {
     let count = 0;
     this.eachCell(() => {
       count++;
@@ -265,7 +265,7 @@ export class Row implements RowLike {
   }
 
   // get the min and max column number for the non-null cells in this row or null
-  get dimensions(): { min: number; max: number } | null {
+  get dimensions() {
     let min = 0;
     let max = 0;
     this._cells.forEach((cell) => {
@@ -298,7 +298,7 @@ export class Row implements RowLike {
     return value;
   }
 
-  get numFmt(): unknown {
+  get numFmt() {
     return this.style.numFmt;
   }
 
@@ -306,7 +306,7 @@ export class Row implements RowLike {
     this._applyStyle('numFmt', value);
   }
 
-  get font(): unknown {
+  get font() {
     return this.style.font;
   }
 
@@ -314,7 +314,7 @@ export class Row implements RowLike {
     this._applyStyle('font', value);
   }
 
-  get alignment(): unknown {
+  get alignment() {
     return this.style.alignment;
   }
 
@@ -322,7 +322,7 @@ export class Row implements RowLike {
     this._applyStyle('alignment', value);
   }
 
-  get protection(): unknown {
+  get protection() {
     return this.style.protection;
   }
 
@@ -330,7 +330,7 @@ export class Row implements RowLike {
     this._applyStyle('protection', value);
   }
 
-  get border(): unknown {
+  get border() {
     return this.style.border;
   }
 
@@ -338,7 +338,7 @@ export class Row implements RowLike {
     this._applyStyle('border', value);
   }
 
-  get fill(): unknown {
+  get fill() {
     return this.style.fill;
   }
 
@@ -346,7 +346,7 @@ export class Row implements RowLike {
     this._applyStyle('fill', value);
   }
 
-  get hidden(): boolean {
+  get hidden() {
     return !!this._hidden;
   }
 
@@ -354,7 +354,7 @@ export class Row implements RowLike {
     this._hidden = value;
   }
 
-  get outlineLevel(): number {
+  get outlineLevel() {
     return this._outlineLevel || 0;
   }
 
@@ -362,7 +362,7 @@ export class Row implements RowLike {
     this._outlineLevel = value;
   }
 
-  get collapsed(): boolean {
+  get collapsed() {
     return !!(
       this._outlineLevel && this._outlineLevel >= this._worksheet.properties.outlineLevelRow
     );

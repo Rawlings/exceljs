@@ -116,7 +116,7 @@ export class WorkbookWriter {
     this.promise = Promise.all([this.addThemes(), this.addOfficeRels()]);
   }
 
-  get definedNames(): DefinedNames {
+  get definedNames() {
     return this._definedNames;
   }
 
@@ -172,7 +172,7 @@ export class WorkbookWriter {
     return this._finalize();
   }
 
-  get nextId(): number {
+  get nextId() {
     // find the next unique spot to add worksheet
     let i;
     for (i = 1; i < this._worksheets.length; i++) {

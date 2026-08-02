@@ -42,14 +42,14 @@ class SheetCommentsWriter {
     this.startedData = false;
   }
 
-  get commentsStream(): CommentsWriterStream {
+  get commentsStream() {
     if (!this._commentsStream) {
       this._commentsStream = this._workbook._openStream(`xl/comments${this.id}.xml`);
     }
     return this._commentsStream;
   }
 
-  get vmlStream(): CommentsWriterStream {
+  get vmlStream() {
     if (!this._vmlStream) {
       this._vmlStream = this._workbook._openStream(`xl/drawings/vmlDrawing${this.id}.vml`);
     }

@@ -261,11 +261,11 @@ class WorksheetWriter {
     this.startedData = false;
   }
 
-  get workbook(): WorkbookWriter {
+  get workbook() {
     return this._workbook;
   }
 
-  get stream(): NodeJS.WritableStream {
+  get stream() {
     if (!this._stream) {
       // eslint-disable-next-line no-underscore-dangle
       this._stream = (
@@ -335,11 +335,11 @@ class WorksheetWriter {
   }
 
   // return the current dimensions of the writer
-  get dimensions(): Dimensions {
+  get dimensions() {
     return this._dimensions;
   }
 
-  get views(): unknown[] {
+  get views() {
     return this._views;
   }
 
@@ -415,7 +415,7 @@ class WorksheetWriter {
 
   // =========================================================================
   // Rows
-  get _nextRow(): number {
+  get _nextRow() {
     return this._rowZero + (this._rows as unknown[]).length;
   }
 
@@ -457,7 +457,7 @@ class WorksheetWriter {
     }
   }
 
-  get lastRow(): Row | undefined | null {
+  get lastRow() {
     // returns last uncommitted row
     const rows = this._rows as (Row | undefined | null)[];
     if (rows.length) {

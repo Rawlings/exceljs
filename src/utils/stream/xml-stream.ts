@@ -46,11 +46,11 @@ class XmlStream {
     this._rollbacks = [];
   }
 
-  get tos(): string | undefined {
+  get tos() {
     return this._stack.length ? this._stack[this._stack.length - 1] : undefined;
   }
 
-  get cursor(): number {
+  get cursor() {
     return this._xml.length;
   }
 
@@ -168,7 +168,7 @@ class XmlStream {
     this.open = r.open;
   }
 
-  get xml(): string {
+  get xml() {
     this.closeAll();
     return this._xml.join('');
   }

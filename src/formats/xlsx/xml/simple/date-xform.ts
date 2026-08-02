@@ -18,7 +18,7 @@ class DateXform extends BaseXform {
   _parse: (str: string) => unknown;
   text: string[] = [];
 
-  override get tag(): string | undefined {
+  override get tag() {
     return this._tag;
   }
 

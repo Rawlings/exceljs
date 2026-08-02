@@ -184,7 +184,7 @@ export class DefinedNames {
     });
   }
 
-  get model(): DefinedNamesModel {
+  get model() {
     // To get names per cell - just iterate over all names finding cells if they exist
     return _.map(this.matrixMap, (matrix: CellMatrix, name: string) =>
       this.getRanges(name, matrix)

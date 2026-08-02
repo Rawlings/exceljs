@@ -353,7 +353,7 @@ export class Worksheet implements WorksheetLike {
 
   commit() {}
 
-  get name(): string {
+  get name() {
     return this._name as string;
   }
 
@@ -405,7 +405,7 @@ export class Worksheet implements WorksheetLike {
     this._name = name;
   }
 
-  get workbook(): WorkbookLike {
+  get workbook() {
     return this._workbook;
   }
 
@@ -415,7 +415,7 @@ export class Worksheet implements WorksheetLike {
   }
 
   // Get the bounding range of the cells in this worksheet
-  get dimensions(): Range {
+  get dimensions() {
     const dimensions = new Range();
     this._rows.forEach((row) => {
       if (row) {
@@ -432,7 +432,7 @@ export class Worksheet implements WorksheetLike {
   // Columns
 
   // get the current columns array.
-  get columns(): Column[] | null {
+  get columns(): Column[] | null | undefined {
     return this._columns;
   }
 
@@ -542,11 +542,11 @@ export class Worksheet implements WorksheetLike {
     this.workbook.definedNames.spliceColumns(this.name, start, count, inserts.length);
   }
 
-  get lastColumn(): Column {
+  get lastColumn() {
     return this.getColumn(this.columnCount);
   }
 
-  get columnCount(): number {
+  get columnCount() {
     let maxCount = 0;
     this.eachRow((row) => {
       maxCount = Math.max(maxCount, row.cellCount);
@@ -554,7 +554,7 @@ export class Worksheet implements WorksheetLike {
     return maxCount;
   }
 
-  get actualColumnCount(): number {
+  get actualColumnCount() {
     // performance nightmare - for each row, counts all the columns used
     const counts: boolean[] = [];
     let count = 0;
@@ -576,7 +576,7 @@ export class Worksheet implements WorksheetLike {
     // nop - allows streaming reader to fill a document
   }
 
-  get _lastRowNumber(): number {
+  get _lastRowNumber() {
     // need to cope with results of splice
     const rows = this._rows;
     let n = rows.length;
@@ -586,11 +586,11 @@ export class Worksheet implements WorksheetLike {
     return n;
   }
 
-  get _nextRow(): number {
+  get _nextRow() {
     return this._lastRowNumber + 1;
   }
 
-  get lastRow(): Row | undefined {
+  get lastRow() {
     if (this._rows.length) {
       return this._rows[this._rows.length - 1];
     }
@@ -607,11 +607,11 @@ export class Worksheet implements WorksheetLike {
     return this._rows.slice(start - 1, start - 1 + length);
   }
 
-  get rowCount(): number {
+  get rowCount() {
     return this._lastRowNumber;
   }
 
-  get actualRowCount(): number {
+  get actualRowCount() {
     // counts actual rows that have actual data
     let count = 0;
     this.eachRow(() => {
@@ -904,7 +904,7 @@ export class Worksheet implements WorksheetLike {
     }
   }
 
-  get hasMerges(): boolean {
+  get hasMerges() {
     // return true if this._merges has a merge object
     return _.some(this._merges, Boolean);
   }
@@ -1113,7 +1113,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
 
   // ===========================================================================
   // Deprecated
-  get tabColor(): unknown {
+  get tabColor() {
     // eslint-disable-next-line no-console
     console.trace(
       'worksheet.tabColor property is now deprecated. Please use worksheet.properties.tabColor'

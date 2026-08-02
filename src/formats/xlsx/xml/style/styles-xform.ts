@@ -568,7 +568,7 @@ class StylesXformMock extends StylesXform {
     }
   }
 
-  get dateStyleId(): number {
+  get dateStyleId() {
     if (!this._dateStyleId) {
       const dateStyle = {
         numFmtId: NumFmtXform.getDefaultFmtId('mm-dd-yy'),

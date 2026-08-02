@@ -61,7 +61,7 @@ class HyperlinkReader extends EventEmitter {
     this.hyperlinks = null;
   }
 
-  get count(): number {
+  get count() {
     return (this.hyperlinks && Object.keys(this.hyperlinks).length) || 0;
   }
 

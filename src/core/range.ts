@@ -145,7 +145,7 @@ export class Range {
     }
   }
 
-  get top(): number {
+  get top() {
     return this.model.top || 1;
   }
 
@@ -153,7 +153,7 @@ export class Range {
     this.model.top = value;
   }
 
-  get left(): number {
+  get left() {
     return this.model.left || 1;
   }
 
@@ -161,7 +161,7 @@ export class Range {
     this.model.left = value;
   }
 
-  get bottom(): number {
+  get bottom() {
     return this.model.bottom || 1;
   }
 
@@ -169,7 +169,7 @@ export class Range {
     this.model.bottom = value;
   }
 
-  get right(): number {
+  get right() {
     return this.model.right || 1;
   }
 
@@ -177,7 +177,7 @@ export class Range {
     this.model.right = value;
   }
 
-  get sheetName(): string | undefined {
+  get sheetName() {
     return this.model.sheetName;
   }
 
@@ -185,7 +185,7 @@ export class Range {
     this.model.sheetName = value;
   }
 
-  get _serialisedSheetName(): string {
+  get _serialisedSheetName() {
     const { sheetName } = this.model;
     if (sheetName) {
       if (/^[a-zA-Z0-9]*$/.test(sheetName)) {
@@ -222,39 +222,39 @@ export class Range {
     );
   }
 
-  get tl(): string {
+  get tl() {
     return colCache.n2l(this.left) + this.top;
   }
 
-  get $t$l(): string {
+  get $t$l() {
     return `$${colCache.n2l(this.left)}$${this.top}`;
   }
 
-  get br(): string {
+  get br() {
     return colCache.n2l(this.right) + this.bottom;
   }
 
-  get $b$r(): string {
+  get $b$r() {
     return `$${colCache.n2l(this.right)}$${this.bottom}`;
   }
 
-  get range(): string {
+  get range() {
     return `${this._serialisedSheetName + this.tl}:${this.br}`;
   }
 
-  get $range(): string {
+  get $range() {
     return `${this._serialisedSheetName + this.$t$l}:${this.$b$r}`;
   }
 
-  get shortRange(): string {
+  get shortRange() {
     return this.count > 1 ? this.range : this._serialisedSheetName + this.tl;
   }
 
-  get $shortRange(): string {
+  get $shortRange() {
     return this.count > 1 ? this.$range : this._serialisedSheetName + this.$t$l;
   }
 
-  get count(): number {
+  get count() {
     return (1 + this.bottom - this.top) * (1 + this.right - this.left);
   }
 

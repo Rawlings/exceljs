@@ -108,7 +108,7 @@ export class WorksheetReader extends EventEmitter {
   }
 
   // return the current dimensions of the writer
-  get dimensions(): Dimensions {
+  get dimensions() {
     return this._dimensions;
   }
 
@@ -116,7 +116,7 @@ export class WorksheetReader extends EventEmitter {
   // Columns
 
   // get the current columns array.
-  get columns(): Column[] | null {
+  get columns() {
     return this._columns;
   }
 

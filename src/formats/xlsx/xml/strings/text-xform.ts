@@ -20,14 +20,14 @@ class TextXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  override get model(): string {
+  override get model() {
     return this._text
       .join('')
       .replace(/_x([0-9A-F]{4})_/g, (_$0, $1) => String.fromCharCode(parseInt($1, 16)));
   }
 
-  override set model(val: string[]) {
-    this._text = val;
+  override set model(val: string) {
+    this._text = [val];
   }
 
   override parseOpen(node: SaxNode) {
