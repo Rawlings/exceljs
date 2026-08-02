@@ -1,5 +1,5 @@
 import http from 'http';
-import testutils from '../utils/index';
+import testutils from '../helpers/index';
 import Excel from '#src/index';
 
 describe('Express / HTTP Server', () => {

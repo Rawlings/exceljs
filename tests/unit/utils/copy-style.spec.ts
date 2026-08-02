@@ -1,4 +1,4 @@
-import testUtils from '../../utils/index';
+import testUtils from '../../helpers/index';
 
 import { copyStyle } from '#src/utils/helpers/copy-style';
 
@@ -15,7 +15,7 @@ const style2 = {
 
 describe('copyStyle', () => {
   it('should copy a style deeply', () => {
-    const copied = copyStyle(style1);
+    const copied = copyStyle(style1) as Record<string, any>;
     expect(copied).to.deep.equal(style1);
     expect(copied.font).to.not.equal(style1.font);
     expect(copied.alignment).to.not.equal(style1.alignment);
@@ -26,7 +26,7 @@ describe('copyStyle', () => {
   });
 
   it('should copy fill.stops deeply', () => {
-    const copied = copyStyle(style2);
+    const copied = copyStyle(style2) as Record<string, any>;
     expect(copied.fill.stops).to.deep.equal(style2.fill.stops);
     expect(copied.fill.stops).to.not.equal(style2.fill.stops);
     expect(copied.fill.stops[0]).to.not.equal(style2.fill.stops[0]);

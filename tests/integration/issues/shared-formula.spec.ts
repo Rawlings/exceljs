@@ -1,4 +1,4 @@
-import Enums from '#src/models/enums';
+import Enums from '#src/core/enums';
 import ExcelJS from '#src/index';
 
 describe('github issues', () => {

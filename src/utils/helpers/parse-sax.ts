@@ -94,7 +94,6 @@ const xmlParser = new XMLParser({
   parseTagValue: false,
   preserveOrder: true, // returns an ordered array of nodes, perfect for SAX-style walk
   processEntities: true,
-  stopNodes: ['worksheet.sheetData.row.c.f'], // don't recurse into formula text
 });
 
 // ---------------------------------------------------------------------------

@@ -22,8 +22,9 @@
     }
   },
   "imports": {
-    "#src": "./src/index.js",
-    "#src/*": "./src/*",
+    "#src": "./src/index.ts",
+    "#src/*.js": "./src/*.ts",
+    "#src/*": "./src/*.ts",
     "#fixtures/*": "./fixtures/*"
   },
   "files": [

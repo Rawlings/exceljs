@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { promisify } = require('util');
 
-import testUtils from '../../utils/index';
+import testUtils from '../../helpers/index';
 
 import ExcelJS from '#src/index';
 

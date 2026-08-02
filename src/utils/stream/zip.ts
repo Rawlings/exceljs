@@ -86,6 +86,18 @@ export class ZipReader {
   }
 }
 
+function toU8(data: Uint8Array | string): Uint8Array {
+  if (typeof data === 'string') {
+    const u8 = fflate.strToU8(data);
+    const clean = new Uint8Array(u8.byteLength);
+    clean.set(u8);
+    return clean;
+  }
+  const clean = new Uint8Array(data.byteLength);
+  clean.set(data);
+  return clean;
+}
+
 export class ZipWriter {
   private files: Record<string, Uint8Array> = {};
   private pending: Promise<void>[] = [];
@@ -100,33 +112,26 @@ export class ZipWriter {
     const name = rawName.replace(/^\//, '');
 
     if (Buffer.isBuffer(data) || data instanceof Uint8Array) {
-      const u8 = new Uint8Array(data.byteLength);
-      u8.set(data);
-      this.files[name] = u8;
+      this.files[name] = toU8(data);
     } else if (data instanceof ArrayBuffer) {
       this.files[name] = new Uint8Array(data);
     } else if (typeof data === 'string') {
       const isBase64 = typeof options === 'object' && options?.base64;
       if (isBase64) {
-        const buf = Buffer.from(data, 'base64');
-        const u8 = new Uint8Array(buf.byteLength);
-        u8.set(buf);
-        this.files[name] = u8;
+        this.files[name] = toU8(Buffer.from(data, 'base64'));
       } else {
-        this.files[name] = fflate.strToU8(data);
+        this.files[name] = toU8(data);
       }
     } else if (data && typeof data.xml === 'string') {
-      this.files[name] = fflate.strToU8(data.xml);
+      this.files[name] = toU8(data.xml);
     } else if (data && typeof data.toXml === 'function') {
-      this.files[name] = fflate.strToU8(data.toXml());
+      this.files[name] = toU8(data.toXml());
     } else if (data && typeof data.toBuffer === 'function') {
       const buf = data.toBuffer();
       if (Buffer.isBuffer(buf) || buf instanceof Uint8Array) {
-        const u8 = new Uint8Array(buf.byteLength);
-        u8.set(buf);
-        this.files[name] = u8;
+        this.files[name] = toU8(buf);
       } else if (typeof buf === 'string') {
-        this.files[name] = fflate.strToU8(buf);
+        this.files[name] = toU8(buf);
       }
     } else if (data && (typeof data.read === 'function' || typeof data.on === 'function')) {
       const chunks: Buffer[] = [];
@@ -160,13 +165,11 @@ export class ZipWriter {
           }
         });
         const buf = Buffer.concat(chunks);
-        const u8 = new Uint8Array(buf.byteLength);
-        u8.set(buf);
-        this.files[name] = u8;
+        this.files[name] = toU8(buf);
       };
       this.pending.push(processStream());
     } else {
-      this.files[name] = fflate.strToU8(String(data || ''));
+      this.files[name] = toU8(String(data || ''));
     }
   }
 

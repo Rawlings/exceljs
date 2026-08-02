@@ -78,7 +78,11 @@ const utils = {
     if (text === null || text === undefined) return '';
     const str = typeof text !== 'string' ? String(text) : text;
     // eslint-disable-next-line no-control-regex
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
   },
 
   xmlDecode(text: string): string {

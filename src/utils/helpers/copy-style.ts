@@ -9,12 +9,7 @@ const oneDepthCopy = (obj: StyleRecord, nestKeys: string[]): StyleRecord => ({
   ),
 });
 
-const setIfExists = (
-  src: StyleRecord,
-  dst: StyleRecord,
-  key: string,
-  nestKeys: string[] = []
-) => {
+const setIfExists = (src: StyleRecord, dst: StyleRecord, key: string, nestKeys: string[] = []) => {
   if (src[key]) dst[key] = oneDepthCopy(src[key] as StyleRecord, nestKeys);
 };
 

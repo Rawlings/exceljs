@@ -1,6 +1,6 @@
 process.env.EXCEL_NATIVE = 'yes';
 
-import tools from '../../../utils/tools';
+import tools from '../../../helpers/tools';
 import Excel from '#src/index';
 import sheetProperties from '#fixtures/json/sheet-properties.json' with { type: 'json' };
 import pageSetupData from '#fixtures/json/page-setup.json' with { type: 'json' };

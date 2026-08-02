@@ -1,8 +1,8 @@
-import testutils from '../utils/index';
+import testutils from '../helpers/index';
 
 import ExcelJS from '#src/index';
 
-import Range from '#src/models/range';
+import Range from '#src/core/range';
 
 describe('Worksheet', () => {
   describe('Values', () => {
