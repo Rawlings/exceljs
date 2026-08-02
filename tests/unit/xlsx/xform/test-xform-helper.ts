@@ -12,11 +12,25 @@ function normalizeXml(xml: string): string {
     .trim();
 }
 
+function cloneValue(val: any): any {
+  if (val === undefined || val === null) return val;
+  if (val instanceof Date) return new Date(val);
+  if (Array.isArray(val)) return val.map(cloneValue);
+  if (typeof val === 'object') {
+    const res: Record<string, any> = {};
+    for (const key of Object.keys(val)) {
+      res[key] = cloneValue(val[key]);
+    }
+    return res;
+  }
+  return val;
+}
+
 function getExpectation(expectation: any, name: string) {
   if (!Object.prototype.hasOwnProperty.call(expectation, name)) {
     throw new Error(`Expectation missing required field: ${name}`);
   }
-  return JSON.parse(JSON.stringify(expectation[name]));
+  return cloneValue(expectation[name]);
 }
 
 const its: Record<string, (expectation: any) => void> = {

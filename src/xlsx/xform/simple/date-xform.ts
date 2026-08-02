@@ -27,8 +27,9 @@ class DateXform extends BaseXform {
       options.format ||
       function (dt: any) {
         try {
-          if (Number.isNaN(dt.getTime())) return '';
-          return dt.toISOString();
+          const dateObj = dt instanceof Date ? dt : new Date(dt);
+          if (Number.isNaN(dateObj.getTime())) return '';
+          return dateObj.toISOString();
         } catch {
           return '';
         }
@@ -36,22 +37,35 @@ class DateXform extends BaseXform {
     this._parse =
       options.parse ||
       function (str: any) {
-        return new Date(str);
+        return str ? new Date(str) : undefined;
       };
   }
 
+  private _toDate(val: unknown): unknown {
+    if (val instanceof Date) return val;
+    if (typeof val === 'string' || typeof val === 'number') {
+      const d = new Date(val);
+      return Number.isNaN(d.getTime()) ? val : d;
+    }
+    return val;
+  }
+
   render(xmlStream: any, model: any) {
-    if (model) {
-      xmlStream.openNode(this.tag);
-      if (this.attrs) {
-        xmlStream.addAttributes(this.attrs);
+    if (model !== undefined && model !== null) {
+      const val = this._toDate(model);
+      const formatted = this._format(val);
+      if (formatted !== '') {
+        xmlStream.openNode(this.tag);
+        if (this.attrs) {
+          xmlStream.addAttributes(this.attrs);
+        }
+        if (this.attr) {
+          xmlStream.addAttribute(this.attr, formatted);
+        } else {
+          xmlStream.writeText(formatted);
+        }
+        xmlStream.closeNode();
       }
-      if (this.attr) {
-        xmlStream.addAttribute(this.attr, this._format(model));
-      } else {
-        xmlStream.writeText(this._format(model));
-      }
-      xmlStream.closeNode();
     }
   }
 

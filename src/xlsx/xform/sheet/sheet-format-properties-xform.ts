@@ -12,9 +12,9 @@ class SheetFormatPropertiesXform extends BaseXform {
         defaultRowHeight: model.defaultRowHeight,
         defaultColWidth: model.defaultColWidth,
         customHeight: !model.defaultRowHeight || model.defaultRowHeight !== 15 ? '1' : undefined,
-        'x14ac:dyDescent': model.dyDescent,
         outlineLevelRow: model.outlineLevelRow,
         outlineLevelCol: model.outlineLevelCol,
+        'x14ac:dyDescent': model.dyDescent,
       };
 
       if (_.some(attributes, (value: any) => value !== undefined)) {

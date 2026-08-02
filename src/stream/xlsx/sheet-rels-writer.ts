@@ -31,7 +31,7 @@ class SheetRelsWriter {
 
   get stream(): any {
     if (!this._stream) {
-      this._stream = this._workbook._openStream(`/xl/worksheets/_rels/sheet${this.id}.xml.rels`);
+      this._stream = this._workbook._openStream(`xl/worksheets/_rels/sheet${this.id}.xml.rels`);
     }
     return this._stream;
   }

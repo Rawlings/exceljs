@@ -1,8 +1,12 @@
-const fs = require('fs');
+import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
 import ContentTypesXform from '#src/xlsx/xform/core/content-types-xform';
+
+function readXml(name: string): string {
+  return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+}
 
 const expectations = [
   {
@@ -16,10 +20,7 @@ const expectations = [
       drawings: [],
       sharedStrings: { count: 1 },
     },
-    xml: fs
-      .readFileSync(`${__dirname}/data/content-types.01.xml`)
-      .toString()
-      .replace(/\r\n/g, '\n'),
+    xml: readXml('content-types.01.xml'),
     tests: ['render'],
   },
   {
@@ -36,10 +37,7 @@ const expectations = [
       drawings: [],
       sharedStrings: { count: 1 },
     },
-    xml: fs
-      .readFileSync(`${__dirname}/data/content-types.02.xml`)
-      .toString()
-      .replace(/\r\n/g, '\n'),
+    xml: readXml('content-types.02.xml'),
     tests: ['render'],
   },
   {
@@ -52,10 +50,7 @@ const expectations = [
       media: [],
       drawings: [],
     },
-    xml: fs
-      .readFileSync(`${__dirname}/data/content-types.03.xml`)
-      .toString()
-      .replace(/\r\n/g, '\n'),
+    xml: readXml('content-types.03.xml'),
     tests: ['render'],
   },
   {
@@ -71,10 +66,7 @@ const expectations = [
       ],
       drawings: [],
     },
-    xml: fs
-      .readFileSync(`${__dirname}/data/content-types.04.xml`)
-      .toString()
-      .replace(/\r\n/g, '\n'),
+    xml: readXml('content-types.04.xml'),
     tests: ['render'],
   },
 ];

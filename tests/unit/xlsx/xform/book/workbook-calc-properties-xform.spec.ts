@@ -9,7 +9,7 @@ const expectations = [
       return new WorkbookCalcPropertiesXform();
     },
     preparedModel: {},
-    xml: '<calcPr calcId="171027"></calcPr>',
+    xml: '<calcPr calcId="171027"/>',
     parsedModel: {},
     tests: ['render', 'renderIn'],
   },
@@ -19,8 +19,8 @@ const expectations = [
       return new WorkbookCalcPropertiesXform();
     },
     preparedModel: { fullCalcOnLoad: true },
-    xml: '<calcPr calcId="171027" fullCalcOnLoad="1"></calcPr>',
-    parsedModel: {},
+    xml: '<calcPr calcId="171027" fullCalcOnLoad="1"/>',
+    parsedModel: { fullCalcOnLoad: true },
     tests: ['render', 'renderIn', 'parse'],
   },
 ];

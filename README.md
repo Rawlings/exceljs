@@ -1,8 +1,6 @@
 # ExcelJS
 
-[![Build Status](https://github.com/exceljs/exceljs/actions/workflows/tests.yml/badge.svg?branch=master&event=push)](https://github.com/exceljs/exceljs/actions/workflows/tests.yml)
-
-Read, manipulate and write spreadsheet data and styles to XLSX and JSON.
+A modernized drop-in replacement for the unmaintained ExcelJS package. It maintains 100% public API compatibility while refactoring internal architecture to strict TypeScript (ES2024 / Node 24+), removing legacy dependencies, and delivering a faster, lightweight, and secure spreadsheet engine for XLSX, CSV, and JSON.
 
 # Documentation Index
 

@@ -1,8 +1,12 @@
-const fs = require('fs');
+import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
 import CoreXform from '#src/xlsx/xform/core/core-xform';
+
+function readXml(name: string): string {
+  return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+}
 
 const expectations = [
   {
@@ -14,7 +18,7 @@ const expectations = [
       created: new Date('2016-04-20T16:26:46Z'),
       modified: new Date('2016-05-12T06:52:49Z'),
     },
-    xml: fs.readFileSync(`${__dirname}/data/core.01.xml`).toString().replace(/\r\n/g, '\n'),
+    xml: readXml('core.01.xml'),
     get parsedModel() {
       return this.preparedModel;
     },
@@ -35,7 +39,7 @@ const expectations = [
       created: new Date('2016-04-20T16:26:46Z'),
       modified: new Date('2016-05-12T06:52:49Z'),
     },
-    xml: fs.readFileSync(`${__dirname}/data/core.02.xml`).toString().replace(/\r\n/g, '\n'),
+    xml: readXml('core.02.xml'),
     get parsedModel() {
       return this.preparedModel;
     },
@@ -51,7 +55,7 @@ const expectations = [
       created: new Date('2016-04-20T16:26:46Z'),
       modified: new Date('2016-05-12T06:52:49Z'),
     },
-    xml: fs.readFileSync(`${__dirname}/data/core.03.xml`).toString().replace(/\r\n/g, '\n'),
+    xml: readXml('core.03.xml'),
     get parsedModel() {
       return this.preparedModel;
     },
@@ -67,7 +71,7 @@ const expectations = [
       created: new Date('2016-04-20T16:26:46Z'),
       modified: new Date('2016-05-12T06:52:49Z'),
     },
-    xml: fs.readFileSync(`${__dirname}/data/core.04.xml`).toString().replace(/\r\n/g, '\n'),
+    xml: readXml('core.04.xml'),
     get parsedModel() {
       return this.preparedModel;
     },
@@ -76,7 +80,7 @@ const expectations = [
   {
     title: 'core.xml - with empty cp:version',
     create: () => new CoreXform(),
-    xml: fs.readFileSync(`${__dirname}/data/core.05.xml`).toString().replace(/\r\n/g, '\n'),
+    xml: readXml('core.05.xml'),
     parsedModel: {
       title: '...',
       creator: '...',
@@ -90,7 +94,7 @@ const expectations = [
   {
     title: 'core.xml - without namespace for coreProperties node',
     create: () => new CoreXform(),
-    xml: fs.readFileSync(`${__dirname}/data/core.06.xml`).toString().replace(/\r\n/g, '\n'),
+    xml: readXml('core.06.xml'),
     parsedModel: {
       creator: 'Apache POI',
       created: new Date('2018-05-08T14:56:50Z'),

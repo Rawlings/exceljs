@@ -39,8 +39,8 @@ class SheetViewXform extends BaseXform {
     add('rightToLeft', '1', model.rightToLeft === true);
     add('tabSelected', '1', model.tabSelected);
     add('showRuler', '0', model.showRuler === false);
-    add('showRowColHeaders', '0', model.showRowColHeaders === false);
     add('showGridLines', '0', model.showGridLines === false);
+    add('showRowColHeaders', '0', model.showRowColHeaders === false);
     add('zoomScale', model.zoomScale, model.zoomScale);
     add('zoomScaleNormal', model.zoomScaleNormal, model.zoomScaleNormal);
     add('view', model.style, model.style);

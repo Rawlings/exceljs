@@ -118,8 +118,8 @@ class WorkbookWriter {
   async commit() {
     // commit all worksheets, then add suplimentary files
     await this.promise;
-    await this.addMedia();
     await this._commitWorksheets();
+    await this.addMedia();
     await Promise.all([
       this.addContentTypes(),
       this.addApp(),
@@ -198,7 +198,7 @@ class WorkbookWriter {
 
   getWorksheet(id: any) {
     if (id === undefined) {
-      return this._worksheets.find(() => true);
+      return this._worksheets.find(Boolean);
     }
     if (typeof id === 'number') {
       return this._worksheets[id];
@@ -231,7 +231,7 @@ class WorkbookWriter {
         { Id: 'rId2', Type: RelType.CoreProperties, Target: 'docProps/core.xml' },
         { Id: 'rId3', Type: RelType.ExtenderProperties, Target: 'docProps/app.xml' },
       ]);
-      this.zip.append(xml, { name: '/_rels/.rels' });
+      this.zip.append(xml, { name: '_rels/.rels' });
       resolve();
     });
   }
@@ -332,7 +332,7 @@ class WorkbookWriter {
     return new Promise((resolve) => {
       const xform = new RelationshipsXform();
       const xml = xform.toXml(relationships);
-      this.zip.append(xml, { name: '/xl/_rels/workbook.xml.rels' });
+      this.zip.append(xml, { name: 'xl/_rels/workbook.xml.rels' });
       resolve(undefined);
     });
   }

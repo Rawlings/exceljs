@@ -154,7 +154,7 @@ class XLSX {
     const xform = new WorksheetXform(options);
     const worksheet = await xform.parseStream(stream);
     if (worksheet) {
-      worksheet.sheetNo = sheetNo;
+      worksheet.sheetNo = /^\d+$/.test(sheetNo) ? parseInt(sheetNo, 10) : sheetNo;
       model.worksheetHash[path] = worksheet;
       model.worksheets.push(worksheet);
     }
@@ -175,7 +175,8 @@ class XLSX {
   async _processWorksheetRelsEntry(stream: any, model: any, sheetNo: any) {
     const xform = new RelationshipsXform();
     const relationships = await xform.parseStream(stream);
-    model.worksheetRels[sheetNo] = relationships;
+    const key = /^\d+$/.test(sheetNo) ? parseInt(sheetNo, 10) : sheetNo;
+    model.worksheetRels[key] = relationships;
   }
 
   async _processMediaEntry(entry: any, model: any, filename: any) {
@@ -284,11 +285,11 @@ class XLSX {
         if (name === 'xl/workbook.xml') return 3;
         if (name === 'xl/sharedStrings.xml') return 4;
         if (name === 'xl/styles.xml') return 5;
-        if (name.match(/xl\/worksheets\/_rels\/sheet\d+[.]xml[.]rels/)) return 6;
-        if (name.match(/xl\/drawings\/_rels\/drawing\d+[.]xml[.]rels/)) return 7;
-        if (name.match(/xl\/drawings\/drawing\d+[.]xml/)) return 8;
-        if (name.match(/xl\/media\//)) return 9;
-        if (name.match(/xl\/worksheets\/sheet\d+[.]xml/)) return 10;
+        if (name.match(/^xl\/worksheets\/_rels\//)) return 6;
+        if (name.match(/^xl\/drawings\/_rels\//)) return 7;
+        if (name.match(/^xl\/drawings\//)) return 8;
+        if (name.match(/^xl\/media\//)) return 9;
+        if (name.match(/^xl\/worksheets\/[^\/]+\.xml$/)) return 10;
         return 15;
       };
       return getPriority(a.name) - getPriority(b.name);
@@ -321,7 +322,8 @@ class XLSX {
           }
         }
         stream.end();
-        switch (entryName) {
+        const keyName = entryName.replace(/^\//, '');
+        switch (keyName) {
           case '_rels/.rels':
             model.globalRels = await this.parseRels(stream);
             break;
@@ -366,37 +368,43 @@ class XLSX {
           }
 
           default: {
-            let match = entryName.match(/xl\/worksheets\/sheet(\d+)[.]xml/);
+            let match = keyName.match(/xl\/worksheets\/sheet(\d+)[.]xml/);
+            if (!match) {
+              match = keyName.match(/xl\/worksheets\/(sheet\d+|[^\/]+)[.]xml/);
+            }
             if (match) {
-              await this._processWorksheetEntry(stream, model, match[1], options, entryName);
+              await this._processWorksheetEntry(stream, model, match[1], options, keyName);
               break;
             }
-            match = entryName.match(/xl\/worksheets\/_rels\/sheet(\d+)[.]xml.rels/);
+            match = keyName.match(/xl\/worksheets\/_rels\/sheet(\d+)[.]xml.rels/);
+            if (!match) {
+              match = keyName.match(/xl\/worksheets\/_rels\/(sheet\d+|[^\/]+)[.]xml.rels/);
+            }
             if (match) {
               await this._processWorksheetRelsEntry(stream, model, match[1]);
               break;
             }
-            match = entryName.match(/xl\/theme\/([a-zA-Z0-9]+)[.]xml/);
+            match = keyName.match(/xl\/theme\/([a-zA-Z0-9]+)[.]xml/);
             if (match) {
               await this._processThemeEntry(stream, model, match[1]);
               break;
             }
-            match = entryName.match(/xl\/media\/([^/]+)$/);
+            match = keyName.match(/xl\/media\/([^/]+)$/);
             if (match) {
               await this._processMediaEntry(stream, model, match[1]);
               break;
             }
-            match = entryName.match(/xl\/drawings\/([a-zA-Z0-9]+)[.]xml/);
+            match = keyName.match(/xl\/drawings\/([a-zA-Z0-9]+)[.]xml/);
             if (match) {
               await this._processDrawingEntry(stream, model, match[1]);
               break;
             }
-            match = entryName.match(/xl\/(comments\d+)[.]xml/);
+            match = keyName.match(/xl\/(comments\d+)[.]xml/);
             if (match) {
               await this._processCommentEntry(stream, model, match[1]);
               break;
             }
-            match = entryName.match(/xl\/tables\/(table\d+)[.]xml/);
+            match = keyName.match(/xl\/tables\/(table\d+)[.]xml/);
             if (match) {
               await this._processTableEntry(stream, model, match[1]);
               break;

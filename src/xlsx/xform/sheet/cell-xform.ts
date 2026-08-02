@@ -435,7 +435,7 @@ class CellXform extends BaseXform {
       model.style = style;
     }
     if (model.styleId !== undefined) {
-      model.styleId = undefined;
+      delete model.styleId;
     }
 
     switch (model.type) {

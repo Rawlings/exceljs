@@ -26,7 +26,7 @@ const expectations = [
     },
     initialModel: drawing10,
     preparedModel: drawing11,
-    xml: fs.readFileSync(new URL('./data/drawing.1.2.xml', import.meta.url), 'utf8'),
+    xml: fs.readFileSync(new URL('../../../../../fixtures/xml/drawing.1.2.xml', import.meta.url), 'utf8'),
     parsedModel: drawing13,
     reconciledModel: drawing14,
     tests: ['prepare', 'render', 'renderIn', 'parse', 'reconcile'],

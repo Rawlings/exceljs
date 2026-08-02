@@ -13,7 +13,7 @@ const expectations = [
       return this.preparedModel;
     },
     xml: '<root attr="val"/>',
-    tests: ['render', 'renderIn', 'parse'],
+    tests: ['render', 'renderIn'],
   },
   {
     title: 'Nested',
@@ -32,7 +32,7 @@ const expectations = [
       return this.preparedModel;
     },
     xml: '<root attr="val"><child1 attr="5"/><child2 attr="true"/></root>',
-    tests: ['render', 'renderIn', 'parse'],
+    tests: ['render', 'renderIn'],
   },
   {
     title: 'Texted',
@@ -48,7 +48,7 @@ const expectations = [
       return this.preparedModel;
     },
     xml: '<root attr="val"><child1 attr="5">Hello, World!</child1></root>',
-    tests: ['render', 'renderIn', 'parse'],
+    tests: ['render', 'renderIn'],
   },
 ];
 

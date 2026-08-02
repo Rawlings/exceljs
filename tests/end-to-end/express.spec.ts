@@ -4,7 +4,7 @@ import Excel from '#src/exceljs.nodejs';
 
 describe('Express / HTTP Server', () => {
   let server: http.Server;
-  beforeAll((done: any) => {
+  beforeAll(async () => {
     server = http.createServer((req: http.IncomingMessage, res: http.ServerResponse) => {
       if (req.url === '/workbook') {
         const wb = testutils.createTestBook(new Excel.Workbook(), 'xlsx');
@@ -18,11 +18,13 @@ describe('Express / HTTP Server', () => {
         });
       }
     });
-    server.listen(3003, done);
+    await new Promise<void>((resolve) => server.listen(3003, resolve));
   });
 
-  afterAll((done: any) => {
-    server.close(done);
+  afterAll(async () => {
+    await new Promise<void>((resolve, reject) =>
+      server.close((err) => (err ? reject(err) : resolve()))
+    );
   });
 
   it('downloads a workbook over http', async () => {

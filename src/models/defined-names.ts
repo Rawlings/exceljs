@@ -183,14 +183,16 @@ class DefinedNames {
   set model(value: any) {
     // value is [ { name, ranges }, ... ]
     const matrixMap = (this.matrixMap = {});
-    value.forEach((definedName: any) => {
-      const matrix = ((matrixMap as any)[definedName.name] = new CellMatrix(undefined));
-      definedName.ranges.forEach((rangeStr: any) => {
-        if (rangeRegexp.test(rangeStr.split('!').pop() || '')) {
-          matrix.addCell(rangeStr);
-        }
+    if (value && Array.isArray(value)) {
+      value.forEach((definedName: any) => {
+        const matrix = ((matrixMap as any)[definedName.name] = new CellMatrix(undefined));
+        definedName.ranges.forEach((rangeStr: any) => {
+          if (rangeRegexp.test(rangeStr.split('!').pop() || '')) {
+            matrix.addCell(rangeStr);
+          }
+        });
       });
-    });
+    }
   }
 }
 

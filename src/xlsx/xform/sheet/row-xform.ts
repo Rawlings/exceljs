@@ -48,13 +48,13 @@ class RowXform extends BaseXform {
       xmlStream.addAttribute('s', model.styleId);
       xmlStream.addAttribute('customFormat', '1');
     }
-    xmlStream.addAttribute('x14ac:dyDescent', '0.25');
     if (model.outlineLevel) {
       xmlStream.addAttribute('outlineLevel', model.outlineLevel);
     }
     if (model.collapsed) {
       xmlStream.addAttribute('collapsed', '1');
     }
+    xmlStream.addAttribute('x14ac:dyDescent', '0.25');
 
     const cellXform = this.map.c;
     model.cells.forEach((cellModel: any) => {

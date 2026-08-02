@@ -29,13 +29,13 @@ class ColXform extends BaseXform {
     if (model.bestFit) {
       xmlStream.addAttribute('bestFit', '1');
     }
+    xmlStream.addAttribute('customWidth', '1');
     if (model.outlineLevel) {
       xmlStream.addAttribute('outlineLevel', model.outlineLevel);
     }
     if (model.collapsed) {
       xmlStream.addAttribute('collapsed', '1');
     }
-    xmlStream.addAttribute('customWidth', '1');
     xmlStream.closeNode();
   }
 

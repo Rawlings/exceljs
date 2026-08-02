@@ -101,7 +101,7 @@ const expectations = [
       outlineProperties: { summaryBelow: false },
       pageSetup: { fitToPage: true },
     },
-    xml: '<sheetPr><tabColor rgb="FFFF0000"/><outlinePr summaryBelow="0"/><pageSetUpPr fitToPage="1"/></sheetPr>',
+    xml: '<sheetPr><tabColor rgb="FFFF0000"/><pageSetUpPr fitToPage="1"/><outlinePr summaryBelow="0"/></sheetPr>',
     parsedModel: {
       tabColor: { argb: 'FFFF0000' },
       outlineProperties: { summaryBelow: false },

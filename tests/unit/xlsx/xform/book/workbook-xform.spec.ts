@@ -1,8 +1,15 @@
-const fs = require('fs');
+import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
 import WorkbookXform from '#src/xlsx/xform/book/workbook-xform';
+import book11 from '#fixtures/json/book.1.1.json' with { type: 'json' };
+import book13 from '#fixtures/json/book.1.3.json' with { type: 'json' };
+import book23 from '#fixtures/json/book.2.3.json' with { type: 'json' };
+
+function readXml(name: string): string {
+  return readFileSync(new URL(`../../../../../fixtures/xml/${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+}
 
 const expectations = [
   {
@@ -10,9 +17,9 @@ const expectations = [
     create() {
       return new WorkbookXform();
     },
-    preparedModel: require('./data/book.1.1.json'),
-    xml: fs.readFileSync(`${__dirname}/data/book.1.2.xml`).toString().replace(/\r\n/g, '\n'),
-    parsedModel: require('./data/book.1.3.json'),
+    preparedModel: book11,
+    xml: readXml('book.1.2.xml'),
+    parsedModel: book13,
     tests: ['render', 'renderIn', 'parse'],
   },
   {
@@ -20,8 +27,8 @@ const expectations = [
     create() {
       return new WorkbookXform();
     },
-    xml: fs.readFileSync(`${__dirname}/data/book.2.2.xml`).toString().replace(/\r\n/g, '\n'),
-    parsedModel: require('./data/book.2.3.json'),
+    xml: readXml('book.2.2.xml'),
+    parsedModel: book23,
     tests: ['parse'],
   },
 ];

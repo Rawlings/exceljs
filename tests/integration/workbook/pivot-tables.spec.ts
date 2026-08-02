@@ -1,11 +1,5 @@
-// *Note*: `fs.promises` not supported before Node.js 11.14.0;
-// ExcelJS version range '>=8.3.0' (as of 2023-10-08).
-const fs = require('fs');
-const { promisify } = require('util');
-
-const fsReadFileAsync = promisify(fs.readFile);
-
-const JSZip = require('jszip');
+import { readFile } from 'node:fs/promises';
+import { unzipSync } from 'fflate';
 
 import ExcelJS from '#src/exceljs.nodejs';
 
@@ -49,16 +43,15 @@ describe('Workbook', () => {
         metric: 'sum',
       });
 
-      return workbook.xlsx.writeFile(TEST_XLSX_FILEPATH).then(async () => {
-        const buffer = await fsReadFileAsync(TEST_XLSX_FILEPATH);
-        const zip = await JSZip.loadAsync(buffer);
-        for (const filepath of PIVOT_TABLE_FILEPATHS) {
-          expect(zip.files[filepath]).to.not.be.undefined;
-        }
-      });
+      await workbook.xlsx.writeFile(TEST_XLSX_FILEPATH);
+      const buffer = await readFile(TEST_XLSX_FILEPATH);
+      const unzipped = unzipSync(new Uint8Array(buffer));
+      for (const filepath of PIVOT_TABLE_FILEPATHS) {
+        expect(unzipped[filepath]).toBeDefined();
+      }
     });
 
-    it('if pivot table NOT added, then certain xml and rels files are not added', () => {
+    it('if pivot table NOT added, then certain xml and rels files are not added', async () => {
       const workbook = new ExcelJS.Workbook();
 
       const worksheet1 = workbook.addWorksheet('Sheet1');
@@ -66,13 +59,12 @@ describe('Workbook', () => {
 
       workbook.addWorksheet('Sheet2');
 
-      return workbook.xlsx.writeFile(TEST_XLSX_FILEPATH).then(async () => {
-        const buffer = await fsReadFileAsync(TEST_XLSX_FILEPATH);
-        const zip = await JSZip.loadAsync(buffer);
-        for (const filepath of PIVOT_TABLE_FILEPATHS) {
-          expect(zip.files[filepath]).to.be.undefined;
-        }
-      });
+      await workbook.xlsx.writeFile(TEST_XLSX_FILEPATH);
+      const buffer = await readFile(TEST_XLSX_FILEPATH);
+      const unzipped = unzipSync(new Uint8Array(buffer));
+      for (const filepath of PIVOT_TABLE_FILEPATHS) {
+        expect(unzipped[filepath]).toBeUndefined();
+      }
     });
   });
 });

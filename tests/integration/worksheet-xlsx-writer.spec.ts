@@ -1,4 +1,4 @@
-const testutils = require('../utils/index');
+import testutils from '../utils/index';
 
 import ExcelJS from '#src/exceljs.nodejs';
 

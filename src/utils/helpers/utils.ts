@@ -47,8 +47,9 @@ const utils = {
 
   inherits,
 
-  dateToExcel(d: Date, date1904?: boolean): number {
-    return 25569 + d.getTime() / (24 * 3600 * 1000) - (date1904 ? 1462 : 0);
+  dateToExcel(d: Date | string | number, date1904?: boolean): number {
+    const dt = d instanceof Date ? d : new Date(d);
+    return 25569 + dt.getTime() / (24 * 3600 * 1000) - (date1904 ? 1462 : 0);
   },
 
   excelToDate(v: number, date1904?: boolean): Date {

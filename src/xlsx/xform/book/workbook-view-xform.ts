@@ -2,24 +2,19 @@ import BaseXform from '#src/xlsx/xform/base-xform';
 
 class WorkbookViewXform extends BaseXform {
   render(xmlStream: any, model: any) {
-    const attributes: {
-      xWindow: any;
-      yWindow: any;
-      windowWidth: any;
-      windowHeight: any;
-      firstSheet: any;
-      activeTab: any;
-      visibility?: any;
-    } = {
-      xWindow: model.x || 0,
-      yWindow: model.y || 0,
-      windowWidth: model.width || 12000,
-      windowHeight: model.height || 24000,
-      firstSheet: model.firstSheet,
-      activeTab: model.activeTab,
-    };
+    const attributes: Record<string, any> = {};
     if (model.visibility && model.visibility !== 'visible') {
       attributes.visibility = model.visibility;
+    }
+    attributes.xWindow = model.x || 0;
+    attributes.yWindow = model.y || 0;
+    attributes.windowWidth = model.width || 12000;
+    attributes.windowHeight = model.height || 24000;
+    if (model.activeTab !== undefined) {
+      attributes.activeTab = model.activeTab;
+    }
+    if (model.firstSheet !== undefined) {
+      attributes.firstSheet = model.firstSheet;
     }
     xmlStream.leafNode('workbookView', attributes);
   }

@@ -29,6 +29,7 @@ import PictureXform from '#src/xlsx/xform/sheet/picture-xform';
 import ConditionalFormattingsXform from '#src/xlsx/xform/sheet/cf/conditional-formattings-xform';
 import HeaderFooterXform from '#src/xlsx/xform/sheet/header-footer-xform';
 import RowBreaksXform from '#src/xlsx/xform/sheet/row-breaks-xform';
+import PrintOptionsXform from '#src/xlsx/xform/sheet/print-options-xform';
 
 // since prepare and render are functional, we can use singletons
 const xform = {
@@ -40,6 +41,7 @@ const xform = {
   hyperlinks: new ListXform({ tag: 'hyperlinks', length: false, childXform: new HyperlinkXform() }),
   sheetViews: new ListXform({ tag: 'sheetViews', length: false, childXform: new SheetViewXform() }),
   sheetProtection: new SheetProtectionXform(),
+  printOptions: new PrintOptionsXform(),
   pageMargins: new PageMarginsXform(),
   pageSeteup: new PageSetupXform(),
   autoFilter: new AutoFilterXform(),
@@ -227,7 +229,7 @@ class WorksheetWriter {
   get stream() {
     if (!this._stream) {
       // eslint-disable-next-line no-underscore-dangle
-      this._stream = this._workbook._openStream(`/xl/worksheets/sheet${this.id}.xml`);
+      this._stream = this._workbook._openStream(`xl/worksheets/sheet${this.id}.xml`);
 
       // pause stream to prevent 'data' events
       this._stream.pause();
@@ -260,23 +262,22 @@ class WorksheetWriter {
       this._writeOpenSheetData();
     }
     this._writeCloseSheetData();
+    this._writeSheetProtection();
     this._writeAutoFilter();
     this._writeMergeCells();
 
     // for some reason, Excel can't handle dimensions at the bottom of the file
     // this._writeDimensions();
 
-    this._writeHyperlinks();
     this._writeConditionalFormatting();
     this._writeDataValidations();
-    this._writeSheetProtection();
+    this._writeHyperlinks();
+    this._writeRowBreaks();
+    this._writePrintOptions();
     this._writePageMargins();
     this._writePageSetup();
-    this._writeBackground();
     this._writeHeaderFooter();
-    this._writeRowBreaks();
-
-    // Legacy Data tag for comments
+    this._writeBackground();
     this._writeLegacyData();
 
     this._writeCloseWorksheet();
@@ -680,6 +681,14 @@ class WorksheetWriter {
     this.stream.write(xform.conditionalFormattings.toXml(this.conditionalFormatting));
   }
 
+  _writeSheetProtection() {
+    this.stream.write(xform.sheetProtection.toXml(this.sheetProtection));
+  }
+
+  _writeAutoFilter() {
+    this.stream.write(xform.autoFilter.toXml(this.autoFilter));
+  }
+
   _writeRowBreaks() {
     this.stream.write(xform.rowBreaks.toXml(this.rowBreaks));
   }
@@ -688,8 +697,8 @@ class WorksheetWriter {
     this.stream.write(xform.dataValidations.toXml(this.dataValidations.model));
   }
 
-  _writeSheetProtection() {
-    this.stream.write(xform.sheetProtection.toXml(this.sheetProtection));
+  _writePrintOptions() {
+    this.stream.write(xform.printOptions.toXml(this.pageSetup));
   }
 
   _writePageMargins() {
@@ -702,10 +711,6 @@ class WorksheetWriter {
 
   _writeHeaderFooter() {
     this.stream.write(xform.headerFooter.toXml(this.headerFooter));
-  }
-
-  _writeAutoFilter() {
-    this.stream.write(xform.autoFilter.toXml(this.autoFilter));
   }
 
   _writeBackground() {

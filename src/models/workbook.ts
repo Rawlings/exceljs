@@ -227,8 +227,10 @@ class Workbook {
     this.properties = value.properties;
     this.calcProperties = value.calcProperties;
     this._worksheets = [];
-    value.worksheets.forEach((worksheetModel: any) => {
-      const { id, name, state } = worksheetModel;
+    value.worksheets.forEach((worksheetModel: any, index: number) => {
+      const id = worksheetModel.id || index + 1;
+      const name = worksheetModel.name;
+      const state = worksheetModel.state;
       const orderNo = value.sheets && value.sheets.findIndex((ws: any) => ws.id === id);
       const worksheet = (this._worksheets[id] = new Worksheet({
         id,

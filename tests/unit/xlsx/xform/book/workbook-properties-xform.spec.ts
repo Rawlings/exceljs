@@ -9,7 +9,7 @@ const expectations = [
       return new WorkbookPropertiesXform();
     },
     preparedModel: {},
-    xml: '<workbookPr defaultThemeVersion="164011" filterPrivacy="1"></workbookPr>',
+    xml: '<workbookPr defaultThemeVersion="164011" filterPrivacy="1"/>',
     parsedModel: {},
     tests: ['render', 'renderIn'],
   },
@@ -19,7 +19,7 @@ const expectations = [
       return new WorkbookPropertiesXform();
     },
     preparedModel: { date1904: true },
-    xml: '<workbookPr date1904="1" defaultThemeVersion="164011" filterPrivacy="1"></workbookPr>',
+    xml: '<workbookPr date1904="1" defaultThemeVersion="164011" filterPrivacy="1"/>',
     parsedModel: { date1904: true },
     tests: ['render', 'renderIn', 'parse'],
   },

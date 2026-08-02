@@ -159,6 +159,7 @@ class Table {
     };
     assert(table.ref, 'Table must have ref');
     assert(table.columns, 'Table must have column definitions');
+    table.rows = table.rows || [];
     assert(table.rows, 'Table must have row definitions');
 
     table.tl = colCache.decodeAddress(table.ref);

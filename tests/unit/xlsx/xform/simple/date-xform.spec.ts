@@ -47,7 +47,7 @@ const expectations = [
       return new DateXform({ tag: 'date', attr: undefined });
     },
     preparedModel: new Date(NaN),
-    xml: '<date />',
+    xml: '',
     tests: ['render'],
   },
 ];

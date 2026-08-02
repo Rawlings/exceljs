@@ -26,7 +26,7 @@ class SheetCommentsWriter {
 
   get commentsStream(): any {
     if (!this._commentsStream) {
-      this._commentsStream = this._workbook._openStream(`/xl/comments${this.id}.xml`);
+      this._commentsStream = this._workbook._openStream(`xl/comments${this.id}.xml`);
     }
     return this._commentsStream;
   }

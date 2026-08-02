@@ -149,7 +149,7 @@ class WorkbookXform extends BaseXform {
           sheets: this.map.sheets.model,
           properties: this.map.workbookPr.model || {},
           views: this.map.bookViews.model,
-          calcProperties: {},
+          calcProperties: this.map.calcPr.model || {},
         };
         if (this.map.definedNames.model) {
           this.model.definedNames = this.map.definedNames.model;
@@ -193,6 +193,7 @@ class WorkbookXform extends BaseXform {
         worksheets[index++] = worksheet;
       }
     });
+    model.worksheets = worksheets;
 
     // reconcile print areas
     const definedNames: any[] = [];
@@ -219,7 +220,7 @@ class WorkbookXform extends BaseXform {
 
           const dollarRegex = /\$/g;
 
-          const rowRangeRegex = /\$\d+:\$\d+/;
+          const rowRangeRegex = /\$?\d+:\$?\d+/;
           const rowRangeMatches = rangeString.match(rowRangeRegex);
 
           if (rowRangeMatches && rowRangeMatches.length) {
@@ -227,7 +228,7 @@ class WorkbookXform extends BaseXform {
             worksheet.pageSetup.printTitlesRow = range.replace(dollarRegex, '');
           }
 
-          const columnRangeRegex = /\$[A-Z]+:\$[A-Z]+/;
+          const columnRangeRegex = /\$?[A-Z]+:\$?[A-Z]+/;
           const columnRangeMatches = rangeString.match(columnRangeRegex);
 
           if (columnRangeMatches && columnRangeMatches.length) {

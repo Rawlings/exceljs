@@ -1,10 +1,8 @@
-const fs = require('fs');
-
-const testutils = require('../utils/index');
+import fs from 'node:fs';
+import testutils from '../utils/index';
 
 import ExcelJS from '#src/exceljs.nodejs';
 
-declare const before: any;
 
 const TEST_FILE_NAME = './fixtures/out/wb.test.xlsx';
 
@@ -151,7 +149,7 @@ describe('WorkbookReader', () => {
 
   describe('with a spreadsheet that contains formulas', () => {
     let worksheet: any;
-    before(async () => {
+    beforeAll(async () => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.read(fs.createReadStream('./fixtures/xlsx/formulas.xlsx'));
       worksheet = workbook.getWorksheet();
@@ -203,7 +201,7 @@ describe('WorkbookReader', () => {
 
   describe('with a spreadsheet that contains a shared string with an escaped underscore', () => {
     let worksheet: any;
-    before(async () => {
+    beforeAll(async () => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.read(
         fs.createReadStream('./fixtures/xlsx/shared_string_with_escape.xlsx')
@@ -258,7 +256,7 @@ describe('WorkbookReader', () => {
 
   describe('with a spreadsheet that contains images', () => {
     let worksheet: any;
-    before(async function (this: any) {
+    beforeAll(async () => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.read(fs.createReadStream('./fixtures/xlsx/images.xlsx'));
       worksheet = workbook.getWorksheet();

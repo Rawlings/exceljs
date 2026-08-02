@@ -11,6 +11,9 @@ class WorkbookCalcPropertiesXform extends BaseXform {
   parseOpen(node: any) {
     if (node.name === 'calcPr') {
       this.model = {};
+      if (node.attributes.fullCalcOnLoad) {
+        this.model.fullCalcOnLoad = true;
+      }
       return true;
     }
     return false;

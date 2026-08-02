@@ -1,8 +1,9 @@
-const fs = require('fs');
+import { readFileSync } from 'node:fs';
 
 import testXformHelper from '../test-xform-helper';
 
 import RelationshipsXform from '#src/xlsx/xform/core/relationships-xform';
+import worksheetRels1 from '#fixtures/json/worksheet.rels.1.json' with { type: 'json' };
 
 const expectations = [
   {
@@ -10,8 +11,8 @@ const expectations = [
     create() {
       return new RelationshipsXform();
     },
-    preparedModel: require('./data/worksheet.rels.1.json'),
-    xml: fs.readFileSync(`${__dirname}/data/worksheet.rels.xml`).toString().replace(/\r\n/g, '\n'),
+    preparedModel: worksheetRels1,
+    xml: readFileSync(new URL('../../../../../fixtures/xml/worksheet.rels.xml', import.meta.url), 'utf8').replace(/\r\n/g, '\n'),
     get parsedModel() {
       return this.preparedModel;
     },

@@ -16,7 +16,14 @@ class SheetProtectionXform extends BaseXform {
 
   render(xmlStream: any, model: any) {
     if (model) {
-      const attributes: any = {
+      const attributes: any = {};
+      if (model.sheet) {
+        attributes.algorithmName = model.algorithmName;
+        attributes.hashValue = model.hashValue;
+        attributes.saltValue = model.saltValue;
+        attributes.spinCount = model.spinCount;
+      }
+      Object.assign(attributes, {
         sheet: booleanToXml(model.sheet, '1'),
         selectLockedCells: model.selectLockedCells === false ? '1' : undefined,
         selectUnlockedCells: model.selectUnlockedCells === false ? '1' : undefined,
@@ -31,12 +38,8 @@ class SheetProtectionXform extends BaseXform {
         sort: booleanToXml(model.sort, '0'),
         autoFilter: booleanToXml(model.autoFilter, '0'),
         pivotTables: booleanToXml(model.pivotTables, '0'),
-      };
+      });
       if (model.sheet) {
-        attributes.algorithmName = model.algorithmName;
-        attributes.hashValue = model.hashValue;
-        attributes.saltValue = model.saltValue;
-        attributes.spinCount = model.spinCount;
         attributes.objects = booleanToXml(model.objects === false, '1');
         attributes.scenarios = booleanToXml(model.scenarios === false, '1');
       }
