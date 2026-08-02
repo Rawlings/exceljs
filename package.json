@@ -3,10 +3,6 @@
   "version": "4.4.0",
   "description": "Excel Workbook Manager - Read and Write xlsx and csv Files.",
   "license": "MIT",
-  "author": {
-    "name": "Guyon Roche",
-    "email": "guyon@live.com"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/exceljs/exceljs.git"

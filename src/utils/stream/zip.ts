@@ -20,7 +20,7 @@ export class ZipReader {
     const unzipped = fflate.unzipSync(new Uint8Array(buf));
     for (const [key, u8] of Object.entries(unzipped)) {
       const cleanName = key.replace(/^\//, '');
-      const content = Buffer.from(u8.buffer, u8.byteOffset, u8.byteLength);
+      const content = Buffer.from(u8);
       this.files[cleanName] = {
         name: cleanName,
         dir: cleanName.endsWith('/'),
@@ -87,6 +87,10 @@ export class ZipWriter {
       const isBase64 = typeof options === 'object' && options?.base64;
       const buf = Buffer.from(data, isBase64 ? 'base64' : 'utf8');
       this.files[name] = new Uint8Array(buf);
+    } else if (data && typeof data.xml === 'string') {
+      this.files[name] = fflate.strToU8(data.xml);
+    } else if (data && typeof data.toXml === 'function') {
+      this.files[name] = fflate.strToU8(data.toXml());
     } else if (data && typeof data.toBuffer === 'function') {
       const buf = data.toBuffer();
       if (Buffer.isBuffer(buf)) {

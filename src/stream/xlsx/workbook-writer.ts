@@ -257,7 +257,7 @@ class WorkbookWriter {
         if (medium.type === 'image') {
           const filename = `xl/media/${medium.name}`;
           if (medium.filename) {
-            return this.zip.file(medium.filename, { name: filename });
+            return this.zip.append(fs.createReadStream(medium.filename), { name: filename });
           }
           if (medium.buffer) {
             return this.zip.append(medium.buffer, { name: filename });

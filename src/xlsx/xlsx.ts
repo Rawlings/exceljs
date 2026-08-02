@@ -184,8 +184,17 @@ class XLSX {
     if (lastDot >= 1) {
       const extension = filename.substr(lastDot + 1);
       const name = filename.substr(0, lastDot);
-      const buffer =
-        typeof entry.read === 'function' ? entry.read() : await entry.async('nodebuffer');
+      let buffer: Buffer;
+      if (typeof entry.read === 'function') {
+        const chunks: Buffer[] = [];
+        let chunk: any;
+        while ((chunk = entry.read()) !== null) {
+          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        }
+        buffer = Buffer.concat(chunks);
+      } else {
+        buffer = await entry.async('nodebuffer');
+      }
       model.mediaIndex[filename] = model.media.length;
       model.mediaIndex[name] = model.media.length;
       const medium = {
@@ -267,7 +276,24 @@ class XLSX {
     };
 
     const zip = await JSZip.loadAsync(buffer);
-    for (const entry of Object.values(zip.files) as any[]) {
+    const entries = (Object.values(zip.files) as any[]).sort((a, b) => {
+      const getPriority = (rawName: string) => {
+        const name = rawName.replace(/^\//, '');
+        if (name === '_rels/.rels') return 1;
+        if (name === 'xl/_rels/workbook.xml.rels') return 2;
+        if (name === 'xl/workbook.xml') return 3;
+        if (name === 'xl/sharedStrings.xml') return 4;
+        if (name === 'xl/styles.xml') return 5;
+        if (name.match(/xl\/worksheets\/_rels\/sheet\d+[.]xml[.]rels/)) return 6;
+        if (name.match(/xl\/drawings\/_rels\/drawing\d+[.]xml[.]rels/)) return 7;
+        if (name.match(/xl\/drawings\/drawing\d+[.]xml/)) return 8;
+        if (name.match(/xl\/media\//)) return 9;
+        if (name.match(/xl\/worksheets\/sheet\d+[.]xml/)) return 10;
+        return 15;
+      };
+      return getPriority(a.name) - getPriority(b.name);
+    });
+    for (const entry of entries) {
       /* eslint-disable no-await-in-loop */
       if (!entry.dir) {
         let entryName = entry.name;
@@ -654,6 +680,8 @@ class XLSX {
     model.useSharedStrings =
       options.useSharedStrings !== undefined ? options.useSharedStrings : true;
     model.useStyles = options.useStyles !== undefined ? options.useStyles : true;
+    model.media = model.media || [];
+    model.definedNames = model.definedNames || [];
 
     // Manage the shared strings
     model.sharedStrings = new SharedStringsXform();
