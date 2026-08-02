@@ -1,8 +1,16 @@
 import _ from '../utils/helpers/under-dash';
 import Enums from './enums';
 import colCache from '../utils/data/col-cache';
-import Cell from './cell';
+import Cell, { type Style, type CellValue } from './cell';
 import type { WorksheetLike, RowLike, CellLike, EachRowOptions } from './internal-types';
+
+export type RowValues =
+  | CellValue[]
+  | { [key: string]: CellValue }
+  | unknown[]
+  | Record<string, unknown>
+  | undefined
+  | null;
 
 export interface RowModel {
   cells: Record<string, unknown>[];
@@ -10,17 +18,17 @@ export interface RowModel {
   min: number;
   max: number;
   height: number | undefined;
-  style: Record<string, unknown>;
+  style: Partial<Style>;
   hidden: boolean;
   outlineLevel: number;
   collapsed: boolean;
 }
 
-class Row implements RowLike {
+export class Row implements RowLike {
   _worksheet: WorksheetLike;
   _number: number;
   _cells: (CellLike | undefined)[];
-  style: Record<string, unknown>;
+  style: Partial<Style>;
   _hidden: boolean | undefined;
   _outlineLevel: number | undefined;
   height: number | undefined;
@@ -56,40 +64,45 @@ class Row implements RowLike {
     delete self.style;
   }
 
-  findCell(colNumber: number): CellLike | undefined {
-    return this._cells[colNumber - 1];
+  findCell(colNumber: number): Cell | undefined {
+    return this._cells[colNumber - 1] as Cell | undefined;
   }
 
   // given {address, row, col}, find or create new cell
-  getCellEx(address: { col: number; row: number; address: string }): CellLike {
+  getCellEx(address: { col: number; row: number; address: string }): Cell {
     let cell = this._cells[address.col - 1];
     if (!cell) {
       const column = this._worksheet.getColumn(address.col);
       cell = new Cell(this, column, address.address) as unknown as CellLike;
       this._cells[address.col - 1] = cell;
     }
-    return cell;
+    return cell as unknown as Cell;
   }
 
   // get cell by key, letter or column number
-  getCell(col: number | string): CellLike {
-    if (typeof col === 'string') {
-      // is it a key?
-      const column = this._worksheet.getColumnKey(col);
-      if (column) {
-        col = column.number;
-      } else {
-        col = colCache.l2n(col);
+  getCell(col: number | string): Cell {
+    if (typeof col === 'number') {
+      let cell = this._cells[col - 1];
+      if (!cell) {
+        const column = this._worksheet.getColumn(col);
+        const address = colCache.encodeAddress(this._number, col);
+        cell = new Cell(this, column, address) as unknown as CellLike;
+        this._cells[col - 1] = cell;
       }
+      return cell as unknown as Cell;
     }
-    return (
-      this._cells[col - 1] ||
-      this.getCellEx({
-        address: colCache.encodeAddress(this._number, col),
-        row: this._number,
-        col,
-      })
-    );
+
+    if (typeof col === 'string') {
+      const colOption = (
+        this._worksheet as unknown as { getColumn(key: number | string): { number: number } }
+      ).getColumn(col);
+      if (colOption) {
+        return this.getCell(colOption.number);
+      }
+      const address = colCache.decodeAddress(col);
+      return this.getCell(address.col);
+    }
+    throw new Error(`Invalid column key/number: ${col}`);
   }
 
   // remove cell(s) and shift all higher cells down by count
@@ -146,14 +159,11 @@ class Row implements RowLike {
   }
 
   // Iterate over all non-null cells in this row
-  eachCell(iteratee: (cell: CellLike, colNumber: number) => void): void;
+  eachCell(callback: (cell: Cell, colNumber: number) => void): void;
+  eachCell(options: EachRowOptions | null, callback: (cell: Cell, colNumber: number) => void): void;
   eachCell(
-    options: EachRowOptions | null,
-    iteratee: (cell: CellLike, colNumber: number) => void
-  ): void;
-  eachCell(
-    options: EachRowOptions | null | ((cell: CellLike, colNumber: number) => void),
-    iteratee?: (cell: CellLike, colNumber: number) => void
+    options: EachRowOptions | null | ((cell: Cell, colNumber: number) => void),
+    iteratee?: (cell: Cell, colNumber: number) => void
   ) {
     if (!iteratee) {
       iteratee = options as (cell: CellLike, colNumber: number) => void;
@@ -189,19 +199,18 @@ class Row implements RowLike {
     ws.rowBreaks.push(pb);
   }
 
-  // return a sparse array of cell values
-  get values(): unknown[] {
-    const values: unknown[] = [];
+  get values(): RowValues {
+    const values: CellValue[] = [];
     this._cells.forEach((cell) => {
       if (cell && cell.type !== Enums.ValueType.Null) {
-        values[cell.col] = cell.value;
+        values[cell.col] = cell.value as CellValue;
       }
     });
     return values;
   }
 
   // set the values by contiguous or sparse array, or by key'd object literal
-  set values(value: unknown[] | Record<string, unknown> | undefined | null) {
+  set values(value: RowValues) {
     // this operation is not additive - any prior cells are removed
     this._cells = [];
     if (!value) {

@@ -1,3 +1,27 @@
+export type DataValidationOperator =
+  | 'between'
+  | 'notBetween'
+  | 'equal'
+  | 'notEqual'
+  | 'greaterThan'
+  | 'lessThan'
+  | 'greaterThanOrEqual'
+  | 'lessThanOrEqual';
+
+export interface DataValidation {
+  type: 'list' | 'whole' | 'decimal' | 'date' | 'textLength' | 'custom';
+  formulae: any[];
+  allowBlank?: boolean;
+  operator?: DataValidationOperator;
+  error?: string;
+  errorTitle?: string;
+  errorStyle?: string;
+  prompt?: string;
+  promptTitle?: string;
+  showErrorMessage?: boolean;
+  showInputMessage?: boolean;
+}
+
 export interface DataValidationModel {
   type: string;
   formulae?: string[];

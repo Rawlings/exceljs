@@ -71,7 +71,7 @@ interface WorksheetEvent {
   value: unknown;
 }
 
-class WorksheetReader extends EventEmitter {
+export class WorksheetReader extends EventEmitter {
   workbook: WorksheetReaderOptions['workbook'];
   id: number | string;
   iterator: AsyncIterable<unknown>;

@@ -3,7 +3,7 @@ import type { WorksheetOptions } from './worksheet';
 import DefinedNames from './defined-names';
 import XLSX from '../formats/xlsx/xlsx';
 import CSV from '../formats/csv/csv';
-import type { WorkbookLike } from './internal-types';
+import type { WorkbookLike, WorksheetLike } from './internal-types';
 
 // Workbook requirements
 //  Load and Save from file and stream
@@ -11,17 +11,35 @@ import type { WorkbookLike } from './internal-types';
 //  Manage String table, Hyperlink table, etc.
 //  Manage scaffolding for contained objects to write to/read from
 
+export interface WorkbookProperties {
+  date1904: boolean;
+}
+
+export interface WorkbookView {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  firstSheet: number;
+  activeTab: number;
+  visibility: string;
+}
+
+export interface CalculationProperties {
+  fullCalcOnLoad: boolean;
+}
+
 export interface WorkbookModel {
   creator: string;
   lastModifiedBy: string;
   lastPrinted: unknown;
   created: Date;
   modified: Date;
-  properties: Record<string, unknown>;
+  properties: Partial<WorkbookProperties>;
   worksheets: Record<string, unknown>[];
   sheets: Record<string, unknown>[];
   definedNames: unknown;
-  views: unknown[];
+  views: WorkbookView[];
   company: string;
   manager: string;
   title: string;
@@ -35,10 +53,10 @@ export interface WorkbookModel {
   themes: unknown;
   media: unknown[];
   pivotTables: unknown[];
-  calcProperties: Record<string, unknown>;
+  calcProperties: Partial<CalculationProperties>;
 }
 
-class Workbook implements WorkbookLike {
+export class Workbook implements WorkbookLike {
   category: string;
   company: string;
   created: Date;
@@ -46,12 +64,12 @@ class Workbook implements WorkbookLike {
   keywords: string;
   manager: string;
   modified: Date;
-  properties: Record<string, unknown>;
-  calcProperties: Record<string, unknown>;
+  properties: Partial<WorkbookProperties>;
+  calcProperties: Partial<CalculationProperties>;
   _worksheets: (Worksheet | undefined)[];
   subject: string;
   title: string;
-  views: unknown[];
+  views: WorkbookView[];
   media: unknown[];
   pivotTables: unknown[];
   _definedNames: DefinedNames;
@@ -149,7 +167,7 @@ class Workbook implements WorkbookLike {
     return worksheet;
   }
 
-  removeWorksheetEx(worksheet: Worksheet) {
+  removeWorksheetEx(worksheet: Worksheet | WorksheetLike) {
     delete this._worksheets[worksheet.id];
   }
 
@@ -201,7 +219,7 @@ class Workbook implements WorkbookLike {
     this._themes = undefined;
   }
 
-  addImage(image: Record<string, unknown>): number {
+  addImage(image: import('./image').ImagePayload): number {
     // TODO:  validation?
     const id = this.media.length;
     this.media.push(Object.assign({}, image, { type: 'image' }));
@@ -270,14 +288,14 @@ class Workbook implements WorkbookLike {
     value.worksheets.forEach((worksheetModel: Record<string, unknown>, index: number) => {
       const id = (worksheetModel.id as number) || index + 1;
       const name = worksheetModel.name as string;
-      const state = worksheetModel.state as string;
+      const state = worksheetModel.state as import('./worksheet').WorksheetState;
       const orderNo = value.sheets && value.sheets.findIndex((ws) => ws.id === id);
       const worksheet = (this._worksheets[id] = new Worksheet({
         id,
         name,
         orderNo,
         state,
-        workbook: this,
+        workbook: this as unknown as WorkbookLike,
       }));
       (worksheet as unknown as { model: unknown }).model = worksheetModel;
     });

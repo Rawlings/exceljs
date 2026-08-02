@@ -17,6 +17,7 @@ export default { makePivotTable };
 // TK(2023-10-10): turn this into a class constructor.
 
 export interface PivotTableModel {
+  name?: string;
   sourceSheet: WorksheetLike;
   rows: string[];
   columns: string[];

@@ -1,6 +1,7 @@
 import _ from '../utils/helpers/under-dash';
 import Enums from './enums';
 import colCache from '../utils/data/col-cache';
+import type { Style } from './cell';
 import type { WorksheetLike, ColumnLike, CellLike, EachRowOptions } from './internal-types';
 
 const DEFAULT_COLUMN_WIDTH = 9;
@@ -9,7 +10,7 @@ export interface ColumnDefinition {
   header?: string | string[];
   key?: string;
   width?: number;
-  style?: Record<string, unknown>;
+  style?: Partial<Style>;
   hidden?: boolean;
   outlineLevel?: number;
 }
@@ -17,13 +18,13 @@ export interface ColumnDefinition {
 // Column defines the column properties for 1 column.
 // This includes header rows, widths, key, (style), etc.
 // Worksheet will condense the columns as appropriate during serialization
-class Column implements ColumnLike {
+export class Column implements ColumnLike {
   _worksheet: WorksheetLike;
   _number: number;
   _header: string | string[] | undefined;
   _key: string | undefined;
   width: number | undefined;
-  style: Record<string, unknown> = {};
+  style: Partial<Style> = {};
   _hidden: boolean | undefined;
   _outlineLevel: number | undefined;
 

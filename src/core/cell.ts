@@ -7,6 +7,218 @@ import Note from './note';
 import type { NoteModel } from './note';
 import type { RowLike, ColumnLike, FullAddress } from './internal-types';
 
+export type FillPatterns =
+  | 'none'
+  | 'solid'
+  | 'darkVertical'
+  | 'darkHorizontal'
+  | 'darkGrid'
+  | 'darkTrellis'
+  | 'darkDown'
+  | 'darkUp'
+  | 'lightVertical'
+  | 'lightHorizontal'
+  | 'lightGrid'
+  | 'lightTrellis'
+  | 'lightDown'
+  | 'lightUp'
+  | 'darkGray'
+  | 'mediumGray'
+  | 'lightGray'
+  | 'gray125'
+  | 'gray0625';
+
+export interface Color {
+  argb: string;
+  theme: number;
+}
+
+export interface FillPattern {
+  type: 'pattern';
+  pattern: FillPatterns;
+  fgColor?: Partial<Color>;
+  bgColor?: Partial<Color>;
+}
+
+export interface GradientStop {
+  position: number;
+  color: Partial<Color>;
+}
+
+export interface FillGradientAngle {
+  type: 'gradient';
+  gradient: 'angle';
+  degree: number;
+  stops: GradientStop[];
+}
+
+export interface FillGradientPath {
+  type: 'gradient';
+  gradient: 'path';
+  center: { left: number; top: number };
+  stops: GradientStop[];
+}
+
+export type Fill = FillPattern | FillGradientAngle | FillGradientPath;
+
+export interface Font {
+  name: string;
+  size: number;
+  family: number;
+  scheme: 'minor' | 'major' | 'none';
+  charset: number;
+  color: Partial<Color>;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean | 'none' | 'single' | 'double' | 'singleAccounting' | 'doubleAccounting';
+  vertAlign: 'superscript' | 'subscript';
+  strike: boolean;
+  outline: boolean;
+}
+
+export type BorderStyle =
+  | 'thin'
+  | 'dotted'
+  | 'hair'
+  | 'medium'
+  | 'double'
+  | 'thick'
+  | 'dashed'
+  | 'dashDot'
+  | 'dashDotDot'
+  | 'slantDashDot'
+  | 'mediumDashed'
+  | 'mediumDashDotDot'
+  | 'mediumDashDot';
+
+export interface Border {
+  style: BorderStyle;
+  color: Partial<Color>;
+}
+
+export interface BorderDiagonal extends Border {
+  up: boolean;
+  down: boolean;
+}
+
+export interface Borders {
+  top: Partial<Border>;
+  left: Partial<Border>;
+  bottom: Partial<Border>;
+  right: Partial<Border>;
+  diagonal: Partial<BorderDiagonal>;
+}
+
+export interface Alignment {
+  horizontal: 'left' | 'center' | 'right' | 'fill' | 'justify' | 'centerContinuous' | 'distributed';
+  vertical: 'top' | 'middle' | 'bottom' | 'distributed' | 'justify';
+  wrapText: boolean;
+  shrinkToFit: boolean;
+  indent: number;
+  readingOrder: 'rtl' | 'ltr';
+  textRotation: number | 'vertical';
+}
+
+export interface Protection {
+  locked: boolean;
+  hidden: boolean;
+}
+
+export interface Style {
+  numFmt: string;
+  font: Partial<Font>;
+  alignment: Partial<Alignment>;
+  protection: Partial<Protection>;
+  border: Partial<Borders>;
+  fill: Fill;
+}
+
+export interface CellErrorValue {
+  error: '#N/A' | '#REF!' | '#NAME?' | '#DIV/0!' | '#NULL!' | '#VALUE!' | '#NUM!';
+}
+
+export interface RichText {
+  text: string;
+  font?: Partial<Font>;
+}
+
+export interface CellRichTextValue {
+  richText: RichText[];
+}
+
+export interface CellHyperlinkValue {
+  text: string;
+  hyperlink: string;
+  tooltip?: string;
+}
+
+export interface CellFormulaValue {
+  formula: string;
+  result?: number | string | boolean | Date | CellErrorValue;
+  date1904?: boolean;
+}
+
+export interface CellSharedFormulaValue {
+  sharedFormula: string;
+  readonly formula?: string;
+  result?: number | string | boolean | Date | CellErrorValue;
+  date1904?: boolean;
+}
+
+export type CellValue =
+  | null
+  | number
+  | string
+  | boolean
+  | Date
+  | undefined
+  | CellErrorValue
+  | CellRichTextValue
+  | CellHyperlinkValue
+  | CellFormulaValue
+  | CellSharedFormulaValue;
+
+export interface CommentMargins {
+  insetmode: 'auto' | 'custom';
+  inset: number[];
+}
+
+export interface CommentProtection {
+  locked: 'True' | 'False';
+  lockText: 'True' | 'False';
+}
+
+export type CommentEditAs = 'twoCells' | 'oneCells' | 'absolute';
+
+export interface Comment {
+  texts?: RichText[];
+  margins?: Partial<CommentMargins>;
+  protection?: Partial<CommentProtection>;
+  editAs?: CommentEditAs;
+}
+
+export interface Address {
+  sheetName?: string;
+  address: string;
+  col: number;
+  row: number;
+  $col$row: string;
+}
+
+export interface CellModel {
+  address: Address;
+  style: Style;
+  type: number;
+  text?: string;
+  hyperlink?: string;
+  value?: CellValue;
+  master: string;
+  formula?: string;
+  sharedFormula?: string;
+  result?: CellValue;
+  comment: Comment;
+}
+
 // Cell requirements
 //  Operate inside a worksheet
 //  Store and retrieve a value with a range of types: text, number, date, hyperlink, reference, formula, etc.
@@ -43,13 +255,13 @@ export interface CellValueImpl {
   cell?: Cell;
 }
 
-class Cell {
+export class Cell {
   static Types: Record<string, number> = {};
   _row: RowLike;
   _column: ColumnLike;
   _address: string;
   _value: CellValueImpl;
-  style: Record<string, unknown>;
+  style: Partial<Style>;
   _mergeCount: number;
   _comment: Note | undefined;
 
@@ -84,6 +296,10 @@ class Cell {
     ).workbook;
   }
 
+  get sheetName(): string {
+    return (this._row as unknown as { worksheet: { name: string } })?.worksheet?.name || '';
+  }
+
   // help GC by removing cyclic (and other) references
   destroy() {
     const self = this as unknown as Record<string, unknown>;
@@ -94,53 +310,57 @@ class Cell {
     delete self._address;
   }
 
-  // =========================================================================
-  // Styles stuff
-  get numFmt(): unknown {
-    return this.style.numFmt;
+  release() {
+    this.destroy();
   }
 
-  set numFmt(value: unknown) {
+  // =========================================================================
+  // Styles stuff
+  get numFmt(): string {
+    return (this.style.numFmt as string) || '';
+  }
+
+  set numFmt(value: string) {
     this.style.numFmt = value;
   }
 
-  get font(): unknown {
-    return this.style.font;
+  get font(): Partial<Font> {
+    return this.style.font || {};
   }
 
-  set font(value: unknown) {
+  set font(value: Partial<Font>) {
     this.style.font = value;
   }
 
-  get alignment(): unknown {
-    return this.style.alignment;
+  get alignment(): Partial<Alignment> {
+    return this.style.alignment || {};
   }
 
-  set alignment(value: unknown) {
+  set alignment(value: Partial<Alignment>) {
     this.style.alignment = value;
   }
 
-  get border(): unknown {
-    return this.style.border;
+  get border(): Partial<Borders> {
+    return this.style.border || {};
   }
 
-  set border(value: unknown) {
+  set border(value: Partial<Borders>) {
     this.style.border = value;
   }
 
-  get fill(): unknown {
-    return this.style.fill;
+  get fill(): Fill {
+    return this.style.fill || { type: 'pattern', pattern: 'none' };
   }
 
-  set fill(value: unknown) {
+  set fill(value: Fill) {
     this.style.fill = value;
   }
 
-  get protection(): unknown {
-    return this.style.protection;
+  get protection(): Partial<Protection> {
+    return this.style.protection || {};
   }
 
-  set protection(value: unknown) {
+  set protection(value: Partial<Protection>) {
     this.style.protection = value;
   }
 
@@ -273,12 +493,12 @@ class Cell {
     this._value = Value.create(Value.getType(v), this, v);
   }
 
-  get note(): NoteModel | string | undefined {
-    return this._comment && (this._comment as unknown as { note: NoteModel | string }).note;
+  get note(): string | Comment | undefined {
+    return this._comment ? (this._comment.note as string | Comment) : undefined;
   }
 
-  set note(note: NoteModel | string | undefined) {
-    this._comment = new Note(note as string);
+  set note(note: string | Comment | undefined) {
+    this._comment = note ? new Note(note) : undefined;
   }
 
   get text(): string {
@@ -385,30 +605,32 @@ class Cell {
     };
   }
 
-  get dataValidation(): unknown {
-    return this._dataValidations.find(this.address);
+  get dataValidation(): import('./data-validations').DataValidation | undefined {
+    return this._dataValidations.find(this.address) as
+      | import('./data-validations').DataValidation
+      | undefined;
   }
 
-  set dataValidation(value: unknown) {
+  set dataValidation(value: import('./data-validations').DataValidation | undefined) {
     this._dataValidations.add(this.address, value);
   }
 
   // =========================================================================
   // Model stuff
 
-  get model(): CellValueModel {
+  get model(): CellModel | CellValueModel {
     const { model } = this._value;
     model.style = this.style;
     if (this._comment) {
       model.comment = (this._comment as unknown as { model: unknown }).model;
     }
-    return model;
+    return model as unknown as CellModel;
   }
 
-  set model(value: CellValueModel) {
+  set model(value: CellModel | CellValueModel) {
     this._value.release();
     this._value = Value.create(value.type, this);
-    this._value.model = value;
+    this._value.model = value as CellValueModel;
 
     if (value.comment) {
       const comment = value.comment as { type: string };

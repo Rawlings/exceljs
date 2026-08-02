@@ -2,6 +2,38 @@ import colCache from '../utils/data/col-cache';
 import Anchor from './anchor';
 import type { AnchorWorksheet, AnchorModel } from './anchor';
 
+export interface ImagePayload {
+  extension: 'jpeg' | 'png' | 'gif' | string;
+  base64?: string;
+  filename?: string;
+  buffer?: Buffer;
+}
+
+export interface Media {
+  type: string;
+  name: string;
+  extension: string;
+  buffer: Buffer;
+}
+
+export interface ImageRange {
+  tl: Anchor | { col: number; row: number };
+  br?: Anchor | { col: number; row: number };
+  ext?: { width: number; height: number };
+  editAs?: string;
+  hyperlinks?: Partial<ImageHyperlinkValue>;
+}
+
+export interface ImagePosition {
+  tl: { col: number; row: number };
+  ext: { width: number; height: number };
+}
+
+export interface ImageHyperlinkValue {
+  hyperlink: string;
+  tooltip?: string;
+}
+
 export type ImageType = 'background' | 'image';
 
 export interface ImageRangeInput {
@@ -9,7 +41,7 @@ export interface ImageRangeInput {
   br?: AnchorModel | { col?: number; row?: number };
   ext?: { width: number; height: number };
   editAs?: string;
-  hyperlinks?: unknown;
+  hyperlinks?: Partial<ImageHyperlinkValue>;
 }
 
 export interface ImageModel {
@@ -19,15 +51,7 @@ export interface ImageModel {
   hyperlinks?: unknown;
 }
 
-interface ImageRange {
-  tl: Anchor;
-  br?: Anchor;
-  ext?: { width: number; height: number };
-  editAs?: string;
-  hyperlinks?: unknown;
-}
-
-class Image {
+export class Image {
   worksheet: AnchorWorksheet | undefined;
   type: ImageType | undefined;
   imageId: number | undefined;
@@ -51,12 +75,12 @@ class Image {
         return {
           type: this.type,
           imageId: this.imageId,
-          hyperlinks: (this.range as ImageRange).hyperlinks,
+          hyperlinks: this.range?.hyperlinks,
           range: {
-            tl: (this.range as ImageRange).tl.model,
-            br: (this.range as ImageRange).br && (this.range as ImageRange).br!.model,
-            ext: (this.range as ImageRange).ext,
-            editAs: (this.range as ImageRange).editAs,
+            tl: (this.range?.tl as Anchor | undefined)?.model,
+            br: (this.range?.br as Anchor)?.model,
+            ext: this.range?.ext,
+            editAs: this.range?.editAs,
           },
         };
       default:
@@ -87,7 +111,7 @@ class Image {
         const r = range as ImageRangeInput;
         this.range = {
           tl: new Anchor(this.worksheet, r.tl, 0),
-          br: r.br && new Anchor(this.worksheet, r.br, 0),
+          br: r.br ? new Anchor(this.worksheet, r.br, 0) : undefined,
           ext: r.ext,
           editAs: r.editAs,
           hyperlinks: hyperlinks || r.hyperlinks,

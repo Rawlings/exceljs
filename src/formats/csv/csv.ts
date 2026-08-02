@@ -4,6 +4,65 @@ import { PassThrough, Readable } from 'node:stream';
 import type Workbook from '../../core/workbook';
 import type Worksheet from '../../core/worksheet';
 
+export interface FastCsvParserOptionsArgs {
+  objectMode: boolean;
+  delimiter: string;
+  quote: string | boolean | null;
+  escape: string;
+  headers:
+    | boolean
+    | ((headers: (string | undefined | null)[]) => (string | undefined | null)[])
+    | (string | undefined | null)[];
+  renameHeaders: boolean;
+  ignoreEmpty: boolean;
+  comment: string;
+  strictColumnHandling: boolean;
+  discardUnmappedColumns: boolean;
+  trim: boolean;
+  ltrim: boolean;
+  rtrim: boolean;
+  encoding: BufferEncoding;
+  maxRows: number;
+  skipLines: number;
+  skipRows: number;
+}
+
+export type QuoteColumns = boolean | boolean[] | { [s: string]: boolean };
+
+export interface FastCsvFormatterOptionsArgs {
+  objectMode: boolean;
+  delimiter: string;
+  rowDelimiter: string;
+  quote: string | boolean;
+  escape: string;
+  quoteColumns: QuoteColumns;
+  quoteHeaders: QuoteColumns;
+  headers: null | boolean | string[];
+  includeEndRowDelimiter: boolean;
+  writeBOM: boolean;
+  transform: (row: any, callback?: any) => any;
+  alwaysWriteHeaders: boolean;
+}
+
+export interface CsvReadOptions {
+  dateFormats: string[];
+  encoding: string;
+  map(value: any, index: number): any;
+  sheetName: string;
+  parserOptions: Partial<FastCsvParserOptionsArgs>;
+}
+
+export interface CsvWriteOptions {
+  dateFormat: string;
+  dateUTC: boolean;
+  sheetName: string;
+  sheetId: number;
+  encoding: string;
+  map(value: any, index: number): any;
+  includeEmptyRows: boolean;
+  formatterOptions: Partial<FastCsvFormatterOptionsArgs>;
+}
+
 async function fileExists(filename: string): Promise<boolean> {
   try {
     await access(filename);
@@ -103,6 +162,8 @@ function defaultWriteMap(value: any): any {
   return value;
 }
 
+export type Csv = CSV;
+
 export class CSV {
   workbook: Workbook;
   worksheet: Worksheet | null;
@@ -112,7 +173,7 @@ export class CSV {
     this.worksheet = null;
   }
 
-  async readFile(filename: string, options: Record<string, any> = {}): Promise<Worksheet> {
+  async readFile(filename: string, options: Partial<CsvReadOptions> = {}): Promise<Worksheet> {
     if (!(await fileExists(filename))) {
       throw new Error(`File not found: ${filename}`);
     }
@@ -122,7 +183,7 @@ export class CSV {
     return worksheet;
   }
 
-  read(stream: Readable, options: Record<string, any> = {}): Promise<Worksheet> {
+  read(stream: Readable, options: Partial<CsvReadOptions> = {}): Promise<Worksheet> {
     return new Promise((resolve, reject) => {
       const worksheet = this.workbook.addWorksheet(options.sheetName);
       const delimiter = options.parserOptions?.delimiter || ',';
@@ -156,9 +217,11 @@ export class CSV {
     throw new Error('`CSV#createInputStream` is deprecated. You should use `CSV#read` instead.');
   }
 
-  write(stream: NodeJS.WritableStream, options: Record<string, any> = {}): Promise<void> {
+  write(stream: NodeJS.WritableStream, options: Partial<CsvWriteOptions> = {}): Promise<void> {
     return new Promise((resolve) => {
-      const worksheet = this.workbook.getWorksheet(options.sheetName || options.sheetId);
+      const worksheet = this.workbook.getWorksheet(
+        options.sheetName || (options.sheetId as number)
+      );
       const delimiter = options.formatterOptions?.delimiter || ',';
       const map = options.map || defaultWriteMap;
 
@@ -195,15 +258,15 @@ export class CSV {
     });
   }
 
-  writeFile(filename: string, options: Record<string, any> = {}): Promise<void> {
+  writeFile(filename: string, options: Partial<CsvWriteOptions> = {}): Promise<void> {
     const streamOptions = {
-      encoding: options.encoding || 'utf8',
+      encoding: (options.encoding || 'utf8') as BufferEncoding,
     };
     const stream = fs.createWriteStream(filename, streamOptions);
     return this.write(stream, options);
   }
 
-  async writeBuffer(options: Record<string, any> = {}): Promise<any> {
+  async writeBuffer(options: Partial<CsvWriteOptions> = {}): Promise<Buffer> {
     const chunks: Buffer[] = [];
     const stream = new PassThrough();
     stream.on('data', (chunk: Buffer) => chunks.push(chunk));

@@ -1,37 +1,51 @@
 /* eslint-disable max-classes-per-file */
 import colCache from '../utils/data/col-cache';
 import type { WorksheetLike, CellLike } from './internal-types';
+import type { Style } from './cell';
 
-export interface TableColumnModel {
-  name: string;
-  filterButton?: boolean;
-  style?: Record<string, unknown>;
-  totalsRowLabel?: string;
-  totalsRowFunction?: string;
-  totalsRowResult?: unknown;
-  totalsRowFormula?: string;
+export interface TableStyleProperties {
+  theme?: string;
+  showFirstColumn?: boolean;
+  showLastColumn?: boolean;
+  showRowStripes?: boolean;
+  showColumnStripes?: boolean;
 }
 
-export interface TableModel {
+export interface TableColumnProperties {
+  name: string;
+  filterButton?: boolean;
+  totalsRowLabel?: string;
+  totalsRowFunction?:
+    | 'none'
+    | 'average'
+    | 'countNums'
+    | 'count'
+    | 'max'
+    | 'min'
+    | 'stdDev'
+    | 'var'
+    | 'sum'
+    | 'custom';
+  totalsRowFormula?: string;
+  totalsRowResult?: unknown;
+  style?: Partial<Style>;
+}
+
+export interface TableProperties {
   name: string;
   displayName?: string;
   ref: string;
-  tl?: { row: number; col: number };
   headerRow?: boolean;
   totalsRow?: boolean;
-  style?: {
-    theme?: string;
-    name?: string;
-    showFirstColumn?: boolean;
-    showLastColumn?: boolean;
-    showRowStripes?: boolean;
-    showColumnStripes?: boolean;
-  };
-  columns: TableColumnModel[];
-  rows: unknown[][];
+  style?: TableStyleProperties;
+  columns: TableColumnProperties[];
+  rows: any[][];
+  tl?: { row: number; col: number };
   autoFilterRef?: string;
   tableRef?: string;
 }
+
+export type TableColumn = Required<TableColumnProperties>;
 
 interface TableCacheState {
   ref: string;
@@ -42,16 +56,16 @@ interface TableCacheState {
 class Column {
   // wrapper around column model, allowing access and manipulation
   table: Table;
-  column: TableColumnModel;
+  column: TableColumn | TableColumnProperties;
   index: number;
 
-  constructor(table: Table, column: TableColumnModel, index: number) {
+  constructor(table: Table, column: TableColumn | TableColumnProperties, index: number) {
     this.table = table;
     this.column = column;
     this.index = index;
   }
 
-  _set(name: keyof TableColumnModel, value: unknown) {
+  _set(name: keyof TableColumnProperties, value: unknown) {
     this.table.cacheState();
     (this.column as unknown as Record<string, unknown>)[name] = value;
   }
@@ -108,15 +122,15 @@ class Column {
   /* eslint-enable lines-between-class-members */
 }
 
-class Table {
+export class Table {
   worksheet: WorksheetLike;
   // only assigned when a model is passed to the constructor — matches
   // original loose-typed behavior where callers are trusted to follow up
   // with `.model = ...` if they didn't pass one initially.
-  table!: TableModel;
+  table!: TableProperties;
   _cache: TableCacheState | undefined;
 
-  constructor(worksheet: WorksheetLike, table?: TableModel) {
+  constructor(worksheet: WorksheetLike, table?: TableProperties) {
     this.worksheet = worksheet;
     if (table) {
       this.table = table;
@@ -127,7 +141,7 @@ class Table {
     }
   }
 
-  getFormula(column: TableColumnModel): string | null {
+  getFormula(column: TableColumnProperties): string | null {
     // get the correct formula to apply to the totals row
     switch (column.totalsRowFunction) {
       case 'none':
@@ -325,11 +339,11 @@ class Table {
     }
   }
 
-  get model(): TableModel {
+  get model(): TableProperties {
     return this.table;
   }
 
-  set model(value: TableModel) {
+  set model(value: TableProperties) {
     this.table = value;
   }
 
@@ -409,7 +423,7 @@ class Table {
     return new Column(this, column, colIndex);
   }
 
-  addColumn(column: TableColumnModel, values: unknown[], colIndex?: number) {
+  addColumn(column: TableColumnProperties, values: unknown[], colIndex?: number) {
     // Add a new column, including column defn and values
     // Inserts at colNumber or adds to the right
     this.cacheState();

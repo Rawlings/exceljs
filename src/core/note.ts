@@ -1,33 +1,9 @@
 import _ from '../utils/helpers/under-dash';
-
-export interface NoteMargins {
-  insetmode: 'auto' | 'custom';
-  inset: number[];
-}
-
-export interface NoteProtection {
-  locked: 'True' | 'False';
-  lockText: 'True' | 'False';
-}
-
-export type NoteEditAs = 'twoCells' | 'oneCells' | 'absolute';
-
-export interface NoteText {
-  text: string;
-}
-
-export interface NoteObject {
-  texts?: NoteText[];
-  margins?: Partial<NoteMargins>;
-  protection?: Partial<NoteProtection>;
-  editAs?: NoteEditAs;
-}
-
-export type NoteValue = string | NoteObject;
+import type { Comment } from './cell';
 
 export interface NoteModel {
   type: 'note';
-  note: NoteObject;
+  note: Comment;
 }
 
 export class Note {
@@ -45,9 +21,9 @@ export class Note {
     },
   };
 
-  note: NoteValue | undefined;
+  note: string | Comment | undefined;
 
-  constructor(note?: NoteValue) {
+  constructor(note?: string | Comment) {
     this.note = note;
   }
 
@@ -69,7 +45,7 @@ export class Note {
       default:
         value = {
           type: 'note',
-          note: this.note as NoteObject,
+          note: this.note as Comment,
         };
         break;
     }

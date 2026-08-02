@@ -61,7 +61,7 @@ const sharedStringsParser = new XMLParser({
 // WorkbookReader
 // ---------------------------------------------------------------------------
 
-export interface WorkbookReaderOptions {
+export interface WorkbookStreamReaderOptions {
   worksheets?: 'emit' | 'ignore';
   sharedStrings?: 'cache' | 'emit' | 'ignore';
   hyperlinks?: 'cache' | 'emit' | 'ignore';
@@ -75,10 +75,10 @@ interface ParseEvent {
   value: unknown;
 }
 
-class WorkbookReader extends EventEmitter {
+export class WorkbookReader extends EventEmitter {
   static Options: Record<string, string[]>;
   input: string | Readable | undefined;
-  options: WorkbookReaderOptions;
+  options: WorkbookStreamReaderOptions;
   styles: StyleManager;
   stream: Readable | undefined;
   sharedStrings: unknown[];
@@ -86,7 +86,7 @@ class WorkbookReader extends EventEmitter {
   model: Record<string, unknown>;
   properties: unknown;
 
-  constructor(input?: string | Readable, options: WorkbookReaderOptions = {}) {
+  constructor(input?: string | Readable, options: WorkbookStreamReaderOptions = {}) {
     super();
 
     this.input = input;
@@ -116,7 +116,7 @@ class WorkbookReader extends EventEmitter {
     throw new Error(`Could not recognise input: ${input}`);
   }
 
-  async read(input?: string | Readable, options?: WorkbookReaderOptions) {
+  async read(input?: string | Readable, options?: WorkbookStreamReaderOptions) {
     try {
       for await (const item of this.parse(input, options)) {
         // NB: shared-strings 'emit' mode yields {index, text} items with no
@@ -151,7 +151,7 @@ class WorkbookReader extends EventEmitter {
     }
   }
 
-  async *parse(input?: string | Readable, options?: WorkbookReaderOptions) {
+  async *parse(input?: string | Readable, options?: WorkbookStreamReaderOptions) {
     if (options) this.options = options;
     const stream = (this.stream = this._getStream(input || this.input));
     const chunks: unknown[] = [];

@@ -1,10 +1,13 @@
 import colCache from '../utils/data/col-cache';
 
-export interface RangeModel {
+export interface Location {
   top: number;
   left: number;
   bottom: number;
   right: number;
+}
+
+export interface RangeModel extends Location {
   sheetName?: string;
 }
 
@@ -14,7 +17,7 @@ interface RowLike {
 }
 
 // used by worksheet to calculate sheet dimensions
-class Range {
+export class Range {
   // decode() always assigns model synchronously in the constructor, but TS
   // can't see through the indirection — definite assignment is correct here.
   model!: RangeModel;

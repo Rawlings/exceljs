@@ -28,10 +28,10 @@ class TwoCellAnchorXform extends BaseCellAnchorXform {
   }
 
   override render(xmlStream: XmlStream, model: TwoCellAnchorModel) {
-    xmlStream.openNode(this.tag, { editAs: model.range.editAs || 'oneCell' });
+    xmlStream.openNode(this.tag, { editAs: model.range!.editAs || 'oneCell' });
 
-    this.map['xdr:from'].render(xmlStream, model.range.tl);
-    this.map['xdr:to'].render(xmlStream, model.range.br);
+    this.map['xdr:from'].render(xmlStream, model.range!.tl);
+    this.map['xdr:to'].render(xmlStream, model.range!.br);
     this.map['xdr:pic'].render(xmlStream, model.picture);
     this.map['xdr:clientData'].render(xmlStream, {});
 

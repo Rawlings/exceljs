@@ -12,7 +12,11 @@ export interface DefinedNameRanges {
   ranges: string[];
 }
 
-class DefinedNames {
+export type DefinedNamesRanges = DefinedNameRanges;
+
+export type DefinedNamesModel = DefinedNameRanges[];
+
+export class DefinedNames {
   matrixMap: Record<string, CellMatrix>;
 
   constructor() {
@@ -180,14 +184,14 @@ class DefinedNames {
     });
   }
 
-  get model(): DefinedNameRanges[] {
+  get model(): DefinedNamesModel {
     // To get names per cell - just iterate over all names finding cells if they exist
     return _.map(this.matrixMap, (matrix: CellMatrix, name: string) =>
       this.getRanges(name, matrix)
     ).filter((definedName) => definedName.ranges.length);
   }
 
-  set model(value: DefinedNameRanges[] | undefined) {
+  set model(value: DefinedNamesModel | undefined) {
     // value is [ { name, ranges }, ... ]
     const matrixMap: Record<string, CellMatrix> = (this.matrixMap = {});
     if (value && Array.isArray(value)) {

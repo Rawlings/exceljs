@@ -2,9 +2,15 @@
 import CompositeXform from '../composite-xform';
 
 import ConditionalFormattingsExt from './cf-ext/conditional-formattings-ext-xform';
+import type XmlStream from '../../../../utils/stream/xml-stream';
+
+export interface ExtLstModel {
+  conditionalFormattings?: any;
+  [key: string]: any;
+}
 
 class ExtXform extends CompositeXform {
-  conditionalFormattings: any;
+  conditionalFormattings: ConditionalFormattingsExt;
 
   constructor() {
     super();
@@ -13,40 +19,40 @@ class ExtXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'ext';
   }
 
-  hasContent(model: any) {
-    return this.conditionalFormattings.hasContent(model.conditionalFormattings);
+  hasContent(model: ExtLstModel) {
+    return this.conditionalFormattings.hasContent(model?.conditionalFormattings);
   }
 
-  prepare(model: any, options: any) {
-    this.conditionalFormattings.prepare(model.conditionalFormattings, options);
+  override prepare(model: ExtLstModel, options: any) {
+    this.conditionalFormattings.prepare(model?.conditionalFormattings, options);
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: ExtLstModel) {
     xmlStream.openNode('ext', {
       uri: '{78C0D931-6437-407d-A8EE-F0AAD7539E65}',
       'xmlns:x14': 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main',
     });
 
-    this.conditionalFormattings.render(xmlStream, model.conditionalFormattings);
+    this.conditionalFormattings.render(xmlStream, model?.conditionalFormattings);
 
     xmlStream.closeNode();
   }
 
-  createNewModel() {
+  override createNewModel() {
     return {};
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(name: string, parser: any) {
     this.model[name] = parser.model;
   }
 }
 
 class ExtLstXform extends CompositeXform {
-  ext: any;
+  ext: ExtXform;
 
   constructor() {
     super();
@@ -56,19 +62,19 @@ class ExtLstXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'extLst';
   }
 
-  prepare(model: any, options: any) {
+  override prepare(model: ExtLstModel, options: any) {
     this.ext.prepare(model, options);
   }
 
-  hasContent(model: any) {
+  hasContent(model: ExtLstModel) {
     return this.ext.hasContent(model);
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: ExtLstModel) {
     if (!this.hasContent(model)) {
       return;
     }
@@ -78,11 +84,11 @@ class ExtLstXform extends CompositeXform {
     xmlStream.closeNode();
   }
 
-  createNewModel() {
+  override createNewModel() {
     return {};
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(name: string, parser: any) {
     Object.assign(this.model, parser.model);
   }
 }

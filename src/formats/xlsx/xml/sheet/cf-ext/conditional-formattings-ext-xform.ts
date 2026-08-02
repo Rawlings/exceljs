@@ -1,10 +1,17 @@
 import CompositeXform from '../../composite-xform';
 
 import CfRuleExtXform from './cf-rule-ext-xform';
-import ConditionalFormattingExtXform from './conditional-formatting-ext-xform';
+import ConditionalFormattingExtXform, {
+  type ConditionalFormattingExtModel,
+} from './conditional-formatting-ext-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+
+type ConditionalFormattingsExtModel = ConditionalFormattingExtModel[] & {
+  hasExtContent?: boolean;
+};
 
 class ConditionalFormattingsExtXform extends CompositeXform {
-  cfXform: any;
+  cfXform: ConditionalFormattingExtXform;
 
   constructor() {
     super();
@@ -14,38 +21,38 @@ class ConditionalFormattingsExtXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'x14:conditionalFormattings';
   }
 
-  hasContent(model: any) {
+  hasContent(model: ConditionalFormattingsExtModel) {
     if (model.hasExtContent === undefined) {
-      model.hasExtContent = model.some((cf: any) => cf.rules.some(CfRuleExtXform.isExt));
+      model.hasExtContent = model.some((cf) => cf.rules.some(CfRuleExtXform.isExt));
     }
     return model.hasExtContent;
   }
 
-  prepare(model: any, options: any) {
-    model.forEach((cf: any) => {
+  override prepare(model: ConditionalFormattingsExtModel, options: any) {
+    model.forEach((cf) => {
       this.cfXform.prepare(cf, options);
     });
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: ConditionalFormattingsExtModel) {
     if (this.hasContent(model)) {
-      xmlStream.openNode(this.tag);
-      model.forEach((cf: any) => this.cfXform.render(xmlStream, cf));
+      xmlStream.openNode(this.tag as string);
+      model.forEach((cf) => this.cfXform.render(xmlStream, cf));
       xmlStream.closeNode();
     }
   }
 
-  createNewModel() {
+  override createNewModel(): ConditionalFormattingsExtModel {
     return [];
   }
 
-  onParserClose(name: any, parser: any) {
+  override onParserClose(_name: string, parser: { model: any }) {
     // model is array of conditional formatting objects
-    this.model.push(parser.model);
+    (this.model as ConditionalFormattingsExtModel).push(parser.model);
   }
 }
 

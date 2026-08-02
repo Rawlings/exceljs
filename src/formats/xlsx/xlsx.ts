@@ -37,7 +37,30 @@ function fsReadFileAsync(filename: any, options?: any) {
   });
 }
 
-class XLSX {
+export interface JSZipGeneratorOptions {
+  compression: 'STORE' | 'DEFLATE';
+  compressionOptions: null | {
+    level: number;
+  };
+}
+
+export interface XlsxReadOptions {
+  ignoreNodes?: string[];
+  maxRows?: number;
+  maxCols?: number;
+  base64?: boolean;
+  [key: string]: unknown;
+}
+
+export interface XlsxWriteOptions {
+  zip?: Partial<JSZipGeneratorOptions>;
+  useStyles?: boolean;
+  useSharedStrings?: boolean;
+  base64?: boolean;
+  [key: string]: unknown;
+}
+
+export class XLSX {
   workbook: any;
   static RelType: any;
 
@@ -50,7 +73,7 @@ class XLSX {
   // =========================================================================
   // Read
 
-  async readFile(filename: any, options?: any) {
+  async readFile(filename: string, options?: Partial<XlsxReadOptions>) {
     if (!fs.existsSync(filename)) {
       throw new Error(`File not found: ${filename}`);
     }
@@ -758,7 +781,7 @@ class XLSX {
     return this._finalize(zip, stream);
   }
 
-  writeFile(filename: any, options?: any) {
+  writeFile(filename: string, options?: Partial<XlsxWriteOptions>) {
     const stream = fs.createWriteStream(filename);
 
     return new Promise<void>((resolve, reject) => {
@@ -779,7 +802,7 @@ class XLSX {
     });
   }
 
-  async writeBuffer(options?: any) {
+  async writeBuffer(options?: Partial<XlsxWriteOptions>) {
     const chunks: Buffer[] = [];
     const stream = new PassThrough();
     stream.on('data', (chunk: Buffer) => chunks.push(chunk));
@@ -789,5 +812,7 @@ class XLSX {
 }
 
 (XLSX as any).RelType = RelType;
+
+export type Xlsx = XLSX;
 
 export default XLSX;

@@ -13,7 +13,7 @@ export interface MatrixCell {
 type MatrixRow = (MatrixCell | undefined | null)[];
 type MatrixSheet = (MatrixRow | undefined)[];
 
-class CellMatrix {
+export class CellMatrix {
   template: Record<string, unknown> | undefined;
   sheets: Record<string, MatrixSheet>;
 

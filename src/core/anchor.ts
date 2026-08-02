@@ -1,5 +1,14 @@
 import colCache from '../utils/data/col-cache';
 
+export interface IAnchor {
+  col: number;
+  row: number;
+  nativeCol: number;
+  nativeRow: number;
+  nativeColOff: number;
+  nativeRowOff: number;
+}
+
 export interface AnchorModel {
   nativeCol: number;
   nativeColOff: number;
@@ -16,16 +25,12 @@ export interface AnchorAddressInput {
   nativeRowOff?: number;
 }
 
-// The minimal worksheet surface Anchor needs. Worksheet is now fully typed
-// and satisfies this structurally (getColumn/getRow never actually return
-// undefined — they create missing columns/rows — but the union is kept
-// since callers only need read access to these two members).
 export interface AnchorWorksheet {
   getColumn(number: number): { isCustomWidth: boolean; width: number | undefined } | undefined;
   getRow(number: number): { height: number | undefined } | undefined;
 }
 
-export class Anchor {
+export class Anchor implements IAnchor {
   worksheet: AnchorWorksheet | undefined;
   nativeCol: number;
   nativeColOff: number;

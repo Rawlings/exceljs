@@ -2,7 +2,10 @@ import BaseXform from '../base-xform';
 import type { SaxNode } from '../base-xform';
 
 export interface CellAnchorModel {
-  range: {
+  // NB: `range` is only guaranteed to be present once a value has come through
+  // parseOpen; some callers (see reconcile tests) pass partial models that
+  // skip it directly, so it's typed optional here to match actual usage.
+  range?: {
     editAs: string;
     tl?: unknown;
     br?: unknown;
@@ -11,6 +14,12 @@ export interface CellAnchorModel {
   picture?: unknown;
   medium?: unknown;
   anchorType?: string;
+  // NB: reconcile() in the two-cell/one-cell anchor xforms is sometimes
+  // called (see specs) with a flat object carrying tl/br directly rather
+  // than nested under `range` — pre-existing test/behavior quirk, not
+  // something to "fix" here.
+  tl?: unknown;
+  br?: unknown;
 }
 
 class BaseCellAnchorXform extends BaseXform {

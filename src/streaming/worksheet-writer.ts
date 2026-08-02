@@ -55,17 +55,26 @@ const xform = {
 
 // ============================================================================================
 
+import type {
+  WorksheetProperties,
+  WorksheetState,
+  PageSetup,
+  HeaderFooter,
+  WorksheetView,
+  AutoFilter,
+} from '../core/worksheet';
+
 export interface WorksheetWriterOptions {
   id: number;
   name?: string;
   workbook: WorkbookWriter;
   useSharedStrings?: boolean;
-  properties?: Record<string, unknown>;
-  state?: string;
-  pageSetup?: Record<string, unknown>;
-  views?: unknown[];
-  autoFilter?: unknown;
-  headerFooter?: Record<string, unknown>;
+  properties?: Partial<WorksheetProperties>;
+  state?: WorksheetState;
+  pageSetup?: Partial<PageSetup>;
+  views?: Array<Partial<WorksheetView>>;
+  autoFilter?: AutoFilter;
+  headerFooter?: Partial<HeaderFooter>;
 }
 
 class WorksheetWriter {
@@ -726,7 +735,7 @@ class WorksheetWriter {
     const options = {
       styles: (this._workbook as unknown as { styles: unknown }).styles,
     };
-    xform.conditionalFormattings.prepare(this.conditionalFormatting, options);
+    xform.conditionalFormattings.prepare(this.conditionalFormatting as any[], options);
     (this.stream as unknown as { write(t: string): void }).write(
       xform.conditionalFormattings.toXml(this.conditionalFormatting as any[])
     );

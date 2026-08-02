@@ -44,7 +44,7 @@ interface MediaItem {
   [key: string]: unknown;
 }
 
-class WorkbookWriter {
+export class WorkbookWriter {
   created: Date;
   modified: Date;
   creator: string;
@@ -218,12 +218,14 @@ class WorkbookWriter {
       name,
       workbook: this,
       useSharedStrings,
-      properties: options.properties as Record<string, unknown> | undefined,
-      state: options.state as string | undefined,
-      pageSetup: options.pageSetup as Record<string, unknown> | undefined,
-      views: options.views as unknown[] | undefined,
-      autoFilter: options.autoFilter,
-      headerFooter: options.headerFooter as Record<string, unknown> | undefined,
+      properties: options.properties as import('../core/worksheet').WorksheetProperties | undefined,
+      state: options.state as import('../core/worksheet').WorksheetState | undefined,
+      pageSetup: options.pageSetup as Partial<import('../core/worksheet').PageSetup> | undefined,
+      views: options.views as Array<Partial<import('../core/worksheet').WorksheetView>> | undefined,
+      autoFilter: options.autoFilter as import('../core/worksheet').AutoFilter | undefined,
+      headerFooter: options.headerFooter as
+        | Partial<import('../core/worksheet').HeaderFooter>
+        | undefined,
     });
 
     this._worksheets[id] = worksheet;

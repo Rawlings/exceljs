@@ -1,9 +1,13 @@
 import BaseXform from '../../base-xform';
 
-import ConditionalFormattingXform from './conditional-formatting-xform';
+import ConditionalFormattingXform, {
+  type ConditionalFormattingModel,
+} from './conditional-formatting-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../../base-xform';
 
 class ConditionalFormattingsXform extends BaseXform {
-  cfXform: any;
+  cfXform: ConditionalFormattingXform;
 
   constructor() {
     super();
@@ -11,40 +15,40 @@ class ConditionalFormattingsXform extends BaseXform {
     this.cfXform = new ConditionalFormattingXform();
   }
 
-  get tag() {
+  override get tag() {
     return 'conditionalFormatting';
   }
 
-  reset() {
+  override reset() {
     this.model = [];
   }
 
-  prepare(model: any, options: any) {
+  override prepare(model: ConditionalFormattingModel[], options: any) {
     // ensure each rule has a priority value
     let nextPriority = model.reduce(
-      (p: number, cf: any) => Math.max(p, ...cf.rules.map((rule: any) => rule.priority || 0)),
+      (p: number, cf) => Math.max(p, ...cf.rules.map((rule) => rule.priority || 0)),
       1
     );
-    model.forEach((cf: any) => {
-      cf.rules.forEach((rule: any) => {
+    model.forEach((cf) => {
+      cf.rules.forEach((rule) => {
         if (!rule.priority) {
           rule.priority = nextPriority++;
         }
 
-        if (rule.style) {
-          rule.dxfId = options.styles.addDxfStyle(rule.style);
+        if ((rule as any).style) {
+          rule.dxfId = options.styles.addDxfStyle((rule as any).style);
         }
       });
     });
   }
 
-  render(xmlStream: any, model: any) {
-    model.forEach((cf: any) => {
+  override render(xmlStream: XmlStream, model: ConditionalFormattingModel[]) {
+    model.forEach((cf) => {
       this.cfXform.render(xmlStream, cf);
     });
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -61,13 +65,13 @@ class ConditionalFormattingsXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.model.push(this.parser.model);
@@ -79,11 +83,11 @@ class ConditionalFormattingsXform extends BaseXform {
     return false;
   }
 
-  reconcile(model: any, options: any) {
-    model.forEach((cf: any) => {
-      cf.rules.forEach((rule: any) => {
+  override reconcile(model: ConditionalFormattingModel[], options: any) {
+    model.forEach((cf) => {
+      cf.rules.forEach((rule) => {
         if (rule.dxfId !== undefined) {
-          rule.style = options.styles.getDxfStyle(rule.dxfId);
+          (rule as any).style = options.styles.getDxfStyle(rule.dxfId);
           delete rule.dxfId;
         }
       });

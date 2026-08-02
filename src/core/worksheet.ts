@@ -18,6 +18,171 @@ import type {
   EachRowOptions,
 } from './internal-types';
 
+import type { Color } from './cell';
+
+export interface WorksheetViewCommon {
+  rightToLeft: boolean;
+  activeCell: string;
+  showRuler: boolean;
+  showRowColHeaders: boolean;
+  showGridLines: boolean;
+  zoomScale: number;
+  zoomScaleNormal: number;
+}
+
+export interface WorksheetViewNormal {
+  state: 'normal';
+  style: 'pageBreakPreview' | 'pageLayout';
+}
+
+export interface WorksheetViewFrozen {
+  state: 'frozen';
+  style?: 'pageBreakPreview';
+  xSplit?: number;
+  ySplit?: number;
+  topLeftCell?: string;
+}
+
+export interface WorksheetViewSplit {
+  state: 'split';
+  style?: 'pageBreakPreview' | 'pageLayout';
+  xSplit?: number;
+  ySplit?: number;
+  topLeftCell?: string;
+  activePane?: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight';
+}
+
+export type WorksheetView = WorksheetViewCommon &
+  (WorksheetViewNormal | WorksheetViewFrozen | WorksheetViewSplit);
+
+export type { WorkbookView } from './workbook';
+
+export interface Margins {
+  top: number;
+  left: number;
+  bottom: number;
+  right: number;
+  header: number;
+  footer: number;
+}
+
+export interface PageSetup {
+  margins: Margins;
+  orientation: 'portrait' | 'landscape';
+  horizontalDpi: number;
+  verticalDpi: number;
+  fitToPage: boolean;
+  fitToWidth: number;
+  fitToHeight: number;
+  scale: number;
+  pageOrder: 'downThenOver' | 'overThenDown';
+  blackAndWhite: boolean;
+  draft: boolean;
+  cellComments: 'atEnd' | 'asDisplayed' | 'None';
+  errors: 'dash' | 'blank' | 'NA' | 'displayed';
+  paperSize: number;
+  showRowColHeaders: boolean;
+  showGridLines: boolean;
+  firstPageNumber: number;
+  horizontalCentered: boolean;
+  verticalCentered: boolean;
+  printArea: string;
+  printTitlesRow: string;
+  printTitlesColumn: string;
+}
+
+export interface HeaderFooter {
+  differentFirst: boolean;
+  differentOddEven: boolean;
+  oddHeader: string;
+  oddFooter: string;
+  evenHeader: string;
+  evenFooter: string;
+  firstHeader: string;
+  firstFooter: string;
+}
+
+export type AutoFilter =
+  | string
+  | {
+      from: string | { row: number; column: number };
+      to: string | { row: number; column: number };
+    };
+
+export interface WorksheetProtection {
+  sheet?: boolean;
+  algorithmName?: string;
+  saltValue?: string;
+  spinCount?: number;
+  hashValue?: string;
+  objects?: boolean;
+  scenarios?: boolean;
+  selectLockedCells?: boolean;
+  selectUnlockedCells?: boolean;
+  formatCells?: boolean;
+  formatColumns?: boolean;
+  formatRows?: boolean;
+  insertColumns?: boolean;
+  insertRows?: boolean;
+  insertHyperlinks?: boolean;
+  deleteColumns?: boolean;
+  deleteRows?: boolean;
+  sort?: boolean;
+  autoFilter?: boolean;
+  pivotTables?: boolean;
+}
+
+export interface RowBreak {
+  id: number;
+  max: number;
+  min: number;
+  man: number;
+}
+
+export interface WorksheetProperties {
+  tabColor?: Partial<Color>;
+  outlineLevelCol: number;
+  outlineLevelRow: number;
+  outlineProperties?: {
+    summaryBelow?: boolean;
+    summaryRight?: boolean;
+  };
+  defaultRowHeight?: number;
+  defaultColWidth?: number;
+  dyDescent?: number;
+  showGridLines?: boolean;
+}
+
+export type WorksheetState = 'visible' | 'hidden' | 'veryHidden';
+
+export interface AddWorksheetOptions {
+  properties: Partial<WorksheetProperties>;
+  pageSetup: Partial<PageSetup>;
+  headerFooter: Partial<HeaderFooter>;
+  views: Array<Partial<WorksheetView>>;
+  state: WorksheetState;
+}
+
+export interface RowBreak {
+  id: number;
+  max: number;
+  min: number;
+  man: number;
+}
+
+export interface WorksheetModel {
+  id: number;
+  name: string;
+  properties: WorksheetProperties;
+  pageSetup: Partial<PageSetup>;
+  headerFooter: Partial<HeaderFooter>;
+  rowBreaks: RowBreak[];
+  views: WorksheetView[];
+  autoFilter: AutoFilter;
+  media: import('./image').Media[];
+  merges: string[];
+}
+
 // Worksheet requirements
 //  Operate as sheet inside workbook or standalone
 //  Load and Save from file and stream
@@ -29,36 +194,44 @@ export interface WorksheetOptions {
   id?: number;
   orderNo?: number;
   name?: string;
-  state?: string;
-  properties?: Record<string, unknown>;
-  pageSetup?: Record<string, unknown>;
-  headerFooter?: Record<string, unknown>;
-  views?: unknown[];
-  autoFilter?: unknown;
+  state?: WorksheetState;
+  properties?: Partial<WorksheetProperties>;
+  pageSetup?: Partial<PageSetup>;
+  headerFooter?: Partial<HeaderFooter>;
+  views?: Array<Partial<WorksheetView>>;
+  autoFilter?: AutoFilter;
 }
 
-class Worksheet implements WorksheetLike {
+export interface AddWorksheetOptions {
+  properties: Partial<WorksheetProperties>;
+  pageSetup: Partial<PageSetup>;
+  headerFooter: Partial<HeaderFooter>;
+  views: Array<Partial<WorksheetView>>;
+  state: WorksheetState;
+}
+
+export class Worksheet implements WorksheetLike {
   _workbook: WorkbookLike;
   id: number;
   orderNo: number | undefined;
-  state: string;
+  state: WorksheetState | string;
   _rows: (Row | undefined)[];
   _columns: Column[] | null;
   _keys: Record<string, Column>;
   _merges: Record<string, Range>;
-  rowBreaks: unknown[];
-  properties: Record<string, unknown> & { outlineLevelCol: number; outlineLevelRow: number };
-  pageSetup: Record<string, unknown>;
-  headerFooter: Record<string, unknown>;
+  rowBreaks: RowBreak[];
+  properties: WorksheetProperties;
+  pageSetup: Partial<PageSetup>;
+  headerFooter: Partial<HeaderFooter>;
   dataValidations: DataValidations;
-  sheetProtection: Record<string, unknown> | null;
+  sheetProtection: Partial<WorksheetProtection> | null;
   tables: Record<string, Table>;
   pivotTables: unknown[];
   conditionalFormattings: unknown[];
   _name: string | undefined;
   _headerRowCount: number | undefined;
-  views: unknown[];
-  autoFilter: unknown;
+  views: Array<Partial<WorksheetView>>;
+  autoFilter: AutoFilter | null | undefined;
   _media: Image[];
   sheetView: unknown;
 
@@ -173,6 +346,8 @@ class Worksheet implements WorksheetLike {
 
     this.conditionalFormattings = [];
   }
+
+  commit() {}
 
   get name(): string {
     return this._name as string;
@@ -816,7 +991,10 @@ class Worksheet implements WorksheetLike {
 
   // =========================================================================
   // Images
-  addImage(imageId: number, range: unknown) {
+  addImage(
+    imageId: number,
+    range: string | import('./image').ImageRange | import('./image').ImagePosition
+  ) {
     const model: import('./image').ImageModel = {
       type: 'image',
       imageId,
@@ -861,7 +1039,7 @@ class Worksheet implements WorksheetLike {
         this.sheetProtection.algorithmName = 'SHA-512';
         this.sheetProtection.saltValue = Encryptor.randomBytes(16).toString('base64');
         this.sheetProtection.spinCount =
-          options && 'spinCount' in options ? options.spinCount : 100000; // allow user specified spinCount
+          options && 'spinCount' in options ? (options.spinCount as number) : 100000; // allow user specified spinCount
         this.sheetProtection.hashValue = Encryptor.convertPasswordToHash(
           password,
           'SHA512',
@@ -885,7 +1063,7 @@ class Worksheet implements WorksheetLike {
 
   // =========================================================================
   // Tables
-  addTable(model: import('./table').TableModel): Table {
+  addTable(model: import('./table').TableProperties): Table {
     const table = new Table(this, model);
     this.tables[model.name] = table;
     return table;
@@ -922,7 +1100,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
 
   // ===========================================================================
   // Conditional Formatting
-  addConditionalFormatting(cf: unknown) {
+  addConditionalFormatting(cf: import('./conditional-formatting').ConditionalFormattingOptions) {
     this.conditionalFormattings.push(cf);
   }
 
@@ -951,13 +1129,13 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     console.trace(
       'worksheet.tabColor property is now deprecated. Please use worksheet.properties.tabColor'
     );
-    this.properties.tabColor = value;
+    this.properties.tabColor = value as Partial<Color>;
   }
 
   // ===========================================================================
   // Model
 
-  get model(): Record<string, unknown> {
+  get model(): WorksheetModel {
     const model: Record<string, unknown> = {
       id: this.id,
       name: this.name,
@@ -1003,7 +1181,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
       (model.merges as unknown[]).push(merge.range);
     });
 
-    return model;
+    return model as unknown as WorksheetModel;
   }
 
   _parseRows(model: { rows: { number: number }[] }) {
@@ -1036,7 +1214,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     autoFilter: unknown;
     media: unknown[];
     sheetProtection: Record<string, unknown> | null;
-    tables: import('./table').TableModel[];
+    tables: import('./table').TableProperties[];
     pivotTables: unknown[];
     conditionalFormattings: unknown[];
   }) {
@@ -1049,14 +1227,11 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
 
     this._parseMergeCells(value as { mergeCells?: unknown[] | Record<string, unknown> });
     this.dataValidations = new DataValidations(value.dataValidations as never);
-    this.properties = value.properties as Record<string, unknown> & {
-      outlineLevelCol: number;
-      outlineLevelRow: number;
-    };
+    this.properties = value.properties as unknown as WorksheetProperties;
     this.pageSetup = value.pageSetup;
     this.headerFooter = value.headerFooter;
-    this.views = value.views;
-    this.autoFilter = value.autoFilter;
+    this.views = value.views as Array<Partial<WorksheetView>>;
+    this.autoFilter = value.autoFilter as AutoFilter;
     this._media = value.media.map(
       (medium) => new Image(this, medium as import('./image').ImageModel)
     );

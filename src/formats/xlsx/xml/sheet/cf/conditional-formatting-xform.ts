@@ -1,6 +1,13 @@
 import CompositeXform from '../../composite-xform';
 
-import CfRuleXform from './cf-rule-xform';
+import CfRuleXform, { type CfRuleModel } from './cf-rule-xform';
+import type XmlStream from '../../../../../utils/stream/xml-stream';
+import type { SaxNode } from '../../base-xform';
+
+export interface ConditionalFormattingModel {
+  ref?: string;
+  rules: CfRuleModel[];
+}
 
 class ConditionalFormattingXform extends CompositeXform {
   constructor() {
@@ -11,19 +18,19 @@ class ConditionalFormattingXform extends CompositeXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'conditionalFormatting';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: ConditionalFormattingModel) {
     // if there are no primitive rules, exit now
     if (!model.rules.some(CfRuleXform.isPrimitive)) {
       return;
     }
 
-    xmlStream.openNode(this.tag, { sqref: model.ref });
+    xmlStream.openNode(this.tag as string, { sqref: model.ref });
 
-    model.rules.forEach((rule: any) => {
+    model.rules.forEach((rule) => {
       if (CfRuleXform.isPrimitive(rule)) {
         rule.ref = model.ref;
         this.map.cfRule.render(xmlStream, rule);
@@ -33,15 +40,16 @@ class ConditionalFormattingXform extends CompositeXform {
     xmlStream.closeNode();
   }
 
-  createNewModel({ attributes }: any) {
+  override createNewModel({ attributes }: SaxNode): ConditionalFormattingModel {
+    const attrs = attributes as Record<string, string>;
     return {
-      ref: attributes.sqref,
+      ref: attrs.sqref,
       rules: [],
     };
   }
 
-  onParserClose(name: any, parser: any) {
-    this.model.rules.push(parser.model);
+  override onParserClose(_name: string, parser: { model: any }) {
+    (this.model as ConditionalFormattingModel).rules.push(parser.model);
   }
 }
 

@@ -213,7 +213,7 @@ class CfRuleXform extends CompositeXform {
       operator: model.operator,
     });
 
-    (model.formulae as string[]).forEach(formula => {
+    (model.formulae as string[]).forEach((formula) => {
       this.formulaXform.render(xmlStream, formula);
     });
 

@@ -38,15 +38,30 @@ export enum ReadingOrder {
   RightToLeft = 2,
 }
 
-export const ErrorValue = {
-  NotApplicable: '#N/A',
-  Ref: '#REF!',
-  Name: '#NAME?',
-  DivZero: '#DIV/0!',
-  Null: '#NULL!',
-  Value: '#VALUE!',
-  Num: '#NUM!',
-} as const;
+export enum ErrorValue {
+  NotApplicable = '#N/A',
+  Ref = '#REF!',
+  Name = '#NAME?',
+  DivZero = '#DIV/0!',
+  Null = '#NULL!',
+  Value = '#VALUE!',
+  Num = '#NUM!',
+}
+
+export enum PaperSize {
+  Legal = 5,
+  Executive = 7,
+  A4 = 9,
+  A5 = 11,
+  B5 = 13,
+  Envelope_10 = 20,
+  Envelope_DL = 27,
+  Envelope_C5 = 28,
+  Envelope_B5 = 34,
+  Envelope_Monarch = 37,
+  Double_Japan_Postcard_Rotated = 82,
+  K16_197x273_mm = 119,
+}
 
 export default {
   ValueType,
@@ -54,5 +69,6 @@ export default {
   RelationshipType,
   DocumentType,
   ReadingOrder,
+  PaperSize,
   ErrorValue,
 };

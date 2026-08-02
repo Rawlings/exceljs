@@ -11,7 +11,7 @@ export interface CellLike {
   col: number;
   row: number;
   address: string;
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 export interface FullAddress {
@@ -45,14 +45,16 @@ export interface WorkbookLike {
   pivotTables: unknown[];
   _worksheets: (WorksheetLike | undefined)[];
   removeWorksheetEx(worksheet: WorksheetLike): void;
+  [key: string]: any;
 }
 
 export interface RowLike {
   number: number;
   style: Record<string, unknown>;
   dimensions: { min: number; max: number } | null;
-  getCell(col: number): CellLike;
-  getCellEx(address: { col: number; row: number; address: string }): CellLike;
+  getCell(col: number): any;
+  getCellEx(address: { col: number; row: number; address: string }): any;
+  [key: string]: any;
 }
 
 export interface EachRowOptions {
@@ -60,22 +62,21 @@ export interface EachRowOptions {
 }
 
 export interface WorksheetLike {
+  id: number;
   name: string;
   workbook: WorkbookLike;
   dataValidations: DataValidationLike;
   properties: { outlineLevelCol: number; outlineLevelRow: number };
-  getCell(row: number, col: number): CellLike;
-  getRow(number: number): RowLike;
-  getColumn(number: number): ColumnLike;
-  getColumnKey(key: string): ColumnLike | undefined;
-  setColumnKey(key: string, column: ColumnLike): void;
+  getCell(row: number, col: number): any;
+  getRow(number: number): any;
+  getColumn(number: number): any;
+  getColumnKey(key: string): any;
+  setColumnKey(key: string, column: any): void;
   deleteColumnKey(key: string): void;
-  eachRow(iteratee: (row: RowLike, rowNumber: number) => void): void;
-  eachRow(
-    options: EachRowOptions | null,
-    iteratee: (row: RowLike, rowNumber: number) => void
-  ): void;
-  eachColumnKey(iteratee: (column: ColumnLike, key: string) => void): void;
+  eachRow(iteratee: (row: any, rowNumber: number) => void): void;
+  eachRow(options: EachRowOptions | null, iteratee: (row: any, rowNumber: number) => void): void;
+  eachColumnKey(iteratee: (column: any, key: string) => void): void;
+  [key: string]: any;
 }
 
 export interface ColumnLike {
@@ -87,4 +88,5 @@ export interface ColumnLike {
   outlineLevel: number;
   collapsed: boolean;
   equivalentTo(other: ColumnLike): boolean;
+  [key: string]: any;
 }
