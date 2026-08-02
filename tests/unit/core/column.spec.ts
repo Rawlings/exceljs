@@ -67,7 +67,7 @@ describe('Column', () => {
       outlineLevel: 1,
     });
 
-    const model = Column.toModel(sheet.columns) as any[];
+    const model = Column.toModel(sheet.columns);
     expect(model.length).to.equal(2);
 
     expect(model[0].width).to.equal(10);
@@ -158,7 +158,7 @@ describe('Column', () => {
     });
     sheet.getColumn(3).numFmt = '0.00%';
 
-    const model = Column.toModel(sheet.columns) as any[];
+    const model = Column.toModel(sheet.columns);
     expect(model.length).to.equal(3);
 
     expect(model[0].width).to.equal(9);

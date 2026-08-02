@@ -113,29 +113,29 @@ const utilsModule: any = {
     return {
       _keys: {} as Record<string, any>,
       _cells: {} as Record<string, any>,
-      rows: [] as any[],
-      columns: [] as any[],
+      rows: [],
+      columns: [],
       properties: {
         outlineLevelCol: 0,
         outlineLevelRow: 0,
       },
 
       addColumn(colNumber: number, defn: any) {
-        const newColumn = new Column(this as any, colNumber, defn);
+        const newColumn = new Column(this, colNumber, defn);
         this.columns[colNumber - 1] = newColumn;
         return newColumn;
       },
       getColumn(colNumber: number) {
         let column = this.columns[colNumber - 1] || this._keys[colNumber];
         if (!column) {
-          column = this.columns[colNumber - 1] = new Column(this as any, colNumber);
+          column = this.columns[colNumber - 1] = new Column(this, colNumber);
         }
         return column;
       },
       getRow(rowNumber: number) {
         let row = this.rows[rowNumber - 1];
         if (!row) {
-          row = this.rows[rowNumber - 1] = new Row(this as any, rowNumber);
+          row = this.rows[rowNumber - 1] = new Row(this, rowNumber);
         }
         return row;
       },

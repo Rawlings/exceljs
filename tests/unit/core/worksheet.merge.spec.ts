@@ -64,7 +64,7 @@ describe('Worksheet', () => {
           for (let j = d.left; j <= d.right; j++) {
             const cell = ws.getCell(i, j);
             const masterCell = master ? ws.getCell(master) : cell;
-            expect((cell as any).master.address).to.equal(masterCell.address);
+            expect((cell).master.address).to.equal(masterCell.address);
           }
         }
       };
@@ -195,7 +195,7 @@ describe('Worksheet', () => {
 
       const cellVals: any[] = [];
       for (const r of [r2, r3]) {
-        for (const cell of (r as any)._cells) {
+        for (const cell of (r)._cells) {
           cellVals.push(cell._value);
         }
       }

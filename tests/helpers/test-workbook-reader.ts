@@ -60,7 +60,7 @@ const self: any = {
       wb.on('end', () => {
         try {
           expect(rowCount).to.equal(11);
-          resolve(undefined as any);
+          resolve(undefined);
         } catch (error) {
           reject(error);
         }

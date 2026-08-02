@@ -1,15 +1,27 @@
 {
-  "plugins": ["typescript", "import", "unicorn", "node"],
+  "plugins": [
+    "typescript",
+    "import",
+    "unicorn",
+    "node"
+  ],
   "rules": {
     "no-console": "error",
     "eqeqeq": "error",
     "no-sparse-arrays": "off",
     "no-underscore-dangle": "off",
-    "no-unused-expressions": "off"
+    "no-unused-expressions": "off",
+    "typescript/no-explicit-any": "error"
   },
   "env": {
     "node": true,
     "es2024": true
   },
-  "ignorePatterns": ["**/*.xml", "**/*.json", "**/*.rels", "old-repo/**", "dist/**", "node_modules/**"]
+  "ignorePatterns": [
+    "**/*.xml",
+    "**/*.json",
+    "**/*.rels",
+    "dist/**",
+    "node_modules/**"
+  ]
 }

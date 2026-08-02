@@ -3,6 +3,8 @@ import { access } from 'node:fs/promises';
 import { PassThrough, Readable } from 'node:stream';
 import type Workbook from '../../core/workbook';
 import type Worksheet from '../../core/worksheet';
+import type Row from '../../core/row';
+import type { CellValue } from '../../core/cell';
 
 export interface FastCsvParserOptionsArgs {
   objectMode: boolean;
@@ -27,7 +29,27 @@ export interface FastCsvParserOptionsArgs {
   skipRows: number;
 }
 
-export type QuoteColumns = boolean | boolean[] | { [s: string]: boolean };
+export interface QuoteColumnMap {
+  [s: string]: boolean;
+}
+export type QuoteColumns = boolean | boolean[] | QuoteColumnMap;
+
+export interface RowMap {
+  // oxlint-disable-next-line typescript/no-explicit-any
+  [key: string]: any;
+}
+// oxlint-disable-next-line typescript/no-explicit-any
+export type RowHashArray = [string, any][];
+export type RowArray = string[];
+export type Rows = RowArray | RowMap | RowHashArray;
+export type RowTransformCallback = (error?: Error | null, row?: Rows) => void;
+export interface RowTransformFunction {
+  (row: Rows, callback: RowTransformCallback): void;
+  (row: Rows): Rows;
+}
+export type HeaderArray = (string | undefined | null)[];
+export type HeaderTransformFunction = (headers: HeaderArray) => HeaderArray;
+
 
 export interface FastCsvFormatterOptionsArgs {
   objectMode: boolean;
@@ -40,6 +62,8 @@ export interface FastCsvFormatterOptionsArgs {
   headers: null | boolean | string[];
   includeEndRowDelimiter: boolean;
   writeBOM: boolean;
+  // any: mirrors fast-csv's own RowTransformFunction typing (public API, see src/temp.d.ts)
+  // oxlint-disable-next-line typescript/no-explicit-any
   transform: (row: any, callback?: any) => any;
   alwaysWriteHeaders: boolean;
 }
@@ -47,6 +71,8 @@ export interface FastCsvFormatterOptionsArgs {
 export interface CsvReadOptions {
   dateFormats: string[];
   encoding: string;
+  // any: mirrors the public API contract in src/temp.d.ts (arbitrary user-supplied map fn)
+  // oxlint-disable-next-line typescript/no-explicit-any
   map(value: any, index: number): any;
   sheetName: string;
   parserOptions: Partial<FastCsvParserOptionsArgs>;
@@ -58,6 +84,8 @@ export interface CsvWriteOptions {
   sheetName: string;
   sheetId: number;
   encoding: string;
+  // any: mirrors the public API contract in src/temp.d.ts (arbitrary user-supplied map fn)
+  // oxlint-disable-next-line typescript/no-explicit-any
   map(value: any, index: number): any;
   includeEmptyRows: boolean;
   formatterOptions: Partial<FastCsvFormatterOptionsArgs>;
@@ -73,7 +101,7 @@ async function fileExists(filename: string): Promise<boolean> {
 }
 
 /* eslint-disable quote-props */
-const SpecialValues: Record<string, any> = {
+const SpecialValues: Record<string, CellValue> = {
   true: true,
   false: false,
   '#N/A': { error: '#N/A' },
@@ -122,7 +150,7 @@ function parseDateNative(str: string): Date | null {
   return null;
 }
 
-function defaultReadMap(datum: string): any {
+function defaultReadMap(datum: string): CellValue {
   if (datum === '') {
     return null;
   }
@@ -141,21 +169,21 @@ function defaultReadMap(datum: string): any {
   return datum;
 }
 
-function defaultWriteMap(value: any): any {
+function defaultWriteMap(value: CellValue): CellValue {
   if (value) {
-    if (value.text || value.hyperlink) {
-      return value.hyperlink || value.text || '';
-    }
-    if (value.formula || value.result) {
-      return value.result || '';
-    }
     if (value instanceof Date) {
       return value.toISOString();
     }
-    if (value.error) {
-      return value.error;
-    }
     if (typeof value === 'object') {
+      if ('hyperlink' in value) {
+        return value.hyperlink || value.text || '';
+      }
+      if ('formula' in value) {
+        return value.result || '';
+      }
+      if ('error' in value) {
+        return value.error;
+      }
       return JSON.stringify(value);
     }
   }
@@ -190,8 +218,8 @@ export class CSV {
       const map = options.map || defaultReadMap;
 
       let buffer = '';
-      stream.on('data', (chunk: any) => {
-        buffer += chunk.toString('utf8');
+      stream.on('data', (chunk: Buffer | string) => {
+        buffer += chunk.toString();
         const lines = buffer.split(/\r?\n/);
         buffer = lines.pop() || '';
         for (const line of lines) {
@@ -225,7 +253,7 @@ export class CSV {
       const delimiter = options.formatterOptions?.delimiter || ',';
       const map = options.map || defaultWriteMap;
 
-      const formatField = (field: any) => {
+      const formatField = (field: CellValue) => {
         const str = field === null || field === undefined ? '' : String(field);
         if (str.includes(delimiter) || str.includes('"') || str.includes('\n')) {
           return `"${str.replace(/"/g, '""')}"`;
@@ -237,13 +265,15 @@ export class CSV {
       let lastRow = 1;
 
       if (worksheet) {
-        worksheet.eachRow((row: any, rowNumber: number) => {
+        worksheet.eachRow((row: Row, rowNumber: number) => {
           if (includeEmptyRows) {
             while (lastRow++ < rowNumber - 1) {
               stream.write('\n');
             }
           }
-          const { values } = row;
+          // Row's getter always returns CellValue[]; the wider RowValues type here
+          // only reflects the setter's more permissive input type.
+          const values = (row.values as CellValue[] | undefined) ?? [];
           values.shift();
           const line = values.map(map).map(formatField).join(delimiter) + '\n';
           stream.write(line);

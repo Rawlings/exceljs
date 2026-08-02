@@ -73,7 +73,7 @@ function optimiseDataValidations(model: DataValidationsModel) {
   return dvList
     .map((dv) => {
       if (!dv.marked) {
-        const addr = colCache.decodeEx(dv.address) as any;
+        const addr = colCache.decodeEx(dv.address);
         if (addr.dimensions) {
           dvMap[addr.dimensions].marked = true;
           return {

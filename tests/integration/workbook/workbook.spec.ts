@@ -531,11 +531,11 @@ describe('Workbook', () => {
 
       // two names
       assign(ws1a, 'G1', 1, 'thing1');
-      (ws1a.getCell('G1') as any).addName('thing2');
+      (ws1a.getCell('G1')).addName('thing2');
 
       // once removed
       assign(ws1a, 'G2', 1, ['once', 'twice']);
-      (ws1a.getCell('G2') as any).removeName('once');
+      (ws1a.getCell('G2')).removeName('once');
 
       return wb1.xlsx
         .writeFile(TEST_XLSX_FILE_NAME)
@@ -881,7 +881,7 @@ describe('Workbook', () => {
       await wb.xlsx.load({});
       expect.fail('should fail for given argument');
     } catch (e) {
-      expect((e as any).message).to.equal(
+      expect((e).message).to.equal(
         "Can't read the data of 'the loaded zip file'. Is it in a supported JavaScript type (String, Blob, ArrayBuffer, etc) ?"
       );
     }

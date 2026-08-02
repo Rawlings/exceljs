@@ -33,7 +33,7 @@ describe('Express / HTTP Server', () => {
     await new Promise<void>((resolve: any, reject: any) => {
       http.get('http://127.0.0.1:3003/workbook', async (res: any) => {
         try {
-          await wb2.xlsx.read(res as any);
+          await wb2.xlsx.read(res);
           testutils.checkTestBook(wb2, 'xlsx');
           resolve();
         } catch (err) {

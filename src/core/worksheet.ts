@@ -110,31 +110,31 @@ export interface HeaderFooter {
 export type AutoFilter =
   | string
   | {
-      from: string | { row: number; column: number };
-      to: string | { row: number; column: number };
-    };
+    from: string | { row: number; column: number };
+    to: string | { row: number; column: number };
+  };
 
 export interface WorksheetProtection {
+  objects: boolean;
+  scenarios: boolean;
+  selectLockedCells: boolean;
+  selectUnlockedCells: boolean;
+  formatCells: boolean;
+  formatColumns: boolean;
+  formatRows: boolean;
+  insertColumns: boolean;
+  insertRows: boolean;
+  insertHyperlinks: boolean;
+  deleteColumns: boolean;
+  deleteRows: boolean;
+  sort: boolean;
+  autoFilter: boolean;
+  pivotTables: boolean;
   sheet?: boolean;
   algorithmName?: string;
   saltValue?: string;
-  spinCount?: number;
+  spinCount: number;
   hashValue?: string;
-  objects?: boolean;
-  scenarios?: boolean;
-  selectLockedCells?: boolean;
-  selectUnlockedCells?: boolean;
-  formatCells?: boolean;
-  formatColumns?: boolean;
-  formatRows?: boolean;
-  insertColumns?: boolean;
-  insertRows?: boolean;
-  insertHyperlinks?: boolean;
-  deleteColumns?: boolean;
-  deleteRows?: boolean;
-  sort?: boolean;
-  autoFilter?: boolean;
-  pivotTables?: boolean;
 }
 
 export interface RowBreak {
@@ -145,17 +145,17 @@ export interface RowBreak {
 }
 
 export interface WorksheetProperties {
-  tabColor?: Partial<Color>;
+  tabColor: Partial<Color>;
   outlineLevelCol: number;
   outlineLevelRow: number;
-  outlineProperties?: {
+  outlineProperties: {
     summaryBelow?: boolean;
     summaryRight?: boolean;
   };
-  defaultRowHeight?: number;
+  defaultRowHeight: number;
   defaultColWidth?: number;
-  dyDescent?: number;
-  showGridLines?: boolean;
+  dyDescent: number;
+  showGridLines: boolean;
 }
 
 export type WorksheetState = 'visible' | 'hidden' | 'veryHidden';
@@ -351,7 +351,7 @@ export class Worksheet implements WorksheetLike {
     this.conditionalFormattings = [];
   }
 
-  commit() {}
+  commit() { }
 
   get name() {
     return this._name as string;
@@ -526,15 +526,15 @@ export class Worksheet implements WorksheetLike {
     const nEnd = (this._columns as ColumnLike[]).length;
     if (nExpand < 0) {
       for (let i = start + inserts.length; i <= nEnd; i++) {
-        (this.getColumn(i) as any).defn = (this.getColumn(i - nExpand) as any).defn;
+        (this.getColumn(i)).defn = (this.getColumn(i - nExpand)).defn;
       }
     } else if (nExpand > 0) {
       for (let i = nEnd; i >= nKeep; i--) {
-        (this.getColumn(i + nExpand) as any).defn = (this.getColumn(i) as any).defn;
+        (this.getColumn(i + nExpand)).defn = (this.getColumn(i)).defn;
       }
     }
     for (let i = start; i < start + inserts.length; i++) {
-      (this.getColumn(i) as any).defn = null;
+      (this.getColumn(i)).defn = null;
     }
 
     // account for defined names
@@ -758,7 +758,7 @@ export class Worksheet implements WorksheetLike {
             rDst.getCell(colNumber).style = cell.style;
 
             // remerge cells accounting for insert offset
-            const cellAny = cell as any;
+            const cellAny = cell;
             if (cellAny._value?.constructor?.name === 'MergeValue') {
               const cellToBeMerged = this.getRow(cellAny._row._number + nInserts).getCell(
                 colNumber
@@ -917,7 +917,7 @@ export class Worksheet implements WorksheetLike {
         if (cell) {
           if (cell.type === Enums.ValueType.Merge) {
             // this cell merges to another master
-            this._unMergeMaster((cell as any).master);
+            this._unMergeMaster((cell).master);
           } else if (this._merges[cell.address]) {
             // this cell is a master
             this._unMergeMaster(cell);
@@ -975,9 +975,9 @@ export class Worksheet implements WorksheetLike {
         } else {
           this.getCell(r, c).value = isShared
             ? {
-                sharedFormula: masterAddress,
-                result: getResult(r, c),
-              }
+              sharedFormula: masterAddress,
+              result: getResult(r, c),
+            }
             : getResult(r, c);
         }
       }

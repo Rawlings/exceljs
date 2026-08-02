@@ -35,8 +35,8 @@ class ConditionalFormattingsXform extends BaseXform {
           rule.priority = nextPriority++;
         }
 
-        if ((rule as any).style) {
-          rule.dxfId = options.styles.addDxfStyle((rule as any).style);
+        if ((rule).style) {
+          rule.dxfId = options.styles.addDxfStyle((rule).style);
         }
       });
     });
@@ -87,7 +87,7 @@ class ConditionalFormattingsXform extends BaseXform {
     model.forEach((cf) => {
       cf.rules.forEach((rule) => {
         if (rule.dxfId !== undefined) {
-          (rule as any).style = options.styles.getDxfStyle(rule.dxfId);
+          (rule).style = options.styles.getDxfStyle(rule.dxfId);
           delete rule.dxfId;
         }
       });

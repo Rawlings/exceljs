@@ -37,7 +37,7 @@ describe('github issues', () => {
           expect(row.values[1]).to.eql(rowData[0]);
           expect(row.values[2]).to.equal(rowData[1]);
 
-          resolve(undefined as any);
+          resolve(undefined);
         })
       );
       workbookReader.on('error', reject);

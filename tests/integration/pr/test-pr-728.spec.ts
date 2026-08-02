@@ -6,7 +6,7 @@ describe('github issues', () => {
     return wb.xlsx.readFile('./fixtures/xlsx/test-pr-728.xlsx').then(() => {
       const expected = { 1: 'visible', 2: 'hidden', 3: 'visible' };
       wb.eachSheet((ws: any, sheetId: any) => {
-        expect(ws.state).to.equal((expected as any)[sheetId]);
+        expect(ws.state).to.equal((expected)[sheetId]);
       });
     });
   });

@@ -100,9 +100,9 @@ class VmlNotesXform extends BaseXform {
   override reconcile(model: any, options: any) {
     model.anchors.forEach((anchor: any) => {
       if (anchor.br) {
-        (this.map as any)['xdr:twoCellAnchor'].reconcile(anchor, options);
+        (this.map)['xdr:twoCellAnchor'].reconcile(anchor, options);
       } else {
-        (this.map as any)['xdr:oneCellAnchor'].reconcile(anchor, options);
+        (this.map)['xdr:oneCellAnchor'].reconcile(anchor, options);
       }
     });
   }

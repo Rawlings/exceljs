@@ -16,16 +16,16 @@ export interface TableColumnProperties {
   filterButton?: boolean;
   totalsRowLabel?: string;
   totalsRowFunction?:
-    | 'none'
-    | 'average'
-    | 'countNums'
-    | 'count'
-    | 'max'
-    | 'min'
-    | 'stdDev'
-    | 'var'
-    | 'sum'
-    | 'custom';
+  | 'none'
+  | 'average'
+  | 'countNums'
+  | 'count'
+  | 'max'
+  | 'min'
+  | 'stdDev'
+  | 'var'
+  | 'sum'
+  | 'custom';
   totalsRowFormula?: string;
   totalsRowResult?: unknown;
   style?: Partial<Style>;
@@ -196,8 +196,8 @@ export class Table {
         o[name] = dflt;
       }
     };
-    if (!table.ref && (table as any).tableRef) {
-      table.ref = (table as any).tableRef;
+    if (!table.ref && (table).tableRef) {
+      table.ref = (table).tableRef;
     }
     assign(table as unknown as Record<string, unknown>, 'headerRow', true);
     assign(table as unknown as Record<string, unknown>, 'totalsRow', false);

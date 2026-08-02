@@ -2,12 +2,14 @@ import colCache from '../utils/data/col-cache';
 import Anchor from './anchor';
 import type { AnchorWorksheet, AnchorModel } from './anchor';
 
-export interface ImagePayload {
+export interface Image {
   extension: 'jpeg' | 'png' | 'gif' | string;
   base64?: string;
   filename?: string;
   buffer?: Buffer;
 }
+
+export type ImagePayload = Image;
 
 export interface Media {
   type: string;
@@ -18,7 +20,7 @@ export interface Media {
 
 export interface ImageRange {
   tl: Anchor | { col: number; row: number };
-  br?: Anchor | { col: number; row: number };
+  br: Anchor | { col: number; row: number };
   ext?: { width: number; height: number };
   editAs?: string;
   hyperlinks?: Partial<ImageHyperlinkValue>;

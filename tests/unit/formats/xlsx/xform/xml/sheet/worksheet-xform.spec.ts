@@ -74,11 +74,11 @@ const expectations = [
   {
     title: 'Sheet 1',
     create: () => new WorksheetXform(),
-    initialModel: fixDate(sheet10 as any),
-    preparedModel: fixDate(sheet11 as any),
+    initialModel: fixDate(sheet10),
+    preparedModel: fixDate(sheet11),
     xml: readXml('sheet.1.2.xml'),
     parsedModel: sheet13,
-    reconciledModel: fixDate(sheet14 as any),
+    reconciledModel: fixDate(sheet14),
     tests: ['prepare', 'render', 'parse'],
     options: {
       sharedStrings: new SharedStringsXform(),
@@ -173,7 +173,7 @@ describe('WorksheetXform', () => {
 
   it('hyperlinks must be after dataValidations', () => {
     const xform = new WorksheetXform();
-    const model = sheet40 as any;
+    const model = sheet40;
     const xmlStream = new XmlStream();
     const options = {
       styles: new StylesXform(true),
@@ -193,7 +193,7 @@ describe('WorksheetXform', () => {
 
   it('conditionalFormattings must be before dataValidations', () => {
     const xform = new WorksheetXform();
-    const model = sheet40 as any;
+    const model = sheet40;
     const xmlStream = new XmlStream();
     const options = {
       styles: new StylesXform(true),

@@ -18,7 +18,7 @@ describe('Workbook Writer', () => {
           expect(xml).to.be.a('string');
           expect(xml).to.include('<?xml');
           expect(xml).to.include('</worksheet>');
-          resolve(undefined as any);
+          resolve(undefined);
         } catch (error) {
           reject(error);
         }
@@ -26,7 +26,7 @@ describe('Workbook Writer', () => {
 
       const writer = new WorksheetWriter({
         id: 1,
-        workbook: mockWorkbook as any,
+        workbook: mockWorkbook,
       });
 
       writer.commit();

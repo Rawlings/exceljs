@@ -117,7 +117,7 @@ describe('Cell', () => {
     expect(a1.type).to.equal(Enums.ValueType.Formula);
 
     // no result
-    formulaValue = { formula: 'A3' } as any;
+    formulaValue = { formula: 'A3' };
     expect((a1.value = formulaValue)).to.deep.equal(formulaValue);
     expect(a1.value).to.deep.equal({ formula: 'A3' });
     expect(a1.type).to.equal(Enums.ValueType.Formula);
@@ -147,19 +147,19 @@ describe('Cell', () => {
       new Cell(row);
     }).to.throw(Error);
     expect(() => {
-      new Cell(row, 'A' as any);
+      new Cell(row, 'A');
     }).to.throw(Error);
     expect(() => {
-      new Cell(row, 'Hello, World!' as any);
+      new Cell(row, 'Hello, World!');
     }).to.throw(Error);
     expect(() => {
-      new Cell(null as any, null as any, 'A1');
+      new Cell(null, null, 'A1');
     }).to.throw(Error);
     expect(() => {
-      new Cell(row, null as any, 'A1');
+      new Cell(row, null, 'A1');
     }).to.throw(Error);
     expect(() => {
-      new Cell(null as any, column, 'A1');
+      new Cell(null, column, 'A1');
     }).to.throw(Error);
   });
   it('merges', () => {

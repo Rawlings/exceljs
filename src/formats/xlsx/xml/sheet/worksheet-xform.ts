@@ -31,8 +31,32 @@ import HeaderFooterXform from './header-footer-xform';
 import ConditionalFormattingsXform from './cf/conditional-formattings-xform';
 import ExtListXform from './ext-lst-xform';
 import type { SaxNode } from '../base-xform';
+import type { ColModel } from './col-xform';
+import type { HyperlinkModel } from './hyperlink-xform';
+import type { PictureModel } from './picture-xform';
+import type { SheetViewModel } from './sheet-view-xform';
+import type { HeaderFooterModel } from './header-footer-xform';
+import type { SheetProtectionModel } from './sheet-protection-xform';
+import type { AutoFilterModel } from './auto-filter-xform';
+import type { DataValidationsModel } from './data-validations-xform';
+import type { RelationshipModel } from '../core/relationship-xform';
+import type { ColorModel } from '../style/color-xform';
+import type { OutlinePropertiesModel } from './outline-properties-xform';
+import type { PageSetup } from '../../../../core/worksheet';
 
-const mergeRule = (rule: any, extRule: any) => {
+interface CfRuleModel {
+  x14Id?: string;
+  priority?: number;
+  [key: string]: unknown;
+}
+
+interface CfModel {
+  ref?: string;
+  rules: CfRuleModel[];
+  [key: string]: unknown;
+}
+
+const mergeRule = (rule: CfRuleModel, extRule: CfRuleModel) => {
   Object.keys(extRule).forEach((key) => {
     const value = rule[key];
     const extValue = extRule[key];
@@ -42,7 +66,10 @@ const mergeRule = (rule: any, extRule: any) => {
   });
 };
 
-const mergeConditionalFormattings = (model: any, extModel: any) => {
+const mergeConditionalFormattings = (
+  model: CfModel[] | undefined,
+  extModel: CfModel[] | undefined
+) => {
   // conditional formattings are rendered in worksheet.conditionalFormatting and also in
   // worksheet.extLst.ext.x14:conditionalFormattings
   // some (e.g. dataBar) are even spread across both!
@@ -54,11 +81,11 @@ const mergeConditionalFormattings = (model: any, extModel: any) => {
   }
 
   // index model rules by x14Id
-  const cfMap: any = {};
-  const ruleMap: any = {};
-  model.forEach((cf: any) => {
-    cfMap[cf.ref] = cf;
-    cf.rules.forEach((rule: any) => {
+  const cfMap: Record<string, CfModel> = {};
+  const ruleMap: Record<string, CfRuleModel> = {};
+  model.forEach((cf) => {
+    if (cf.ref) cfMap[cf.ref] = cf;
+    cf.rules.forEach((rule) => {
       const { x14Id } = rule;
       if (x14Id) {
         ruleMap[x14Id] = rule;
@@ -66,13 +93,13 @@ const mergeConditionalFormattings = (model: any, extModel: any) => {
     });
   });
 
-  extModel.forEach((extCf: any) => {
-    extCf.rules.forEach((extRule: any) => {
-      const rule = ruleMap[extRule.x14Id];
+  extModel.forEach((extCf) => {
+    extCf.rules.forEach((extRule) => {
+      const rule = extRule.x14Id ? ruleMap[extRule.x14Id] : undefined;
       if (rule) {
         // merge with matching rule
         mergeRule(rule, extRule);
-      } else if (cfMap[extCf.ref]) {
+      } else if (extCf.ref && cfMap[extCf.ref]) {
         // reuse existing cf ref
         cfMap[extCf.ref].rules.push(extRule);
       } else {
@@ -89,12 +116,111 @@ const mergeConditionalFormattings = (model: any, extModel: any) => {
   return model;
 };
 
+interface RowXformModel {
+  cells?: unknown[];
+  [key: string]: unknown;
+}
+
+interface WorksheetDrawingModel {
+  rId?: string;
+  name: string;
+  anchors: unknown[];
+  rels: RelationshipModel[];
+}
+
+interface WorksheetMedium {
+  type: string;
+  imageId?: number;
+  range?: unknown;
+  hyperlinks?: { tooltip?: string; hyperlink?: string; rId?: string };
+}
+
+interface WorksheetTableModel {
+  target?: string;
+  rId?: string;
+  columns: Record<string, unknown>[];
+  [key: string]: unknown;
+}
+
+interface WorksheetPropertiesModel {
+  defaultRowHeight?: number;
+  dyDescent?: number;
+  outlineLevelCol?: number;
+  outlineLevelRow?: number;
+  defaultColWidth?: number;
+  outlineProperties?: OutlinePropertiesModel;
+  tabColor?: ColorModel;
+}
+
+export interface WorksheetXformModel {
+  [key: string]: unknown;
+  id?: number;
+  sheetNo?: number | string;
+  dimensions?: unknown;
+  cols?: ColModel[];
+  rows?: RowXformModel[];
+  mergeCells?: string[];
+  hyperlinks?: HyperlinkModel[];
+  dataValidations?: DataValidationsModel;
+  properties?: WorksheetPropertiesModel;
+  views?: SheetViewModel[];
+  pageSetup?: Partial<PageSetup>;
+  headerFooter?: HeaderFooterModel;
+  background?: PictureModel;
+  image?: unknown;
+  drawing?: WorksheetDrawingModel;
+  tables?: WorksheetTableModel[];
+  conditionalFormattings?: CfModel[];
+  autoFilter?: AutoFilterModel;
+  sheetProtection?: SheetProtectionModel;
+  relationships?: RelationshipModel[];
+  comments?: unknown[];
+  media?: WorksheetMedium[];
+  rels?: RelationshipModel[];
+  pivotTables?: unknown[];
+}
+
+// prepare() and reconcile() are called from opposite ends of the pipeline
+// (write-prepare vs. read-reconcile, see xlsx.ts) with differently-shaped
+// options bags that happen to share a couple of field names with different
+// meaning (e.g. `comments`: a fresh array being built vs. a lookup hash).
+interface WorksheetPrepareOptions {
+  [key: string]: unknown;
+  merges?: Merges;
+  hyperlinks?: HyperlinkModel[];
+  comments?: unknown[];
+  formulae?: Record<string, unknown>;
+  siFormulae?: number;
+  media?: unknown;
+  drawingsCount?: number;
+  drawings?: WorksheetDrawingModel[];
+  commentRefs?: unknown[];
+  styles?: { addDxfStyle(style: Record<string, unknown>): number };
+}
+
+interface WorksheetReconcileOptions {
+  [key: string]: unknown;
+  comments?: Record<string, { comments: unknown[] }>;
+  vmlDrawings?: Record<string, { comments: unknown[] }>;
+  drawings?: Record<string, WorksheetDrawingModel>;
+  mediaIndex?: Record<string, number>;
+  tables?: Record<string, WorksheetTableModel>;
+  formulae?: Record<string, unknown>;
+  commentsMap?: Record<string, unknown>;
+  hyperlinkMap?: Record<string, string>;
+}
+
 class WorkSheetXform extends BaseXform {
   static WORKSHEET_ATTRIBUTES: Record<string, string>;
   ignoreNodes: string[];
   preImageId: unknown;
+  // Individually-typed access to specific xforms below still goes through
+  // this.map.<name>, which TS resolves structurally from the object
+  // literal assigned in the constructor; this looser declaration is only
+  // used for the handful of call sites that iterate/index generically.
+  declare map: Record<string, BaseXform>;
 
-  constructor(options?: any) {
+  constructor(options?: { maxRows?: number; maxCols?: number; ignoreNodes?: string[] }) {
     super();
 
     const { maxRows, maxCols, ignoreNodes } = options || {};
@@ -148,10 +274,13 @@ class WorkSheetXform extends BaseXform {
     };
   }
 
-  override prepare(model: any, options: any) {
-    options.merges = new Merges();
-    model.hyperlinks = options.hyperlinks = [];
-    model.comments = options.comments = [];
+override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
+    const merges = new Merges();
+    options.merges = merges;
+    const hyperlinks: HyperlinkModel[] = [];
+    model.hyperlinks = options.hyperlinks = hyperlinks;
+    const comments: unknown[] = [];
+    model.comments = options.comments = comments;
 
     options.formulae = {};
     options.siFormulae = 0;
@@ -159,28 +288,28 @@ class WorkSheetXform extends BaseXform {
     this.map.sheetData.prepare(model.rows, options);
     this.map.conditionalFormatting.prepare(model.conditionalFormattings, options);
 
-    model.mergeCells = options.merges.mergeCells;
+    model.mergeCells = merges.mergeCells;
 
     // prepare relationships
-    const rels: any[] = (model.rels = []);
+    const rels: RelationshipModel[] = (model.rels = []);
 
-    function nextRid(r: any) {
+    function nextRid(r: unknown[]) {
       return `rId${r.length + 1}`;
     }
 
-    model.hyperlinks.forEach((hyperlink: any) => {
+    hyperlinks.forEach((hyperlink) => {
       const rId = nextRid(rels);
       hyperlink.rId = rId;
       rels.push({
         Id: rId,
         Type: RelType.Hyperlink,
-        Target: hyperlink.target,
+        Target: hyperlink.target as string,
         TargetMode: 'External',
       });
     });
 
     // prepare comment relationships
-    if (model.comments.length > 0) {
+    if (comments.length > 0) {
       const comment = {
         Id: nextRid(rels),
         Type: RelType.Comments,
@@ -194,22 +323,27 @@ class WorkSheetXform extends BaseXform {
       };
       rels.push(vmlDrawing);
 
-      model.comments.forEach((item: any) => {
+      (comments as Array<{ ref: string; refAddress?: unknown }>).forEach((item) => {
         item.refAddress = colCache.decodeAddress(item.ref);
       });
 
-      options.commentRefs.push({
+      (options.commentRefs as unknown[]).push({
         commentName: `comments${model.id}`,
         vmlDrawing: `vmlDrawing${model.id}`,
       });
     }
 
-    const drawingRelsHash: any = {};
-    let bookImage: any;
-    model.media.forEach((medium: any) => {
+    interface BookImage {
+      name: string;
+      extension: string;
+    }
+    const media = options.media as BookImage[];
+    const drawingRelsHash: Record<string, string> = {};
+    let bookImage: BookImage;
+    (model.media || []).forEach((medium) => {
       if (medium.type === 'background') {
         const rId = nextRid(rels);
-        bookImage = options.media[medium.imageId];
+        bookImage = media[medium.imageId as number];
         rels.push({
           Id: rId,
           Type: RelType.Image,
@@ -218,27 +352,27 @@ class WorkSheetXform extends BaseXform {
         model.background = {
           rId,
         };
-        model.image = options.media[medium.imageId];
+        model.image = media[medium.imageId as number];
       } else if (medium.type === 'image') {
         let { drawing } = model;
-        bookImage = options.media[medium.imageId];
+        bookImage = media[medium.imageId as number];
         if (!drawing) {
           drawing = model.drawing = {
             rId: nextRid(rels),
-            name: `drawing${++options.drawingsCount}`,
+            name: `drawing${++(options.drawingsCount as number)}`,
             anchors: [],
             rels: [],
           };
-          options.drawings.push(drawing);
+          (options.drawings as WorksheetDrawingModel[]).push(drawing);
           rels.push({
-            Id: drawing.rId,
+            Id: drawing.rId as string,
             Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
             Target: `../drawings/${drawing.name}.xml`,
           });
         }
         let rIdImage =
           this.preImageId === medium.imageId
-            ? drawingRelsHash[medium.imageId]
+            ? drawingRelsHash[medium.imageId as number]
             : drawingRelsHash[drawing.rels.length];
         if (!rIdImage) {
           rIdImage = nextRid(drawing.rels);
@@ -250,7 +384,10 @@ class WorkSheetXform extends BaseXform {
           });
         }
 
-        const anchor: any = {
+        const anchor: {
+          picture: { rId: string; hyperlinks?: { tooltip?: string; rId: string } };
+          range: unknown;
+        } = {
           picture: {
             rId: rIdImage,
           },
@@ -276,7 +413,7 @@ class WorkSheetXform extends BaseXform {
     });
 
     // prepare tables
-    model.tables.forEach((table: any) => {
+    (model.tables || []).forEach((table) => {
       // relationships
       const rId = nextRid(rels);
       table.rId = rId;
@@ -287,10 +424,10 @@ class WorkSheetXform extends BaseXform {
       });
 
       // dynamic styles
-      table.columns.forEach((column: any) => {
+      table.columns.forEach((column) => {
         const { style } = column;
         if (style) {
-          column.dxfId = options.styles.addDxfStyle(style);
+          column.dxfId = options.styles!.addDxfStyle(style as Record<string, unknown>);
         }
       });
     });
@@ -308,11 +445,11 @@ class WorkSheetXform extends BaseXform {
     this.map.extLst.prepare(model, options);
   }
 
-  override render(xmlStream: XmlStream, model: any) {
+  override render(xmlStream: XmlStream, model: WorksheetXformModel) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode('worksheet', WorkSheetXform.WORKSHEET_ATTRIBUTES);
 
-    const sheetFormatPropertiesModel: any = model.properties
+    const sheetFormatPropertiesModel: Record<string, unknown> | undefined = model.properties
       ? {
           defaultRowHeight: model.properties.defaultRowHeight,
           dyDescent: model.properties.dyDescent,
@@ -320,7 +457,7 @@ class WorkSheetXform extends BaseXform {
           outlineLevelRow: model.properties.outlineLevelRow,
         }
       : undefined;
-    if (model.properties && model.properties.defaultColWidth) {
+    if (sheetFormatPropertiesModel && model.properties && model.properties.defaultColWidth) {
       sheetFormatPropertiesModel.defaultColWidth = model.properties.defaultColWidth;
     }
     const sheetPropertiesModel = {
@@ -370,7 +507,7 @@ class WorkSheetXform extends BaseXform {
 
     if (model.rels) {
       // add a <legacyDrawing /> node for each comment
-      model.rels.forEach((rel: any) => {
+      model.rels.forEach((rel) => {
         if (rel.Type === RelType.VmlDrawing) {
           xmlStream.leafNode('legacyDrawing', { 'r:id': rel.Id });
         }
@@ -387,7 +524,7 @@ class WorkSheetXform extends BaseXform {
     }
 
     if (node.name === 'worksheet') {
-      _.each(this.map, (xform: any) => {
+      _.each(this.map, (xform) => {
         xform.reset();
       });
       return true;
@@ -472,39 +609,49 @@ class WorkSheetXform extends BaseXform {
     }
   }
 
-  override reconcile(model: any, options: any) {
+  override reconcile(model: WorksheetXformModel, options: WorksheetReconcileOptions) {
     // options.merges = new Merges();
     // options.merges.reconcile(model.mergeCells, model.rows);
-    const rels = (model.relationships || []).reduce((h: any, rel: any) => {
-      h[rel.Id] = rel;
-      if (rel.Type === RelType.Comments) {
-        model.comments = options.comments[rel.Target].comments;
-      }
-      if (rel.Type === RelType.VmlDrawing && model.comments && model.comments.length) {
-        const vmlComment = options.vmlDrawings[rel.Target].comments;
-        model.comments.forEach((comment: any, index: any) => {
-          comment.note = Object.assign({}, comment.note, vmlComment[index]);
-        });
-      }
-      return h;
-    }, {});
-    options.commentsMap = (model.comments || []).reduce((h: any, comment: any) => {
+    const rels = (model.relationships || []).reduce<Record<string, RelationshipModel>>(
+      (h, rel) => {
+        if (rel.Id) h[rel.Id] = rel;
+        if (rel.Type === RelType.Comments) {
+          model.comments = options.comments?.[rel.Target]?.comments || [];
+        }
+        if (rel.Type === RelType.VmlDrawing && model.comments && model.comments.length) {
+          const vmlComment = options.vmlDrawings?.[rel.Target]?.comments || [];
+          (model.comments as Array<{ note?: Record<string, unknown> }>).forEach(
+            (comment, index) => {
+              comment.note = Object.assign({}, comment.note, vmlComment[index]);
+            }
+          );
+        }
+        return h;
+      },
+      {}
+    );
+    options.commentsMap = (model.comments as Array<{ ref?: string }> | undefined || []).reduce<
+      Record<string, unknown>
+    >((h, comment) => {
       if (comment.ref) {
         h[comment.ref] = comment;
       }
       return h;
     }, {});
-    options.hyperlinkMap = (model.hyperlinks || []).reduce((h: any, hyperlink: any) => {
-      if (hyperlink.rId) {
-        h[hyperlink.address] = rels[hyperlink.rId].Target;
-      }
-      return h;
-    }, {});
+    options.hyperlinkMap = (model.hyperlinks || []).reduce<Record<string, string>>(
+      (h, hyperlink) => {
+        if (hyperlink.rId && hyperlink.address) {
+          h[hyperlink.address] = rels[hyperlink.rId].Target;
+        }
+        return h;
+      },
+      {}
+    );
     options.formulae = {};
 
     // compact the rows and cells
     model.rows = (model.rows && model.rows.filter(Boolean)) || [];
-    model.rows.forEach((row: any) => {
+    model.rows.forEach((row) => {
       row.cells = (row.cells && row.cells.filter(Boolean)) || [];
     });
 
@@ -512,22 +659,24 @@ class WorkSheetXform extends BaseXform {
     this.map.sheetData.reconcile(model.rows, options);
     this.map.conditionalFormatting.reconcile(model.conditionalFormattings, options);
 
-    model.media = [];
+    const media: WorksheetMedium[] = (model.media = []);
     if (model.drawing) {
-      const drawingRel = rels[model.drawing.rId];
+      const drawingRel = rels[model.drawing.rId as string];
       const match = drawingRel.Target.match(/\/drawings\/([a-zA-Z0-9]+)[.][a-zA-Z]{3,4}$/);
       if (match) {
         const drawingName = match[1];
-        const drawing = options.drawings[drawingName];
-        drawing.anchors.forEach((anchor: any) => {
+        const drawing = options.drawings?.[drawingName] as
+          | { anchors: Array<{ medium?: { index?: number }; range?: unknown; picture?: { hyperlinks?: unknown } }> }
+          | undefined;
+        drawing?.anchors.forEach((anchor) => {
           if (anchor.medium) {
-            const image = {
+            const image: WorksheetMedium = {
               type: 'image',
               imageId: anchor.medium.index,
               range: anchor.range,
-              hyperlinks: anchor.picture.hyperlinks,
+              hyperlinks: anchor.picture?.hyperlinks as WorksheetMedium['hyperlinks'],
             };
-            model.media.push(image);
+            media.push(image);
           }
         });
       }
@@ -538,21 +687,23 @@ class WorkSheetXform extends BaseXform {
       const target = backgroundRel.Target.split('/media/')[1];
       const imageId = options.mediaIndex && options.mediaIndex[target];
       if (imageId !== undefined) {
-        model.media.push({
+        media.push({
           type: 'background',
           imageId,
         });
       }
     }
 
-    model.tables = (model.tables || []).map((tablePart: any) => {
-      const rel = rels[tablePart.rId];
-      return options.tables[rel.Target];
-    });
+    model.tables = (model.tables || [])
+      .map((tablePart) => {
+        const rel = rels[tablePart.rId as string];
+        return options.tables?.[rel.Target];
+      })
+      .filter((table): table is WorksheetTableModel => Boolean(table));
 
     delete model.relationships;
     delete model.hyperlinks;
-    delete model.comments;
+    delete (model as Record<string, unknown>).comments;
   }
 }
 

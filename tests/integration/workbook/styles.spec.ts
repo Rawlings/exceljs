@@ -75,7 +75,7 @@ describe('Workbook', () => {
 
     it('in-cell formats properly in xlsx file', () => {
       // Stream from input string
-      const testData = Buffer.from(richTextSample as any, 'base64');
+      const testData = Buffer.from(richTextSample, 'base64');
 
       // Initiate the source
       const bufferStream = new stream.PassThrough();

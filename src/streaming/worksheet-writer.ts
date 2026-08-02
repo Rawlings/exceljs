@@ -138,7 +138,7 @@ class WorksheetWriter {
 
     // keep a record of all row and column pageBreaks
     this._merges = [] as Dimensions[] & { add?: () => void };
-    this._merges.add = function () {}; // ignore cell instruction
+    this._merges.add = function () { }; // ignore cell instruction
 
     // keep record of all hyperlinks
     this._sheetRelsWriter = new SheetRelsWriter(
@@ -276,7 +276,7 @@ class WorksheetWriter {
       )._openStream(`xl/worksheets/sheet${this.id}.xml`);
 
       // pause stream to prevent 'data' events
-      (this._stream as any).pause();
+      (this._stream).pause();
     }
     return this._stream;
   }
@@ -623,8 +623,8 @@ class WorksheetWriter {
       pageSetup:
         pageSetup && pageSetup.fitToPage
           ? {
-              fitToPage: pageSetup.fitToPage,
-            }
+            fitToPage: pageSetup.fitToPage,
+          }
           : undefined,
     };
 
@@ -634,11 +634,11 @@ class WorksheetWriter {
   _writeSheetFormatProperties(parts: string[], properties: Record<string, unknown> | undefined) {
     const sheetFormatPropertiesModel = properties
       ? {
-          defaultRowHeight: properties.defaultRowHeight,
-          dyDescent: properties.dyDescent,
-          outlineLevelCol: properties.outlineLevelCol,
-          outlineLevelRow: properties.outlineLevelRow,
-        }
+        defaultRowHeight: properties.defaultRowHeight,
+        dyDescent: properties.dyDescent,
+        outlineLevelCol: properties.outlineLevelCol,
+        outlineLevelRow: properties.outlineLevelRow,
+      }
       : undefined;
     if (sheetFormatPropertiesModel && properties?.defaultColWidth) {
       (sheetFormatPropertiesModel as Record<string, unknown>).defaultColWidth =
@@ -652,10 +652,10 @@ class WorksheetWriter {
     const parts = [
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
       '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"' +
-        ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' +
-        ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"' +
-        ' mc:Ignorable="x14ac"' +
-        ' xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">',
+      ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"' +
+      ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"' +
+      ' mc:Ignorable="x14ac"' +
+      ' xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">',
     ];
 
     this._writeSheetProperties(parts, this.properties, this.pageSetup);
@@ -738,7 +738,7 @@ class WorksheetWriter {
     const options = {
       styles: (this._workbook as { styles: unknown }).styles,
     };
-    xform.conditionalFormattings.prepare(this.conditionalFormatting as any[], options);
+    xform.conditionalFormattings.prepare(this.conditionalFormatting, options);
     (this.stream as { write(t: string): void }).write(
       xform.conditionalFormattings.toXml(this.conditionalFormatting)
     );
