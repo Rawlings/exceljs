@@ -1,27 +1,34 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface WorkbookCalcPropertiesModel {
+  fullCalcOnLoad?: boolean;
+}
 
 class WorkbookCalcPropertiesXform extends BaseXform {
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: WorkbookCalcPropertiesModel) {
     xmlStream.leafNode('calcPr', {
       calcId: 171027,
       fullCalcOnLoad: model.fullCalcOnLoad ? 1 : undefined,
     });
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === 'calcPr') {
-      this.model = {};
-      if (node.attributes.fullCalcOnLoad) {
-        this.model.fullCalcOnLoad = true;
+      const model: WorkbookCalcPropertiesModel = {};
+      if ((node.attributes as Record<string, string>).fullCalcOnLoad) {
+        model.fullCalcOnLoad = true;
       }
+      this.model = model;
       return true;
     }
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

@@ -1,19 +1,30 @@
 import XmlStream from '#src/utils/stream/xml-stream';
 
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface ContentTypesModel {
+  media?: { type: string; extension: string }[];
+  worksheets: { id: number }[];
+  pivotTables?: unknown[];
+  sharedStrings?: { count: number };
+  tables?: { target: string }[];
+  drawings?: { name: string }[];
+  commentRefs?: { commentName: string }[];
+}
 
 // used for rendering the [Content_Types].xml file
 // not used for parsing
 class ContentTypesXform extends BaseXform {
-  static PROPERTY_ATTRIBUTES: any;
+  static PROPERTY_ATTRIBUTES: Record<string, string>;
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: ContentTypesModel) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
 
     xmlStream.openNode('Types', ContentTypesXform.PROPERTY_ATTRIBUTES);
 
-    const mediaHash: Record<string, any> = {};
-    (model.media || []).forEach((medium: any) => {
+    const mediaHash: Record<string, boolean> = {};
+    (model.media || []).forEach((medium) => {
       if (medium.type === 'image') {
         const imageType = medium.extension;
         if (!mediaHash[imageType]) {
@@ -37,7 +48,7 @@ class ContentTypesXform extends BaseXform {
       ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml',
     });
 
-    model.worksheets.forEach((worksheet: any) => {
+    model.worksheets.forEach((worksheet) => {
       const name = `/xl/worksheets/sheet${worksheet.id}.xml`;
       xmlStream.leafNode('Override', {
         PartName: name,
@@ -82,7 +93,7 @@ class ContentTypesXform extends BaseXform {
     }
 
     if (model.tables) {
-      model.tables.forEach((table: any) => {
+      model.tables.forEach((table) => {
         xmlStream.leafNode('Override', {
           PartName: `/xl/tables/${table.target}`,
           ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml',
@@ -91,7 +102,7 @@ class ContentTypesXform extends BaseXform {
     }
 
     if (model.drawings) {
-      model.drawings.forEach((drawing: any) => {
+      model.drawings.forEach((drawing) => {
         xmlStream.leafNode('Override', {
           PartName: `/xl/drawings/${drawing.name}.xml`,
           ContentType: 'application/vnd.openxmlformats-officedocument.drawing+xml',
@@ -105,7 +116,7 @@ class ContentTypesXform extends BaseXform {
         ContentType: 'application/vnd.openxmlformats-officedocument.vmlDrawing',
       });
 
-      model.commentRefs.forEach(({ commentName }: { commentName: any }) => {
+      model.commentRefs.forEach(({ commentName }) => {
         xmlStream.leafNode('Override', {
           PartName: `/xl/${commentName}.xml`,
           ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml',
@@ -125,13 +136,13 @@ class ContentTypesXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen() {
+  override parseOpen(_node?: SaxNode) {
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

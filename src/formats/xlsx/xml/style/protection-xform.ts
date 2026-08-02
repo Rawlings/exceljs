@@ -1,7 +1,14 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface ProtectionModel {
+  locked?: boolean;
+  hidden?: boolean;
+}
 
 const validation = {
-  boolean(value: any, dflt: any) {
+  boolean(value: boolean | undefined, dflt: boolean): boolean {
     if (value === undefined) {
       return dflt;
     }
@@ -11,16 +18,16 @@ const validation = {
 
 // Protection encapsulates translation from style.protection model to/from xlsx
 class ProtectionXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'protection';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: ProtectionModel) {
     xmlStream.addRollback();
     xmlStream.openNode('protection');
 
     let isValid = false;
-    function add(name: any, value: any) {
+    function add(name: string, value: unknown) {
       if (value !== undefined) {
         xmlStream.addAttribute(name, value);
         isValid = true;
@@ -38,10 +45,11 @@ class ProtectionXform extends BaseXform {
     }
   }
 
-  parseOpen(node: any) {
-    const model = {
-      locked: !(node.attributes.locked === '0'),
-      hidden: node.attributes.hidden === '1',
+  override parseOpen(node: SaxNode) {
+    const attrs = node.attributes as Record<string, string>;
+    const model: ProtectionModel = {
+      locked: !(attrs.locked === '0'),
+      hidden: attrs.hidden === '1',
     };
 
     // only want to record models that differ from defaults
@@ -50,9 +58,9 @@ class ProtectionXform extends BaseXform {
     this.model = isSignificant ? model : null;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

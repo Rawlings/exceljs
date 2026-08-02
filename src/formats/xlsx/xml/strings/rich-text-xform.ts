@@ -1,7 +1,10 @@
 import TextXform from '#src/formats/xlsx/xml/strings/text-xform';
 import FontXform from '#src/formats/xlsx/xml/style/font-xform';
+import type { FontXformOptions } from '#src/formats/xlsx/xml/style/font-xform';
 
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 // <r>
 //   <rPr>
@@ -14,31 +17,36 @@ import BaseXform from '#src/formats/xlsx/xml/base-xform';
 //   <t xml:space="preserve"> is </t>
 // </r>
 
-class RichTextXform extends BaseXform {
-  static FONT_OPTIONS: any;
-  _textXform: any;
-  _fontXform: any;
+export interface RichTextRunModel {
+  font?: Record<string, unknown>;
+  text?: string;
+}
 
-  constructor(model?: any) {
+class RichTextXform extends BaseXform {
+  static FONT_OPTIONS: FontXformOptions;
+  _textXform: TextXform | undefined;
+  _fontXform: FontXform | undefined;
+
+  constructor(model?: RichTextRunModel) {
     super();
 
     this.model = model;
   }
 
-  get tag() {
+  override get tag() {
     return 'r';
   }
 
-  get textXform() {
+  get textXform(): TextXform {
     return this._textXform || (this._textXform = new TextXform());
   }
 
-  get fontXform() {
+  get fontXform(): FontXform {
     return this._fontXform || (this._fontXform = new FontXform(RichTextXform.FONT_OPTIONS));
   }
 
-  render(xmlStream: any, model: any) {
-    model = model || this.model;
+  override render(xmlStream: XmlStream, modelInput?: RichTextRunModel) {
+    const model = modelInput || (this.model as RichTextRunModel);
 
     xmlStream.openNode('r');
     if (model.font) {
@@ -48,7 +56,7 @@ class RichTextXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -70,22 +78,22 @@ class RichTextXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     switch (name) {
       case 'r':
         return false;
       case 't':
-        this.model.text = this.parser.model;
+        (this.model as RichTextRunModel).text = this.parser.model;
         this.parser = undefined;
         return true;
       case 'rPr':
-        this.model.font = this.parser.model;
+        (this.model as RichTextRunModel).font = this.parser.model;
         this.parser = undefined;
         return true;
       default:

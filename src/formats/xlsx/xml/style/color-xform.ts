@@ -1,21 +1,30 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface ColorModel {
+  argb?: string;
+  theme?: number;
+  tint?: number;
+  indexed?: number;
+}
 
 // Color encapsulates translation from color model to/from xlsx
 class ColorXform extends BaseXform {
   name: string;
 
-  constructor(name?: any) {
+  constructor(name?: string) {
     super();
 
     // this.name controls the xm node name
     this.name = name || 'color';
   }
 
-  get tag() {
+  override get tag() {
     return this.name;
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: ColorModel | undefined): boolean {
     if (model) {
       xmlStream.openNode(this.name);
       if (model.argb) {
@@ -36,17 +45,19 @@ class ColorXform extends BaseXform {
     return false;
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (node.name === this.name) {
-      if (node.attributes.rgb) {
-        this.model = { argb: node.attributes.rgb };
-      } else if (node.attributes.theme) {
-        this.model = { theme: parseInt(node.attributes.theme, 10) };
-        if (node.attributes.tint) {
-          this.model.tint = parseFloat(node.attributes.tint);
+      const attrs = node.attributes as Record<string, string>;
+      if (attrs.rgb) {
+        this.model = { argb: attrs.rgb } as ColorModel;
+      } else if (attrs.theme) {
+        const model: ColorModel = { theme: parseInt(attrs.theme, 10) };
+        if (attrs.tint) {
+          model.tint = parseFloat(attrs.tint);
         }
-      } else if (node.attributes.indexed) {
-        this.model = { indexed: parseInt(node.attributes.indexed, 10) };
+        this.model = model;
+      } else if (attrs.indexed) {
+        this.model = { indexed: parseInt(attrs.indexed, 10) } as ColorModel;
       } else {
         this.model = undefined;
       }
@@ -55,9 +66,9 @@ class ColorXform extends BaseXform {
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

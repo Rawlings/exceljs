@@ -1,19 +1,44 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
 
 import AlignmentXform from '#src/formats/xlsx/xml/style/alignment-xform';
+import type { AlignmentModel } from '#src/formats/xlsx/xml/style/alignment-xform';
 import BorderXform from '#src/formats/xlsx/xml/style/border-xform';
+import type { BorderModel } from '#src/formats/xlsx/xml/style/border-xform';
 import FillXform from '#src/formats/xlsx/xml/style/fill-xform';
+import type { FillModel } from '#src/formats/xlsx/xml/style/fill-xform';
 import FontXform from '#src/formats/xlsx/xml/style/font-xform';
 import NumFmtXform from '#src/formats/xlsx/xml/style/numfmt-xform';
 import ProtectionXform from '#src/formats/xlsx/xml/style/protection-xform';
+import type { ProtectionModel } from '#src/formats/xlsx/xml/style/protection-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 // <xf numFmtId="[numFmtId]" fontId="[fontId]" fillId="[fillId]" borderId="[xf.borderId]" xfId="[xfId]">
 //   Optional <alignment>
 //   Optional <protection>
 // </xf>
 
+export interface DxfModel {
+  font?: Record<string, unknown>;
+  numFmt?: string;
+  numFmtId?: number;
+  fill?: FillModel;
+  alignment?: AlignmentModel;
+  border?: BorderModel;
+  protection?: ProtectionModel;
+}
+
 // Style assists translation from style model to/from xlsx
 class DxfXform extends BaseXform {
+  override map: {
+    alignment: AlignmentXform;
+    border: BorderXform;
+    fill: FillXform;
+    font: FontXform;
+    numFmt: NumFmtXform;
+    protection: ProtectionXform;
+  };
+
   constructor() {
     super();
 
@@ -27,14 +52,14 @@ class DxfXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'dxf';
   }
 
   // how do we generate dxfid?
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag);
+  override render(xmlStream: XmlStream, model: DxfModel) {
+    xmlStream.openNode(this.tag as string);
 
     if (model.font) {
       this.map.font.render(xmlStream, model.font);
@@ -59,7 +84,7 @@ class DxfXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -71,7 +96,7 @@ class DxfXform extends BaseXform {
         this.reset();
         return true;
       default:
-        this.parser = this.map[node.name];
+        this.parser = this.map[node.name as keyof DxfXform['map']];
         if (this.parser) {
           this.parser.parseOpen(node);
         }
@@ -79,13 +104,13 @@ class DxfXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;

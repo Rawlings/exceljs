@@ -1,18 +1,37 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
 
 import AlignmentXform from '#src/formats/xlsx/xml/style/alignment-xform';
+import type { AlignmentModel } from '#src/formats/xlsx/xml/style/alignment-xform';
 import ProtectionXform from '#src/formats/xlsx/xml/style/protection-xform';
+import type { ProtectionModel } from '#src/formats/xlsx/xml/style/protection-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 // <xf numFmtId="[numFmtId]" fontId="[fontId]" fillId="[fillId]" borderId="[xf.borderId]" xfId="[xfId]">
 //   Optional <alignment>
 //   Optional <protection>
 // </xf>
 
+export interface StyleXfModel {
+  numFmtId?: number;
+  fontId?: number;
+  fillId?: number;
+  borderId?: number;
+  xfId?: number;
+  alignment?: AlignmentModel;
+  protection?: ProtectionModel;
+}
+
+export interface StyleXformOptions {
+  xfId?: boolean;
+}
+
 // Style assists translation from style model to/from xlsx
 class StyleXform extends BaseXform {
   xfId: boolean;
+  override map: { alignment: AlignmentXform; protection: ProtectionXform };
 
-  constructor(options?: any) {
+  constructor(options?: StyleXformOptions) {
     super();
 
     this.xfId = !!(options && options.xfId);
@@ -22,11 +41,11 @@ class StyleXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'xf';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: StyleXfModel) {
     xmlStream.openNode('xf', {
       numFmtId: model.numFmtId || 0,
       fontId: model.fontId || 0,
@@ -71,24 +90,27 @@ class StyleXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
     }
     // used during sax parsing of xml to build font object
     switch (node.name) {
-      case 'xf':
-        this.model = {
-          numFmtId: parseInt(node.attributes.numFmtId, 10),
-          fontId: parseInt(node.attributes.fontId, 10),
-          fillId: parseInt(node.attributes.fillId, 10),
-          borderId: parseInt(node.attributes.borderId, 10),
+      case 'xf': {
+        const attrs = node.attributes as Record<string, string>;
+        const model: StyleXfModel = {
+          numFmtId: parseInt(attrs.numFmtId, 10),
+          fontId: parseInt(attrs.fontId, 10),
+          fillId: parseInt(attrs.fillId, 10),
+          borderId: parseInt(attrs.borderId, 10),
         };
         if (this.xfId) {
-          this.model.xfId = parseInt(node.attributes.xfId, 10);
+          model.xfId = parseInt(attrs.xfId, 10);
         }
+        this.model = model;
         return true;
+      }
       case 'alignment':
         this.parser = this.map.alignment;
         this.parser.parseOpen(node);
@@ -102,19 +124,19 @@ class StyleXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         if (this.map.protection === this.parser) {
-          this.model.protection = this.parser.model;
+          (this.model as StyleXfModel).protection = this.parser.model;
         } else {
-          this.model.alignment = this.parser.model;
+          (this.model as StyleXfModel).alignment = this.parser.model;
         }
         this.parser = undefined;
       }

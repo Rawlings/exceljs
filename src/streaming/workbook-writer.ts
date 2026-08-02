@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { PassThrough } from 'node:stream';
+import { buffer } from 'node:stream/consumers';
 import { ZipWriter } from '#src/utils/stream/zip';
 
 import RelType from '#src/formats/xlsx/rel-type';
@@ -114,7 +115,7 @@ class WorkbookWriter {
   _openStream(path: string): PassThrough {
     const cleanPath = typeof path === 'string' ? path.replace(/^\//, '') : path;
     const stream = new PassThrough();
-    this.zip.append(stream, { name: cleanPath });
+    this.zip.append(buffer(stream), { name: cleanPath });
     stream.on('finish', () => {
       stream.emit('zipped');
     });
@@ -297,7 +298,7 @@ class WorkbookWriter {
         if (medium.type === 'image') {
           const filename = `xl/media/${medium.name}`;
           if (medium.filename) {
-            return this.zip.append(fs.createReadStream(medium.filename), { name: filename });
+            return this.zip.append(buffer(fs.createReadStream(medium.filename)), { name: filename });
           }
           if (medium.buffer) {
             return this.zip.append(medium.buffer, { name: filename });

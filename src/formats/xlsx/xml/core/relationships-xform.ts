@@ -1,11 +1,14 @@
 import XmlStream from '#src/utils/stream/xml-stream';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 import RelationshipXform from '#src/formats/xlsx/xml/core/relationship-xform';
+import type { RelationshipModel } from '#src/formats/xlsx/xml/core/relationship-xform';
 
 class RelationshipsXform extends BaseXform {
-  _values: any;
-  static RELATIONSHIPS_ATTRIBUTES: any;
+  _values: RelationshipModel[] | undefined;
+  static RELATIONSHIPS_ATTRIBUTES: Record<string, string>;
+  override map: { Relationship: RelationshipXform };
 
   constructor() {
     super();
@@ -15,19 +18,19 @@ class RelationshipsXform extends BaseXform {
     };
   }
 
-  render(xmlStream: any, model: any) {
-    model = model || this._values;
+  override render(xmlStream: XmlStream, modelInput?: RelationshipModel[]) {
+    const model = modelInput || (this._values as RelationshipModel[]);
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode('Relationships', RelationshipsXform.RELATIONSHIPS_ATTRIBUTES);
 
-    model.forEach((relationship: any) => {
+    model.forEach((relationship) => {
       this.map.Relationship.render(xmlStream, relationship);
     });
 
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -37,7 +40,7 @@ class RelationshipsXform extends BaseXform {
         this.model = [];
         return true;
       default:
-        this.parser = this.map[node.name];
+        this.parser = this.map[node.name as keyof RelationshipsXform['map']];
         if (this.parser) {
           this.parser.parseOpen(node);
           return true;
@@ -46,16 +49,16 @@ class RelationshipsXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
-        this.model.push(this.parser.model);
+        (this.model as RelationshipModel[]).push(this.parser.model);
         this.parser = undefined;
       }
       return true;

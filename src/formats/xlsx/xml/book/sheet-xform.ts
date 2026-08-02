@@ -1,8 +1,17 @@
 import utils from '#src/utils/helpers/utils';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface SheetModel {
+  id: number;
+  name: string;
+  state?: string;
+  rId?: string;
+}
 
 class WorksheetXform extends BaseXform {
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: SheetModel) {
     xmlStream.leafNode('sheet', {
       sheetId: model.id,
       name: model.name,
@@ -11,22 +20,23 @@ class WorksheetXform extends BaseXform {
     });
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === 'sheet') {
+      const attrs = node.attributes as Record<string, string>;
       this.model = {
-        name: utils.xmlDecode(node.attributes.name),
-        id: parseInt(node.attributes.sheetId, 10),
-        state: node.attributes.state,
-        rId: node.attributes['r:id'],
-      };
+        name: utils.xmlDecode(attrs.name),
+        id: parseInt(attrs.sheetId, 10),
+        state: attrs.state,
+        rId: attrs['r:id'],
+      } as SheetModel;
       return true;
     }
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

@@ -1,34 +1,36 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 //   <t xml:space="preserve"> is </t>
 
 class TextXform extends BaseXform {
-  _text!: any;
+  _text!: string[];
 
-  get tag() {
+  override get tag() {
     return 't';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: string | undefined) {
     xmlStream.openNode('t');
-    if (/^\s|\n|\s$/.test(model)) {
+    if (/^\s|\n|\s$/.test(model as string)) {
       xmlStream.addAttribute('xml:space', 'preserve');
     }
     xmlStream.writeText(model);
     xmlStream.closeNode();
   }
 
-  get model() {
+  override get model(): string {
     return this._text
       .join('')
-      .replace(/_x([0-9A-F]{4})_/g, ($0: any, $1: any) => String.fromCharCode(parseInt($1, 16)));
+      .replace(/_x([0-9A-F]{4})_/g, (_$0, $1) => String.fromCharCode(parseInt($1, 16)));
   }
 
-  set model(val: any) {
+  override set model(val: string[]) {
     this._text = val;
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     switch (node.name) {
       case 't':
         this._text = [];
@@ -38,11 +40,11 @@ class TextXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     this._text.push(text);
   }
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

@@ -1,8 +1,5 @@
-/* global ExcelJS */
-// ExcelJS is a global injected by `./dist/exceljs.js` during jasmine's setup
-declare const ExcelJS: any;
-
-'use strict';
+import { describe, it, expect } from 'vitest';
+import ExcelJS from '#src';
 
 function unexpectedError(done: any) {
   return function (error: any) {
@@ -26,7 +23,7 @@ describe('ExcelJS', () => {
       .then((buffer: any) => {
         const wb2 = new ExcelJS.Workbook();
         return wb2.xlsx.load(buffer).then(() => {
-          const ws2 = wb2.getWorksheet('blort');
+          const ws2 = wb2.getWorksheet('blort')!;
           expect(ws2).toBeTruthy();
 
           expect(ws2.getCell('A1').value).toEqual('Hello, World!');
@@ -54,7 +51,7 @@ describe('ExcelJS', () => {
       .then((buffer: any) => {
         const wb2 = new ExcelJS.Workbook();
         return wb2.xlsx.load(buffer.toString('base64'), options).then(() => {
-          const ws2 = wb2.getWorksheet('blort');
+          const ws2 = wb2.getWorksheet('blort')!;
           expect(ws2).toBeTruthy();
 
           expect(ws2.getCell('A1').value).toEqual('Hello, World!');

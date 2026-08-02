@@ -1,14 +1,27 @@
 import XmlStream from '#src/utils/stream/xml-stream';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
 import StringXform from '#src/formats/xlsx/xml/simple/string-xform';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 import AppHeadingPairsXform from '#src/formats/xlsx/xml/core/app-heading-pairs-xform';
 import AppTitleOfPartsXform from '#src/formats/xlsx/xml/core/app-titles-of-parts-xform';
 
+export interface AppModel {
+  worksheets: { name: string }[];
+  company?: string;
+  manager?: string;
+}
+
 class AppXform extends BaseXform {
-  static PROPERTY_ATTRIBUTES: any;
-  static DateFormat: any;
-  static DateAttrs: any;
+  static PROPERTY_ATTRIBUTES: Record<string, string>;
+  static DateFormat: (dt: unknown) => string;
+  static DateAttrs: Record<string, string>;
+  override map: {
+    Company: StringXform;
+    Manager: StringXform;
+    HeadingPairs: AppHeadingPairsXform;
+    TitleOfParts: AppTitleOfPartsXform;
+  };
 
   constructor() {
     super();
@@ -21,7 +34,7 @@ class AppXform extends BaseXform {
     };
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: AppModel) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
 
     xmlStream.openNode('Properties', AppXform.PROPERTY_ATTRIBUTES);
@@ -43,7 +56,7 @@ class AppXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -52,7 +65,7 @@ class AppXform extends BaseXform {
       case 'Properties':
         return true;
       default:
-        this.parser = this.map[node.name];
+        this.parser = this.map[node.name as keyof AppXform['map']];
         if (this.parser) {
           this.parser.parseOpen(node);
           return true;
@@ -63,13 +76,13 @@ class AppXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;
@@ -90,8 +103,8 @@ class AppXform extends BaseXform {
   }
 }
 
-AppXform.DateFormat = function (dt: any) {
-  return dt.toISOString().replace(/[.]\d{3,6}/, '');
+AppXform.DateFormat = function (dt: unknown) {
+  return (dt as Date).toISOString().replace(/[.]\d{3,6}/, '');
 };
 
 AppXform.DateAttrs = { 'xsi:type': 'dcterms:W3CDTF' };

@@ -8,13 +8,26 @@ import UnderlineXform from '#src/formats/xlsx/xml/style/underline-xform';
 
 import _ from '#src/utils/helpers/under-dash';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface FontXformOptions {
+  tagName: string;
+  fontNameTag: string;
+}
+
+interface FontFieldEntry {
+  prop: string;
+  xform: BaseXform;
+}
 
 // Font encapsulates translation from font model to xlsx
 class FontXform extends BaseXform {
-  static OPTIONS: any;
-  options: any;
+  static OPTIONS: FontXformOptions;
+  options: FontXformOptions;
+  override map: Record<string, FontFieldEntry>;
 
-  constructor(options?: any) {
+  constructor(options?: FontXformOptions) {
     super();
 
     this.options = options || FontXform.OPTIONS;
@@ -41,28 +54,28 @@ class FontXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return this.options.tagName;
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: Record<string, unknown>) {
     const { map } = this;
 
     xmlStream.openNode(this.options.tagName);
-    _.each(this.map, (defn: any, tag: any) => {
+    _.each(this.map, (defn, tag) => {
       map[tag].xform.render(xmlStream, model[defn.prop]);
     });
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
     }
     if (this.map[node.name]) {
       this.parser = this.map[node.name].xform;
-      return this.parser.parseOpen(node);
+      return this.parser.parseOpen(node) as boolean;
     }
     switch (node.name) {
       case this.options.tagName:
@@ -73,17 +86,17 @@ class FontXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser && !this.parser.parseClose(name)) {
       const item = this.map[name];
       if (this.parser.model) {
-        this.model[item.prop] = this.parser.model;
+        (this.model as Record<string, unknown>)[item.prop] = this.parser.model;
       }
       this.parser = undefined;
       return true;

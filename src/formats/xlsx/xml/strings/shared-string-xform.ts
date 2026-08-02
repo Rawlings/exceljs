@@ -1,8 +1,11 @@
 import TextXform from '#src/formats/xlsx/xml/strings/text-xform';
 import RichTextXform from '#src/formats/xlsx/xml/strings/rich-text-xform';
+import type { RichTextRunModel } from '#src/formats/xlsx/xml/strings/rich-text-xform';
 import PhoneticTextXform from '#src/formats/xlsx/xml/strings/phonetic-text-xform';
 
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 // <si>
 //   <r></r><r></r>...
@@ -11,8 +14,16 @@ import BaseXform from '#src/formats/xlsx/xml/base-xform';
 //   <t></t>
 // </si>
 
+export interface RichSharedStringModel {
+  richText: RichTextRunModel[];
+}
+
+export type SharedStringModel = string | RichSharedStringModel;
+
 class SharedStringXform extends BaseXform {
-  constructor(model?: any) {
+  override map: { r: RichTextXform; t: TextXform; rPh: PhoneticTextXform };
+
+  constructor(model?: SharedStringModel) {
     super();
 
     this.model = model;
@@ -24,27 +35,28 @@ class SharedStringXform extends BaseXform {
     };
   }
 
-  get tag() {
+  override get tag() {
     return 'si';
   }
 
-  render(xmlStream: any, model: any) {
-    xmlStream.openNode(this.tag);
-    if (model && model.hasOwnProperty('richText') && model.richText) {
-      if (model.richText.length) {
-        model.richText.forEach((text: any) => {
+  override render(xmlStream: XmlStream, model: SharedStringModel) {
+    xmlStream.openNode(this.tag as string);
+    if (model && Object.prototype.hasOwnProperty.call(model, 'richText') && (model as RichSharedStringModel).richText) {
+      const richText = (model as RichSharedStringModel).richText;
+      if (richText.length) {
+        richText.forEach((text) => {
           this.map.r.render(xmlStream, text);
         });
       } else {
         this.map.t.render(xmlStream, '');
       }
     } else if (model !== undefined && model !== null) {
-      this.map.t.render(xmlStream, model);
+      this.map.t.render(xmlStream, model as string);
     }
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     const { name } = node;
     if (this.parser) {
       this.parser.parseOpen(node);
@@ -54,7 +66,7 @@ class SharedStringXform extends BaseXform {
       this.model = {};
       return true;
     }
-    this.parser = this.map[name];
+    this.parser = this.map[name as keyof SharedStringXform['map']];
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -62,20 +74,21 @@ class SharedStringXform extends BaseXform {
     return false;
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         switch (name) {
           case 'r': {
-            let rt = this.model.richText;
+            const model = this.model as RichSharedStringModel;
+            let rt = model.richText;
             if (!rt) {
-              rt = this.model.richText = [];
+              rt = model.richText = [];
             }
             rt.push(this.parser.model);
             break;

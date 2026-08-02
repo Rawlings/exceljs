@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { ZipReader as JSZip, ZipWriter } from '#src/utils/stream/zip';
+import { unzip, ZipWriter } from '#src/utils/stream/zip';
 import { PassThrough } from 'stream';
 
 import XmlStream from '#src/utils/stream/xml-stream';
@@ -276,25 +276,27 @@ class XLSX {
       vmlDrawings: {},
     };
 
-    const zip = await JSZip.loadAsync(buffer);
-    const entries = (Object.values(zip.files) as any[]).sort((a, b) => {
-      const getPriority = (rawName: string) => {
-        const name = rawName.replace(/^\//, '');
-        if (name === '_rels/.rels') return 1;
-        if (name === 'docProps/app.xml' || name === 'docProps/core.xml') return 2;
-        if (name === 'xl/_rels/workbook.xml.rels') return 3;
-        if (name === 'xl/workbook.xml') return 4;
-        if (name === 'xl/sharedStrings.xml') return 5;
-        if (name === 'xl/styles.xml') return 6;
-        if (name.match(/^xl\/worksheets\/_rels\//)) return 7;
-        if (name.match(/^xl\/drawings\/_rels\//)) return 8;
-        if (name.match(/^xl\/drawings\//)) return 9;
-        if (name.match(/^xl\/media\//)) return 10;
-        if (name.match(/^xl\/worksheets\/[^/]+\.xml$/)) return 11;
-        return 15;
-      };
-      return getPriority(a.name) - getPriority(b.name);
-    });
+    const files = unzip(buffer);
+    const entries = Object.entries(files)
+      .map(([name, content]) => ({ name, content, dir: name.endsWith('/') }))
+      .sort((a, b) => {
+        const getPriority = (rawName: string) => {
+          const name = rawName.replace(/^\//, '');
+          if (name === '_rels/.rels') return 1;
+          if (name === 'docProps/app.xml' || name === 'docProps/core.xml') return 2;
+          if (name === 'xl/_rels/workbook.xml.rels') return 3;
+          if (name === 'xl/workbook.xml') return 4;
+          if (name === 'xl/sharedStrings.xml') return 5;
+          if (name === 'xl/styles.xml') return 6;
+          if (name.match(/^xl\/worksheets\/_rels\//)) return 7;
+          if (name.match(/^xl\/drawings\/_rels\//)) return 8;
+          if (name.match(/^xl\/drawings\//)) return 9;
+          if (name.match(/^xl\/media\//)) return 10;
+          if (name.match(/^xl\/worksheets\/[^/]+\.xml$/)) return 11;
+          return 15;
+        };
+        return getPriority(a.name) - getPriority(b.name);
+      });
     for (const entry of entries) {
       /* eslint-disable no-await-in-loop */
       if (!entry.dir) {
@@ -302,16 +304,16 @@ class XLSX {
         if (entryName[0] === '/') {
           entryName = entryName.substr(1);
         }
-        let stream;
+        let stream: any;
         if (
           entryName.match(/xl\/media\//) ||
           // themes are not parsed as stream
           entryName.match(/xl\/theme\/([a-zA-Z0-9]+)[.]xml/)
         ) {
           stream = new PassThrough();
-          stream.end(await entry.async('nodebuffer'));
+          stream.end(entry.content);
         } else {
-          stream = await entry.async('string');
+          stream = entry.content.toString('utf8');
         }
         const keyName = entryName.replace(/^\//, '');
         switch (keyName) {

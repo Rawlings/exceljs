@@ -1,7 +1,9 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
 class AppHeadingPairsXform extends BaseXform {
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: unknown[]) {
     xmlStream.openNode('HeadingPairs');
     xmlStream.openNode('vt:vector', { size: 2, baseType: 'variant' });
 
@@ -17,14 +19,14 @@ class AppHeadingPairsXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     // no parsing
     return node.name === 'HeadingPairs';
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose(name: any) {
+  override parseClose(name: string) {
     return name !== 'HeadingPairs';
   }
 }

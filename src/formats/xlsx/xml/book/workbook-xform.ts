@@ -12,10 +12,22 @@ import WorkbookViewXform from '#src/formats/xlsx/xml/book/workbook-view-xform';
 import WorkbookPropertiesXform from '#src/formats/xlsx/xml/book/workbook-properties-xform';
 import WorkbookCalcPropertiesXform from '#src/formats/xlsx/xml/book/workbook-calc-properties-xform';
 import WorkbookPivotCacheXform from '#src/formats/xlsx/xml/book/workbook-pivot-cache-xform';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+type AnyModel = Record<string, any>;
 
 class WorkbookXform extends BaseXform {
-  static STATIC_XFORMS: any;
-  static WORKBOOK_ATTRIBUTES: any;
+  static STATIC_XFORMS: Record<string, StaticXform>;
+  static WORKBOOK_ATTRIBUTES: Record<string, string>;
+  override map: {
+    fileVersion: StaticXform;
+    workbookPr: WorkbookPropertiesXform;
+    bookViews: ListXform;
+    sheets: ListXform;
+    definedNames: ListXform;
+    calcPr: WorkbookCalcPropertiesXform;
+    pivotCaches: ListXform;
+  };
 
   constructor() {
     super();
@@ -43,15 +55,15 @@ class WorkbookXform extends BaseXform {
     };
   }
 
-  prepare(model: any) {
+  override prepare(model: AnyModel) {
     model.sheets = model.worksheets;
 
     // collate all the print areas from all of the sheets and add them to the defined names
-    const printAreas: any[] = [];
+    const printAreas: AnyModel[] = [];
     let index = 0; // sheets is sparse array - calc index manually
-    model.sheets.forEach((sheet: any) => {
+    model.sheets.forEach((sheet: AnyModel) => {
       if (sheet.pageSetup && sheet.pageSetup.printArea) {
-        sheet.pageSetup.printArea.split('&&').forEach((printArea: any) => {
+        sheet.pageSetup.printArea.split('&&').forEach((printArea: string) => {
           const printAreaComponents = printArea.split(':');
           const definedName = {
             name: '_xlnm.Print_Area',
@@ -92,13 +104,13 @@ class WorkbookXform extends BaseXform {
       model.definedNames = model.definedNames.concat(printAreas);
     }
 
-    (model.media || []).forEach((medium: any, i: any) => {
+    (model.media || []).forEach((medium: AnyModel, i: number) => {
       // assign name
       medium.name = medium.type + (i + 1);
     });
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: AnyModel) {
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode('workbook', WorkbookXform.WORKBOOK_ATTRIBUTES);
 
@@ -113,7 +125,7 @@ class WorkbookXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -122,7 +134,7 @@ class WorkbookXform extends BaseXform {
       case 'workbook':
         return true;
       default:
-        this.parser = this.map[node.name];
+        this.parser = this.map[node.name as keyof WorkbookXform['map']];
         if (this.parser) {
           this.parser.parseOpen(node);
         }
@@ -130,13 +142,13 @@ class WorkbookXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;
@@ -144,36 +156,38 @@ class WorkbookXform extends BaseXform {
       return true;
     }
     switch (name) {
-      case 'workbook':
-        this.model = {
+      case 'workbook': {
+        const model: AnyModel = {
           sheets: this.map.sheets.model,
           properties: this.map.workbookPr.model || {},
           views: this.map.bookViews.model,
           calcProperties: this.map.calcPr.model || {},
         };
         if (this.map.definedNames.model) {
-          this.model.definedNames = this.map.definedNames.model;
+          model.definedNames = this.map.definedNames.model;
         }
+        this.model = model;
 
         return false;
+      }
       default:
         // not quite sure how we get here!
         return true;
     }
   }
 
-  reconcile(model: any) {
-    const rels = (model.workbookRels || []).reduce((map: any, rel: any) => {
+  override reconcile(model: AnyModel) {
+    const rels = (model.workbookRels || []).reduce((map: AnyModel, rel: AnyModel) => {
       map[rel.Id] = rel;
       return map;
     }, {});
 
     // reconcile sheet ids, rIds and names
-    const worksheets: any[] = [];
-    let worksheet;
+    const worksheets: AnyModel[] = [];
+    let worksheet: AnyModel;
     let index = 0;
 
-    (model.sheets || []).forEach((sheet: any) => {
+    (model.sheets || []).forEach((sheet: AnyModel) => {
       const rel = rels[sheet.rId];
       if (!rel) {
         return;
@@ -196,8 +210,8 @@ class WorkbookXform extends BaseXform {
     model.worksheets = worksheets;
 
     // reconcile print areas
-    const definedNames: any[] = [];
-    _.each(model.definedNames, (definedName: any) => {
+    const definedNames: AnyModel[] = [];
+    _.each(model.definedNames as AnyModel[], (definedName) => {
       if (definedName.name === '_xlnm.Print_Area') {
         worksheet = worksheets[definedName.localSheetId];
         if (worksheet) {
@@ -243,7 +257,7 @@ class WorkbookXform extends BaseXform {
     model.definedNames = definedNames;
 
     // used by sheets to build their image models
-    model.media.forEach((media: any, i: any) => {
+    model.media.forEach((media: AnyModel, i: number) => {
       media.index = i;
     });
   }

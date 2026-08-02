@@ -1,40 +1,49 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export type UnderlineValue =
+  | boolean
+  | 'single'
+  | 'double'
+  | 'singleAccounting'
+  | 'doubleAccounting';
 
 class UnderlineXform extends BaseXform {
-  static Attributes: any;
+  static Attributes: Record<string, Record<string, string>>;
 
-  constructor(model?: any) {
+  constructor(model?: UnderlineValue) {
     super();
 
     this.model = model;
   }
 
-  get tag() {
+  override get tag() {
     return 'u';
   }
 
-  render(xmlStream: any, model: any) {
-    model = model || this.model;
+  override render(xmlStream: XmlStream, model?: UnderlineValue) {
+    model = model || (this.model as UnderlineValue);
 
     if (model === true) {
       xmlStream.leafNode('u');
     } else {
-      const attr = UnderlineXform.Attributes[model];
+      const attr = UnderlineXform.Attributes[model as string];
       if (attr) {
         xmlStream.leafNode('u', attr);
       }
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === 'u') {
-      this.model = node.attributes.val || true;
+      this.model = (node.attributes as Record<string, string>)?.val || true;
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import { PassThrough, Readable } from 'node:stream';
 import fs from 'node:fs';
 import { XMLParser } from 'fast-xml-parser';
-import { ZipReader as JSZip } from '#src/utils/stream/zip';
+import { unzip } from '#src/utils/stream/zip';
 import iterateStream from '#src/utils/stream/iterate-stream';
 
 import StyleManager from '#src/formats/xlsx/xml/style/styles-xform';
@@ -158,23 +158,13 @@ class WorkbookReader extends EventEmitter {
     for await (const chunk of stream) {
       chunks.push(chunk);
     }
-    const zip = await JSZip.loadAsync(Buffer.concat(chunks as Uint8Array[]));
+    const files = unzip(Buffer.concat(chunks as Uint8Array[]));
     const entries: (Readable & {
       path: string;
-      dir?: boolean;
-      async(t: string): Promise<Buffer>;
       autodrain?: () => void;
-      pipe?: (dst: unknown) => unknown;
     })[] = [];
-    for (const [path, file] of Object.entries(
-      (
-        zip as unknown as {
-          files: Record<string, { dir: boolean; async(t: string): Promise<Buffer> }>;
-        }
-      ).files
-    )) {
-      if (file.dir) continue;
-      const buf = await file.async('nodebuffer');
+    for (const [path, buf] of Object.entries(files)) {
+      if (path.endsWith('/')) continue;
       const entry = Readable.from(buf) as unknown as Readable & { path: string };
       entry.path = path;
       entries.push(entry as never);

@@ -4,9 +4,24 @@ import Range from '#src/core/range';
 import colCache from '#src/utils/data/col-cache';
 import Enums from '#src/core/enums';
 
+interface MergeInput {
+  address: string;
+  master: string;
+}
+
+interface CellLike {
+  type: number;
+  address?: string;
+  master?: string;
+}
+
+interface RowLike {
+  cells: (CellLike | undefined)[];
+}
+
 class Merges {
-  merges: any;
-  hash: any;
+  merges: Record<string, Range>;
+  hash: Record<string, Range>;
 
   constructor() {
     // optional mergeCells is array of ranges (like the xml)
@@ -14,24 +29,30 @@ class Merges {
     this.hash = {};
   }
 
-  add(merge: any) {
+  add(merge: MergeInput) {
     // merge is {address, master}
     if (this.merges[merge.master]) {
       this.merges[merge.master].expandToAddress(merge.address);
     } else {
       const range = `${merge.master}:${merge.address}`;
-      this.merges[merge.master] = new Range(range as any);
+      this.merges[merge.master] = new Range(range);
     }
   }
 
-  get mergeCells() {
-    return _.map(this.merges, (merge: any) => merge.range);
+  get mergeCells(): string[] {
+    return _.map(this.merges, (merge) => merge.range);
   }
 
-  reconcile(mergeCells: any, rows: any) {
+  reconcile(mergeCells: string[], rows: RowLike[]) {
     // reconcile merge list with merge cells
-    _.each(mergeCells, (merge: any) => {
-      const dimensions = colCache.decode(merge) as any;
+    _.each(mergeCells, (merge) => {
+      const dimensions = colCache.decode(merge) as {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+        tl: string;
+      };
       for (let i = dimensions.top; i <= dimensions.bottom; i++) {
         const row = rows[i - 1];
         for (let j = dimensions.left; j <= dimensions.right; j++) {
@@ -50,7 +71,7 @@ class Merges {
     });
   }
 
-  getMasterAddress(address: any) {
+  getMasterAddress(address: string): string | undefined {
     // if address has been merged, return its master's address. Assumes reconcile has been called
     const range = this.hash[address];
     return range && range.tl;

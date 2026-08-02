@@ -1,12 +1,23 @@
 import _ from '#src/utils/helpers/under-dash';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface PageMarginsModel {
+  left?: number;
+  right?: number;
+  top?: number;
+  bottom?: number;
+  header?: number;
+  footer?: number;
+}
 
 class PageMarginsXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'pageMargins';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: PageMarginsModel | undefined) {
     if (model) {
       const attributes = {
         left: model.left,
@@ -16,32 +27,34 @@ class PageMarginsXform extends BaseXform {
         header: model.header,
         footer: model.footer,
       };
-      if (_.some(attributes, (value: any) => value !== undefined)) {
-        xmlStream.leafNode(this.tag, attributes);
+      if (_.some(attributes, (value) => value !== undefined)) {
+        xmlStream.leafNode(this.tag as string, attributes);
       }
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     switch (node.name) {
-      case this.tag:
+      case this.tag: {
+        const attrs = node.attributes as Record<string, string>;
         this.model = {
-          left: parseFloat(node.attributes.left || 0.7),
-          right: parseFloat(node.attributes.right || 0.7),
-          top: parseFloat(node.attributes.top || 0.75),
-          bottom: parseFloat(node.attributes.bottom || 0.75),
-          header: parseFloat(node.attributes.header || 0.3),
-          footer: parseFloat(node.attributes.footer || 0.3),
+          left: parseFloat(attrs.left || '0.7'),
+          right: parseFloat(attrs.right || '0.7'),
+          top: parseFloat(attrs.top || '0.75'),
+          bottom: parseFloat(attrs.bottom || '0.75'),
+          header: parseFloat(attrs.header || '0.3'),
+          footer: parseFloat(attrs.footer || '0.3'),
         };
         return true;
+      }
       default:
         return false;
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

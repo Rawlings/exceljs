@@ -2,52 +2,73 @@ import Enums from '#src/core/enums';
 
 import utils from '#src/utils/helpers/utils';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
-const validation: any = {
-  horizontalValues: [
-    'left',
-    'center',
-    'right',
-    'fill',
-    'centerContinuous',
-    'distributed',
-    'justify',
-  ].reduce((p: any, v: any) => {
+export interface AlignmentModel {
+  horizontal?: string;
+  vertical?: string;
+  wrapText?: boolean;
+  shrinkToFit?: boolean;
+  indent?: number;
+  textRotation?: number | 'vertical';
+  readingOrder?: 'ltr' | 'rtl';
+}
+
+const horizontalValues = [
+  'left',
+  'center',
+  'right',
+  'fill',
+  'centerContinuous',
+  'distributed',
+  'justify',
+].reduce(
+  (p: Record<string, boolean>, v) => {
     p[v] = true;
     return p;
-  }, {}),
-  horizontal(value: any) {
-    return this.horizontalValues[value] ? value : undefined;
+  },
+  {} as Record<string, boolean>
+);
+
+const verticalValues = ['top', 'middle', 'bottom', 'distributed', 'justify'].reduce(
+  (p: Record<string, boolean>, v) => {
+    p[v] = true;
+    return p;
+  },
+  {} as Record<string, boolean>
+);
+
+const validation = {
+  horizontal(value: string | undefined) {
+    return value && horizontalValues[value] ? value : undefined;
   },
 
-  verticalValues: ['top', 'middle', 'bottom', 'distributed', 'justify'].reduce((p: any, v: any) => {
-    p[v] = true;
-    return p;
-  }, {}),
-  vertical(value: any) {
+  vertical(value: string | undefined) {
     if (value === 'middle') return 'center';
-    return this.verticalValues[value] ? value : undefined;
+    return value && verticalValues[value] ? value : undefined;
   },
-  wrapText(value: any) {
+  wrapText(value: unknown) {
     return value ? true : undefined;
   },
-  shrinkToFit(value: any) {
+  shrinkToFit(value: unknown) {
     return value ? true : undefined;
   },
-  textRotation(value: any) {
+  textRotation(value: unknown): number | 'vertical' | undefined {
     switch (value) {
       case 'vertical':
         return value;
-      default:
-        value = utils.validInt(value);
-        return value >= -90 && value <= 90 ? value : undefined;
+      default: {
+        const v = utils.validInt(value);
+        return v >= -90 && v <= 90 ? v : undefined;
+      }
     }
   },
-  indent(value: any) {
-    value = utils.validInt(value);
-    return Math.max(0, value);
+  indent(value: unknown) {
+    const v = utils.validInt(value);
+    return Math.max(0, v);
   },
-  readingOrder(value: any) {
+  readingOrder(value: string | undefined) {
     switch (value) {
       case 'ltr':
         return Enums.ReadingOrder.LeftToRight;
@@ -60,8 +81,8 @@ const validation: any = {
 };
 
 const textRotationXform = {
-  toXml(textRotation: any) {
-    textRotation = validation.textRotation(textRotation);
+  toXml(textRotationInput: unknown): number | undefined {
+    const textRotation = validation.textRotation(textRotationInput);
     if (textRotation) {
       if (textRotation === 'vertical') {
         return 255;
@@ -78,7 +99,7 @@ const textRotationXform = {
     }
     return undefined;
   },
-  toModel(textRotation: any) {
+  toModel(textRotation: unknown): number | 'vertical' | undefined {
     const tr = utils.validInt(textRotation);
     if (tr !== undefined) {
       if (tr === 255) {
@@ -97,16 +118,16 @@ const textRotationXform = {
 
 // Alignment encapsulates translation from style.alignment model to/from xlsx
 class AlignmentXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'alignment';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: AlignmentModel) {
     xmlStream.addRollback();
     xmlStream.openNode('alignment');
 
     let isValid = false;
-    function add(name: any, value: any) {
+    function add(name: string, value: unknown) {
       if (value) {
         xmlStream.addAttribute(name, value);
         isValid = true;
@@ -129,46 +150,35 @@ class AlignmentXform extends BaseXform {
     }
   }
 
-  parseOpen(node: any) {
-    const model: any = {};
+  override parseOpen(node: SaxNode) {
+    const attrs = node.attributes as Record<string, string>;
+    const model: AlignmentModel = {};
 
     let valid = false;
-    function add(truthy: any, name: any, value: any) {
+    function add<K extends keyof AlignmentModel>(
+      truthy: unknown,
+      name: K,
+      value: AlignmentModel[K]
+    ) {
       if (truthy) {
         model[name] = value;
         valid = true;
       }
     }
-    add(node.attributes.horizontal, 'horizontal', node.attributes.horizontal);
-    add(
-      node.attributes.vertical,
-      'vertical',
-      node.attributes.vertical === 'center' ? 'middle' : node.attributes.vertical
-    );
-    add(node.attributes.wrapText, 'wrapText', utils.parseBoolean(node.attributes.wrapText));
-    add(
-      node.attributes.shrinkToFit,
-      'shrinkToFit',
-      utils.parseBoolean(node.attributes.shrinkToFit)
-    );
-    add(node.attributes.indent, 'indent', parseInt(node.attributes.indent, 10));
-    add(
-      node.attributes.textRotation,
-      'textRotation',
-      textRotationXform.toModel(node.attributes.textRotation)
-    );
-    add(
-      node.attributes.readingOrder,
-      'readingOrder',
-      node.attributes.readingOrder === '2' ? 'rtl' : 'ltr'
-    );
+    add(attrs.horizontal, 'horizontal', attrs.horizontal);
+    add(attrs.vertical, 'vertical', attrs.vertical === 'center' ? 'middle' : attrs.vertical);
+    add(attrs.wrapText, 'wrapText', utils.parseBoolean(attrs.wrapText));
+    add(attrs.shrinkToFit, 'shrinkToFit', utils.parseBoolean(attrs.shrinkToFit));
+    add(attrs.indent, 'indent', parseInt(attrs.indent, 10));
+    add(attrs.textRotation, 'textRotation', textRotationXform.toModel(attrs.textRotation));
+    add(attrs.readingOrder, 'readingOrder', attrs.readingOrder === '2' ? 'rtl' : 'ltr');
 
     this.model = valid ? model : null;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

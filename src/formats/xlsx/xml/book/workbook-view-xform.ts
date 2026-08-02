@@ -1,8 +1,20 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface WorkbookViewModel {
+  visibility?: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  activeTab?: number;
+  firstSheet?: number;
+}
 
 class WorkbookViewXform extends BaseXform {
-  render(xmlStream: any, model: any) {
-    const attributes: Record<string, any> = {};
+  override render(xmlStream: XmlStream, model: WorkbookViewModel) {
+    const attributes: Record<string, unknown> = {};
     if (model.visibility && model.visibility !== 'visible') {
       attributes.visibility = model.visibility;
     }
@@ -19,36 +31,37 @@ class WorkbookViewXform extends BaseXform {
     xmlStream.leafNode('workbookView', attributes);
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === 'workbookView') {
-      const model = (this.model = {} as Record<string, any>);
-      const addS = function (name: any, value: any, dflt: any) {
+      const attrs = node.attributes as Record<string, string>;
+      const model = (this.model = {} as Record<string, unknown>);
+      const addS = function (name: string, value: string | undefined, dflt: string | undefined) {
         const s = value !== undefined ? (model[name] = value) : dflt;
         if (s !== undefined) {
           model[name] = s;
         }
       };
-      const addN = function (name: any, value: any, dflt: any) {
+      const addN = function (name: string, value: string | undefined, dflt: number | undefined) {
         const n = value !== undefined ? (model[name] = parseInt(value, 10)) : dflt;
         if (n !== undefined) {
           model[name] = n;
         }
       };
-      addN('x', node.attributes.xWindow, 0);
-      addN('y', node.attributes.yWindow, 0);
-      addN('width', node.attributes.windowWidth, 25000);
-      addN('height', node.attributes.windowHeight, 10000);
-      addS('visibility', node.attributes.visibility, 'visible');
-      addN('activeTab', node.attributes.activeTab, undefined);
-      addN('firstSheet', node.attributes.firstSheet, undefined);
+      addN('x', attrs.xWindow, 0);
+      addN('y', attrs.yWindow, 0);
+      addN('width', attrs.windowWidth, 25000);
+      addN('height', attrs.windowHeight, 10000);
+      addS('visibility', attrs.visibility, 'visible');
+      addN('activeTab', attrs.activeTab, undefined);
+      addN('firstSheet', attrs.firstSheet, undefined);
       return true;
     }
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

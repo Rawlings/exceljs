@@ -1,11 +1,20 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface RelationshipModel {
+  Id?: string;
+  Type: string;
+  Target: string;
+  TargetMode?: string;
+}
 
 class RelationshipXform extends BaseXform {
-  render(xmlStream: any, model: any) {
-    xmlStream.leafNode('Relationship', model);
+  override render(xmlStream: XmlStream, model: RelationshipModel) {
+    xmlStream.leafNode('Relationship', model as unknown as Record<string, unknown>);
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     switch (node.name) {
       case 'Relationship':
         this.model = node.attributes;
@@ -15,9 +24,9 @@ class RelationshipXform extends BaseXform {
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

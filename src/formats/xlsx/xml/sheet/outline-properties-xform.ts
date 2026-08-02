@@ -1,15 +1,22 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 
-const isDefined = (attr: any) => typeof attr !== 'undefined';
+export interface OutlinePropertiesModel {
+  summaryBelow?: boolean;
+  summaryRight?: boolean;
+}
+
+const isDefined = (attr: unknown) => typeof attr !== 'undefined';
 
 class OutlinePropertiesXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'outlinePr';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: OutlinePropertiesModel | undefined) {
     if (model && (isDefined(model.summaryBelow) || isDefined(model.summaryRight))) {
-      xmlStream.leafNode(this.tag, {
+      xmlStream.leafNode(this.tag as string, {
         summaryBelow: isDefined(model.summaryBelow) ? Number(model.summaryBelow) : undefined,
         summaryRight: isDefined(model.summaryRight) ? Number(model.summaryRight) : undefined,
       });
@@ -18,24 +25,21 @@ class OutlinePropertiesXform extends BaseXform {
     return false;
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     if (node.name === this.tag) {
+      const attrs = node.attributes as Record<string, string>;
       this.model = {
-        summaryBelow: isDefined(node.attributes.summaryBelow)
-          ? Boolean(Number(node.attributes.summaryBelow))
-          : undefined,
-        summaryRight: isDefined(node.attributes.summaryRight)
-          ? Boolean(Number(node.attributes.summaryRight))
-          : undefined,
+        summaryBelow: isDefined(attrs.summaryBelow) ? Boolean(Number(attrs.summaryBelow)) : undefined,
+        summaryRight: isDefined(attrs.summaryRight) ? Boolean(Number(attrs.summaryRight)) : undefined,
       };
       return true;
     }
     return false;
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

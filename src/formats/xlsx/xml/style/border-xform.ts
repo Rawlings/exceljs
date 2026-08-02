@@ -3,26 +3,46 @@ import BaseXform from '#src/formats/xlsx/xml/base-xform';
 import utils from '#src/utils/helpers/utils';
 
 import ColorXform from '#src/formats/xlsx/xml/style/color-xform';
+import type { ColorModel } from '#src/formats/xlsx/xml/style/color-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface EdgeModel {
+  style?: string;
+  color?: ColorModel;
+  up?: boolean;
+  down?: boolean;
+}
+
+export interface BorderModel {
+  top?: EdgeModel;
+  left?: EdgeModel;
+  bottom?: EdgeModel;
+  right?: EdgeModel;
+  diagonal?: EdgeModel;
+  color?: ColorModel;
+}
 
 class EdgeXform extends BaseXform {
-  static validStyleValues: any;
+  static validStyleValues: Record<string, boolean>;
   name: string;
-  defaultColor: any;
+  defaultColor: ColorModel | undefined;
+  override map: { color: ColorXform };
 
-  constructor(name?: any) {
+  constructor(name?: string) {
     super();
 
-    this.name = name;
+    this.name = name as string;
     this.map = {
       color: new ColorXform(),
     };
   }
 
-  get tag() {
+  override get tag() {
     return this.name;
   }
 
-  render(xmlStream: any, model: any, defaultColor: any) {
+  override render(xmlStream: XmlStream, model: EdgeModel | undefined, defaultColor?: ColorModel) {
     const color = (model && model.color) || defaultColor || this.defaultColor;
     xmlStream.openNode(this.name);
     if (model && model.style) {
@@ -34,18 +54,18 @@ class EdgeXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
     }
     switch (node.name) {
       case this.name: {
-        const { style } = node.attributes;
+        const { style } = node.attributes as Record<string, string>;
         if (style) {
           this.model = {
             style,
-          };
+          } as EdgeModel;
         } else {
           this.model = undefined;
         }
@@ -60,13 +80,13 @@ class EdgeXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;
@@ -79,14 +99,14 @@ class EdgeXform extends BaseXform {
         if (!this.model) {
           this.model = {};
         }
-        this.model.color = this.map.color.model;
+        (this.model as EdgeModel).color = this.map.color.model;
       }
     }
 
     return false;
   }
 
-  validStyle(value: any) {
+  validStyle(value: string): boolean {
     return EdgeXform.validStyleValues[value];
   }
 }
@@ -105,15 +125,25 @@ EdgeXform.validStyleValues = [
   'medium',
   'double',
   'thick',
-].reduce((p: any, v: any) => {
-  p[v] = true;
-  return p;
-}, {});
+].reduce(
+  (p: Record<string, boolean>, v) => {
+    p[v] = true;
+    return p;
+  },
+  {} as Record<string, boolean>
+);
 
 // Border encapsulates translation from border model to/from xlsx
 class BorderXform extends BaseXform {
   diagonalUp?: boolean;
   diagonalDown?: boolean;
+  override map: {
+    top: EdgeXform;
+    left: EdgeXform;
+    bottom: EdgeXform;
+    right: EdgeXform;
+    diagonal: EdgeXform;
+  };
 
   constructor() {
     super();
@@ -127,7 +157,7 @@ class BorderXform extends BaseXform {
     };
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: BorderModel) {
     const { color } = model;
     xmlStream.openNode('border');
     if (model.diagonal && model.diagonal.style) {
@@ -138,7 +168,7 @@ class BorderXform extends BaseXform {
         xmlStream.addAttribute('diagonalDown', '1');
       }
     }
-    function add(edgeModel: any, edgeXform: any) {
+    function add(edgeModel: EdgeModel | undefined, edgeXform: EdgeXform) {
       if (edgeModel && !edgeModel.color && model.color) {
         // don't mess with incoming models
         edgeModel = {
@@ -157,7 +187,7 @@ class BorderXform extends BaseXform {
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -165,11 +195,15 @@ class BorderXform extends BaseXform {
     switch (node.name) {
       case 'border':
         this.reset();
-        this.diagonalUp = utils.parseBoolean(node.attributes.diagonalUp);
-        this.diagonalDown = utils.parseBoolean(node.attributes.diagonalDown);
+        this.diagonalUp = utils.parseBoolean(
+          (node.attributes as Record<string, string>).diagonalUp
+        );
+        this.diagonalDown = utils.parseBoolean(
+          (node.attributes as Record<string, string>).diagonalDown
+        );
         return true;
       default:
-        this.parser = this.map[node.name];
+        this.parser = this.map[node.name as keyof BorderXform['map']];
         if (this.parser) {
           this.parser.parseOpen(node);
           return true;
@@ -178,13 +212,13 @@ class BorderXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;
@@ -192,13 +226,17 @@ class BorderXform extends BaseXform {
       return true;
     }
     if (name === 'border') {
-      const model: any = (this.model = {});
-      const add = function (key: any, edgeModel?: any, extensions?: any) {
+      const model: BorderModel = (this.model = {});
+      const add = function (
+        key: keyof BorderModel,
+        edgeModel?: EdgeModel,
+        extensions?: Partial<EdgeModel>
+      ) {
         if (edgeModel) {
           if (extensions) {
             Object.assign(edgeModel, extensions);
           }
-          model[key] = edgeModel;
+          (model[key] as EdgeModel) = edgeModel;
         }
       };
       add('left', this.map.left.model);

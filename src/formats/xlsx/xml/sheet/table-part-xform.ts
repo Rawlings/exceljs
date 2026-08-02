@@ -1,21 +1,27 @@
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type XmlStream from '#src/utils/stream/xml-stream';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
+
+export interface TablePartModel {
+  rId: string;
+}
 
 class TablePartXform extends BaseXform {
-  get tag() {
+  override get tag() {
     return 'tablePart';
   }
 
-  render(xmlStream: any, model: any) {
+  override render(xmlStream: XmlStream, model: TablePartModel | undefined) {
     if (model) {
-      xmlStream.leafNode(this.tag, { 'r:id': model.rId });
+      xmlStream.leafNode(this.tag as string, { 'r:id': model.rId });
     }
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode) {
     switch (node.name) {
       case this.tag:
         this.model = {
-          rId: node.attributes['r:id'],
+          rId: (node.attributes as Record<string, string>)['r:id'],
         };
         return true;
       default:
@@ -23,9 +29,9 @@ class TablePartXform extends BaseXform {
     }
   }
 
-  parseText() {}
+  override parseText() {}
 
-  parseClose() {
+  override parseClose() {
     return false;
   }
 }

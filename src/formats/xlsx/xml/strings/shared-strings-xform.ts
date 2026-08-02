@@ -1,14 +1,21 @@
 import XmlStream from '#src/utils/stream/xml-stream';
 import BaseXform from '#src/formats/xlsx/xml/base-xform';
+import type { SaxNode } from '#src/formats/xlsx/xml/base-xform';
 import SharedStringXform from '#src/formats/xlsx/xml/strings/shared-string-xform';
+import type { SharedStringModel } from '#src/formats/xlsx/xml/strings/shared-string-xform';
+
+export interface SharedStringsModel {
+  values: SharedStringModel[];
+  count: number;
+}
 
 class SharedStringsXform extends BaseXform {
-  hash: any;
-  rich: any;
-  _sharedStringXform: any;
-  _values: any;
+  hash: Record<string, number>;
+  rich: Record<string, number>;
+  _sharedStringXform: SharedStringXform | undefined;
+  _values: SharedStringsModel | undefined;
 
-  constructor(model?: any) {
+  constructor(model?: SharedStringsModel) {
     super();
 
     this.model = model || {
@@ -19,49 +26,51 @@ class SharedStringsXform extends BaseXform {
     this.rich = Object.create(null);
   }
 
-  get sharedStringXform() {
+  get sharedStringXform(): SharedStringXform {
     return this._sharedStringXform || (this._sharedStringXform = new SharedStringXform());
   }
 
-  get values() {
-    return this.model.values;
+  get values(): SharedStringModel[] {
+    return (this.model as SharedStringsModel).values;
   }
 
-  get uniqueCount() {
-    return this.model.values.length;
+  get uniqueCount(): number {
+    return (this.model as SharedStringsModel).values.length;
   }
 
-  get count() {
-    return this.model.count;
+  get count(): number {
+    return (this.model as SharedStringsModel).count;
   }
 
-  getString(index: any) {
-    return this.model.values[index];
+  getString(index: number): SharedStringModel {
+    return (this.model as SharedStringsModel).values[index];
   }
 
-  add(value: any) {
-    return value.richText ? this.addRichText(value) : this.addText(value);
+  add(value: SharedStringModel): number {
+    return (value as { richText?: unknown }).richText ? this.addRichText(value) : this.addText(value as string);
   }
 
-  addText(value: any) {
+  addText(value: string): number {
+    const model = this.model as SharedStringsModel;
     let index = this.hash[value];
     if (index === undefined) {
-      index = this.hash[value] = this.model.values.length;
-      this.model.values.push(value);
+      index = this.hash[value] = model.values.length;
+      model.values.push(value);
     }
-    this.model.count++;
+    model.count++;
     return index;
   }
 
-  addRichText(value: any) {
+  addRichText(value: SharedStringModel): number {
     // TODO: add WeakMap here
+    const model = this.model as SharedStringsModel;
     const xml = this.sharedStringXform.toXml(value);
     let index = this.rich[xml];
     if (index === undefined) {
-      index = this.rich[xml] = this.model.values.length;
-      this.model.values.push(value);
+      index = this.rich[xml] = model.values.length;
+      model.values.push(value);
     }
-    this.model.count++;
+    model.count++;
     return index;
   }
 
@@ -71,8 +80,8 @@ class SharedStringsXform extends BaseXform {
   //   <si><r><rPr></rPr><t></t></r></si>
   // </sst>
 
-  render(xmlStream: any, model: any) {
-    model = model || this._values;
+  override render(xmlStream: XmlStream, modelInput?: SharedStringsModel) {
+    const model = modelInput || (this._values as SharedStringsModel);
     xmlStream.openXml(XmlStream.StdDocAttributes);
 
     xmlStream.openNode('sst', {
@@ -82,13 +91,13 @@ class SharedStringsXform extends BaseXform {
     });
 
     const sx = this.sharedStringXform;
-    model.values.forEach((sharedString: any) => {
+    model.values.forEach((sharedString) => {
       sx.render(xmlStream, sharedString);
     });
     xmlStream.closeNode();
   }
 
-  parseOpen(node: any) {
+  override parseOpen(node: SaxNode): boolean {
     if (this.parser) {
       this.parser.parseOpen(node);
       return true;
@@ -105,17 +114,18 @@ class SharedStringsXform extends BaseXform {
     }
   }
 
-  parseText(text: any) {
+  override parseText(text: string) {
     if (this.parser) {
       this.parser.parseText(text);
     }
   }
 
-  parseClose(name: any) {
+  override parseClose(name: string): boolean {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
-        this.model.values.push(this.parser.model);
-        this.model.count++;
+        const model = this.model as SharedStringsModel;
+        model.values.push(this.parser.model);
+        model.count++;
         this.parser = undefined;
       }
       return true;

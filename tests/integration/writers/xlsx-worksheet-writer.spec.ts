@@ -1,4 +1,4 @@
-import testutils from '../helpers/index';
+import testutils from '../../helpers/index';
 
 import ExcelJS from '#src/index';
 
