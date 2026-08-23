@@ -1,16 +1,17 @@
-const fs = require('node:fs');
-const { promisify } = require('node:util');
-
+import fs from 'node:fs/promises';
 import ExcelJS from '../../../src/index';
 
 const IMAGE_FILENAME = `${__dirname}/../../../fixtures/images/image.png`;
-const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
-const fsReadFileAsync = promisify(fs.readFile);
+let TEST_XLSX_FILE_NAME = './fixtures/out/wb.images.xlsx';
+const fsReadFileAsync = (p: string) => fs.readFile(p);
 
 // =============================================================================
 // Tests
 
 describe('Workbook', () => {
+  beforeEach(() => {
+    TEST_XLSX_FILE_NAME = `./fixtures/out/wb.images-${Date.now()}-${Math.random().toString(36).slice(2)}.xlsx`;
+  });
   describe('Images', () => {
     it('stores background image', () => {
       const wb = new ExcelJS.Workbook();

@@ -57,6 +57,9 @@ const self: any = {
           }
         });
       });
+      wb.on('error', (err: any) => {
+        reject(err);
+      });
       wb.on('end', () => {
         try {
           expect(rowCount).to.equal(11);

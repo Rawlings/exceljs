@@ -1,9 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import tools from './tools';
 
 import _ from './under-dash';
 import Row from '../../src/core/row';
 import Column from '../../src/core/column';
 import colCache from '../../src/utils/data/col-cache';
+
+fs.mkdirSync(path.resolve(process.cwd(), 'fixtures/out'), { recursive: true });
 import testWorkbookReader from './test-workbook-reader';
 
 import dataValidationsSheet from './test-data-validation-sheet';

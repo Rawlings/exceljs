@@ -1,8 +1,11 @@
 import ExcelJS from '../../../src/index';
 
-const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
+let TEST_XLSX_FILE_NAME = './fixtures/out/wb-pr-896.xlsx';
 
 describe('pr related issues', () => {
+  beforeEach(() => {
+    TEST_XLSX_FILE_NAME = `./fixtures/out/wb-pr-896-${Date.now()}-${Math.random().toString(36).slice(2)}.xlsx`;
+  });
   describe('pr 896 leading and trailing whitespace', () => {
     it('Should preserve leading and trailing whitespace', () => {
       const wb = new ExcelJS.Workbook();

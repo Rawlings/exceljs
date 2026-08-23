@@ -217,82 +217,71 @@ export class WorkbookReader extends EventEmitter {
       }
     }
     const files = unzip(Buffer.concat(chunks));
-    const entries: ZipEntryStream[] = [];
+
+    // 1. Relationships
+    const relsBuf = files['xl/_rels/workbook.xml.rels'];
+    if (relsBuf) {
+      const relsEntry = Object.assign(Readable.from(relsBuf), {
+        path: 'xl/_rels/workbook.xml.rels',
+      });
+      await this._parseRels(relsEntry);
+    }
+
+    // 2. Workbook structure / properties
+    const workbookBuf = files['xl/workbook.xml'];
+    if (workbookBuf) {
+      const workbookEntry = Object.assign(Readable.from(workbookBuf), {
+        path: 'xl/workbook.xml',
+      });
+      await this._parseWorkbook(workbookEntry);
+    }
+
+    // 3. Styles
+    const stylesBuf = files['xl/styles.xml'];
+    if (stylesBuf) {
+      const stylesEntry = Object.assign(Readable.from(stylesBuf), {
+        path: 'xl/styles.xml',
+      });
+      await this._parseStyles(stylesEntry);
+    }
+
+    // 4. Shared strings
+    const sstBuf = files['xl/sharedStrings.xml'];
+    if (sstBuf) {
+      const sstEntry = Object.assign(Readable.from(sstBuf), {
+        path: 'xl/sharedStrings.xml',
+      });
+      yield* this._parseSharedStrings(sstEntry);
+    }
+
+    // 5. Hyperlinks
     for (const [path, buf] of Object.entries(files)) {
       if (path.endsWith('/')) continue;
+      const match = path.match(/xl\/worksheets\/_rels\/sheet(\d+)[.]xml\.rels/);
+      if (match) {
+        const sheetNo = match[1];
+        const entry = Object.assign(Readable.from(buf), { path });
+        yield* this._parseHyperlinks(iterateStream(entry), sheetNo);
+      }
+    }
+
+    // 6. Worksheets (ordered by sheet index)
+    const worksheetPaths = Object.keys(files).filter((path) =>
+      /xl\/worksheets\/sheet\d+[.]xml$/.test(path),
+    );
+    worksheetPaths.sort((a, b) => {
+      const numA = parseInt(a.match(/sheet(\d+)[.]xml/)?.[1] ?? '0', 10);
+      const numB = parseInt(b.match(/sheet(\d+)[.]xml/)?.[1] ?? '0', 10);
+      return numA - numB;
+    });
+
+    for (const path of worksheetPaths) {
+      const buf = files[path];
+      if (!buf) continue;
+      const match = path.match(/xl\/worksheets\/sheet(\d+)[.]xml/);
+      const sheetNo = match ? match[1] : '';
       const entry = Object.assign(Readable.from(buf), { path });
-      entries.push(entry);
-    }
-
-    const waitingWorkSheets: {
-      sheetNo: string;
-      path: string;
-      tempFileCleanupCallback: () => void;
-    }[] = [];
-    for (const entry of entries) {
-      let match: RegExpMatchArray | null;
-      let sheetNo: string;
-      switch (entry.path) {
-        case '_rels/.rels':
-          break;
-        case 'xl/_rels/workbook.xml.rels':
-          await this._parseRels(entry);
-          break;
-        case 'xl/workbook.xml':
-          await this._parseWorkbook(entry);
-          break;
-        case 'xl/sharedStrings.xml':
-          yield* this._parseSharedStrings(entry);
-          break;
-        case 'xl/styles.xml':
-          await this._parseStyles(entry);
-          break;
-        default:
-          if (entry.path.match(/xl\/worksheets\/sheet\d+[.]xml/)) {
-            match = entry.path.match(/xl\/worksheets\/sheet(\d+)[.]xml/);
-            sheetNo = match ? match[1] : '';
-            const hasSharedStrings =
-              this.options.sharedStrings === 'ignore' || !!this.sharedStrings;
-            if (hasSharedStrings && this.workbookRels) {
-              yield* this._parseWorksheet(iterateStream(entry), sheetNo);
-            } else {
-              // create temp file for each worksheet
-              await new Promise<void>((resolve, reject) => {
-                const tempPath = `/tmp/exceljs-sheet-${sheetNo}-${Date.now()}.xml`;
-                waitingWorkSheets.push({
-                  sheetNo,
-                  path: tempPath,
-                  tempFileCleanupCallback: () => {
-                    try {
-                      fs.unlinkSync(tempPath);
-                    } catch {}
-                  },
-                });
-
-                const tempStream = fs.createWriteStream(tempPath);
-                tempStream.on('error', reject);
-                entry.pipe(tempStream);
-                tempStream.on('finish', () => {
-                  resolve();
-                });
-              });
-            }
-          } else if (entry.path.match(/xl\/worksheets\/_rels\/sheet\d+[.]xml.rels/)) {
-            match = entry.path.match(/xl\/worksheets\/_rels\/sheet(\d+)[.]xml.rels/);
-            sheetNo = match ? match[1] : '';
-            yield* this._parseHyperlinks(iterateStream(entry), sheetNo);
-          }
-          break;
-      }
-      if (typeof entry.autodrain === 'function') {
-        entry.autodrain();
-      }
-    }
-
-    for (const { sheetNo, path, tempFileCleanupCallback } of waitingWorkSheets) {
-      const fileStream = fs.createReadStream(path);
-      yield* this._parseWorksheet(fileStream, sheetNo);
-      tempFileCleanupCallback();
+      yield* this._parseWorksheet(iterateStream(entry), sheetNo);
     }
   }
 

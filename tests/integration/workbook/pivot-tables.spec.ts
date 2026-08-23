@@ -11,7 +11,7 @@ const PIVOT_TABLE_FILEPATHS = [
   'xl/pivotTables/_rels/pivotTable1.xml.rels',
 ];
 
-const TEST_XLSX_FILEPATH = './fixtures/out/wb.test.xlsx';
+let TEST_XLSX_FILEPATH = './fixtures/out/wb.pivot.xlsx';
 
 const TEST_DATA = [
   ['A', 'B', 'C', 'D', 'E'],
@@ -27,6 +27,9 @@ const TEST_DATA = [
 // Tests
 
 describe('Workbook', () => {
+  beforeEach(() => {
+    TEST_XLSX_FILEPATH = `./fixtures/out/wb.pivot-${Date.now()}-${Math.random().toString(36).slice(2)}.xlsx`;
+  });
   describe('Pivot Tables', () => {
     it('if pivot table added, then certain xml and rels files are added', async () => {
       const workbook = new ExcelJS.Workbook();

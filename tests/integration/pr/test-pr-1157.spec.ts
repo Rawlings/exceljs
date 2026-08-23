@@ -1,6 +1,6 @@
 import ExcelJS from '../../../src/index';
 
-const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = `./fixtures/out/wb-pr-1157-${Date.now()}-${Math.random().toString(36).slice(2)}.xlsx`;
 
 describe('github issues', () => {
   it('pull request 1204 - Read and write data validation should be successful', async () => {

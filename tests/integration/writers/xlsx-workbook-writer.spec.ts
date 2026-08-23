@@ -1,6 +1,4 @@
-const fs = require('node:fs');
-const { promisify } = require('node:util');
-
+import fs, { promises as fsPromises } from 'node:fs';
 import testUtils from '../../helpers/index';
 
 import ExcelJS from '../../../src/index';
@@ -8,7 +6,7 @@ import ExcelJS from '../../../src/index';
 let TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
 let fileSeq = 0;
 const IMAGE_FILENAME = `${__dirname}/../../../fixtures/images/image.png`;
-const fsReadFileAsync = promisify(fs.readFile);
+const fsReadFileAsync = (p: string) => fsPromises.readFile(p);
 
 describe('WorkbookWriter', () => {
   beforeEach(() => {

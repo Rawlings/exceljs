@@ -3,7 +3,7 @@ import testUtils from '../../helpers/index';
 
 import ExcelJS from '../../../src/index';
 
-const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
+let TEST_XLSX_FILE_NAME = './fixtures/out/wb.styles.xlsx';
 
 // =============================================================================
 // Sample Data
@@ -14,6 +14,9 @@ import richTextSampleA1 from '#fixtures/json/rich-text-sample-a1.json';
 // Tests
 
 describe('Workbook', () => {
+  beforeEach(() => {
+    TEST_XLSX_FILE_NAME = `./fixtures/out/wb.styles-${Date.now()}-${Math.random().toString(36).slice(2)}.xlsx`;
+  });
   describe('Styles', () => {
     it('row styles and columns properly', () => {
       const wb = new ExcelJS.Workbook();

@@ -1,6 +1,6 @@
 import ExcelJS from '../../../src/index';
 
-const TEST_XLSX_FILE_NAME = './fixtures/out/wb.test.xlsx';
+const TEST_XLSX_FILE_NAME = `./fixtures/out/issue-1027-${Date.now()}-${Math.random().toString(36).slice(2)}.xlsx`;
 
 describe('github issues', () => {
   it("issue 1027 - Broken due to Cannot set property 'marked' of undefined error", () => {
