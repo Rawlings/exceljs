@@ -1,3 +1,5 @@
+# Rows, Columns & Cells — @office-core/exceljs[⬆](../README.md#contents)
+
 ## Columns[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
 ```javascript
@@ -665,7 +667,7 @@ Shades, Numbers can be one of:
 
 For no theme, use the value null.
 
-Note: custom table themes are not supported by exceljs yet.
+Note: custom table themes are not supported by @office-core/exceljs yet.
 
 ### Modifying Tables[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 

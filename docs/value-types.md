@@ -1,4 +1,4 @@
-# Value Types[⬆](../README.md#contents)<!-- Link generated with jump2header -->
+# Value Types — @office-core/exceljs[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
 The following value types are supported.
 

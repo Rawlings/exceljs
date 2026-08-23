@@ -1,14 +1,14 @@
 {
   "name": "@office-core/exceljs",
   "version": "5.0.0",
-  "description": "Excel Workbook Manager - Read and Write xlsx and csv Files.",
+  "description": "A modern, high-performance evolution of ExcelJS, carrying forward its battle-tested standard into contemporary Node.js and TypeScript environments.",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/exceljs/exceljs.git"
+    "url": "https://github.com/Rawlings/exceljs.git"
   },
   "engines": {
     "node": ">=24.0.0"

@@ -1,4 +1,4 @@
-# File I/O[⬆](../README.md#contents)<!-- Link generated with jump2header -->
+# File I/O & Streaming — @office-core/exceljs[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
 ## XLSX[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
@@ -137,7 +137,7 @@ Options supported when writing to a CSV file.
 | Field            |  Required   |    Type     | Description |
 | ---------------- | ----------- | ----------- | ----------- |
 | dateFormat       |     N       |  String     | Specify the date encoding format of dayjs. |
-| dateUTC          |     N       |  Boolean    | Specify whether ExcelJS uses `dayjs.utc ()` to convert time zone for parsing dates. |
+| dateUTC          |     N       |  Boolean    | Specify whether @office-core/exceljs uses `dayjs.utc ()` to convert time zone for parsing dates. |
 | encoding         |     N       |  String     | Specify file encoding format. (Only applies to `.writeFile`.) |
 | includeEmptyRows |     N       |  Boolean    | Specifies whether empty rows can be written. |
 | map              |     N       |  Function   | Custom Array.prototype.map() callback function for processing row values. |
@@ -202,7 +202,7 @@ The CSV parser uses [fast-csv](https://www.npmjs.com/package/fast-csv) to write 
 
 Dates are formatted using the npm module [dayjs](https://www.npmjs.com/package/dayjs).
  If no dateFormat is supplied, dayjs.ISO_8601 is used.
- When writing a CSV you can supply the boolean dateUTC as true to have ExcelJS parse the date without automatically
+ When writing a CSV you can supply the boolean dateUTC as true to have @office-core/exceljs parse the date without automatically
  converting the timezone using `dayjs.utc()`.
 
 ## Streaming I/O[⬆](../README.md#contents)<!-- Link generated with jump2header -->

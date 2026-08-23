@@ -1,4 +1,4 @@
-# Styles[⬆](../README.md#contents)<!-- Link generated with jump2header -->
+# Styles & Formatting — @office-core/exceljs[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
 Cells, Rows and Columns each support a rich set of styles and formats that affect how the cells are displayed.
 
@@ -338,7 +338,7 @@ its own style.
 If multiple rules affect a given cell, the rule priority value will determine
 which rule wins out if competing styles collide.
 The rule with the lower priority value wins.
-If priority values are not specified for a given rule, ExcelJS will assign them
+If priority values are not specified for a given rule, @office-core/exceljs will assign them
 in ascending order.
 
 Note: at present, only a subset of conditional formatting rules are supported.

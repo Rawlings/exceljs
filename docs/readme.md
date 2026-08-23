@@ -1,10 +1,14 @@
-# ExcelJS Documentation Index
+# @office-core/exceljs Documentation Index
 
-Select a documentation module below to view detailed specifications:
+[![npm version](https://img.shields.io/npm/v/@office-core/exceljs.svg?style=flat-square&color=cb3837&logo=npm)](https://www.npmjs.com/package/@office-core/exceljs)
+[![npm downloads](https://img.shields.io/npm/dm/@office-core/exceljs.svg?style=flat-square)](https://www.npmjs.com/package/@office-core/exceljs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](../LICENSE)
+
+Select a documentation module below to view detailed specifications for [`@office-core/exceljs`](https://www.npmjs.com/package/@office-core/exceljs):
 
 | Guide | Description |
 |---|---|
-| **[Importing & Browser Support](getting-started.md)** | ES Module importing syntax, bundler guidance, and browser usage. |
+| **[Getting Started & Importing](getting-started.md)** | Installation, ES Module importing syntax, bundler guidance, and browser usage. |
 | **[Workbook Operations](workbook.md)** | Creating workbooks, setting workbook properties, calculation properties, and workbook window views. |
 | **[Worksheet Operations](worksheet.md)** | Adding/removing worksheets, accessing sheets, worksheet states, properties & metrics, page setup options, headers/footers, frozen & split views, and auto-filters. |
 | **[Rows, Columns & Cells](rows-columns-cells.md)** | Columns setup & iteration, row getters & setters, adding/inserting/splicing/duplicating rows, cell manipulation, merged cells, defined names, data validations, cell comments, and table definitions. |

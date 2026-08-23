@@ -1,3 +1,5 @@
+# Worksheet Operations — @office-core/exceljs[⬆](../README.md#contents)
+
 ## Add a Worksheet[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
 ```javascript

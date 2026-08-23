@@ -1,4 +1,4 @@
-# Workbook Operations
+# Workbook Operations — @office-core/exceljs[⬆](../README.md#contents)
 
 ## Create a Workbook[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
