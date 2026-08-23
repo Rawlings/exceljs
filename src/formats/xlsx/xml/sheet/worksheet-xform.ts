@@ -3,7 +3,7 @@ import _ from '../../../../utils/helpers/under-dash';
 import colCache from '../../../../utils/data/col-cache';
 import XmlStream from '../../../../utils/stream/xml-stream';
 
-import RelType from '../../rel-type';
+import { RelType } from '../../rel-type';
 
 import Merges from './merges';
 
@@ -56,6 +56,10 @@ interface CfModel {
   [key: string]: unknown;
 }
 
+function nextRid(r: unknown[]) {
+  return `rId${r.length + 1}`;
+}
+
 const mergeRule = (rule: CfRuleModel, extRule: CfRuleModel) => {
   Object.keys(extRule).forEach((key) => {
     const value = rule[key];
@@ -68,15 +72,15 @@ const mergeRule = (rule: CfRuleModel, extRule: CfRuleModel) => {
 
 const mergeConditionalFormattings = (
   model: CfModel[] | undefined,
-  extModel: CfModel[] | undefined
+  extModel: CfModel[] | undefined,
 ) => {
   // conditional formattings are rendered in worksheet.conditionalFormatting and also in
   // worksheet.extLst.ext.x14:conditionalFormattings
   // some (e.g. dataBar) are even spread across both!
-  if (!extModel || !extModel.length) {
+  if (!extModel?.length) {
     return model;
   }
-  if (!model || !model.length) {
+  if (!model?.length) {
     return extModel;
   }
 
@@ -274,7 +278,7 @@ class WorkSheetXform extends BaseXform {
     };
   }
 
-override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
+  override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
     const merges = new Merges();
     options.merges = merges;
     const hyperlinks: HyperlinkModel[] = [];
@@ -292,10 +296,6 @@ override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
 
     // prepare relationships
     const rels: RelationshipModel[] = (model.rels = []);
-
-    function nextRid(r: unknown[]) {
-      return `rId${r.length + 1}`;
-    }
 
     hyperlinks.forEach((hyperlink) => {
       const rId = nextRid(rels);
@@ -365,7 +365,7 @@ override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
           };
           (options.drawings as WorksheetDrawingModel[]).push(drawing);
           rels.push({
-            Id: drawing.rId as string,
+            Id: drawing.rId,
             Type: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing',
             Target: `../drawings/${drawing.name}.xml`,
           });
@@ -393,7 +393,7 @@ override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
           },
           range: medium.range,
         };
-        if (medium.hyperlinks && medium.hyperlinks.hyperlink) {
+        if (medium.hyperlinks?.hyperlink) {
           const rIdHyperLink = nextRid(drawing.rels);
           drawingRelsHash[drawing.rels.length] = rIdHyperLink;
           anchor.picture.hyperlinks = {
@@ -457,25 +457,24 @@ override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
           outlineLevelRow: model.properties.outlineLevelRow,
         }
       : undefined;
-    if (sheetFormatPropertiesModel && model.properties && model.properties.defaultColWidth) {
+    if (sheetFormatPropertiesModel && model.properties?.defaultColWidth) {
       sheetFormatPropertiesModel.defaultColWidth = model.properties.defaultColWidth;
     }
     const sheetPropertiesModel = {
-      outlineProperties: model.properties && model.properties.outlineProperties,
-      tabColor: model.properties && model.properties.tabColor,
-      pageSetup:
-        model.pageSetup && model.pageSetup.fitToPage
-          ? {
-              fitToPage: model.pageSetup.fitToPage,
-            }
-          : undefined,
+      outlineProperties: model.properties?.outlineProperties,
+      tabColor: model.properties?.tabColor,
+      pageSetup: model.pageSetup?.fitToPage
+        ? {
+            fitToPage: model.pageSetup.fitToPage,
+          }
+        : undefined,
     };
-    const pageMarginsModel = model.pageSetup && model.pageSetup.margins;
+    const pageMarginsModel = model.pageSetup?.margins;
     const printOptionsModel = {
-      showRowColHeaders: model.pageSetup && model.pageSetup.showRowColHeaders,
-      showGridLines: model.pageSetup && model.pageSetup.showGridLines,
-      horizontalCentered: model.pageSetup && model.pageSetup.horizontalCentered,
-      verticalCentered: model.pageSetup && model.pageSetup.verticalCentered,
+      showRowColHeaders: model.pageSetup?.showRowColHeaders,
+      showGridLines: model.pageSetup?.showGridLines,
+      horizontalCentered: model.pageSetup?.horizontalCentered,
+      verticalCentered: model.pageSetup?.verticalCentered,
     };
     const sheetProtectionModel = model.sheetProtection;
 
@@ -553,28 +552,24 @@ override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
     switch (name) {
       case 'worksheet': {
         const properties = this.map.sheetFormatPr.model || {};
-        if (this.map.sheetPr.model && this.map.sheetPr.model.tabColor) {
+        if (this.map.sheetPr.model?.tabColor) {
           properties.tabColor = this.map.sheetPr.model.tabColor;
         }
-        if (this.map.sheetPr.model && this.map.sheetPr.model.outlineProperties) {
+        if (this.map.sheetPr.model?.outlineProperties) {
           properties.outlineProperties = this.map.sheetPr.model.outlineProperties;
         }
         const sheetProperties = {
-          fitToPage:
-            (this.map.sheetPr.model &&
-              this.map.sheetPr.model.pageSetup &&
-              this.map.sheetPr.model.pageSetup.fitToPage) ||
-            false,
+          fitToPage: this.map.sheetPr.model?.pageSetup?.fitToPage || false,
           margins: this.map.pageMargins.model,
         };
         const pageSetup = Object.assign(
           sheetProperties,
           this.map.pageSetup.model,
-          this.map.printOptions.model
+          this.map.printOptions.model,
         );
         const conditionalFormattings = mergeConditionalFormattings(
           this.map.conditionalFormatting.model,
-          this.map.extLst.model && this.map.extLst.model['x14:conditionalFormattings']
+          this.map.extLst.model?.['x14:conditionalFormattings'],
         );
         this.model = {
           dimensions: this.map.dimension.model,
@@ -612,25 +607,20 @@ override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
   override reconcile(model: WorksheetXformModel, options: WorksheetReconcileOptions) {
     // options.merges = new Merges();
     // options.merges.reconcile(model.mergeCells, model.rows);
-    const rels = (model.relationships || []).reduce<Record<string, RelationshipModel>>(
-      (h, rel) => {
-        if (rel.Id) h[rel.Id] = rel;
-        if (rel.Type === RelType.Comments) {
-          model.comments = options.comments?.[rel.Target]?.comments || [];
-        }
-        if (rel.Type === RelType.VmlDrawing && model.comments && model.comments.length) {
-          const vmlComment = options.vmlDrawings?.[rel.Target]?.comments || [];
-          (model.comments as Array<{ note?: Record<string, unknown> }>).forEach(
-            (comment, index) => {
-              comment.note = Object.assign({}, comment.note, vmlComment[index]);
-            }
-          );
-        }
-        return h;
-      },
-      {}
-    );
-    options.commentsMap = (model.comments as Array<{ ref?: string }> | undefined || []).reduce<
+    const rels = (model.relationships || []).reduce<Record<string, RelationshipModel>>((h, rel) => {
+      if (rel.Id) h[rel.Id] = rel;
+      if (rel.Type === RelType.Comments) {
+        model.comments = options.comments?.[rel.Target]?.comments || [];
+      }
+      if (rel.Type === RelType.VmlDrawing && model.comments?.length) {
+        const vmlComment = options.vmlDrawings?.[rel.Target]?.comments || [];
+        (model.comments as Array<{ note?: Record<string, unknown> }>).forEach((comment, index) => {
+          comment.note = Object.assign({}, comment.note, vmlComment[index]);
+        });
+      }
+      return h;
+    }, {});
+    options.commentsMap = ((model.comments as Array<{ ref?: string }> | undefined) || []).reduce<
       Record<string, unknown>
     >((h, comment) => {
       if (comment.ref) {
@@ -645,14 +635,14 @@ override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
         }
         return h;
       },
-      {}
+      {},
     );
     options.formulae = {};
 
     // compact the rows and cells
-    model.rows = (model.rows && model.rows.filter(Boolean)) || [];
+    model.rows = model.rows?.filter(Boolean) || [];
     model.rows.forEach((row) => {
-      row.cells = (row.cells && row.cells.filter(Boolean)) || [];
+      row.cells = row.cells?.filter(Boolean) || [];
     });
 
     this.map.cols.reconcile(model.cols, options);
@@ -666,7 +656,13 @@ override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
       if (match) {
         const drawingName = match[1];
         const drawing = options.drawings?.[drawingName] as
-          | { anchors: Array<{ medium?: { index?: number }; range?: unknown; picture?: { hyperlinks?: unknown } }> }
+          | {
+              anchors: Array<{
+                medium?: { index?: number };
+                range?: unknown;
+                picture?: { hyperlinks?: unknown };
+              }>;
+            }
           | undefined;
         drawing?.anchors.forEach((anchor) => {
           if (anchor.medium) {
@@ -685,7 +681,7 @@ override prepare(model: WorksheetXformModel, options: WorksheetPrepareOptions) {
     const backgroundRel = model.background && rels[model.background.rId];
     if (backgroundRel) {
       const target = backgroundRel.Target.split('/media/')[1];
-      const imageId = options.mediaIndex && options.mediaIndex[target];
+      const imageId = options.mediaIndex?.[target];
       if (imageId !== undefined) {
         media.push({
           type: 'background',

@@ -3,10 +3,10 @@ import { PassThrough } from 'node:stream';
 import { buffer } from 'node:stream/consumers';
 import { ZipWriter } from '../utils/stream/zip';
 
-import RelType from '../formats/xlsx/rel-type';
+import { RelType } from '../formats/xlsx/rel-type';
 import StylesXform from '../formats/xlsx/xml/style/styles-xform';
 import SharedStrings from '../utils/data/shared-strings';
-import DefinedNames from '../core/defined-names';
+import { DefinedNames } from '../core/defined-names';
 
 import CoreXform from '../formats/xlsx/xml/core/core-xform';
 import RelationshipsXform from '../formats/xlsx/xml/core/relationships-xform';
@@ -26,6 +26,21 @@ import type {
 } from '../core/worksheet';
 
 import theme1Xml from '../formats/xlsx/theme1';
+
+function commitWorksheet(worksheet: WorksheetWriter) {
+  if (!worksheet) {
+    return Promise.resolve();
+  }
+  if (!(worksheet as { committed: boolean }).committed) {
+    return new Promise<void>((resolve) => {
+      (worksheet as { stream: { on(e: string, cb: () => void): void } }).stream.on('zipped', () => {
+        resolve();
+      });
+      worksheet.commit();
+    });
+  }
+  return Promise.resolve();
+}
 
 export interface WorkbookWriterOptions {
   created?: Date;
@@ -137,23 +152,6 @@ export class WorkbookWriter {
   }
 
   _commitWorksheets() {
-    const commitWorksheet = function (worksheet: WorksheetWriter) {
-      if (!worksheet) {
-        return Promise.resolve();
-      }
-      if (!(worksheet as { committed: boolean }).committed) {
-        return new Promise<void>((resolve) => {
-          (worksheet as { stream: { on(e: string, cb: () => void): void } }).stream.on(
-            'zipped',
-            () => {
-              resolve();
-            }
-          );
-          worksheet.commit();
-        });
-      }
-      return Promise.resolve();
-    };
     // if there are any uncommitted worksheets, commit them now and wait
     const promises = (this._worksheets as WorksheetWriter[]).map(commitWorksheet);
     if (promises.length) {
@@ -223,7 +221,7 @@ export class WorkbookWriter {
         {
           tabColor: options.tabColor,
         },
-        options.properties
+        options.properties,
       );
     }
 
@@ -252,16 +250,16 @@ export class WorkbookWriter {
       return this._worksheets.find(Boolean);
     }
     if (typeof id === 'number') {
-      return this._worksheets[id] || this._worksheets.find((ws) => ws && ws.id === id);
+      return this._worksheets[id] || this._worksheets.find((ws) => ws?.id === id);
     }
     if (typeof id === 'string') {
       const byName = this._worksheets.find(
-        (worksheet) => worksheet && (worksheet as { name: string }).name === id
+        (worksheet) => worksheet && (worksheet as { name: string }).name === id,
       );
       if (byName) return byName;
       const num = parseInt(id, 10);
       if (!Number.isNaN(num)) {
-        return this._worksheets[num] || this._worksheets.find((ws) => ws && ws.id === num);
+        return this._worksheets[num] || this._worksheets.find((ws) => ws?.id === num);
       }
     }
     return undefined;
@@ -329,7 +327,7 @@ export class WorkbookWriter {
           }
         }
         throw new Error('Unsupported media');
-      })
+      }),
     );
   }
 

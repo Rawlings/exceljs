@@ -114,7 +114,7 @@ const self: any = {
           2,
           ['one', 'two', 'three'],
           ['une', 'deux', 'trois'],
-          ['uno', 'due', 'tre']
+          ['uno', 'due', 'tre'],
         );
       },
 
@@ -570,7 +570,7 @@ const self: any = {
           2,
           2,
           ['one', 'two', 'three', 'four', 'five'],
-          ['une', 'deux', 'trois', 'quatre', 'cinq']
+          ['une', 'deux', 'trois', 'quatre', 'cinq'],
         );
       },
 
@@ -601,7 +601,7 @@ const self: any = {
           2,
           ['one', 'two', 'three', 'four', 'five'],
           ['une', 'deux', 'trois', 'quatre', 'cinq'],
-          ['uno', 'due', 'tre', 'quatro', 'cinque']
+          ['uno', 'due', 'tre', 'quatro', 'cinque'],
         );
       },
 

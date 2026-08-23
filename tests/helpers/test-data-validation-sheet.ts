@@ -86,9 +86,13 @@ const self: any = {
     ['A22', 'A23'].forEach((address: any) => {
       ws.getCell(address).value = tools.concatenateFormula('Five Numbers');
     });
-    ['B22', 'C22', 'D22', 'E22', 'F22', 'B23', 'C23', 'D23', 'E23', 'F23'].forEach((address: any) => {
-      ws.getCell(address).dataValidation = JSON.parse(JSON.stringify(self.dataValidations.shared));
-    });
+    ['B22', 'C22', 'D22', 'E22', 'F22', 'B23', 'C23', 'D23', 'E23', 'F23'].forEach(
+      (address: any) => {
+        ws.getCell(address).dataValidation = JSON.parse(
+          JSON.stringify(self.dataValidations.shared),
+        );
+      },
+    );
   },
 
   checkSheet(wb: any) {
@@ -105,7 +109,7 @@ const self: any = {
       self.dataValidations.operators.forEach((operator: string, cIndex: number) => {
         const col = 3 + cIndex;
         expect(ws.getCell(row, col).dataValidation).to.deep.equal(
-          self.createDataValidations(type, operator)
+          self.createDataValidations(type, operator),
         );
       });
     });
@@ -117,9 +121,11 @@ const self: any = {
     expect(ws.getCell('B19').dataValidation).to.deep.equal(self.dataValidations.B19);
 
     // two rows of the same validation to test dataValidation optimisation
-    ['B22', 'C22', 'D22', 'E22', 'F22', 'B23', 'C23', 'D23', 'E23', 'F23'].forEach((address: any) => {
-      expect(ws.getCell(address).dataValidation).to.deep.equal(self.dataValidations.shared);
-    });
+    ['B22', 'C22', 'D22', 'E22', 'F22', 'B23', 'C23', 'D23', 'E23', 'F23'].forEach(
+      (address: any) => {
+        expect(ws.getCell(address).dataValidation).to.deep.equal(self.dataValidations.shared);
+      },
+    );
   },
 };
 

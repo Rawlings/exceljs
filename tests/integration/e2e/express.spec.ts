@@ -11,7 +11,7 @@ describe('Express / HTTP Server', () => {
         const wb = testutils.createTestBook(new Excel.Workbook(), 'xlsx');
         res.setHeader(
           'Content-Type',
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         );
         res.setHeader('Content-Disposition', 'attachment; filename=Report.xlsx');
         wb.xlsx.write(res).then(() => {
@@ -24,7 +24,7 @@ describe('Express / HTTP Server', () => {
 
   afterAll(async () => {
     await new Promise<void>((resolve, reject) =>
-      server.close((err) => (err ? reject(err) : resolve()))
+      server.close((err) => (err ? reject(err) : resolve())),
     );
   });
 

@@ -129,10 +129,7 @@ class TableXform extends BaseXform {
     }
   }
 
-  override reconcile(
-    model: TableModel,
-    options: { styles: { getDxfStyle(id: number): unknown } }
-  ) {
+  override reconcile(model: TableModel, options: { styles: { getDxfStyle(id: number): unknown } }) {
     // fetch the dfxs from styles
     model.columns.forEach((column) => {
       if (column.dxfId !== undefined) {

@@ -38,7 +38,7 @@ export default class CommentXform extends BaseXform {
       authorId: 0,
     });
     xmlStream.openNode('text');
-    if (model && model.note && model.note.texts) {
+    if (model?.note?.texts) {
       model.note.texts.forEach((text) => {
         this.richTextXform.render(xmlStream, text);
       });

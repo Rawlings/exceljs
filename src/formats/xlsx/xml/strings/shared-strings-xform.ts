@@ -91,7 +91,7 @@ class SharedStringsXform extends BaseXform {
   // </sst>
 
   override render(xmlStream: XmlStream, modelInput?: SharedStringsModel) {
-    const model = modelInput || (this._values as SharedStringsModel);
+    const model = modelInput || this._values;
     xmlStream.openXml(XmlStream.StdDocAttributes);
 
     xmlStream.openNode('sst', {

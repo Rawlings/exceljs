@@ -1,7 +1,7 @@
 import BaseXform from '../../base-xform';
 import CompositeXform from '../../composite-xform';
 
-import Range from '../../../../../core/range';
+import { Range } from '../../../../../core/range';
 
 import DatabarXform, { type DatabarModel } from './databar-xform';
 import ExtLstRefXform, { type ExtModel } from './ext-lst-ref-xform';
@@ -57,7 +57,7 @@ export interface CfRuleModel extends Partial<ExtModel> {
 }
 
 const getTextFormula = (model: CfRuleModel) => {
-  if (model.formulae && model.formulae[0]) {
+  if (model.formulae?.[0]) {
     return model.formulae[0];
   }
 
@@ -80,7 +80,7 @@ const getTextFormula = (model: CfRuleModel) => {
 };
 
 const getTimePeriodFormula = (model: CfRuleModel) => {
-  if (model.formulae && model.formulae[0]) {
+  if (model.formulae?.[0]) {
     return model.formulae[0];
   }
 
@@ -341,7 +341,7 @@ class CfRuleXform extends CompositeXform {
       case 'formula':
         // except - formula is a string and appends to formulae
         model.formulae = model.formulae || [];
-        model.formulae.push(parser.model as string);
+        model.formulae.push(parser.model);
         break;
     }
   }

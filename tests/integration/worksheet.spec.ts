@@ -53,18 +53,16 @@ describe('Worksheet', () => {
       expect(ws.getCell('E1').value).to.equal('Hello, World!');
       expect((ws.getCell('F1').value as Record<string, unknown>).text).to.equal('www.google.com');
       expect((ws.getCell('F1').value as Record<string, unknown>).hyperlink).to.equal(
-        'http://www.google.com'
+        'http://www.google.com',
       );
 
       expect((ws.getCell('A2').value as Record<string, unknown>).formula).to.equal('A1');
       expect((ws.getCell('A2').value as Record<string, unknown>).result).to.equal(7);
 
       expect((ws.getCell('B2').value as Record<string, unknown>).formula).to.equal(
-        'CONCATENATE("Hello", ", ", "World!")'
+        'CONCATENATE("Hello", ", ", "World!")',
       );
-      expect((ws.getCell('B2').value as Record<string, unknown>).result).to.equal(
-        'Hello, World!'
-      );
+      expect((ws.getCell('B2').value as Record<string, unknown>).result).to.equal('Hello, World!');
 
       expect((ws.getCell('C2').value as Record<string, unknown>).formula).to.equal('D1');
       expect((ws.getCell('C2').value as Record<string, unknown>).result).to.equal(now);
@@ -90,7 +88,7 @@ describe('Worksheet', () => {
 
       // A1 and C2 should not reference the same object
       expect(ws.getCell('A1').value).to.equal(
-        (ws.getCell('C2').value as Record<string, unknown>).result
+        (ws.getCell('C2').value as Record<string, unknown>).result,
       );
     });
 
@@ -699,7 +697,7 @@ describe('Worksheet', () => {
             const ws = workbook.addWorksheet();
             ws.name = invalidCharacter;
           }).to.throw(
-            `Worksheet name ${invalidCharacter} cannot include any of the following characters: * ? : \\ / [ ]`
+            `Worksheet name ${invalidCharacter} cannot include any of the following characters: * ? : \\ / [ ]`,
           );
         }
       });
@@ -714,7 +712,7 @@ describe('Worksheet', () => {
             const ws = workbook.addWorksheet();
             ws.name = invalidName;
           }).to.throw(
-            `The first or last character of worksheet name cannot be a single quotation mark: ${invalidName}`
+            `The first or last character of worksheet name cannot be a single quotation mark: ${invalidName}`,
           );
         }
       });
@@ -927,7 +925,7 @@ describe('Worksheet', () => {
           for (let j = d.left; j <= d.right; j++) {
             const cell = ws.getCell(i, j);
             const masterCell = master ? ws.getCell(master) : cell;
-            expect((cell).master.address).to.equal(masterCell.address);
+            expect(cell.master.address).to.equal(masterCell.address);
           }
         }
       };
@@ -1015,7 +1013,7 @@ describe('Worksheet', () => {
       expect(ws.getCell('B2').border).to.deep.equal(testutils.styles.borders.doubleRed);
       expect(ws.getCell('B2').fill).to.deep.equal(testutils.styles.fills.blueWhiteHGrad);
       expect(ws.getCell('B2').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('B2').numFmt).to.equal(testutils.styles.numFmts.numFmt1);
 
@@ -1023,7 +1021,7 @@ describe('Worksheet', () => {
       expect(ws.getCell('B3').border).to.deep.equal(testutils.styles.borders.doubleRed);
       expect(ws.getCell('B3').fill).to.deep.equal(testutils.styles.fills.blueWhiteHGrad);
       expect(ws.getCell('B3').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('B3').numFmt).to.equal(testutils.styles.numFmts.numFmt1);
 
@@ -1031,7 +1029,7 @@ describe('Worksheet', () => {
       expect(ws.getCell('C2').border).to.deep.equal(testutils.styles.borders.doubleRed);
       expect(ws.getCell('C2').fill).to.deep.equal(testutils.styles.fills.blueWhiteHGrad);
       expect(ws.getCell('C2').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('C2').numFmt).to.equal(testutils.styles.numFmts.numFmt1);
 
@@ -1039,7 +1037,7 @@ describe('Worksheet', () => {
       expect(ws.getCell('C3').border).to.deep.equal(testutils.styles.borders.doubleRed);
       expect(ws.getCell('C3').fill).to.deep.equal(testutils.styles.fills.blueWhiteHGrad);
       expect(ws.getCell('C3').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('C3').numFmt).to.equal(testutils.styles.numFmts.numFmt1);
     });

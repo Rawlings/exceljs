@@ -45,7 +45,7 @@ const self: any = {
                 expect(row.getCell('B').value).to.deep.equal(streamedValues.B1);
                 expect(row.getCell('B').type).to.equal(ExcelJS.ValueType.String);
                 expect(Math.abs(row.getCell('C').value - streamedValues.C1)).to.be.below(
-                  dateAccuracy
+                  dateAccuracy,
                 );
                 expect(row.getCell('C').type).to.equal(ExcelJS.ValueType.Number);
                 break;

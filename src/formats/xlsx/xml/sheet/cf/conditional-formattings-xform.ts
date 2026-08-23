@@ -25,12 +25,12 @@ class ConditionalFormattingsXform extends BaseXform {
 
   override prepare(
     model: ConditionalFormattingModel[],
-    options: { styles: { addDxfStyle(style: Record<string, unknown>): number } }
+    options: { styles: { addDxfStyle(style: Record<string, unknown>): number } },
   ) {
     // ensure each rule has a priority value
     let nextPriority = model.reduce(
       (p: number, cf) => Math.max(p, ...cf.rules.map((rule) => rule.priority || 0)),
-      1
+      1,
     );
     model.forEach((cf) => {
       cf.rules.forEach((rule) => {
@@ -88,7 +88,7 @@ class ConditionalFormattingsXform extends BaseXform {
 
   override reconcile(
     model: ConditionalFormattingModel[],
-    options: { styles: { getDxfStyle(id: number): Record<string, unknown> } }
+    options: { styles: { getDxfStyle(id: number): Record<string, unknown> } },
   ) {
     model.forEach((cf) => {
       cf.rules.forEach((rule) => {

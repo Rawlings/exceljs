@@ -59,9 +59,9 @@ class BaseCellAnchorXform extends BaseXform {
       rels?: Record<string, { Target: string }>;
       mediaIndex?: Record<string, number>;
       media?: unknown[];
-    }
+    },
   ) {
-    if (model && model.rId && options.rels) {
+    if (model?.rId && options.rels) {
       const rel = options.rels[model.rId];
       const match = rel.Target.match(/.*\/media\/(.+[.][a-zA-Z]{3,4})/);
       if (match) {

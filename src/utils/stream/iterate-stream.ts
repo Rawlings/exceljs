@@ -6,7 +6,7 @@ interface NodeStreamLike {
 }
 
 export default async function* iterateStream<T = unknown>(
-  stream: NodeStreamLike | AsyncIterable<T>
+  stream: NodeStreamLike | AsyncIterable<T>,
 ): AsyncGenerator<T> {
   if (Symbol.asyncIterator in stream) {
     for await (const chunk of stream as AsyncIterable<T>) {

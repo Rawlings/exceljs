@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import utils from '../utils/helpers/utils';
-import RelType from '../formats/xlsx/rel-type';
+import { RelType } from '../formats/xlsx/rel-type';
 
 interface HyperlinkEntry {
   target: string;
@@ -98,7 +98,7 @@ class SheetRelsWriter {
 
   private _writeOpen(): void {
     this.stream.write(
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`,
     );
   }
 
@@ -119,11 +119,11 @@ class SheetRelsWriter {
           ` Type="${relationship.Type}"` +
           ` Target="${utils.xmlEncode(relationship.Target)}"` +
           ` TargetMode="${relationship.TargetMode}"` +
-          '/>'
+          '/>',
       );
     } else {
       this.stream.write(
-        `<Relationship Id="${rId}" Type="${relationship.Type}" Target="${relationship.Target}"/>`
+        `<Relationship Id="${rId}" Type="${relationship.Type}" Target="${relationship.Target}"/>`,
       );
     }
 

@@ -51,8 +51,9 @@ We are modernizing ExcelJS with **0 breaking changes** to the public API or down
 ### 4. Verification Workflow
 Before declaring any task or step complete, ALWAYS ensure:
 1. `npm run typecheck` passes cleanly without compiler errors.
-2. `npm run lint` passes cleanly with 0 errors.
-3. `npm run format` has been executed.
+2. `npm run lint` (or `npm run lint:check`) passes cleanly with 0 errors and 0 warnings.
+3. `npm run format:check` passes (or `npm run format` has been executed).
+4. `npm run test` passes all unit and integration test suites.
 
 ### 5. Public API Scope & Refactoring Boundaries
 
@@ -107,9 +108,9 @@ worksheetXform.reconcile(
 
 #### Public API is the hard boundary — verify, don't assume
 - `src/temp.d.ts` (pre-refactor reference types, not compiled/imported — will be deleted) and `fixtures/parity.d.ts` (compiled against `src/index.ts` in `tests/unit/type-parity-ast.spec.ts`) are both **source-of-truth for the public API shape**, not just docs. If a public-facing option/type is declared `any` there on purpose (e.g. `CsvReadOptions.map(value: any, index): any` — mirrors fast-csv's own loose typing), keep it `any` at that exact boundary with a `// oxlint-disable-next-line typescript/no-explicit-any` + comment explaining why, rather than narrowing it — narrowing a public contract is a breaking change even if it looks like a strict improvement.
-- **Always run `npx vitest run tests/unit/type-parity-ast.spec.ts` after touching anything that could affect public exports.** It diffs `src/index.ts`'s actual exported shape against `fixtures/parity.d.ts` 1:1 (property names, optionality, enum values). `npm run typecheck` passing does NOT catch a required property silently becoming optional — only this test does.
+- **Always run `npx vitest run tests/unit/type-parity-ast.spec.ts` (or `npm run test`) after touching anything that could affect public exports.** It diffs `src/index.ts`'s actual exported shape against `fixtures/parity.d.ts` 1:1 (property names, optionality, enum values). `npm run typecheck` passing does NOT catch a required property silently becoming optional — only this test does.
 
 #### Process notes
-- Only `npm run typecheck`, `npm run lint`, and `npx vitest run tests/unit/type-parity-ast.spec.ts` are approved verification commands in this workflow — no ad-hoc scripts/one-off node invocations even for quick checks.
+- Only `npm run typecheck`, `npm run lint` (or `npm run lint:check`), `npm run format:check`, and `npm run test` (or `npx vitest run tests/unit/type-parity-ast.spec.ts`) are approved verification commands in this workflow — no ad-hoc scripts/one-off node invocations even for quick checks.
 - Before editing a file, check whether its current typecheck errors are pre-existing (unrelated background/other-session drift) vs. ones you just introduced: `git diff --stat <file>` — if it shows changes you didn't make this turn, the errors in it aren't yours to fix as part of this task.
 

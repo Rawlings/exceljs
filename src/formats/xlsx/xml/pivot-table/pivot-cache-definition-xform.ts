@@ -55,7 +55,7 @@ class PivotCacheDefinitionXform extends BaseXform {
     xmlStream.openNode('cacheFields', { count: cacheFields.length });
     // Note: keeping this pretty-printed for now to ease debugging.
     xmlStream.writeXml(
-      cacheFields.map((cacheField) => new CacheField(cacheField).render()).join('\n    ')
+      cacheFields.map((cacheField) => new CacheField(cacheField).render()).join('\n    '),
     );
     xmlStream.closeNode();
 

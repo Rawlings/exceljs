@@ -18,7 +18,7 @@ class RowBreaksXform extends ListXform {
   // get tag() { return 'rowBreaks'; }
 
   override render(xmlStream: XmlStream, model: unknown[] | undefined) {
-    if (model && model.length) {
+    if (model?.length) {
       xmlStream.openNode(this.tag, this.$);
       if (this.count) {
         xmlStream.addAttribute(this.$count, model.length);

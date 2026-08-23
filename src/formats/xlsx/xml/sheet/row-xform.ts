@@ -29,7 +29,7 @@ class RowXform extends BaseXform {
   constructor(options?: { maxItems?: number }) {
     super();
 
-    this.maxItems = options && options.maxItems;
+    this.maxItems = options?.maxItems;
     this.map = {
       c: new CellXform(),
     };
@@ -60,7 +60,13 @@ class RowXform extends BaseXform {
     if (model.hidden) {
       xmlStream.addAttribute('hidden', '1');
     }
-    if (model.min !== undefined && model.max !== undefined && model.min > 0 && model.max > 0 && model.min <= model.max) {
+    if (
+      model.min !== undefined &&
+      model.max !== undefined &&
+      model.min > 0 &&
+      model.max > 0 &&
+      model.min <= model.max
+    ) {
       xmlStream.addAttribute('spans', `${model.min}:${model.max}`);
     }
     if (model.styleId) {

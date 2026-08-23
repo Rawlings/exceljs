@@ -62,7 +62,7 @@ export class Range {
           argv[1] as number,
           argv[2] as number,
           argv[3] as number,
-          argv[4] as string
+          argv[4] as string,
         );
         break;
       case 4: // [t,l,b,r]
@@ -87,7 +87,7 @@ export class Range {
             right: value.model.right,
             sheetName: value.sheetName,
           };
-        } else if (value instanceof Array) {
+        } else if (Array.isArray(value)) {
           // an arguments array
           this.decode(value);
         } else if (
@@ -218,7 +218,7 @@ export class Range {
       address.row as number,
       address.col as number,
       address.row as number,
-      address.col as number
+      address.col as number,
     );
   }
 

@@ -78,7 +78,7 @@ NumFmtXform.getDefaultFmtId = function getDefaultFmtId(formatCode: string) {
 
 NumFmtXform.getDefaultFmtCode = function getDefaultFmtCode(numFmtId: number | string) {
   const dnf = (defaultNumFormats as Record<string, DefaultNumFormatEntry>)[numFmtId];
-  return dnf && dnf.f;
+  return dnf?.f;
 };
 
 export default NumFmtXform;

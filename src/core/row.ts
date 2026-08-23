@@ -1,7 +1,7 @@
 import _ from '../utils/helpers/under-dash';
-import Enums from './enums';
+import * as Enums from './enums';
 import colCache from '../utils/data/col-cache';
-import Cell, { type Style, type CellValue } from './cell';
+import { Cell, type Style, type CellValue } from './cell';
 import type { WorksheetLike, RowLike, CellLike, EachRowOptions } from './internal-types';
 
 export type RowValues =
@@ -73,7 +73,7 @@ export class Row implements RowLike {
     let cell = this._cells[address.col - 1];
     if (!cell) {
       const column = this._worksheet.getColumn?.(address.col);
-      cell = new Cell(this, column, address.address) as CellLike;
+      cell = new Cell(this, column, address.address);
       this._cells[address.col - 1] = cell;
     }
     return cell as Cell;
@@ -86,7 +86,7 @@ export class Row implements RowLike {
       if (!cell) {
         const column = this._worksheet.getColumn?.(col);
         const address = colCache.encodeAddress(this._number, col);
-        cell = new Cell(this, column, address) as CellLike;
+        cell = new Cell(this, column, address);
         this._cells[col - 1] = cell;
       }
       return cell as Cell;
@@ -120,7 +120,7 @@ export class Row implements RowLike {
         if (cSrc) {
           cDst = this.getCell(i);
           cDst.value = cSrc.value;
-          cDst.style = cSrc.style as Partial<Style>;
+          cDst.style = cSrc.style;
           // eslint-disable-next-line no-underscore-dangle
           cDst._comment = cSrc._comment;
         } else if (cDst) {
@@ -137,7 +137,7 @@ export class Row implements RowLike {
         if (cSrc) {
           cDst = this.getCell(i + nExpand);
           cDst.value = cSrc.value;
-          cDst.style = cSrc.style as Partial<Style>;
+          cDst.style = cSrc.style;
           // eslint-disable-next-line no-underscore-dangle
           cDst._comment = cSrc._comment;
         } else {
@@ -161,7 +161,7 @@ export class Row implements RowLike {
   eachCell(options: EachRowOptions | null, callback: (cell: Cell, colNumber: number) => void): void;
   eachCell(
     options: EachRowOptions | null | ((cell: Cell, colNumber: number) => void),
-    iteratee?: (cell: Cell, colNumber: number) => void
+    iteratee?: (cell: Cell, colNumber: number) => void,
   ) {
     if (!iteratee) {
       iteratee = options as (cell: CellLike, colNumber: number) => void;
@@ -213,7 +213,7 @@ export class Row implements RowLike {
     this._cells = [];
     if (!value) {
       // empty row
-    } else if (value instanceof Array) {
+    } else if (Array.isArray(value)) {
       let offset = 0;
       if (Object.prototype.hasOwnProperty.call(value, '0')) {
         // contiguous array - start at column 1
@@ -254,7 +254,7 @@ export class Row implements RowLike {
   get hasValues() {
     return _.some(
       this._cells,
-      (cell: CellLike | undefined) => !!cell && cell.type !== Enums.ValueType.Null
+      (cell: CellLike | undefined) => !!cell && cell.type !== Enums.ValueType.Null,
     );
   }
 

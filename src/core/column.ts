@@ -1,5 +1,5 @@
 import _ from '../utils/helpers/under-dash';
-import Enums from './enums';
+import * as Enums from './enums';
 import colCache from '../utils/data/col-cache';
 import type { Style } from './cell';
 import type { WorksheetLike, ColumnLike, CellLike, EachRowOptions } from './internal-types';
@@ -66,7 +66,7 @@ export class Column implements ColumnLike {
 
   set defn(value: ColumnDefinition | undefined) {
     if (value) {
-      this.key = value.key as string;
+      this.key = value.key;
       this.width = value.width !== undefined ? value.width : DEFAULT_COLUMN_WIDTH;
       this.outlineLevel = value.outlineLevel as number;
       if (value.style) {
@@ -76,7 +76,7 @@ export class Column implements ColumnLike {
       }
 
       // headers must be set after style
-      this.header = value.header as string;
+      this.header = value.header;
       this._hidden = !!value.hidden;
     } else {
       delete this._header;
@@ -88,7 +88,7 @@ export class Column implements ColumnLike {
   }
 
   get headers() {
-    return this._header && this._header instanceof Array ? this._header : [this._header];
+    return Array.isArray(this._header) ? this._header : [this._header];
   }
 
   get header() {
@@ -185,11 +185,11 @@ export class Column implements ColumnLike {
   eachCell(iteratee: (cell: CellLike, rowNumber: number) => void): void;
   eachCell(
     options: EachRowOptions | null,
-    iteratee: (cell: CellLike, rowNumber: number) => void
+    iteratee: (cell: CellLike, rowNumber: number) => void,
   ): void;
   eachCell(
     options: EachRowOptions | null | ((cell: CellLike, rowNumber: number) => void),
-    iteratee?: (cell: CellLike, rowNumber: number) => void
+    iteratee?: (cell: CellLike, rowNumber: number) => void,
   ) {
     const colNumber = this.number;
     if (!iteratee) {
@@ -197,10 +197,10 @@ export class Column implements ColumnLike {
       options = null;
     }
     this._worksheet.eachRow?.(
-      options as EachRowOptions | null,
+      options,
       (row: { getCell(n: number): CellLike }, rowNumber: number) => {
         iteratee(row.getCell(colNumber), rowNumber);
-      }
+      },
     );
   }
 
@@ -322,7 +322,7 @@ export class Column implements ColumnLike {
 
   static fromModel(
     worksheet: WorksheetLike,
-    cols: Array<Record<string, unknown> & { min: number; max: number }> | undefined
+    cols: Array<Record<string, unknown> & { min: number; max: number }> | undefined,
   ) {
     cols = cols || [];
     const columns: Column[] = [];
@@ -332,7 +332,7 @@ export class Column implements ColumnLike {
      * sort cols by min
      * If it is not sorted, the subsequent column configuration will be overwritten
      * */
-    cols = cols.sort((pre, next) => pre.min - next.min);
+    cols = cols.toSorted((pre, next) => pre.min - next.min);
     while (index < cols.length) {
       const col = cols[index++];
       while (count < col.min) {

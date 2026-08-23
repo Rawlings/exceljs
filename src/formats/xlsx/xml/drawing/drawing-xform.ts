@@ -3,18 +3,17 @@ import XmlStream from '../../../../utils/stream/xml-stream';
 
 import BaseXform from '../base-xform';
 import TwoCellAnchorXform, { type TwoCellAnchorModel } from './two-cell-anchor-xform';
-import OneCellAnchorXform, { type OneCellAnchorModel } from './one-cell-anchor-xform';
+import OneCellAnchorXform from './one-cell-anchor-xform';
 import type { SaxNode } from '../base-xform';
 
-type AnchorModel = (TwoCellAnchorModel | OneCellAnchorModel) & { anchorType?: string };
+type AnchorModel = TwoCellAnchorModel & { anchorType?: string };
 
 export interface DrawingModel {
   anchors: AnchorModel[];
 }
 
 function getAnchorType(model: AnchorModel) {
-  const range =
-    typeof model.range === 'string' ? colCache.decode(model.range) : model.range;
+  const range = typeof model.range === 'string' ? colCache.decode(model.range) : model.range;
 
   return (range as { br?: unknown } | undefined)?.br ? 'xdr:twoCellAnchor' : 'xdr:oneCellAnchor';
 }

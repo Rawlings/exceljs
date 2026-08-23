@@ -3,8 +3,14 @@
     "typescript",
     "import",
     "unicorn",
-    "node"
+    "node",
+    "vitest"
   ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "error"
+  },
   "rules": {
     "no-console": "error",
     "eqeqeq": "error",
@@ -14,9 +20,39 @@
     "no-eval": "error",
     "no-implied-eval": "error",
     "no-new-func": "error",
-    "no-sparse-arrays": "off",
-    "no-underscore-dangle": "off",
-    "no-unused-expressions": "off",
+    "no-sparse-arrays": "error",
+    "no-unused-expressions": "error",
+    "no-underscore-dangle": [
+      "error",
+      {
+        "allowAfterThis": true,
+        "allowAfterSuper": true,
+        "allow": [
+          "_model",
+          "_tag",
+          "_cells",
+          "_worksheets",
+          "_header",
+          "_keys",
+          "_number",
+          "_value",
+          "_mergeCount",
+          "_upgradeToHyperlink",
+          "_cache",
+          "_set",
+          "_row",
+          "_column",
+          "_master",
+          "_address",
+          "_worksheet",
+          "_openStream",
+          "_hyperlinks",
+          "_readableState"
+        ]
+      }
+    ],
+    "import/no-named-as-default": "error",
+    "import/no-named-as-default-member": "error",
     "typescript/no-explicit-any": "error",
     "typescript/no-unnecessary-type-assertion": "error",
     "typescript/ban-ts-comment": "error",
@@ -25,8 +61,52 @@
     "typescript/no-misused-new": "error",
     "typescript/no-this-alias": "error",
     "unicorn/prefer-node-protocol": "error",
+    "unicorn/no-array-sort": "error",
+    "unicorn/consistent-function-scoping": "error",
+    "unicorn/no-instanceof-builtins": "error",
     "import/no-duplicates": "error"
   },
+  "overrides": [
+    {
+      "files": [
+        "src/streaming/**/*.ts",
+        "src/utils/stream/**/*.ts",
+        "src/formats/xlsx/xlsx.ts"
+      ],
+      "rules": {
+        "no-await-in-loop": "off",
+        "no-unmodified-loop-condition": "off"
+      }
+    },
+    {
+      "files": [
+        "src/formats/xlsx/xml/base-xform.ts",
+        "src/core/internal-types.ts"
+      ],
+      "rules": {
+        "typescript/no-explicit-any": "off"
+      }
+    },
+    {
+      "files": [
+        "tests/**/*.ts"
+      ],
+      "rules": {
+        "no-console": "off",
+        "no-new": "off",
+        "no-sparse-arrays": "off",
+        "no-unused-expressions": "off",
+        "typescript/no-explicit-any": "off",
+        "unicorn/consistent-function-scoping": "off",
+        "import/no-named-as-default": "off",
+        "import/no-named-as-default-member": "off",
+        "vitest/no-conditional-expect": "off",
+        "vitest/no-disabled-tests": "off",
+        "vitest/valid-expect": "off",
+        "vitest/expect-expect": "off"
+      }
+    }
+  ],
   "env": {
     "node": true,
     "es2024": true
@@ -35,7 +115,9 @@
     "**/*.xml",
     "**/*.json",
     "**/*.rels",
+    "**/*.txt",
     "dist/**",
-    "node_modules/**"
+    "node_modules/**",
+    "fixtures/**"
   ]
 }

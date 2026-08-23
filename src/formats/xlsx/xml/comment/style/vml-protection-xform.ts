@@ -12,7 +12,7 @@ class VmlProtectionXform extends BaseXform {
   }
 
   override get tag() {
-    return this._model && this._model.tag;
+    return this._model?.tag;
   }
 
   override render(xmlStream: XmlStream, model: unknown) {

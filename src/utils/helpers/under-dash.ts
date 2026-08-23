@@ -34,7 +34,7 @@ const each: EachFn = ((obj: unknown, cb: (value: unknown, key: unknown) => void)
   if (Array.isArray(obj)) {
     obj.forEach(cb);
   } else {
-    Object.keys(obj as Dict<unknown>).forEach((key) => cb((obj as Dict<unknown>)[key], key));
+    Object.keys(obj).forEach((key) => cb((obj as Dict<unknown>)[key], key));
   }
 }) as EachFn;
 
@@ -43,7 +43,7 @@ const some: SomeFn = ((obj: unknown, cb: (value: unknown, key: unknown) => boole
   if (Array.isArray(obj)) {
     return obj.some(cb);
   }
-  return Object.keys(obj as Dict<unknown>).some((key) => cb((obj as Dict<unknown>)[key], key));
+  return Object.keys(obj).some((key) => cb((obj as Dict<unknown>)[key], key));
 }) as SomeFn;
 
 const every: EveryFn = ((obj: unknown, cb: (value: unknown, key: unknown) => boolean): boolean => {
@@ -116,7 +116,7 @@ const _ = {
     return typeof val === 'object' && val !== null && !Array.isArray(val);
   },
 
-  deepMerge<T = unknown>(...args: unknown[]): T {
+  deepMerge(...args: unknown[]): unknown {
     const target = (args[0] || {}) as Record<string, unknown>;
     for (let i = 1; i < args.length; i++) {
       const source = args[i];
@@ -138,7 +138,7 @@ const _ = {
         }
       }
     }
-    return target as T;
+    return target as unknown;
   },
 };
 

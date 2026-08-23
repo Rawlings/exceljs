@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file */
 import colCache from '../utils/data/col-cache';
 import _ from '../utils/helpers/under-dash';
-import Enums from './enums';
+import * as Enums from './enums';
 import { slideFormula } from '../utils/data/shared-formula';
-import Note from './note';
+import { Note } from './note';
 import type { NoteModel } from './note';
 import type { RowLike, ColumnLike } from './internal-types';
 import type { DataValidation } from './data-validations';
@@ -280,11 +280,7 @@ export class Cell {
     // TODO: lazy evaluation of this._value
     this._value = Value.create(Cell.Types.Null, this);
 
-    this.style = this._mergeStyle(
-      (row.style || {}) as Record<string, unknown>,
-      (column.style || {}) as Record<string, unknown>,
-      {}
-    );
+    this.style = this._mergeStyle(row.style || {}, column.style || {}, {});
 
     this._mergeCount = 0;
   }
@@ -368,24 +364,24 @@ export class Cell {
   _mergeStyle(
     rowStyle: Record<string, unknown>,
     colStyle: Record<string, unknown>,
-    style: Record<string, unknown>
+    style: Record<string, unknown>,
   ) {
-    const numFmt = (rowStyle && rowStyle.numFmt) || (colStyle && colStyle.numFmt);
+    const numFmt = rowStyle?.numFmt || colStyle?.numFmt;
     if (numFmt) style.numFmt = numFmt;
 
-    const font = (rowStyle && rowStyle.font) || (colStyle && colStyle.font);
+    const font = rowStyle?.font || colStyle?.font;
     if (font) style.font = font;
 
-    const alignment = (rowStyle && rowStyle.alignment) || (colStyle && colStyle.alignment);
+    const alignment = rowStyle?.alignment || colStyle?.alignment;
     if (alignment) style.alignment = alignment;
 
-    const border = (rowStyle && rowStyle.border) || (colStyle && colStyle.border);
+    const border = rowStyle?.border || colStyle?.border;
     if (border) style.border = border;
 
-    const fill = (rowStyle && rowStyle.fill) || (colStyle && colStyle.fill);
+    const fill = rowStyle?.fill || colStyle?.fill;
     if (fill) style.fill = fill;
 
-    const protection = (rowStyle && rowStyle.protection) || (colStyle && colStyle.protection);
+    const protection = rowStyle?.protection || colStyle?.protection;
     if (protection) style.protection = protection;
 
     return style;
@@ -451,11 +447,7 @@ export class Cell {
     if (this.type === Cell.Types.Merge) {
       this._value.release();
       this._value = Value.create(Cell.Types.Null, this);
-      this.style = this._mergeStyle(
-        (this._row.style || {}) as Record<string, unknown>,
-        (this._column.style || {}) as Record<string, unknown>,
-        {}
-      );
+      this.style = this._mergeStyle(this._row.style || {}, this._column.style || {}, {});
     }
   }
 
@@ -499,7 +491,7 @@ export class Cell {
   }
 
   get note() {
-    return this._comment ? (this._comment.note as string | Comment) : undefined;
+    return this._comment ? this._comment.note : undefined;
   }
 
   set note(note: string | Comment | undefined) {
@@ -627,7 +619,7 @@ export class Cell {
     }
 
     if (value.style) {
-      this.style = value.style as Record<string, unknown>;
+      this.style = value.style;
     } else {
       this.style = {};
     }
@@ -894,7 +886,7 @@ class HyperlinkValue implements CellValueImpl {
       text: value ? value.text : undefined,
       hyperlink: value ? value.hyperlink : undefined,
     };
-    if (value && value.tooltip) {
+    if (value?.tooltip) {
       this.model.tooltip = value.tooltip;
     }
   }
@@ -1111,7 +1103,7 @@ class FormulaValue implements CellValueImpl {
   get dependencies() {
     // find all the ranges and cells mentioned in the formula
     const ranges = (this.formula as string).match(
-      /([a-zA-Z0-9]+!)?[A-Z]{1,3}\d{1,4}:[A-Z]{1,3}\d{1,4}/g
+      /([a-zA-Z0-9]+!)?[A-Z]{1,3}\d{1,4}:[A-Z]{1,3}\d{1,4}/g,
     );
     const cells = (this.formula as string)
       .replace(/([a-zA-Z0-9]+!)?[A-Z]{1,3}\d{1,4}:[A-Z]{1,3}\d{1,4}/g, '')
@@ -1157,7 +1149,10 @@ class FormulaValue implements CellValueImpl {
     if (v === null || v === undefined) {
       return Enums.ValueType.Null;
     }
-    if (v instanceof String || typeof v === 'string') {
+    if (
+      typeof v === 'string' ||
+      (typeof v === 'object' && Object.prototype.toString.call(v) === '[object String]')
+    ) {
       return Enums.ValueType.String;
     }
     if (typeof v === 'number') {
@@ -1243,13 +1238,13 @@ class SharedStringValue implements CellValueImpl {
   }
 
   toCsvString(): string {
-    return (this.model.value as string).toString();
+    return this.model.value as string;
   }
 
   release() {}
 
   toString(): string {
-    return (this.model.value as string).toString();
+    return this.model.value as string;
   }
 }
 
@@ -1348,7 +1343,7 @@ class ErrorValue implements CellValueImpl {
   release() {}
 
   toString(): string {
-    return (this.model.value as ErrorValueShape).error.toString();
+    return (this.model.value as ErrorValueShape).error;
   }
 }
 
@@ -1408,7 +1403,10 @@ const Value = {
     if (value === null || value === undefined) {
       return Cell.Types.Null;
     }
-    if (value instanceof String || typeof value === 'string') {
+    if (
+      typeof value === 'string' ||
+      (typeof value === 'object' && Object.prototype.toString.call(value) === '[object String]')
+    ) {
       return Cell.Types.String;
     }
     if (typeof value === 'number') {

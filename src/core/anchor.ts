@@ -40,7 +40,7 @@ export class Anchor implements IAnchor {
   constructor(
     worksheet?: AnchorWorksheet,
     address?: string | AnchorAddressInput,
-    offset: number = 0
+    offset: number = 0,
   ) {
     this.worksheet = worksheet;
 
@@ -76,7 +76,7 @@ export class Anchor implements IAnchor {
   }
 
   static asInstance(
-    model: Anchor | AnchorAddressInput | null | undefined
+    model: Anchor | AnchorAddressInput | null | undefined,
   ): Anchor | null | undefined {
     // NB: preserves original (likely unintended) behavior: `model` is passed
     // as the `worksheet` positional arg, not `address` — since `address` is
@@ -106,15 +106,15 @@ export class Anchor implements IAnchor {
   }
 
   get colWidth() {
-    const column = this.worksheet && this.worksheet.getColumn(this.nativeCol + 1);
+    const column = this.worksheet?.getColumn(this.nativeCol + 1);
     // NB: matches original — if width is undefined here (shouldn't happen
     // when isCustomWidth is true), this yields NaN, same as untyped original.
-    return column && column.isCustomWidth ? Math.floor((column.width as number) * 10000) : 640000;
+    return column?.isCustomWidth ? Math.floor((column.width as number) * 10000) : 640000;
   }
 
   get rowHeight() {
-    const row = this.worksheet && this.worksheet.getRow(this.nativeRow + 1);
-    return row && row.height ? Math.floor(row.height * 10000) : 180000;
+    const row = this.worksheet?.getRow(this.nativeRow + 1);
+    return row?.height ? Math.floor(row.height * 10000) : 180000;
   }
 
   get model() {

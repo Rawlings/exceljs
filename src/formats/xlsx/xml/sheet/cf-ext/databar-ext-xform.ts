@@ -36,10 +36,10 @@ class DatabarExtXform extends CompositeXform {
       'x14:cfvo': (this.cfvoXform = new CfvoExtXform()),
       'x14:borderColor': (this.borderColorXform = new ColorXform('x14:borderColor')),
       'x14:negativeBorderColor': (this.negativeBorderColorXform = new ColorXform(
-        'x14:negativeBorderColor'
+        'x14:negativeBorderColor',
       )),
       'x14:negativeFillColor': (this.negativeFillColorXform = new ColorXform(
-        'x14:negativeFillColor'
+        'x14:negativeFillColor',
       )),
       'x14:axisColor': (this.axisColorXform = new ColorXform('x14:axisColor')),
     };
@@ -63,11 +63,11 @@ class DatabarExtXform extends CompositeXform {
       border: BaseXform.toBoolAttribute(model.border, false),
       negativeBarColorSameAsPositive: BaseXform.toBoolAttribute(
         model.negativeBarColorSameAsPositive,
-        true
+        true,
       ),
       negativeBarBorderColorSameAsPositive: BaseXform.toBoolAttribute(
         model.negativeBarBorderColorSameAsPositive,
-        true
+        true,
       ),
       axisPosition: BaseXform.toAttribute(model.axisPosition, 'auto'),
       direction: BaseXform.toAttribute(model.direction, 'leftToRight'),
@@ -95,11 +95,11 @@ class DatabarExtXform extends CompositeXform {
       gradient: BaseXform.toBoolValue(attrs.gradient, true),
       negativeBarColorSameAsPositive: BaseXform.toBoolValue(
         attrs.negativeBarColorSameAsPositive,
-        true
+        true,
       ),
       negativeBarBorderColorSameAsPositive: BaseXform.toBoolValue(
         attrs.negativeBarBorderColorSameAsPositive,
-        true
+        true,
       ),
       axisPosition: BaseXform.toStringValue(attrs.axisPosition, 'auto') as string,
       direction: BaseXform.toStringValue(attrs.direction, 'leftToRight') as string,
@@ -111,7 +111,7 @@ class DatabarExtXform extends CompositeXform {
     const model = this.model;
     switch (prop) {
       case 'cfvo':
-        model.cfvo.push(parser.model as CfvoExtModel);
+        model.cfvo.push(parser.model);
         break;
 
       default:

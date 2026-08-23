@@ -1,4 +1,4 @@
-import Enums from '../../../../core/enums';
+import * as Enums from '../../../../core/enums';
 
 import utils from '../../../../utils/helpers/utils';
 import BaseXform from '../base-xform';
@@ -33,7 +33,7 @@ const verticalValues = ['top', 'middle', 'bottom', 'distributed', 'justify'].red
     p[v] = true;
     return p;
   },
-  {}
+  {},
 );
 
 const validation = {
@@ -155,7 +155,7 @@ class AlignmentXform extends BaseXform {
     function add<K extends keyof AlignmentModel>(
       truthy: unknown,
       name: K,
-      value: AlignmentModel[K]
+      value: AlignmentModel[K],
     ) {
       if (truthy) {
         model[name] = value;

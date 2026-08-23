@@ -2,7 +2,7 @@ import _ from '../../../../utils/helpers/under-dash';
 import utils from '../../../../utils/helpers/utils';
 import colCache from '../../../../utils/data/col-cache';
 import BaseXform from '../base-xform';
-import Range from '../../../../core/range';
+import { Range } from '../../../../core/range';
 import type XmlStream from '../../../../utils/stream/xml-stream';
 import type { SaxNode } from '../base-xform';
 
@@ -28,7 +28,7 @@ function assign(
   definedName: Record<string, unknown>,
   attributes: Record<string, string>,
   name: string,
-  defaultValue: unknown
+  defaultValue: unknown,
 ) {
   const value = attributes[name];
   if (value !== undefined) {
@@ -42,7 +42,7 @@ function assignBool(
   definedName: Record<string, unknown>,
   attributes: Record<string, string>,
   name: string,
-  defaultValue: unknown
+  defaultValue: unknown,
 ) {
   const value = attributes[name];
   if (value !== undefined) {
@@ -59,12 +59,12 @@ function optimiseDataValidations(model: DataValidationsModel) {
     address,
     dataValidation,
     marked: false,
-  })).sort((a, b) => _.strcmp(a.address, b.address));
+  })).toSorted((a, b) => _.strcmp(a.address, b.address));
   const dvMap = _.keyBy(dvList, 'address');
   const matchCol = (
     addr: { row: number; col: number; address: string },
     height: number,
-    col: number
+    col: number,
   ) => {
     for (let i = 0; i < height; i++) {
       const otherAddress = colCache.encodeAddress(addr.row + i, col);
@@ -77,7 +77,12 @@ function optimiseDataValidations(model: DataValidationsModel) {
   return dvList
     .map((dv) => {
       if (!dv.marked) {
-        const addr = colCache.decodeEx(dv.address) as { row: number; col: number; dimensions?: string; address: string };
+        const addr = colCache.decodeEx(dv.address) as {
+          row: number;
+          col: number;
+          dimensions?: string;
+          address: string;
+        };
         if (addr.dimensions) {
           dvMap[addr.dimensions].marked = true;
           return {
@@ -203,10 +208,10 @@ class DataValidationsXform extends BaseXform {
         const dataValidation: DataValidationModel = { type: attrs.type || 'any', formulae: [] };
 
         if (attrs.type) {
-          assignBool(dataValidation as Record<string, unknown>, attrs, 'allowBlank', undefined);
+          assignBool(dataValidation, attrs, 'allowBlank', undefined);
         }
-        assignBool(dataValidation as Record<string, unknown>, attrs, 'showInputMessage', undefined);
-        assignBool(dataValidation as Record<string, unknown>, attrs, 'showErrorMessage', undefined);
+        assignBool(dataValidation, attrs, 'showInputMessage', undefined);
+        assignBool(dataValidation, attrs, 'showErrorMessage', undefined);
 
         switch (dataValidation.type) {
           case 'any':
@@ -214,14 +219,14 @@ class DataValidationsXform extends BaseXform {
           case 'custom':
             break;
           default:
-            assign(dataValidation as Record<string, unknown>, attrs, 'operator', 'between');
+            assign(dataValidation, attrs, 'operator', 'between');
             break;
         }
-        assign(dataValidation as Record<string, unknown>, attrs, 'promptTitle', undefined);
-        assign(dataValidation as Record<string, unknown>, attrs, 'prompt', undefined);
-        assign(dataValidation as Record<string, unknown>, attrs, 'errorStyle', undefined);
-        assign(dataValidation as Record<string, unknown>, attrs, 'errorTitle', undefined);
-        assign(dataValidation as Record<string, unknown>, attrs, 'error', undefined);
+        assign(dataValidation, attrs, 'promptTitle', undefined);
+        assign(dataValidation, attrs, 'prompt', undefined);
+        assign(dataValidation, attrs, 'errorStyle', undefined);
+        assign(dataValidation, attrs, 'errorTitle', undefined);
+        assign(dataValidation, attrs, 'error', undefined);
 
         this._dataValidation = dataValidation;
         return true;
@@ -249,7 +254,7 @@ class DataValidationsXform extends BaseXform {
         return false;
       case 'dataValidation': {
         const dataValidation = this._dataValidation as DataValidationModel;
-        if (!dataValidation.formulae || !dataValidation.formulae.length) {
+        if (!dataValidation.formulae?.length) {
           delete dataValidation.formulae;
           delete dataValidation.operator;
         }

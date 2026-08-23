@@ -63,7 +63,7 @@ class ConditionalFormattingExtXform extends CompositeXform {
         break;
 
       case 'x14:cfRule':
-        model.rules.push(parser.model as CfRuleExtModel);
+        model.rules.push(parser.model);
         break;
     }
   }

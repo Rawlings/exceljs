@@ -1,9 +1,9 @@
 import _ from '../utils/helpers/under-dash';
 import colCache from '../utils/data/col-cache';
 import type { DecodedExAddress } from '../utils/data/col-cache';
-import CellMatrix from '../utils/data/cell-matrix';
+import { CellMatrix } from '../utils/data/cell-matrix';
 import type { MatrixCell } from '../utils/data/cell-matrix';
-import Range from './range';
+import { Range } from './range';
 
 const rangeRegexp = /[$](\w+)[$](\d+)(:[$](\w+)[$](\d+))?/;
 
@@ -86,7 +86,7 @@ export class DefinedNames {
   getNamesEx(address: DecodedExAddress): string[] {
     return _.map(
       this.matrixMap,
-      (matrix: CellMatrix, name: string) => matrix.findCellEx(address, false) && name
+      (matrix: CellMatrix, name: string) => matrix.findCellEx(address, false) && name,
     ).filter(Boolean);
   }
 
@@ -101,7 +101,7 @@ export class DefinedNames {
     // grow vertical - only one col to worry about
     function vGrow(yy: number, edge: 'top' | 'bottom') {
       const c = matrix.findCellAt(sheetName, yy, cell.col);
-      if (!c || !c.mark) {
+      if (!c?.mark) {
         return false;
       }
       range[edge] = yy;
@@ -116,7 +116,7 @@ export class DefinedNames {
       const cells: MatrixCell[] = [];
       for (y = range.top; y <= range.bottom; y++) {
         const c = matrix.findCellAt(sheetName, y, xx);
-        if (c && c.mark) {
+        if (c?.mark) {
           cells.push(c);
         } else {
           return false;
@@ -187,7 +187,7 @@ export class DefinedNames {
   get model() {
     // To get names per cell - just iterate over all names finding cells if they exist
     return _.map(this.matrixMap, (matrix: CellMatrix, name: string) =>
-      this.getRanges(name, matrix)
+      this.getRanges(name, matrix),
     ).filter((definedName) => definedName.ranges.length);
   }
 

@@ -22,8 +22,8 @@ class VmlTextboxXform extends BaseXform {
     const attributes: { style: string; inset?: string | number[] } = {
       style: 'mso-direction-alt:auto',
     };
-    if (model && model.note) {
-      let { inset } = model.note && model.note.margins || {};
+    if (model?.note) {
+      let { inset } = model.note?.margins || {};
       if (Array.isArray(inset)) {
         inset = inset
           .map((margin) => {

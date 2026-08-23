@@ -15,6 +15,13 @@ export interface AutoFilterRangeModel {
 
 export type AutoFilterModel = string | AutoFilterRangeModel;
 
+function getAddress(addr: string | AutoFilterAddress) {
+  if (typeof addr === 'string') {
+    return addr;
+  }
+  return colCache.getAddress(addr.row, addr.column).address;
+}
+
 class AutoFilterXform extends BaseXform {
   override get tag() {
     return 'autoFilter';
@@ -26,13 +33,6 @@ class AutoFilterXform extends BaseXform {
         // assume range
         xmlStream.leafNode('autoFilter', { ref: model });
       } else {
-        const getAddress = function (addr: string | AutoFilterAddress) {
-          if (typeof addr === 'string') {
-            return addr;
-          }
-          return colCache.getAddress(addr.row, addr.column).address;
-        };
-
         const firstAddress = getAddress(model.from);
         const secondAddress = getAddress(model.to);
         if (firstAddress && secondAddress) {

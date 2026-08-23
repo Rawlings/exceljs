@@ -27,7 +27,7 @@ import CommentsXform from './xml/comment/comments-xform';
 import type { CommentsModel } from './xml/comment/comments-xform';
 import VmlNotesXform from './xml/comment/vml-notes-xform';
 import type { VmlNotesModel } from './xml/comment/vml-notes-xform';
-import RelType from './rel-type';
+import { RelType } from './rel-type';
 import type Workbook from '../../core/workbook';
 import type { WorkbookModel } from '../../core/workbook';
 
@@ -35,7 +35,7 @@ import theme1Xml from './theme1';
 
 function fsReadFileAsync(
   filename: PathLike,
-  options?: { encoding?: BufferEncoding | null; flag?: string } | BufferEncoding | null
+  options?: { encoding?: BufferEncoding | null; flag?: string } | BufferEncoding | null,
 ): Promise<Buffer | string> {
   return new Promise((resolve, reject) => {
     fs.readFile(filename, options, (error, data) => {
@@ -147,6 +147,22 @@ export interface XlsxWriteOptions {
   [key: string]: unknown;
 }
 
+function getZipEntryPriority(rawName: string): number {
+  const name = rawName.replace(/^\//, '');
+  if (name === '_rels/.rels') return 1;
+  if (name === 'docProps/app.xml' || name === 'docProps/core.xml') return 2;
+  if (name === 'xl/_rels/workbook.xml.rels') return 3;
+  if (name === 'xl/workbook.xml') return 4;
+  if (name === 'xl/sharedStrings.xml') return 5;
+  if (name === 'xl/styles.xml') return 6;
+  if (name.startsWith('xl/worksheets/_rels/')) return 7;
+  if (name.startsWith('xl/drawings/_rels/')) return 8;
+  if (name.startsWith('xl/drawings/')) return 9;
+  if (name.startsWith('xl/media/')) return 10;
+  if (/^xl\/worksheets\/[^/]+\.xml$/.test(name)) return 11;
+  return 15;
+}
+
 export class XLSX {
   workbook: Workbook;
   static RelType: typeof RelType;
@@ -246,21 +262,23 @@ export class XLSX {
       sharedStrings: model.sharedStrings,
       media: model.media,
       mediaIndex: model.mediaIndex,
-      date1904: model.properties && model.properties.date1904,
+      date1904: model.properties?.date1904,
       drawings: model.drawings,
       comments: model.comments,
       tables: model.tables,
       vmlDrawings: model.vmlDrawings,
     };
     model.worksheets.forEach((worksheet) => {
-      worksheet.relationships = worksheet.sheetNo ? model.worksheetRels[worksheet.sheetNo] : undefined;
+      worksheet.relationships = worksheet.sheetNo
+        ? model.worksheetRels[worksheet.sheetNo]
+        : undefined;
       // ParseWorksheetModel and WorksheetXformModel describe the same
       // runtime object from two different vantage points (see the file
       // header comment); neither TS type has an index signature so they
       // aren't structurally assignable despite being compatible in practice.
       worksheetXform.reconcile(
         worksheet as unknown as WorksheetXformModel,
-        sheetOptions as unknown as Parameters<typeof worksheetXform.reconcile>[1]
+        sheetOptions as unknown as Parameters<typeof worksheetXform.reconcile>[1],
       );
     });
 
@@ -284,7 +302,7 @@ export class XLSX {
     model: ParseWorkbookModel,
     sheetNo: string,
     options: Partial<XlsxReadOptions> | undefined,
-    path: string
+    path: string,
   ) {
     const xform = new WorksheetXform(options);
     const worksheet = await xform.parseStream(stream);
@@ -310,7 +328,7 @@ export class XLSX {
   async _processWorksheetRelsEntry(
     stream: Readable | string,
     model: ParseWorkbookModel,
-    sheetNo: string
+    sheetNo: string,
   ) {
     const xform = new RelationshipsXform();
     const relationships = await xform.parseStream(stream);
@@ -356,25 +374,22 @@ export class XLSX {
   async _processDrawingRelsEntry(
     entry: Readable | string,
     model: ParseWorkbookModel,
-    name: string
+    name: string,
   ) {
     const xform = new RelationshipsXform();
     const relationships = await xform.parseStream(entry);
     model.drawingRels[name] = relationships;
   }
 
-  async _processVmlDrawingEntry(
-    entry: Readable | string,
-    model: ParseWorkbookModel,
-    name: string
-  ) {
+  async _processVmlDrawingEntry(entry: Readable | string, model: ParseWorkbookModel, name: string) {
     const xform = new VmlNotesXform();
     const vmlDrawing = await xform.parseStream(entry);
     model.vmlDrawings[`../drawings/${name}.vml`] = vmlDrawing;
   }
 
   async _processThemeEntry(entry: ZipEntryStream, model: ParseWorkbookModel, name: string) {
-    const buffer = typeof entry.read === 'function' ? entry.read() : await entry.async!('nodebuffer');
+    const buffer =
+      typeof entry.read === 'function' ? entry.read() : await entry.async!('nodebuffer');
     model.themes[name] = buffer ? buffer.toString() : '';
   }
 
@@ -383,7 +398,7 @@ export class XLSX {
    */
   createInputStream(): never {
     throw new Error(
-      '`XLSX#createInputStream` is deprecated. You should use `XLSX#read` instead. This method will be removed in version 5.0. Please follow upgrade instruction: https://github.com/exceljs/exceljs/blob/master/UPGRADE-4.0.md'
+      '`XLSX#createInputStream` is deprecated. You should use `XLSX#read` instead. This method will be removed in version 5.0. Please follow upgrade instruction: https://github.com/exceljs/exceljs/blob/master/UPGRADE-4.0.md',
     );
   }
 
@@ -402,7 +417,7 @@ export class XLSX {
 
   async load(data: Buffer | string, options?: Partial<XlsxReadOptions>) {
     let buffer: Buffer;
-    if (options && options.base64) {
+    if (options?.base64) {
       buffer = Buffer.from(data.toString(), 'base64');
     } else {
       buffer = data as Buffer;
@@ -425,24 +440,7 @@ export class XLSX {
     const files = unzip(buffer);
     const entries = Object.entries(files)
       .map(([name, content]) => ({ name, content, dir: name.endsWith('/') }))
-      .sort((a, b) => {
-        const getPriority = (rawName: string) => {
-          const name = rawName.replace(/^\//, '');
-          if (name === '_rels/.rels') return 1;
-          if (name === 'docProps/app.xml' || name === 'docProps/core.xml') return 2;
-          if (name === 'xl/_rels/workbook.xml.rels') return 3;
-          if (name === 'xl/workbook.xml') return 4;
-          if (name === 'xl/sharedStrings.xml') return 5;
-          if (name === 'xl/styles.xml') return 6;
-          if (name.match(/^xl\/worksheets\/_rels\//)) return 7;
-          if (name.match(/^xl\/drawings\/_rels\//)) return 8;
-          if (name.match(/^xl\/drawings\//)) return 9;
-          if (name.match(/^xl\/media\//)) return 10;
-          if (name.match(/^xl\/worksheets\/[^/]+\.xml$/)) return 11;
-          return 15;
-        };
-        return getPriority(a.name) - getPriority(b.name);
-      });
+      .toSorted((a, b) => getZipEntryPriority(a.name) - getZipEntryPriority(b.name));
     for (const entry of entries) {
       /* eslint-disable no-await-in-loop */
       if (!entry.dir) {
@@ -610,7 +608,7 @@ export class XLSX {
           }
         }
         throw new Error('Unsupported media');
-      })
+      }),
     );
   }
 
@@ -788,7 +786,7 @@ export class XLSX {
 
   async addSharedStrings(zip: ZipWriter, model: WriteModel) {
     const sharedStrings = model.sharedStrings as SharedStringsXform | undefined;
-    if (sharedStrings && sharedStrings.count) {
+    if (sharedStrings?.count) {
       zip.append(sharedStrings.xml, { name: 'xl/sharedStrings.xml' });
     }
   }
@@ -820,7 +818,7 @@ export class XLSX {
       worksheetXform.render(xmlStream, worksheet as unknown as WorksheetXformModel);
       zip.append(xmlStream.xml, { name: `xl/worksheets/sheet${worksheet.id}.xml` });
 
-      if (worksheet.rels && worksheet.rels.length) {
+      if (worksheet.rels?.length) {
         xmlStream = new XmlStream();
         relationshipsXform.render(xmlStream, worksheet.rels);
         zip.append(xmlStream.xml, { name: `xl/worksheets/_rels/sheet${worksheet.id}.xml.rels` });
@@ -920,9 +918,9 @@ export class XLSX {
     await this.addWorkbookRels(zip, model);
     await this.addWorksheets(zip, model);
     await this.addSharedStrings(zip, model); // always after worksheets
-    await this.addDrawings(zip, model);
-    await this.addTables(zip, model);
-    await this.addPivotTables(zip, model);
+    this.addDrawings(zip, model);
+    this.addTables(zip, model);
+    this.addPivotTables(zip, model);
     await Promise.all([this.addThemes(zip, model), this.addStyles(zip, model)]);
     await this.addMedia(zip, model);
     await Promise.all([this.addApp(zip, model), this.addCore(zip, model)]);
@@ -944,6 +942,7 @@ export class XLSX {
       this.write(stream, options)
         .then(() => {
           stream.end();
+          return undefined;
         })
         .catch((err) => {
           reject(err);

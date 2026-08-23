@@ -15,7 +15,7 @@ class HLinkClickXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: HLinkClickModel) {
-    if (!(model.hyperlinks && model.hyperlinks.rId)) {
+    if (!model.hyperlinks?.rId) {
       return;
     }
     xmlStream.leafNode(this.tag, {

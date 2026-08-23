@@ -52,18 +52,16 @@ describe('Worksheet', () => {
       expect(ws.getCell('E1').value).to.equal('Hello, World!');
       expect((ws.getCell('F1').value as Record<string, unknown>).text).to.equal('www.google.com');
       expect((ws.getCell('F1').value as Record<string, unknown>).hyperlink).to.equal(
-        'http://www.google.com'
+        'http://www.google.com',
       );
 
       expect((ws.getCell('A2').value as Record<string, unknown>).formula).to.equal('A1');
       expect((ws.getCell('A2').value as Record<string, unknown>).result).to.equal(7);
 
       expect((ws.getCell('B2').value as Record<string, unknown>).formula).to.equal(
-        'CONCATENATE("Hello", ", ", "World!")'
+        'CONCATENATE("Hello", ", ", "World!")',
       );
-      expect((ws.getCell('B2').value as Record<string, unknown>).result).to.equal(
-        'Hello, World!'
-      );
+      expect((ws.getCell('B2').value as Record<string, unknown>).result).to.equal('Hello, World!');
 
       expect((ws.getCell('C2').value as Record<string, unknown>).formula).to.equal('D1');
       expect((ws.getCell('C2').value as Record<string, unknown>).result).to.equal(now);
@@ -89,7 +87,7 @@ describe('Worksheet', () => {
 
       // A1 and C2 should not reference the same object
       expect(ws.getCell('A1').value).to.equal(
-        (ws.getCell('C2').value as Record<string, unknown>).result
+        (ws.getCell('C2').value as Record<string, unknown>).result,
       );
     });
 

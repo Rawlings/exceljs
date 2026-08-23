@@ -44,7 +44,7 @@ class PhoneticTextXform extends BaseXform {
         r.render(xmlStream, text);
       });
     } else if (model) {
-      this.map.t.render(xmlStream, model.text as string);
+      this.map.t.render(xmlStream, model.text);
     }
     xmlStream.closeNode();
   }

@@ -1,6 +1,12 @@
 # ExcelJS
 
-A modernized drop-in replacement for the unmaintained ExcelJS package. It maintains 100% public API compatibility while refactoring internal architecture to strict TypeScript (ES2024 / Node 24+), removing legacy dependencies, and delivering a faster, lightweight, and secure spreadsheet engine for XLSX, CSV, and JSON.
+A modern, high-performance evolution of ExcelJS, carrying forward its battle-tested standard into contemporary Node.js and TypeScript environments.
+
+- Preserves full public API parity across all workbook, worksheet, styling, and streaming operations.
+- Re-architected with strict TypeScript and modern runtime standards, eliminating legacy shims and loose typing.
+- Significantly leaner dependency footprint, powered by high-speed parsing and modern compression primitives.
+- Optimized for high-throughput data processing and low memory overhead during large streaming jobs.
+- Backed by rigorous parity verification and active maintenance for demanding production workloads.
 
 # Documentation Index
 

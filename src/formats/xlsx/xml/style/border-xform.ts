@@ -43,9 +43,9 @@ class EdgeXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: EdgeModel | undefined, defaultColor?: ColorModel) {
-    const color = (model && model.color) || defaultColor || this.defaultColor;
+    const color = model?.color || defaultColor || this.defaultColor;
     xmlStream.openNode(this.name);
-    if (model && model.style) {
+    if (model?.style) {
       xmlStream.addAttribute('style', model.style);
       if (color) {
         this.map.color.render(xmlStream, color);
@@ -157,7 +157,7 @@ class BorderXform extends BaseXform {
   override render(xmlStream: XmlStream, model: BorderModel) {
     const { color } = model;
     xmlStream.openNode('border');
-    if (model.diagonal && model.diagonal.style) {
+    if (model.diagonal?.style) {
       if (model.diagonal.up) {
         xmlStream.addAttribute('diagonalUp', '1');
       }
@@ -193,10 +193,10 @@ class BorderXform extends BaseXform {
       case 'border':
         this.reset();
         this.diagonalUp = utils.parseBoolean(
-          (node.attributes as Record<string, string>).diagonalUp
+          (node.attributes as Record<string, string>).diagonalUp,
         );
         this.diagonalDown = utils.parseBoolean(
-          (node.attributes as Record<string, string>).diagonalDown
+          (node.attributes as Record<string, string>).diagonalDown,
         );
         return true;
       default:
@@ -227,7 +227,7 @@ class BorderXform extends BaseXform {
       const add = function (
         key: keyof BorderModel,
         edgeModel?: EdgeModel,
-        extensions?: Partial<EdgeModel>
+        extensions?: Partial<EdgeModel>,
       ) {
         if (edgeModel) {
           if (extensions) {

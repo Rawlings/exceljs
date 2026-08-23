@@ -1,7 +1,20 @@
 import Range from '../../../src/core/range';
 
 describe('Range', () => {
-  function check(d: any, range: any, $range: any, tl: any, $t$l: any, br: any, $b$r: any, top: any, left: any, bottom: any, right: any, sheetName?: any) {
+  function check(
+    d: any,
+    range: any,
+    $range: any,
+    tl: any,
+    $t$l: any,
+    br: any,
+    $b$r: any,
+    top: any,
+    left: any,
+    bottom: any,
+    right: any,
+    sheetName?: any,
+  ) {
     expect(d.range).to.equal(range);
     expect(d.$range).to.equal($range);
     expect(d.tl).to.equal(tl);
@@ -39,7 +52,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
     check(
       new Range('C7', 'G16'),
@@ -52,7 +65,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
     check(
       new Range('C16', 'G7'),
@@ -65,7 +78,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
     check(
       new Range('G16', 'C7'),
@@ -78,7 +91,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
 
     check(
@@ -92,7 +105,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
     check(
       new Range(16, 3, 7, 7),
@@ -105,7 +118,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
     check(
       new Range(7, 7, 16, 3),
@@ -118,7 +131,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
     check(
       new Range(16, 7, 7, 3),
@@ -131,7 +144,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
 
     check(
@@ -145,7 +158,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
     check(
       new Range([16, 3, 7, 7]),
@@ -158,7 +171,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
     check(
       new Range([7, 7, 16, 3]),
@@ -171,7 +184,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
     check(
       new Range([16, 7, 7, 3]),
@@ -184,7 +197,7 @@ describe('Range', () => {
       7,
       3,
       16,
-      7
+      7,
     );
 
     check(
@@ -198,7 +211,7 @@ describe('Range', () => {
       5,
       2,
       10,
-      4
+      4,
     );
     check(
       new Range('blort!$B$5:$D$10'),
@@ -212,7 +225,7 @@ describe('Range', () => {
       2,
       10,
       4,
-      'blort'
+      'blort',
     );
   });
 

@@ -1,4 +1,4 @@
-import XLSX from '../formats/xlsx/xlsx';
+import { XLSX } from '../formats/xlsx/xlsx';
 import type Workbook from './workbook';
 
 export class ModelContainer {

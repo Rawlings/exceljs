@@ -17,7 +17,9 @@ describe('Gold Book', () => {
       expect(ws.getCell('B1').value).toEqual('I am Text');
       expect(ws.getCell('B2').value).toEqual(3.14);
       expect(ws.getCell('B3').value).toEqual(5);
-      expect((ws.getCell('B4').value as Date).getTime()).toEqual(new Date('2016-05-17T00:00:00.000Z').getTime());
+      expect((ws.getCell('B4').value as Date).getTime()).toEqual(
+        new Date('2016-05-17T00:00:00.000Z').getTime(),
+      );
       expect(ws.getCell('B5').value).toEqual({
         formula: 'B1',
         result: 'I am Text',

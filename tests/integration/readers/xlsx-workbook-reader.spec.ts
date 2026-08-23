@@ -3,9 +3,6 @@ import testutils from '../../helpers/index';
 
 import ExcelJS from '../../../src/index';
 
-
-const TEST_FILE_NAME = './fixtures/out/wb.reader.test.xlsx';
-
 // need some architectural changes to make stream read work properly
 // because of: shared strings, sheet names, etc are not read in guaranteed order
 describe('WorkbookReader', () => {
@@ -26,20 +23,18 @@ describe('WorkbookReader', () => {
       it('should bail out if the file contains more rows than the limit', () => {
         const workbook = new ExcelJS.Workbook();
         // The Fibonacci sheet has 19 rows
-        return workbook.xlsx
-          .readFile('./fixtures/xlsx/fibonacci.xlsx', { maxRows: 10 })
-          .then(
-            () => {
-              throw new Error('Promise unexpectedly fulfilled');
-            },
-            (err: any) => {
-              expect(err.message).to.equal('Max row count (10) exceeded');
-            }
-          );
+        return workbook.xlsx.readFile('./fixtures/xlsx/fibonacci.xlsx', { maxRows: 10 }).then(
+          () => {
+            throw new Error('Promise unexpectedly fulfilled');
+          },
+          (err: any) => {
+            expect(err.message).to.equal('Max row count (10) exceeded');
+          },
+        );
       });
 
       it('should fail fast on a huge file', function (this: any) {
-      this?.timeout?.(5000);
+        this?.timeout?.(5000);
         const workbook = new ExcelJS.Workbook();
         return workbook.xlsx.readFile('./fixtures/xlsx/huge.xlsx', { maxRows: 100 }).then(
           () => {
@@ -47,7 +42,7 @@ describe('WorkbookReader', () => {
           },
           (err: any) => {
             expect(err.message).to.equal('Max row count (100) exceeded');
-          }
+          },
         );
       });
 
@@ -71,12 +66,12 @@ describe('WorkbookReader', () => {
             },
             (err: any) => {
               expect(err.message).to.equal('Max column count (15) exceeded');
-            }
+            },
           );
       });
 
       it('should fail fast on a huge file', function (this: any) {
-      this?.timeout?.(5000);
+        this?.timeout?.(5000);
         const workbook = new ExcelJS.Workbook();
         return workbook.xlsx.readFile('./fixtures/xlsx/huge.xlsx', { maxCols: 10 }).then(
           () => {
@@ -84,7 +79,7 @@ describe('WorkbookReader', () => {
           },
           (err: any) => {
             expect(err.message).to.equal('Max column count (10) exceeded');
-          }
+          },
         );
       });
 
@@ -110,7 +105,7 @@ describe('WorkbookReader', () => {
             },
             (err: any) => {
               expect(err.message).to.equal('Max row count (10) exceeded');
-            }
+            },
           );
       });
 
@@ -206,7 +201,7 @@ describe('WorkbookReader', () => {
     beforeAll(async () => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.read(
-        fs.createReadStream('./fixtures/xlsx/shared_string_with_escape.xlsx')
+        fs.createReadStream('./fixtures/xlsx/shared_string_with_escape.xlsx'),
       );
       worksheet = workbook.getWorksheet();
     });
@@ -241,7 +236,7 @@ describe('WorkbookReader', () => {
             expect(err.message).to.match(/text data outside of root node|is not expected/);
             // Wait a tick before checking for an unhandled rejection
             return new Promise(setImmediate);
-          }
+          },
         )
         .then(() => {
           expect(unhandledRejection).to.be.undefined;
@@ -345,9 +340,7 @@ describe('WorkbookReader', () => {
   describe('with a spreadsheet containing a defined name that kinda looks like it contains a range', () => {
     it('should not crash', () => {
       const workbook = new ExcelJS.Workbook();
-      return workbook.xlsx.read(
-        fs.createReadStream('./fixtures/xlsx/bogus-defined-name.xlsx')
-      );
+      return workbook.xlsx.read(fs.createReadStream('./fixtures/xlsx/bogus-defined-name.xlsx'));
     });
   });
 });

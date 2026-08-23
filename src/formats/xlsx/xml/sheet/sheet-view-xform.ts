@@ -208,7 +208,7 @@ class SheetViewXform extends BaseXform {
             model.activePane = this.pane.activePane;
           }
           selection = (this.selections as Record<string, SelectionState>)[this.pane.activePane];
-          if (selection && selection.activeCell) {
+          if (selection?.activeCell) {
             model.activeCell = selection.activeCell;
           }
           if (sheetView.style) {
@@ -226,7 +226,7 @@ class SheetViewXform extends BaseXform {
             zoomScaleNormal: sheetView.zoomScaleNormal,
           };
           selection = (this.selections as Record<string, SelectionState>).topLeft;
-          if (selection && selection.activeCell) {
+          if (selection?.activeCell) {
             model.activeCell = selection.activeCell;
           }
           if (sheetView.style) {

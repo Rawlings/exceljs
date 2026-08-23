@@ -1,5 +1,5 @@
 import colCache from '../utils/data/col-cache';
-import Anchor from './anchor';
+import { Anchor } from './anchor';
 import type { AnchorWorksheet, AnchorModel } from './anchor';
 
 export interface Image {
@@ -53,7 +53,7 @@ export interface ImageModel {
   hyperlinks?: unknown;
 }
 
-export class Image {
+export class WorksheetImage {
   worksheet: AnchorWorksheet | undefined;
   type: ImageType | undefined;
   imageId: number | undefined;
@@ -71,26 +71,27 @@ export class Image {
       case 'background':
         return {
           type: this.type,
-          imageId: this.imageId,
+          imageId: this.imageId!,
         };
       case 'image':
         return {
           type: this.type,
-          imageId: this.imageId,
-          hyperlinks: this.range?.hyperlinks,
+          imageId: this.imageId!,
           range: {
             tl: (this.range?.tl as Anchor | undefined)?.model,
             br: (this.range?.br as Anchor)?.model,
             ext: this.range?.ext,
             editAs: this.range?.editAs,
           },
+          hyperlinks: this.range?.hyperlinks,
         };
       default:
         throw new Error('Invalid Image Type');
     }
   }
 
-  set model({ type, imageId, range, hyperlinks }: ImageModel) {
+  set model(value: ImageModel) {
+    const { type, imageId, range, hyperlinks } = value;
     this.type = type;
     this.imageId = imageId;
 
@@ -123,4 +124,4 @@ export class Image {
   }
 }
 
-export default Image;
+export default WorksheetImage;

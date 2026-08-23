@@ -51,7 +51,6 @@ export interface RowTransformFunction {
 export type HeaderArray = (string | undefined | null)[];
 export type HeaderTransformFunction = (headers: HeaderArray) => HeaderArray;
 
-
 export interface FastCsvFormatterOptionsArgs {
   objectMode: boolean;
   delimiter: string;
@@ -248,9 +247,7 @@ export class CSV {
 
   write(stream: NodeJS.WritableStream, options: Partial<CsvWriteOptions> = {}): Promise<void> {
     return new Promise((resolve, reject) => {
-      const worksheet = this.workbook.getWorksheet(
-        options.sheetName || (options.sheetId as number)
-      );
+      const worksheet = this.workbook.getWorksheet(options.sheetName || options.sheetId);
       const delimiter = options.formatterOptions?.delimiter || ',';
       const map = options.map || defaultWriteMap;
 

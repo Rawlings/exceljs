@@ -11,6 +11,40 @@ export interface PivotCacheRecordsModel {
   cacheFields: CacheFieldOptions[];
 }
 
+function renderCell(value: unknown, sharedItems: string[] | null): string {
+  // no shared items
+  if (sharedItems === null) {
+    if (Number.isFinite(value)) {
+      return `<n v="${value}" />`;
+    }
+    return `<s v="${value}" />`;
+  }
+
+  // shared items
+  const sharedItemsIndex = sharedItems.indexOf(value as string);
+  if (sharedItemsIndex < 0) {
+    throw new Error(`${JSON.stringify(value)} not in sharedItems ${JSON.stringify(sharedItems)}`);
+  }
+  return `<x v="${sharedItemsIndex}" />`;
+}
+
+function* renderRowLines(row: unknown[], cacheFields: CacheFieldOptions[]): Generator<string> {
+  yield '\n  <r>';
+  for (const [index, cellValue] of row.entries()) {
+    yield '\n    ';
+    yield renderCell(cellValue, cacheFields[index].sharedItems);
+  }
+  yield '\n  </r>';
+}
+
+function renderTable(sourceBodyRows: unknown[][], cacheFields: CacheFieldOptions[]): string {
+  const rowsInXML = sourceBodyRows.map((row: unknown[]) => {
+    const realRow = row.slice(1);
+    return [...renderRowLines(realRow, cacheFields)].join('');
+  });
+  return rowsInXML.join('');
+}
+
 class PivotCacheRecordsXform extends BaseXform {
   static PIVOT_CACHE_RECORDS_ATTRIBUTES: Record<string, string>;
 
@@ -38,53 +72,8 @@ class PivotCacheRecordsXform extends BaseXform {
       ...PivotCacheRecordsXform.PIVOT_CACHE_RECORDS_ATTRIBUTES,
       count: sourceBodyRows.length,
     });
-    xmlStream.writeXml(renderTable());
+    xmlStream.writeXml(renderTable(sourceBodyRows, cacheFields));
     xmlStream.closeNode();
-
-    // Helpers
-
-    function renderTable(): string {
-      const rowsInXML = sourceBodyRows.map((row: unknown[]) => {
-        const realRow = row.slice(1);
-        return [...renderRowLines(realRow)].join('');
-      });
-      return rowsInXML.join('');
-    }
-
-    function* renderRowLines(row: unknown[]): Generator<string> {
-      // PivotCache Record: http://www.datypic.com/sc/ooxml/e-ssml_r-1.html
-      // Note: pretty-printing this for now to ease debugging.
-      yield '\n  <r>';
-      for (const [index, cellValue] of row.entries()) {
-        yield '\n    ';
-        yield renderCell(cellValue, cacheFields[index].sharedItems);
-      }
-      yield '\n  </r>';
-    }
-
-    function renderCell(value: unknown, sharedItems: string[] | null): string {
-      // no shared items
-      // --------------------------------------------------
-      if (sharedItems === null) {
-        if (Number.isFinite(value)) {
-          // Numeric value: http://www.datypic.com/sc/ooxml/e-ssml_n-2.html
-          return `<n v="${value}" />`;
-        }
-        // Character Value: http://www.datypic.com/sc/ooxml/e-ssml_s-2.html
-        return `<s v="${value}" />`;
-      }
-
-      // shared items
-      // --------------------------------------------------
-      const sharedItemsIndex = sharedItems.indexOf(value as string);
-      if (sharedItemsIndex < 0) {
-        throw new Error(
-          `${JSON.stringify(value)} not in sharedItems ${JSON.stringify(sharedItems)}`
-        );
-      }
-      // Shared Items Index: http://www.datypic.com/sc/ooxml/e-ssml_x-9.html
-      return `<x v="${sharedItemsIndex}" />`;
-    }
   }
 
   override parseOpen(_node?: SaxNode) {

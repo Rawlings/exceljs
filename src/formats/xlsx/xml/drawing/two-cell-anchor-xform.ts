@@ -2,7 +2,7 @@ import BaseCellAnchorXform, { type CellAnchorModel } from './base-cell-anchor-xf
 import StaticXform from '../static-xform';
 
 import CellPositionXform from './cell-position-xform';
-import PicXform, { type PicModel } from './pic-xform';
+import PicXform from './pic-xform';
 import type XmlStream from '../../../../utils/stream/xml-stream';
 
 export type TwoCellAnchorModel = CellAnchorModel;
@@ -24,7 +24,7 @@ class TwoCellAnchorXform extends BaseCellAnchorXform {
   }
 
   override prepare(model: TwoCellAnchorModel, options: { index: number }) {
-    this.map['xdr:pic'].prepare(model.picture as PicModel, options);
+    this.map['xdr:pic'].prepare(model.picture, options);
   }
 
   override render(xmlStream: XmlStream, model: TwoCellAnchorModel) {
@@ -59,7 +59,7 @@ class TwoCellAnchorXform extends BaseCellAnchorXform {
 
   override reconcile(
     model: TwoCellAnchorModel,
-    options: Parameters<TwoCellAnchorXform['reconcilePicture']>[1]
+    options: Parameters<TwoCellAnchorXform['reconcilePicture']>[1],
   ) {
     model.medium = this.reconcilePicture(model.picture as { rId?: string } | undefined, options);
   }

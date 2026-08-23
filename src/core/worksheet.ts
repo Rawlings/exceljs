@@ -1,12 +1,12 @@
 import _ from '../utils/helpers/under-dash';
 import colCache from '../utils/data/col-cache';
-import Range from './range';
-import Row from './row';
-import Column from './column';
-import Enums from './enums';
-import Image from './image';
-import Table from './table';
-import DataValidations from './data-validations';
+import { Range } from './range';
+import { Row } from './row';
+import { Column } from './column';
+import * as Enums from './enums';
+import { WorksheetImage as Image } from './image';
+import { Table } from './table';
+import { DataValidations } from './data-validations';
 import { makePivotTable } from './pivot-table';
 import Encryptor from '../utils/crypto/encryptor';
 import { copyStyle } from '../utils/helpers/copy-style';
@@ -18,7 +18,6 @@ import type {
   EachRowOptions,
 } from './internal-types';
 
-import type { ColumnDefinition } from './column';
 import type { Media, ImageRange, ImagePosition, ImageModel } from './image';
 import type { TableProperties } from './table';
 import type { PivotTableModel } from './pivot-table';
@@ -110,9 +109,9 @@ export interface HeaderFooter {
 export type AutoFilter =
   | string
   | {
-    from: string | { row: number; column: number };
-    to: string | { row: number; column: number };
-  };
+      from: string | { row: number; column: number };
+      to: string | { row: number; column: number };
+    };
 
 export interface WorksheetProtection {
   objects: boolean;
@@ -279,7 +278,7 @@ export class Worksheet implements WorksheetLike {
         outlineLevelCol: 0,
         outlineLevelRow: 0,
       },
-      options.properties
+      options.properties,
     ) as WorksheetProperties;
 
     // for all things printing
@@ -312,7 +311,7 @@ export class Worksheet implements WorksheetLike {
         rowBreaks: null,
         colBreaks: null,
       },
-      options.pageSetup
+      options.pageSetup,
     );
 
     this.headerFooter = Object.assign(
@@ -327,7 +326,7 @@ export class Worksheet implements WorksheetLike {
         firstHeader: null,
         firstFooter: null,
       },
-      options.headerFooter
+      options.headerFooter,
     );
 
     this.dataValidations = new DataValidations();
@@ -351,7 +350,7 @@ export class Worksheet implements WorksheetLike {
     this.conditionalFormattings = [];
   }
 
-  commit() { }
+  commit() {}
 
   get name() {
     return this._name as string;
@@ -380,13 +379,13 @@ export class Worksheet implements WorksheetLike {
     // colon (:), forward slash (/ \), or bracket ([])
     if (/[*?:/\\[\]]/.test(name)) {
       throw new Error(
-        `Worksheet name ${name} cannot include any of the following characters: * ? : \\ / [ ]`
+        `Worksheet name ${name} cannot include any of the following characters: * ? : \\ / [ ]`,
       );
     }
 
     if (/(^')|('$)/.test(name)) {
       throw new Error(
-        `The first or last character of worksheet name cannot be a single quotation mark: ${name}`
+        `The first or last character of worksheet name cannot be a single quotation mark: ${name}`,
       );
     }
 
@@ -396,10 +395,10 @@ export class Worksheet implements WorksheetLike {
       name = name.substring(0, 31);
     }
 
-    const finalName: string = name as string;
+    const finalName: string = name;
     if (
       this._workbook._worksheets?.find(
-        (ws) => ws && ws.name?.toLowerCase() === finalName.toLowerCase()
+        (ws) => ws && ws.name?.toLowerCase() === finalName.toLowerCase(),
       )
     ) {
       throw new Error(`Worksheet name already exists: ${finalName}`);
@@ -454,7 +453,7 @@ export class Worksheet implements WorksheetLike {
     value.forEach((defn) => {
       const column = new Column(this, count++, false);
       columns.push(column);
-      column.defn = defn as ColumnDefinition;
+      column.defn = defn;
     });
   }
 
@@ -526,15 +525,15 @@ export class Worksheet implements WorksheetLike {
     const nEnd = (this._columns as ColumnLike[]).length;
     if (nExpand < 0) {
       for (let i = start + inserts.length; i <= nEnd; i++) {
-        (this.getColumn(i)).defn = (this.getColumn(i - nExpand)).defn;
+        this.getColumn(i).defn = this.getColumn(i - nExpand).defn;
       }
     } else if (nExpand > 0) {
       for (let i = nEnd; i >= nKeep; i--) {
-        (this.getColumn(i + nExpand)).defn = (this.getColumn(i)).defn;
+        this.getColumn(i + nExpand).defn = this.getColumn(i).defn;
       }
     }
     for (let i = start; i < start + inserts.length; i++) {
-      (this.getColumn(i)).defn = undefined;
+      this.getColumn(i).defn = undefined;
     }
 
     // account for defined names
@@ -761,12 +760,16 @@ export class Worksheet implements WorksheetLike {
             const cellAny = cell;
             if (cellAny._value?.constructor?.name === 'MergeValue') {
               const cellToBeMerged = this.getRow(cellAny._row._number + nInserts).getCell(
-                colNumber
+                colNumber,
               ) as CellLike;
-              const prevMaster = (cellAny._value as unknown as { _master?: { _row: { _number: number }; _column: { _number: number } } })._master;
+              const prevMaster = (
+                cellAny._value as unknown as {
+                  _master?: { _row: { _number: number }; _column: { _number: number } };
+                }
+              )._master;
               if (prevMaster?._row && prevMaster?._column) {
                 const newMaster = this.getRow(prevMaster._row._number + nInserts).getCell(
-                  prevMaster._column._number
+                  prevMaster._column._number,
                 );
                 cellToBeMerged.merge?.(newMaster);
               }
@@ -793,11 +796,11 @@ export class Worksheet implements WorksheetLike {
   eachRow(iteratee: (row: Row, rowNumber: number) => void): void;
   eachRow(
     options: EachRowOptions | null | undefined,
-    iteratee: (row: Row, rowNumber: number) => void
+    iteratee: (row: Row, rowNumber: number) => void,
   ): void;
   eachRow(
     options: EachRowOptions | null | undefined | ((row: Row, rowNumber: number) => void),
-    iteratee?: (row: Row, rowNumber: number) => void
+    iteratee?: (row: Row, rowNumber: number) => void,
   ) {
     if (!iteratee) {
       iteratee = options as (row: Row, rowNumber: number) => void;
@@ -810,7 +813,7 @@ export class Worksheet implements WorksheetLike {
       }
     } else {
       this._rows.forEach((row) => {
-        if (row && row.hasValues) {
+        if (row?.hasValues) {
           iteratee(row, row.number);
         }
       });
@@ -875,7 +878,7 @@ export class Worksheet implements WorksheetLike {
         if (i > dimensions.top || j > dimensions.left) {
           (this.getCell(i, j) as { merge(m: unknown, ignoreStyle?: boolean): void }).merge(
             master,
-            ignoreStyle
+            ignoreStyle,
           );
         }
       }
@@ -916,7 +919,7 @@ export class Worksheet implements WorksheetLike {
         if (cell) {
           if (cell.type === Enums.ValueType.Merge) {
             // this cell merges to another master
-            this._unMergeMaster((cell).master);
+            this._unMergeMaster(cell.master);
           } else if (this._merges[cell.address]) {
             // this cell is a master
             this._unMergeMaster(cell);
@@ -932,7 +935,7 @@ export class Worksheet implements WorksheetLike {
     range: string,
     formula: string,
     results: unknown[] | ((row: number, col: number) => unknown),
-    shareType: string = 'shared'
+    shareType: string = 'shared',
   ) {
     // Define formula for top-left cell and share to rest
     const decoded = colCache.decode(range) as {
@@ -974,9 +977,9 @@ export class Worksheet implements WorksheetLike {
         } else {
           this.getCell(r, c).value = isShared
             ? {
-              sharedFormula: masterAddress,
-              result: getResult(r, c),
-            }
+                sharedFormula: masterAddress,
+                result: getResult(r, c),
+              }
             : getResult(r, c);
         }
       }
@@ -1035,7 +1038,7 @@ export class Worksheet implements WorksheetLike {
           password,
           'SHA512',
           this.sheetProtection.saltValue,
-          this.sheetProtection.spinCount
+          this.sheetProtection.spinCount,
         );
       }
       if (options) {
@@ -1078,7 +1081,7 @@ export class Worksheet implements WorksheetLike {
     // eslint-disable-next-line no-console
     console.warn(
       `Warning: Pivot Table support is experimental.
-Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
+Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`,
     );
 
     const pivotTable = makePivotTable(this, model);
@@ -1098,7 +1101,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
   removeConditionalFormatting(filter: number | ((cf: unknown) => boolean)) {
     if (typeof filter === 'number') {
       this.conditionalFormattings.splice(filter, 1);
-    } else if (filter instanceof Function) {
+    } else if (typeof filter === 'function') {
       this.conditionalFormattings = this.conditionalFormattings.filter(filter);
     } else {
       this.conditionalFormattings = [];
@@ -1110,7 +1113,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
   get tabColor() {
     // eslint-disable-next-line no-console
     console.trace(
-      'worksheet.tabColor property is now deprecated. Please use worksheet.properties.tabColor'
+      'worksheet.tabColor property is now deprecated. Please use worksheet.properties.tabColor',
     );
     return this.properties.tabColor;
   }
@@ -1118,7 +1121,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
   set tabColor(value: unknown) {
     // eslint-disable-next-line no-console
     console.trace(
-      'worksheet.tabColor property is now deprecated. Please use worksheet.properties.tabColor'
+      'worksheet.tabColor property is now deprecated. Please use worksheet.properties.tabColor',
     );
     this.properties.tabColor = value as Partial<Color>;
   }
@@ -1209,7 +1212,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     this.name = value.name;
     this._columns = Column.fromModel(
       this,
-      value.cols as Array<Record<string, unknown> & { min: number; max: number }>
+      value.cols as Array<Record<string, unknown> & { min: number; max: number }>,
     );
     this._parseRows(value);
 
@@ -1217,7 +1220,7 @@ Please leave feedback at https://github.com/exceljs/exceljs/discussions/2575`
     this.dataValidations = new DataValidations(value.dataValidations as never);
     this.properties = Object.assign(
       { defaultRowHeight: 15, dyDescent: 55, outlineLevelCol: 0, outlineLevelRow: 0 },
-      value.properties
+      value.properties,
     ) as unknown as WorksheetProperties;
     this.pageSetup = value.pageSetup;
     this.headerFooter = value.headerFooter;

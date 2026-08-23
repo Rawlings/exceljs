@@ -13,7 +13,7 @@ function slideFormula(formula: string, fromCell: string, toCell: string): string
       sheet: string,
       _sheetMaybe: string,
       addrPart: string,
-      trailingParen: string
+      trailingParen: string,
     ) => {
       if (trailingParen) {
         return refMatch;
@@ -39,7 +39,7 @@ function slideFormula(formula: string, fromCell: string, toCell: string): string
         return (sheet || '') + (colDollar || '') + colCache.n2l(col) + (rowDollar || '') + row;
       }
       return refMatch;
-    }
+    },
   );
 }
 

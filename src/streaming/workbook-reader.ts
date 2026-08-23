@@ -9,7 +9,7 @@ import StyleManager from '../formats/xlsx/xml/style/styles-xform';
 import WorkbookXform from '../formats/xlsx/xml/book/workbook-xform';
 import RelationshipsXform from '../formats/xlsx/xml/core/relationships-xform';
 
-import WorksheetReader from './worksheet-reader';
+import { WorksheetReader } from './worksheet-reader';
 import type { WorksheetReaderOptions } from './worksheet-reader';
 import HyperlinkReader from './hyperlink-reader';
 
@@ -168,7 +168,7 @@ export class WorkbookReader extends EventEmitter {
       if (path.endsWith('/')) continue;
       const entry = Readable.from(buf) as Readable & { path: string };
       entry.path = path;
-      entries.push(entry as never);
+      entries.push(entry);
     }
 
     const waitingWorkSheets: {
@@ -285,7 +285,7 @@ export class WorkbookReader extends EventEmitter {
 
     const doc = sharedStringsParser.parse(xml);
     const sst = doc.sst;
-    if (!sst || !sst.si) return;
+    if (!sst?.si) return;
 
     let index = 0;
     const items = Array.isArray(sst.si) ? sst.si : [sst.si];
@@ -315,7 +315,7 @@ export class WorkbookReader extends EventEmitter {
                 typeof rPr.sz === 'object'
                   ? ((rPr.sz as Record<string, unknown>).val as string)
                   : String(rPr.sz),
-                10
+                10,
               );
             }
             if (rPr.rFont !== undefined) {
@@ -329,7 +329,7 @@ export class WorkbookReader extends EventEmitter {
                 typeof rPr.family === 'object'
                   ? ((rPr.family as Record<string, unknown>).val as string)
                   : String(rPr.family),
-                10
+                10,
               );
             }
             if (rPr.charset !== undefined) {
@@ -337,7 +337,7 @@ export class WorkbookReader extends EventEmitter {
                 typeof rPr.charset === 'object'
                   ? ((rPr.charset as Record<string, unknown>).val as string)
                   : String(rPr.charset),
-                10
+                10,
               );
             }
             if (rPr.vertAlign !== undefined) {
@@ -376,7 +376,7 @@ export class WorkbookReader extends EventEmitter {
     if (this.options.styles === 'cache') {
       this.styles = new StyleManager();
       await (this.styles as { parseStream(i: AsyncIterable<unknown>): Promise<void> }).parseStream(
-        iterateStream(entry as AsyncIterable<unknown>)
+        iterateStream(entry as AsyncIterable<unknown>),
       );
     }
   }
@@ -391,12 +391,12 @@ export class WorkbookReader extends EventEmitter {
     }) as unknown as { id: unknown; name: unknown; state: unknown };
 
     const matchingRel = (this.workbookRels || []).find(
-      (rel) => rel.Target === `worksheets/sheet${sheetNo}.xml`
+      (rel) => rel.Target === `worksheets/sheet${sheetNo}.xml`,
     );
     const matchingSheet =
       matchingRel &&
       ((this.model.sheets as Record<string, unknown>[]) || []).find(
-        (sheet) => sheet.rId === matchingRel.Id
+        (sheet) => sheet.rId === matchingRel.Id,
       );
     if (matchingSheet) {
       worksheetReader.id = matchingSheet.id;

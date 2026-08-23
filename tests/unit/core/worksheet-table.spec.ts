@@ -171,7 +171,7 @@ describe('Worksheet', () => {
           filterButton: true,
         },
         ['a', 'b', 'c', 'd'],
-        2
+        2,
       );
       table.commit();
 

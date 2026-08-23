@@ -1,7 +1,7 @@
 import utils from '../../../../utils/helpers/utils';
 import BaseXform from '../base-xform';
-import Range from '../../../../core/range';
-import Enums from '../../../../core/enums';
+import { Range } from '../../../../core/range';
+import * as Enums from '../../../../core/enums';
 
 import RichTextXform from '../strings/rich-text-xform';
 import type { RichTextRunModel } from '../strings/rich-text-xform';
@@ -73,7 +73,10 @@ function getValueType(v: unknown) {
   if (v === null || v === undefined) {
     return Enums.ValueType.Null;
   }
-  if (v instanceof String || typeof v === 'string') {
+  if (
+    typeof v === 'string' ||
+    (typeof v === 'object' && Object.prototype.toString.call(v) === '[object String]')
+  ) {
     return Enums.ValueType.String;
   }
   if (typeof v === 'number') {
@@ -123,10 +126,7 @@ class CellXform extends BaseXform {
   }
 
   override prepare(model: CellXformModel, options: CellXformOptions) {
-    const styleId = options.styles!.addStyleModel(
-      model.style || {},
-      getEffectiveCellType(model)
-    );
+    const styleId = options.styles!.addStyleModel(model.style || {}, getEffectiveCellType(model));
     if (styleId) {
       model.styleId = styleId;
     }
@@ -180,13 +180,13 @@ class CellXform extends BaseXform {
           const master = options.formulae![model.sharedFormula];
           if (!master) {
             throw new Error(
-              `Shared Formula master must exist above and or left of clone for cell ${model.address}`
+              `Shared Formula master must exist above and or left of clone for cell ${model.address}`,
             );
           }
           if (master.si === undefined) {
             master.shareType = 'shared';
             master.si = options.siFormulae++;
-            master.range = new Range(master.address as string, model.address as string);
+            master.range = new Range(master.address, model.address);
           } else if (master.range) {
             (master.range as Range).expandToAddress(model.address as string);
           }
@@ -258,11 +258,7 @@ class CellXform extends BaseXform {
 
       case Enums.ValueType.Date:
         xmlStream.leafNode('f', attrs, model.formula);
-        xmlStream.leafNode(
-          'v',
-          undefined,
-          utils.dateToExcel(model.result as Date, model.date1904)
-        );
+        xmlStream.leafNode('v', undefined, utils.dateToExcel(model.result as Date, model.date1904));
         break;
 
       // case Enums.ValueType.Hyperlink: // ??
@@ -309,7 +305,7 @@ class CellXform extends BaseXform {
         if (model.ssId !== undefined) {
           xmlStream.addAttribute('t', 's');
           xmlStream.leafNode('v', undefined, model.ssId);
-        } else if (richValue && richValue.richText) {
+        } else if (richValue?.richText) {
           xmlStream.addAttribute('t', 'inlineStr');
           xmlStream.openNode('is');
           richValue.richText.forEach((text) => {
@@ -324,11 +320,7 @@ class CellXform extends BaseXform {
       }
 
       case Enums.ValueType.Date:
-        xmlStream.leafNode(
-          'v',
-          undefined,
-          utils.dateToExcel(model.value as Date, model.date1904)
-        );
+        xmlStream.leafNode('v', undefined, utils.dateToExcel(model.value as Date, model.date1904));
         break;
 
       case Enums.ValueType.Hyperlink:
@@ -410,7 +402,7 @@ class CellXform extends BaseXform {
         break;
       case 'v':
       case 't':
-        if (this.model.value && this.model.value.richText) {
+        if (this.model.value?.richText) {
           this.model.value.richText.text = this.model.value.richText.text
             ? this.model.value.richText.text + text
             : text;
@@ -574,7 +566,7 @@ class CellXform extends BaseXform {
       model.hyperlink = hyperlink;
     }
 
-    const comment = options.commentsMap && options.commentsMap[model.address as string];
+    const comment = options.commentsMap?.[model.address as string];
     if (comment) {
       model.comment = comment;
     }

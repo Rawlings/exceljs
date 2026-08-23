@@ -17,7 +17,7 @@ describe('XmlStream', () => {
     xmlStream.closeNode();
     xmlStream.closeNode();
     expect(xmlStream.xml).to.equal(
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root attr1="attr1-value" attr2="attr2-value"><l1><l2 l2a1="v1" l2a2="v2"/></l1></root>'
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root attr1="attr1-value" attr2="attr2-value"><l1><l2 l2a1="v1" l2a2="v2"/></l1></root>',
     );
   });
 
@@ -37,7 +37,7 @@ describe('XmlStream', () => {
     xmlStream.closeNode();
     xmlStream.closeNode();
     expect(xmlStream.xml).to.equal(
-      '<root><l1><l2 l2a1="v1">Hello, World!</l2><l2 l2a1="v2">See ya later, Alligator!</l2></l1></root>'
+      '<root><l1><l2 l2a1="v1">Hello, World!</l2><l2 l2a1="v2">See ya later, Alligator!</l2></l1></root>',
     );
   });
   it('text is escaped', () => {
@@ -62,7 +62,7 @@ describe('XmlStream', () => {
     xmlStream.closeNode();
     xmlStream.closeNode();
     expect(xmlStream.xml).to.equal(
-      '<root><l1 stuff="this &amp; that"><l2 foo="&lt;bar&gt;"/><l2 quote="&quot;this&quot;"/></l1></root>'
+      '<root><l1 stuff="this &amp; that"><l2 foo="&lt;bar&gt;"/><l2 quote="&quot;this&quot;"/></l1></root>',
     );
   });
 

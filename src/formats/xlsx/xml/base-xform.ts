@@ -72,7 +72,7 @@ class BaseXform {
       Object.values(this.map).forEach((xform: any) => {
         if (xform instanceof BaseXform) {
           xform.reset();
-        } else if (xform && xform.xform) {
+        } else if (xform?.xform) {
           xform.xform.reset();
         }
       });
@@ -133,7 +133,7 @@ class BaseXform {
   static toStringAttribute(
     value: unknown,
     dflt?: unknown,
-    always: boolean = false
+    always: boolean = false,
   ): string | undefined {
     return BaseXform.toAttribute(value, dflt, always);
   }
@@ -145,7 +145,7 @@ class BaseXform {
   static toBoolAttribute(
     value: unknown,
     dflt?: unknown,
-    always: boolean = false
+    always: boolean = false,
   ): string | undefined {
     if (value === undefined) {
       if (always) {
@@ -164,7 +164,7 @@ class BaseXform {
   static toIntAttribute(
     value: unknown,
     dflt?: unknown,
-    always: boolean = false
+    always: boolean = false,
   ): string | undefined {
     return BaseXform.toAttribute(value, dflt, always);
   }
@@ -176,7 +176,7 @@ class BaseXform {
   static toFloatAttribute(
     value: unknown,
     dflt?: unknown,
-    always: boolean = false
+    always: boolean = false,
   ): string | undefined {
     return BaseXform.toAttribute(value, dflt, always);
   }

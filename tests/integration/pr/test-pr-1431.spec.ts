@@ -24,13 +24,16 @@ describe('github issues', () => {
     await workbook.commit();
 
     return new Promise((resolve: any, reject: any) => {
-      const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader('./fixtures/out/wb-pr-1431.test.xlsx', {
-        entries: 'emit',
-        hyperlinks: 'cache',
-        sharedStrings: 'cache',
-        styles: 'cache',
-        worksheets: 'emit',
-      });
+      const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader(
+        './fixtures/out/wb-pr-1431.test.xlsx',
+        {
+          entries: 'emit',
+          hyperlinks: 'cache',
+          sharedStrings: 'cache',
+          styles: 'cache',
+          worksheets: 'emit',
+        },
+      );
 
       workbookReader.on('worksheet', (worksheet: any) =>
         worksheet.on('row', (row: any) => {
@@ -38,7 +41,7 @@ describe('github issues', () => {
           expect(row.values[2]).to.equal(rowData[1]);
 
           resolve(undefined);
-        })
+        }),
       );
       workbookReader.on('error', reject);
 

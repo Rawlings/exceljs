@@ -70,7 +70,7 @@ export interface RowLike {
   height?: number;
   eachCell?(
     options: { includeEmpty?: boolean },
-    callback: (cell: any, colNumber: number) => void
+    callback: (cell: any, colNumber: number) => void,
   ): void;
   [key: string]: any;
 }

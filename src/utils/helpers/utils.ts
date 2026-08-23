@@ -9,7 +9,7 @@ const utils = {
 
   excelToDate(v: number, date1904?: boolean): Date {
     const millisecondSinceEpoch = Math.round(
-      (v - 25569 + (date1904 ? 1462 : 0)) * 24 * 3600 * 1000
+      (v - 25569 + (date1904 ? 1462 : 0)) * 24 * 3600 * 1000,
     );
     return new Date(millisecondSinceEpoch);
   },
@@ -134,9 +134,9 @@ const utils = {
   toSortedArray<T>(values: Iterable<T>): T[] {
     const result = Array.from(values);
     if (result.every((item) => Number.isFinite(item as number))) {
-      return result.sort((a, b) => (a as number) - (b as number));
+      return result.toSorted((a, b) => (a as number) - (b as number));
     }
-    return result.sort();
+    return result.toSorted();
   },
 
   objectFromProps(props: string[], value: unknown = null): Record<string, unknown> {

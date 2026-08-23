@@ -179,19 +179,19 @@ describe('WorkbookWriter', () => {
           });
           expect(ws2.getCell('B1').font).to.deep.equal(testUtils.styles.fonts.comicSansUdB16);
           expect(ws2.getCell('B1').alignment).to.deep.equal(
-            testUtils.styles.namedAlignments.middleCentre
+            testUtils.styles.namedAlignments.middleCentre,
           );
           expect(ws2.getCell('A2').font).to.deep.equal(testUtils.styles.fonts.broadwayRedOutline20);
           expect(ws2.getCell('B2').font).to.deep.equal(testUtils.styles.fonts.broadwayRedOutline20);
           expect(ws2.getCell('C2').font).to.deep.equal(testUtils.styles.fonts.broadwayRedOutline20);
           expect(ws2.getCell('B3').font).to.deep.equal(testUtils.styles.fonts.comicSansUdB16);
           expect(ws2.getCell('B3').alignment).to.deep.equal(
-            testUtils.styles.namedAlignments.middleCentre
+            testUtils.styles.namedAlignments.middleCentre,
           );
 
           expect(ws2.getColumn(2).font).to.deep.equal(testUtils.styles.fonts.comicSansUdB16);
           expect(ws2.getColumn(2).alignment).to.deep.equal(
-            testUtils.styles.namedAlignments.middleCentre
+            testUtils.styles.namedAlignments.middleCentre,
           );
           expect(ws2.getColumn(2).width).to.equal(9);
 
@@ -438,10 +438,10 @@ describe('WorkbookWriter', () => {
       expect(ws2.getCell('B2').value).to.equal(5);
       expect(ws2.getCell('B2').note).to.equal('five');
       expect(ws2.getCell('D2').value).to.equal(7);
-      expect((ws2.getCell('D2').note).texts).to.deep.equal(note.texts);
-      expect((ws2.getCell('D2').note).margins).to.deep.equal(note.margins);
-      expect((ws2.getCell('D2').note).protection).to.deep.equal(note.protection);
-      expect((ws2.getCell('D2').note).editAs).to.deep.equal(note.editAs);
+      expect(ws2.getCell('D2').note.texts).to.deep.equal(note.texts);
+      expect(ws2.getCell('D2').note.margins).to.deep.equal(note.margins);
+      expect(ws2.getCell('D2').note.protection).to.deep.equal(note.protection);
+      expect(ws2.getCell('D2').note.editAs).to.deep.equal(note.editAs);
     });
 
     it('Cell annotation supports setting margins and protection properties', async () => {
@@ -486,10 +486,10 @@ describe('WorkbookWriter', () => {
       expect(ws2.getCell('B2').note).to.equal('five');
 
       expect(ws2.getCell('D2').value).to.equal(7);
-      expect((ws2.getCell('D2').note).texts).to.deep.equal(note.texts);
-      expect((ws2.getCell('D2').note).margins).to.deep.equal(note.margins);
-      expect((ws2.getCell('D2').note).protection).to.deep.equal(note.protection);
-      expect((ws2.getCell('D2').note).editAs).to.deep.equal(note.editAs);
+      expect(ws2.getCell('D2').note.texts).to.deep.equal(note.texts);
+      expect(ws2.getCell('D2').note.margins).to.deep.equal(note.margins);
+      expect(ws2.getCell('D2').note.protection).to.deep.equal(note.protection);
+      expect(ws2.getCell('D2').note.editAs).to.deep.equal(note.editAs);
     });
 
     it('with background image', async () => {

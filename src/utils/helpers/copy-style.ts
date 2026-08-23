@@ -5,7 +5,7 @@ const oneDepthCopy = (obj: StyleRecord, nestKeys: string[]): StyleRecord => ({
   ...Object.fromEntries(
     nestKeys
       .filter((key) => Boolean(obj[key]))
-      .map((key) => [key, { ...(obj[key] as StyleRecord) }])
+      .map((key) => [key, { ...(obj[key] as StyleRecord) }]),
   ),
 });
 

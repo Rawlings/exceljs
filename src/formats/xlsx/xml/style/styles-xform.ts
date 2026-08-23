@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import Enums from '../../../../core/enums';
+import * as Enums from '../../../../core/enums';
 import XmlStream from '../../../../utils/stream/xml-stream';
 
 import BaseXform from '../base-xform';
@@ -152,7 +152,7 @@ class StylesXform extends BaseXform {
 
     if (this.index) {
       // model has been built by style manager role (contains xml)
-      if (model.numFmts && model.numFmts.length) {
+      if (model.numFmts?.length) {
         xmlStream.openNode('numFmts', { count: model.numFmts.length });
         (model.numFmts as string[]).forEach((numFmtXml) => {
           xmlStream.writeXml(numFmtXml);
@@ -254,7 +254,7 @@ class StylesXform extends BaseXform {
       case 'styleSheet': {
         this.model = {} as StylesModel;
         const add = (propName: keyof StylesModel, xform: BaseXform) => {
-          if (xform.model && xform.model.length) {
+          if (xform.model?.length) {
             this.model[propName] = xform.model;
           }
         };
@@ -275,7 +275,7 @@ class StylesXform extends BaseXform {
           (this.model.numFmts as Array<{ id: string | number; formatCode: string }>).forEach(
             (numFmt) => {
               numFmtIndex[numFmt.id] = numFmt.formatCode;
-            }
+            },
           );
         }
 
@@ -302,7 +302,7 @@ class StylesXform extends BaseXform {
     }
 
     // if we have seen this style object before, assume it has the same styleId
-    if (this.weakMap && this.weakMap.has(model)) {
+    if (this.weakMap?.has(model)) {
       return this.weakMap.get(model) as number;
     }
 
@@ -576,7 +576,7 @@ class StylesXformMock extends StylesXform {
         numFmtId: NumFmtXform.getDefaultFmtId('mm-dd-yy'),
       };
       this._dateStyleId = this.model.styles.length;
-      this.model.styles.push(dateStyle as StyleXfModel);
+      this.model.styles.push(dateStyle);
     }
     return this._dateStyleId as number;
   }

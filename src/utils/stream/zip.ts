@@ -19,7 +19,7 @@ export function unzip(input: Uint8Array | Buffer | ArrayBuffer): Record<string, 
     (typeof input !== 'string' && !(input instanceof Uint8Array) && !(input instanceof ArrayBuffer))
   ) {
     throw new Error(
-      "Can't read the data of 'the loaded zip file'. Is it in a supported JavaScript type (String, Blob, ArrayBuffer, etc) ?"
+      "Can't read the data of 'the loaded zip file'. Is it in a supported JavaScript type (String, Blob, ArrayBuffer, etc) ?",
     );
   }
   const u8 = toU8(input);
@@ -57,8 +57,10 @@ export class ZipBuilder {
     } else if (data && typeof data === 'object' && 'then' in data) {
       this.pending.push(
         (data as Promise<unknown>).then((resolved) => {
-          this.files[name] = toU8(resolved as Uint8Array | string);
-        })
+          const u8 = toU8(resolved as Uint8Array | string);
+          this.files[name] = u8;
+          return u8;
+        }),
       );
     } else {
       this.files[name] = toU8(String(data || ''));

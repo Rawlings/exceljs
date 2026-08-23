@@ -11,7 +11,7 @@ const Encryptor = {
     password: string,
     hashAlgorithm: string,
     saltValue: string,
-    spinCount: number
+    spinCount: number,
   ): string {
     const algo = hashAlgorithm.toLowerCase();
     const hashes = crypto.getHashes();

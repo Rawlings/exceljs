@@ -16,16 +16,16 @@ export interface TableColumnProperties {
   filterButton?: boolean;
   totalsRowLabel?: string;
   totalsRowFunction?:
-  | 'none'
-  | 'average'
-  | 'countNums'
-  | 'count'
-  | 'max'
-  | 'min'
-  | 'stdDev'
-  | 'var'
-  | 'sum'
-  | 'custom';
+    | 'none'
+    | 'average'
+    | 'countNums'
+    | 'count'
+    | 'max'
+    | 'min'
+    | 'stdDev'
+    | 'var'
+    | 'sum'
+    | 'custom';
   totalsRowFormula?: string;
   totalsRowResult?: unknown;
   style?: Partial<Style>;
@@ -124,6 +124,26 @@ class Column {
   /* eslint-enable lines-between-class-members */
 }
 
+function assign(o: Record<string, unknown>, name: string, dflt: unknown) {
+  if (o[name] === undefined) {
+    o[name] = dflt;
+  }
+}
+
+function assert(test: unknown, message: string): asserts test {
+  if (!test) {
+    throw new Error(message);
+  }
+}
+
+function assignStyle(cell: CellLike, style: Record<string, unknown> | undefined) {
+  if (style) {
+    Object.keys(style).forEach((key) => {
+      cell.style[key] = style[key];
+    });
+  }
+}
+
 export class Table {
   worksheet: WorksheetLike;
   // only assigned when a model is passed to the constructor — matches
@@ -193,13 +213,8 @@ export class Table {
 
   validate() {
     const { table } = this;
-    const assign = (o: Record<string, unknown>, name: string, dflt: unknown) => {
-      if (o[name] === undefined) {
-        o[name] = dflt;
-      }
-    };
-    if (!table.ref && (table).tableRef) {
-      table.ref = (table).tableRef;
+    if (!table.ref && table.tableRef) {
+      table.ref = table.tableRef;
     }
     assign(table as unknown as Record<string, unknown>, 'headerRow', true);
     assign(table as unknown as Record<string, unknown>, 'totalsRow', false);
@@ -212,11 +227,6 @@ export class Table {
     assign(style, 'showRowStripes', false);
     assign(style, 'showColumnStripes', false);
 
-    const assert = (test: unknown, message: string) => {
-      if (!test) {
-        throw new Error(message);
-      }
-    };
     assert(table.ref, 'Table must have ref');
     assert(table.columns, 'Table must have column definitions');
     table.rows = table.rows || [];
@@ -249,13 +259,6 @@ export class Table {
   store() {
     // where the table needs to store table data, headers, footers in
     // the sheet...
-    const assignStyle = (cell: CellLike, style: Record<string, unknown> | undefined) => {
-      if (style) {
-        Object.keys(style).forEach((key) => {
-          cell.style![key] = style[key];
-        });
-      }
-    };
 
     const { worksheet, table } = this;
     const { row, col } = table.tl as { row: number; col: number };

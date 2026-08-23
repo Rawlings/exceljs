@@ -4,11 +4,11 @@ import { XMLParser } from 'fast-xml-parser';
 import _ from '../utils/helpers/under-dash';
 import utils from '../utils/helpers/utils';
 import colCache from '../utils/data/col-cache';
-import Dimensions from '../core/range';
+import { Range as Dimensions } from '../core/range';
 
-import Row from '../core/row';
-import Column from '../core/column';
-import type { WorksheetLike, CellLike } from '../core/internal-types';
+import { Row } from '../core/row';
+import { Column } from '../core/column';
+import type { CellLike } from '../core/internal-types';
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -142,7 +142,7 @@ export class WorksheetReader extends EventEmitter {
     if (c > this._columns.length) {
       let n = this._columns.length + 1;
       while (n <= c) {
-        this._columns.push(new Column(this as unknown as WorksheetLike, n++));
+        this._columns.push(new Column(this, n++));
       }
     }
     return this._columns[c - 1];
@@ -257,22 +257,20 @@ export class WorksheetReader extends EventEmitter {
         width: parseFloat(col.width),
         styleId: parseInt(col.style || '0', 10),
       }));
-      this._columns = Column.fromModel(this as unknown as WorksheetLike, cols);
+      this._columns = Column.fromModel(this, cols);
     }
 
     // -----------------------------------------------------------------------
     // Rows & cells
     // -----------------------------------------------------------------------
     if (emitSheet && ws.sheetData?.row) {
-      const rowNodes = Array.isArray(ws.sheetData.row)
-        ? ws.sheetData.row
-        : [ws.sheetData.row];
+      const rowNodes = Array.isArray(ws.sheetData.row) ? ws.sheetData.row : [ws.sheetData.row];
       for (const rowNode of rowNodes) {
         const worksheetEvents: WorksheetEvent[] = [];
 
         const rAttrs = (rowNode[':@'] as Record<string, string>) || rowNode;
         const r = parseInt((rAttrs.r || rowNode.r) as string, 10);
-        const row = new Row(this as unknown as WorksheetLike, r);
+        const row = new Row(this, r);
 
         const ht = rAttrs.ht || rowNode.ht;
         if (ht) {
@@ -287,11 +285,7 @@ export class WorksheetReader extends EventEmitter {
           }
         }
 
-        const cellNodes = Array.isArray(rowNode.c)
-          ? rowNode.c
-          : rowNode.c
-            ? [rowNode.c]
-            : [];
+        const cellNodes = Array.isArray(rowNode.c) ? rowNode.c : rowNode.c ? [rowNode.c] : [];
         for (const cellNode of cellNodes) {
           const cAttrs = (cellNode[':@'] as Record<string, string>) || cellNode;
           const cellRef = (cAttrs.r || cellNode.r) as string;
@@ -346,7 +340,7 @@ export class WorksheetReader extends EventEmitter {
             switch (cellType) {
               case 's': {
                 const index = parseInt(vText, 10);
-                if (sharedStrings && sharedStrings[index] !== undefined) {
+                if (sharedStrings?.[index] !== undefined) {
                   cell.value = sharedStrings[index];
                 } else {
                   cell.value = { sharedString: index };

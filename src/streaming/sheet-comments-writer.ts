@@ -1,5 +1,5 @@
 import XmlStream from '../utils/stream/xml-stream';
-import RelType from '../formats/xlsx/rel-type';
+import { RelType } from '../formats/xlsx/rel-type';
 import colCache from '../utils/data/col-cache';
 import CommentXform from '../formats/xlsx/xml/comment/comment-xform';
 import VmlShapeXform from '../formats/xlsx/xml/comment/vml-shape-xform';
@@ -37,7 +37,7 @@ class SheetCommentsWriter {
   constructor(
     worksheet: CommentsWorksheetLike,
     sheetRelsWriter: CommentsSheetRelsWriter,
-    options: { id: number; workbook: CommentsWorkbook }
+    options: { id: number; workbook: CommentsWorkbook },
   ) {
     this.id = options.id;
     this.count = 0;
@@ -87,7 +87,7 @@ class SheetCommentsWriter {
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
         '<comments xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
         '<authors><author>Author</author></authors>' +
-        '<commentList>'
+        '<commentList>',
     );
     this.vmlStream.write(
       '<?xml version="1.0" encoding="UTF-8"?>' +
@@ -98,7 +98,7 @@ class SheetCommentsWriter {
         '<v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt="202" path="m,l,21600r21600,l21600,xe">' +
         '<v:stroke joinstyle="miter" />' +
         '<v:path gradientshapeok="t" o:connecttype="rect" />' +
-        '</v:shapetype>'
+        '</v:shapetype>',
     );
   }
 
@@ -120,7 +120,7 @@ class SheetCommentsWriter {
   }
 
   addComments(comments: Record<string, unknown>[]): void {
-    if (comments && comments.length) {
+    if (comments?.length) {
       if (!this.startedData) {
         this._worksheet.comments = [];
         this._writeOpen();

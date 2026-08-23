@@ -171,7 +171,7 @@ function renderPivotFields(pivotTable: PivotTableModel): string {
 
 function renderPivotField(
   fieldType: 'row' | 'column' | 'value' | null,
-  sharedItems: string[] | null
+  sharedItems: string[] | null,
 ): string {
   // fieldType: 'row', 'column', 'value', null
 

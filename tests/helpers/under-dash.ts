@@ -40,7 +40,7 @@ const _ = Object.assign(
       return clone;
     },
   },
-  srcUnderDash
+  srcUnderDash,
 );
 
 export const get = _.get;

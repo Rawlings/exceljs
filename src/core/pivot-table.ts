@@ -85,7 +85,7 @@ function makePivotTable(worksheet: WorksheetLike, model: PivotTableModel) {
 function validate(worksheet: WorksheetLike, model: PivotTableModel) {
   if (worksheet.workbook?.pivotTables?.length === 1) {
     throw new Error(
-      'A pivot table was already added. At this time, ExcelJS supports at most one pivot table per file.'
+      'A pivot table was already added. At this time, ExcelJS supports at most one pivot table per file.',
     );
   }
 
@@ -118,7 +118,7 @@ function validate(worksheet: WorksheetLike, model: PivotTableModel) {
 
 function makeCacheFields(
   worksheet: WorksheetLike,
-  fieldNamesWithSharedItems: string[]
+  fieldNamesWithSharedItems: string[],
 ): CacheField[] {
   // Cache fields are used in pivot tables to reference source data.
   //

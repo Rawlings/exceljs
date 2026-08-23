@@ -1,8 +1,8 @@
 import _ from '../../../../utils/helpers/under-dash';
 
-import Range from '../../../../core/range';
+import { Range } from '../../../../core/range';
 import colCache from '../../../../utils/data/col-cache';
-import Enums from '../../../../core/enums';
+import * as Enums from '../../../../core/enums';
 
 interface MergeInput {
   address: string;
@@ -74,7 +74,7 @@ class Merges {
   getMasterAddress(address: string): string | undefined {
     // if address has been merged, return its master's address. Assumes reconcile has been called
     const range = this.hash[address];
-    return range && range.tl;
+    return range?.tl;
   }
 }
 

@@ -119,7 +119,7 @@ class WorkbookXform extends BaseXform {
     const printAreas: DefinedNameItem[] = [];
     let index = 0; // sheets is sparse array - calc index manually
     (model.sheets || []).forEach((sheet) => {
-      if (sheet.pageSetup && sheet.pageSetup.printArea) {
+      if (sheet.pageSetup?.printArea) {
         sheet.pageSetup.printArea.split('&&').forEach((printArea: string) => {
           const printAreaComponents = printArea.split(':');
           const definedName = {
@@ -239,7 +239,7 @@ class WorkbookXform extends BaseXform {
         map[rel.Id] = rel;
         return map;
       },
-      {}
+      {},
     );
 
     // reconcile sheet ids, rIds and names
@@ -254,9 +254,7 @@ class WorkbookXform extends BaseXform {
       }
       // if rel.Target start with `[space]/xl/` or `/xl/` , then it will be replaced with `''` and spliced behind `xl/`,
       // otherwise it will be spliced directly behind `xl/`. i.g.
-      worksheet = (model.worksheetHash || {})[
-        `xl/${rel.Target.replace(/^(\s|\/xl\/)+/, '')}`
-      ];
+      worksheet = model.worksheetHash?.[`xl/${rel.Target.replace(/^(\s|\/xl\/)+/, '')}`];
       // If there are "chartsheets" in the file, rel.Target will
       // come out as chartsheets/sheet1.xml or similar here, and
       // that won't be in model.worksheetHash.
@@ -299,7 +297,7 @@ class WorkbookXform extends BaseXform {
           const rowRangeRegex = /\$?\d+:\$?\d+/;
           const rowRangeMatches = rangeString.match(rowRangeRegex);
 
-          if (rowRangeMatches && rowRangeMatches.length) {
+          if (rowRangeMatches?.length) {
             const range = rowRangeMatches[0];
             worksheet.pageSetup.printTitlesRow = range.replace(dollarRegex, '');
           }
@@ -307,7 +305,7 @@ class WorkbookXform extends BaseXform {
           const columnRangeRegex = /\$?[A-Z]+:\$?[A-Z]+/;
           const columnRangeMatches = rangeString.match(columnRangeRegex);
 
-          if (columnRangeMatches && columnRangeMatches.length) {
+          if (columnRangeMatches?.length) {
             const range = columnRangeMatches[0];
             worksheet.pageSetup.printTitlesColumn = range.replace(dollarRegex, '');
           }

@@ -1,5 +1,6 @@
 import BaseXform from './base-xform';
 import type { SaxNode } from './base-xform';
+import type XmlStream from '../../../utils/stream/xml-stream';
 
 interface ListXformOptions {
   tag: string;
@@ -54,11 +55,11 @@ class ListXform extends BaseXform {
     }
   }
 
-  override render(xmlStream: import('../../../utils/stream/xml-stream').default, model: unknown[] | undefined) {
-    if (this.always || (model && model.length)) {
+  override render(xmlStream: XmlStream, model: unknown[] | undefined) {
+    if (this.always || model?.length) {
       xmlStream.openNode(this.tag, this.$);
       if (this.count) {
-        xmlStream.addAttribute(this.$count, (model && model.length) || 0);
+        xmlStream.addAttribute(this.$count, model?.length || 0);
       }
 
       const { childXform } = this;

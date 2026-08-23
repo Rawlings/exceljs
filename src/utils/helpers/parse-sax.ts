@@ -44,7 +44,7 @@ interface SaxStreamLike {
 }
 
 async function readAllChunks(
-  iterableInput: SaxStreamLike | AsyncIterable<unknown>
+  iterableInput: SaxStreamLike | AsyncIterable<unknown>,
 ): Promise<string> {
   if (typeof (iterableInput as SaxStreamLike).on !== 'function') {
     const parts: string[] = [];
@@ -150,14 +150,15 @@ function* walkNodes(nodes: XmlNode[]): Generator<SaxEvent> {
 // ---------------------------------------------------------------------------
 
 export default async function* parseSax(
-  iterable: string | SaxStreamLike | AsyncIterable<unknown>
+  iterable: string | SaxStreamLike | AsyncIterable<unknown>,
 ): AsyncGenerator<SaxEvent[]> {
   const xml = typeof iterable === 'string' ? iterable : await readAllChunks(iterable);
   if (!xml) return;
 
   const validation = XMLValidator.validate(xml);
   if (validation !== true && typeof validation === 'object') {
-    const { line, col, msg } = (validation as { err: { line: number; col: number; msg: string } }).err;
+    const { line, col, msg } = (validation as { err: { line: number; col: number; msg: string } })
+      .err;
     throw new Error(`${line}:${col}: ${msg}`);
   }
 

@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import ExcelJS from '../../../src/index';
 
-
 describe('ExcelJS', () => {
   it('should read and write xlsx via binary buffer', async () => {
     const wb = new ExcelJS.Workbook();
@@ -50,6 +49,8 @@ describe('ExcelJS', () => {
     ws.getCell('B2').value = '12pm';
 
     const buffer = (await wb.csv.writeBuffer()) as Buffer;
-    expect(buffer.toString().replace(/\r\n/g, '\n').trim()).toEqual('"Hello, World!",What time is it?\n7,12pm');
+    expect(buffer.toString().replace(/\r\n/g, '\n').trim()).toEqual(
+      '"Hello, World!",What time is it?\n7,12pm',
+    );
   });
 });

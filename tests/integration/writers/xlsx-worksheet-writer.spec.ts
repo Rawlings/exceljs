@@ -51,17 +51,17 @@ describe('WorksheetWriter', () => {
       expect(ws.getCell('C1').value).to.equal(3.14);
       expect(ws.getCell('D1').value).to.equal(now);
       expect(ws.getCell('E1').value).to.equal('Hello, World!');
-      expect((ws.getCell('F1').value).text).to.equal('www.google.com');
-      expect((ws.getCell('F1').value).hyperlink).to.equal('http://www.google.com');
+      expect(ws.getCell('F1').value.text).to.equal('www.google.com');
+      expect(ws.getCell('F1').value.hyperlink).to.equal('http://www.google.com');
 
-      expect((ws.getCell('A2').value).formula).to.equal('A1');
-      expect((ws.getCell('A2').value).result).to.equal(7);
+      expect(ws.getCell('A2').value.formula).to.equal('A1');
+      expect(ws.getCell('A2').value.result).to.equal(7);
 
-      expect((ws.getCell('B2').value).formula).to.equal(CONCATENATE_HELLO_WORLD);
-      expect((ws.getCell('B2').value).result).to.equal('Hello, World!');
+      expect(ws.getCell('B2').value.formula).to.equal(CONCATENATE_HELLO_WORLD);
+      expect(ws.getCell('B2').value.result).to.equal('Hello, World!');
 
-      expect((ws.getCell('C2').value).formula).to.equal('D1');
-      expect((ws.getCell('C2').value).result).to.equal(now);
+      expect(ws.getCell('C2').value.formula).to.equal('D1');
+      expect(ws.getCell('C2').value.result).to.equal(now);
     });
 
     it('stores shared string values properly', () => {
@@ -85,7 +85,7 @@ describe('WorksheetWriter', () => {
       expect(ws.getCell('A1').value).to.equal(ws.getCell('A3').value);
 
       // A1 and C2 should not reference the same object
-      expect(ws.getCell('A1').value).to.equal((ws.getCell('C2').value).result);
+      expect(ws.getCell('A1').value).to.equal(ws.getCell('C2').value.result);
     });
 
     it('assigns cell types properly', () => {
@@ -336,7 +336,7 @@ describe('WorksheetWriter', () => {
       expect(ws.getCell('A1').numFmt).to.equal(testutils.styles.numFmts.numFmt2);
       expect(ws.getCell('A1').font).to.deep.equal(testutils.styles.fonts.comicSansUdB16);
       expect(ws.getCell('A1').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('A1').border).to.deep.equal(testutils.styles.borders.thin);
       expect(ws.getCell('A1').fill).to.deep.equal(testutils.styles.fills.redGreenDarkTrellis);
@@ -346,7 +346,7 @@ describe('WorksheetWriter', () => {
       expect(ws.getCell('C1').numFmt).to.equal(testutils.styles.numFmts.numFmt2);
       expect(ws.getCell('C1').font).to.deep.equal(testutils.styles.fonts.comicSansUdB16);
       expect(ws.getCell('C1').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('C1').border).to.deep.equal(testutils.styles.borders.thin);
       expect(ws.getCell('C1').fill).to.deep.equal(testutils.styles.fills.redGreenDarkTrellis);
@@ -355,7 +355,7 @@ describe('WorksheetWriter', () => {
       expect(ws.getCell('B1').numFmt).to.equal(testutils.styles.numFmts.numFmt2);
       expect(ws.getCell('B1').font).to.deep.equal(testutils.styles.fonts.comicSansUdB16);
       expect(ws.getCell('B1').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('B1').border).to.deep.equal(testutils.styles.borders.thin);
       expect(ws.getCell('B1').fill).to.deep.equal(testutils.styles.fills.redGreenDarkTrellis);
@@ -383,7 +383,7 @@ describe('WorksheetWriter', () => {
       expect(ws.getCell('A1').numFmt).to.equal(testutils.styles.numFmts.numFmt2);
       expect(ws.getCell('A1').font).to.deep.equal(testutils.styles.fonts.comicSansUdB16);
       expect(ws.getCell('A1').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('A1').border).to.deep.equal(testutils.styles.borders.thin);
       expect(ws.getCell('A1').fill).to.deep.equal(testutils.styles.fills.redGreenDarkTrellis);
@@ -393,7 +393,7 @@ describe('WorksheetWriter', () => {
       expect(ws.getCell('A3').numFmt).to.equal(testutils.styles.numFmts.numFmt2);
       expect(ws.getCell('A3').font).to.deep.equal(testutils.styles.fonts.comicSansUdB16);
       expect(ws.getCell('A3').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('A3').border).to.deep.equal(testutils.styles.borders.thin);
       expect(ws.getCell('A3').fill).to.deep.equal(testutils.styles.fills.redGreenDarkTrellis);
@@ -402,7 +402,7 @@ describe('WorksheetWriter', () => {
       expect(ws.getCell('A2').numFmt).to.equal(testutils.styles.numFmts.numFmt2);
       expect(ws.getCell('A2').font).to.deep.equal(testutils.styles.fonts.comicSansUdB16);
       expect(ws.getCell('A2').alignment).to.deep.equal(
-        testutils.styles.namedAlignments.middleCentre
+        testutils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('A2').border).to.deep.equal(testutils.styles.borders.thin);
       expect(ws.getCell('A2').fill).to.deep.equal(testutils.styles.fills.redGreenDarkTrellis);

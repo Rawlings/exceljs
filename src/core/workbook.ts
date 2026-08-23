@@ -1,9 +1,9 @@
-import Worksheet from './worksheet';
+import { Worksheet } from './worksheet';
 import type { WorksheetOptions, WorksheetState } from './worksheet';
 import type { ImagePayload } from './image';
-import DefinedNames from './defined-names';
-import XLSX from '../formats/xlsx/xlsx';
-import CSV from '../formats/csv/csv';
+import { DefinedNames } from './defined-names';
+import { XLSX } from '../formats/xlsx/xlsx';
+import { CSV } from '../formats/csv/csv';
 import type { WorkbookLike, WorksheetLike } from './internal-types';
 
 // Workbook requirements
@@ -131,7 +131,7 @@ export class Workbook implements WorkbookLike {
       if (typeof options === 'string') {
         // eslint-disable-next-line no-console
         console.trace(
-          'tabColor argument is now deprecated. Please use workbook.addWorksheet(name, {properties: { tabColor: { argb: "rbg value" } }'
+          'tabColor argument is now deprecated. Please use workbook.addWorksheet(name, {properties: { tabColor: { argb: "rbg value" } }',
         );
         options = {
           properties: {
@@ -141,7 +141,7 @@ export class Workbook implements WorkbookLike {
       } else if (options.argb || options.theme || options.indexed) {
         // eslint-disable-next-line no-console
         console.trace(
-          'tabColor argument is now deprecated. Please use workbook.addWorksheet(name, {properties: { tabColor: { ... } }'
+          'tabColor argument is now deprecated. Please use workbook.addWorksheet(name, {properties: { tabColor: { ... } }',
         );
         options = {
           properties: {
@@ -153,7 +153,7 @@ export class Workbook implements WorkbookLike {
 
     const lastOrderNo = this._worksheets.reduce(
       (acc: number, ws) => (ws && (ws.orderNo as number) > acc ? (ws.orderNo as number) : acc),
-      0
+      0,
     );
     const worksheetOptions: WorksheetOptions = Object.assign({}, options, {
       id,
@@ -170,7 +170,7 @@ export class Workbook implements WorkbookLike {
 
   removeWorksheetEx(worksheet: Worksheet | WorksheetLike) {
     if (worksheet.id !== undefined) {
-      delete this._worksheets[worksheet.id as unknown as number];
+      this._worksheets.splice(worksheet.id as unknown as number, 1);
     }
   }
 
@@ -186,14 +186,14 @@ export class Workbook implements WorkbookLike {
       return this._worksheets.find(Boolean);
     }
     if (typeof id === 'number') {
-      return this._worksheets[id] || this._worksheets.find((ws) => ws && ws.id === id);
+      return this._worksheets[id] || this._worksheets.find((ws) => ws?.id === id);
     }
     if (typeof id === 'string') {
-      const byName = this._worksheets.find((worksheet) => worksheet && worksheet.name === id);
+      const byName = this._worksheets.find((worksheet) => worksheet?.name === id);
       if (byName) return byName;
       const num = parseInt(id, 10);
       if (!Number.isNaN(num)) {
-        return this._worksheets[num] || this._worksheets.find((ws) => ws && ws.id === num);
+        return this._worksheets[num] || this._worksheets.find((ws) => ws?.id === num);
       }
     }
     return undefined;
@@ -203,7 +203,7 @@ export class Workbook implements WorkbookLike {
     // return a clone of _worksheets
     return (this._worksheets as Worksheet[])
       .slice(1)
-      .sort((a, b) => (a?.orderNo as number) - (b?.orderNo as number))
+      .toSorted((a, b) => (a?.orderNo as number) - (b?.orderNo as number))
       .filter(Boolean);
   }
 
@@ -292,13 +292,13 @@ export class Workbook implements WorkbookLike {
       const id = (worksheetModel.id as number) || index + 1;
       const name = worksheetModel.name as string;
       const state = worksheetModel.state as WorksheetState;
-      const orderNo = value.sheets && value.sheets.findIndex((ws) => ws.id === id);
+      const orderNo = value.sheets?.findIndex((ws) => ws.id === id);
       const worksheet = (this._worksheets[id] = new Worksheet({
         id,
         name,
         orderNo,
         state,
-        workbook: this as WorkbookLike,
+        workbook: this,
       }));
       (worksheet as { model: unknown }).model = worksheetModel;
     });

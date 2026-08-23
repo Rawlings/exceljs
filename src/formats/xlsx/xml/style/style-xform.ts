@@ -34,7 +34,7 @@ class StyleXform extends BaseXform {
   constructor(options?: StyleXformOptions) {
     super();
 
-    this.xfId = !!(options && options.xfId);
+    this.xfId = !!options?.xfId;
     this.map = {
       alignment: new AlignmentXform(),
       protection: new ProtectionXform(),

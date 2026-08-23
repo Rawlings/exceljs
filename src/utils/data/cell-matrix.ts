@@ -37,11 +37,11 @@ export class CellMatrix {
   findCellAt(
     sheetName: string,
     rowNumber: number,
-    colNumber: number
+    colNumber: number,
   ): MatrixCell | undefined | null {
     const sheet = this.sheets[sheetName];
-    const row = sheet && sheet[rowNumber];
-    return row && row[colNumber];
+    const row = sheet?.[rowNumber];
+    return row?.[colNumber];
   }
 
   addCellEx(address: DecodedExAddress): void {
@@ -85,12 +85,12 @@ export class CellMatrix {
     if (!sheet) return;
     const row = this.findSheetRow(sheet, address, false);
     if (!row) return;
-    delete row[address.col as number];
+    row.splice(address.col as number, 1);
   }
 
   forEachInSheet(
     sheetName: string,
-    callback: (cell: MatrixCell, rowNumber: number, colNumber: number) => void
+    callback: (cell: MatrixCell, rowNumber: number, colNumber: number) => void,
   ): void {
     const sheet = this.sheets[sheetName];
     if (sheet) {
@@ -134,10 +134,10 @@ export class CellMatrix {
   findSheetRow(
     sheet: MatrixSheet | undefined,
     address: DecodedExAddress,
-    create: boolean
+    create: boolean,
   ): MatrixRow | undefined {
     const { row } = address as { row: number };
-    if (sheet && sheet[row]) {
+    if (sheet?.[row]) {
       return sheet[row];
     }
     if (create && sheet) {
@@ -149,10 +149,10 @@ export class CellMatrix {
   findRowCell(
     row: MatrixRow | undefined,
     address: DecodedExAddress,
-    create: boolean
+    create: boolean,
   ): MatrixCell | undefined {
     const { col } = address as { col: number };
-    if (row && row[col]) {
+    if (row?.[col]) {
       return row[col];
     }
     if (create && row) {

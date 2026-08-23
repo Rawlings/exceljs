@@ -78,7 +78,7 @@ describe('Workbook', () => {
 
     // A1 and C2 should not reference the same object
     expect(ws.getCell('A1').value).to.equal(
-      (ws.getCell('C2').value as Record<string, unknown>).result
+      (ws.getCell('C2').value as Record<string, unknown>).result,
     );
   });
 
@@ -209,7 +209,7 @@ describe('Workbook', () => {
     const wb = new Excel.Workbook();
     const sheet = wb.addWorksheet('first');
 
-    wb.eachSheet(() => { });
+    wb.eachSheet(() => {});
     const numSheets = wb.worksheets.length;
 
     expect(numSheets).to.equal(1);
@@ -250,10 +250,10 @@ describe('Workbook', () => {
       }
       expect(ws.getCell('A4').alignment).to.deep.equal(testUtils.styles.namedAlignments.topLeft);
       expect(ws.getCell('B4').alignment).to.deep.equal(
-        testUtils.styles.namedAlignments.middleCentre
+        testUtils.styles.namedAlignments.middleCentre,
       );
       expect(ws.getCell('C4').alignment).to.deep.equal(
-        testUtils.styles.namedAlignments.bottomRight
+        testUtils.styles.namedAlignments.bottomRight,
       );
 
       expect(ws.getRow(1).numFmt).to.equal(testUtils.styles.numFmts.numFmt1);

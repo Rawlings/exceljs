@@ -83,7 +83,7 @@ class ContentTypesXform extends BaseXform {
       ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml',
     });
 
-    const hasSharedStrings = model.sharedStrings && model.sharedStrings.count;
+    const hasSharedStrings = model.sharedStrings?.count;
     if (hasSharedStrings) {
       xmlStream.leafNode('Override', {
         PartName: '/xl/sharedStrings.xml',
