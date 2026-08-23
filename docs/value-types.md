@@ -4,7 +4,7 @@ The following value types are supported.
 
 ## Null Value[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.Null
+Enum: ExcelJS.ValueType.Null
 
 A null value indicates an absence of value and will typically not be stored when written to file (except for merged cells).
   It can be used to remove the value from a cell.
@@ -17,14 +17,14 @@ worksheet.getCell('A1').value = null;
 
 ## Merge Cell[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.Merge
+Enum: ExcelJS.ValueType.Merge
 
 A merge cell is one that has its value bound to another 'master' cell.
   Assigning to a merge cell will cause the master's cell to be modified.
 
 ## Number Value[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.Number
+Enum: ExcelJS.ValueType.Number
 
 A numeric value.
 
@@ -37,7 +37,7 @@ worksheet.getCell('A2').value = 3.14159;
 
 ## String Value[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.String
+Enum: ExcelJS.ValueType.String
 
 A simple text string.
 
@@ -49,7 +49,7 @@ worksheet.getCell('A1').value = 'Hello, World!';
 
 ## Date Value[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.Date
+Enum: ExcelJS.ValueType.Date
 
 A date value, represented by the JavaScript Date type.
 
@@ -61,7 +61,7 @@ worksheet.getCell('A1').value = new Date(2017, 2, 15);
 
 ## Hyperlink Value[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.Hyperlink
+Enum: ExcelJS.ValueType.Hyperlink
 
 A URL with both text and link value.
 
@@ -80,7 +80,7 @@ worksheet.getCell('A1').value = { text: 'Sheet2', hyperlink: '#\'Sheet2\'!A1' };
 
 ## Formula Value[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.Formula
+Enum: ExcelJS.ValueType.Formula
 
 An Excel formula for calculating values on the fly.
   Note that while the cell type will be Formula, the cell may have an effectiveType value that will
@@ -211,7 +211,7 @@ worksheet.fillFormula('A2:B3', 'A1', [1,1,1,1], 'array');
 
 ## Rich Text Value[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.RichText
+Enum: ExcelJS.ValueType.RichText
 
 Rich, styled text.
 
@@ -227,7 +227,7 @@ worksheet.getCell('A1').value = {
 
 ## Boolean Value[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.Boolean
+Enum: ExcelJS.ValueType.Boolean
 
 E.g.
 
@@ -238,7 +238,7 @@ worksheet.getCell('A2').value = false;
 
 ## Error Value[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Enum: Excel.ValueType.Error
+Enum: ExcelJS.ValueType.Error
 
 E.g.
 
@@ -251,10 +251,10 @@ The current valid Error text values are:
 
 | Name                           | Value       |
 | ------------------------------ | ----------- |
-| Excel.ErrorValue.NotApplicable | #N/A        |
-| Excel.ErrorValue.Ref           | #REF!       |
-| Excel.ErrorValue.Name          | #NAME?      |
-| Excel.ErrorValue.DivZero       | #DIV/0!     |
-| Excel.ErrorValue.Null          | #NULL!      |
-| Excel.ErrorValue.Value         | #VALUE!     |
-| Excel.ErrorValue.Num           | #NUM!       |
+| ExcelJS.ErrorValue.NotApplicable | #N/A        |
+| ExcelJS.ErrorValue.Ref           | #REF!       |
+| ExcelJS.ErrorValue.Name          | #NAME?      |
+| ExcelJS.ErrorValue.DivZero       | #DIV/0!     |
+| ExcelJS.ErrorValue.Null          | #NULL!      |
+| ExcelJS.ErrorValue.Value         | #VALUE!     |
+| ExcelJS.ErrorValue.Num           | #NUM!       |

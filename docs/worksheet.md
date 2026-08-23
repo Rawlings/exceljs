@@ -10,7 +10,7 @@ For Example:
 
 ```javascript
 // create a sheet with red tab colour
-const sheet = workbook.addWorksheet('My Sheet', {properties:{tabColor:{argb:'FFC0000'}}});
+const sheet = workbook.addWorksheet('My Sheet', {properties:{tabColor:{argb:'FFC00000'}}});
 
 // create a sheet where the grid lines are hidden
 const sheet = workbook.addWorksheet('My Sheet', {views: [{showGridLines: false}]});

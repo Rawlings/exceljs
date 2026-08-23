@@ -4,7 +4,7 @@ Select a documentation module below to view detailed specifications:
 
 | Guide | Description |
 |---|---|
-| **[Importing & Browser Support](getting-started.md)** | Importing syntax, ES5 transpiled imports, polyfill instructions, and Browserify usage. |
+| **[Importing & Browser Support](getting-started.md)** | ES Module importing syntax, bundler guidance, and browser usage. |
 | **[Workbook Operations](workbook.md)** | Creating workbooks, setting workbook properties, calculation properties, and workbook window views. |
 | **[Worksheet Operations](worksheet.md)** | Adding/removing worksheets, accessing sheets, worksheet states, properties & metrics, page setup options, headers/footers, frozen & split views, and auto-filters. |
 | **[Rows, Columns & Cells](rows-columns-cells.md)** | Columns setup & iteration, row getters & setters, adding/inserting/splicing/duplicating rows, cell manipulation, merged cells, defined names, data validations, cell comments, and table definitions. |

@@ -50,17 +50,23 @@ describe('Worksheet', () => {
       expect(ws.getCell('C1').value).to.equal(3.14);
       expect(ws.getCell('D1').value).to.equal(now);
       expect(ws.getCell('E1').value).to.equal('Hello, World!');
-      expect((ws.getCell('F1').value).text).to.equal('www.google.com');
-      expect((ws.getCell('F1').value).hyperlink).to.equal('http://www.google.com');
+      expect((ws.getCell('F1').value as Record<string, unknown>).text).to.equal('www.google.com');
+      expect((ws.getCell('F1').value as Record<string, unknown>).hyperlink).to.equal(
+        'http://www.google.com'
+      );
 
-      expect((ws.getCell('A2').value).formula).to.equal('A1');
-      expect((ws.getCell('A2').value).result).to.equal(7);
+      expect((ws.getCell('A2').value as Record<string, unknown>).formula).to.equal('A1');
+      expect((ws.getCell('A2').value as Record<string, unknown>).result).to.equal(7);
 
-      expect((ws.getCell('B2').value).formula).to.equal('CONCATENATE("Hello", ", ", "World!")');
-      expect((ws.getCell('B2').value).result).to.equal('Hello, World!');
+      expect((ws.getCell('B2').value as Record<string, unknown>).formula).to.equal(
+        'CONCATENATE("Hello", ", ", "World!")'
+      );
+      expect((ws.getCell('B2').value as Record<string, unknown>).result).to.equal(
+        'Hello, World!'
+      );
 
-      expect((ws.getCell('C2').value).formula).to.equal('D1');
-      expect((ws.getCell('C2').value).result).to.equal(now);
+      expect((ws.getCell('C2').value as Record<string, unknown>).formula).to.equal('D1');
+      expect((ws.getCell('C2').value as Record<string, unknown>).result).to.equal(now);
     });
 
     it('stores shared string values properly', () => {
@@ -82,7 +88,9 @@ describe('Worksheet', () => {
       expect(ws.getCell('A1').value).to.equal(ws.getCell('A3').value);
 
       // A1 and C2 should not reference the same object
-      expect(ws.getCell('A1').value).to.equal((ws.getCell('C2').value).result);
+      expect(ws.getCell('A1').value).to.equal(
+        (ws.getCell('C2').value as Record<string, unknown>).result
+      );
     });
 
     it('assigns cell types properly', () => {
@@ -626,13 +634,13 @@ describe('Worksheet', () => {
       ws.getCell('B2').value = 2;
       ws.getCell('D4').value = 4;
       ws.getCell('F6').value = 6;
-      ws.eachRow((row: any, rowNumber: any) => {
+      ws.eachRow((_row, rowNumber) => {
         expect(rowNumber).not.to.equal(3);
         expect(rowNumber).not.to.equal(5);
       });
 
       let count = 1;
-      ws.eachRow({ includeEmpty: true }, (row: any, rowNumber: any) => {
+      ws.eachRow({ includeEmpty: true }, (_row, rowNumber) => {
         expect(rowNumber).to.equal(count++);
       });
     });
@@ -653,7 +661,7 @@ describe('Worksheet', () => {
       });
 
       let count = 1;
-      colA.eachCell({ includeEmpty: true }, (cell: any, rowNumber: any) => {
+      colA.eachCell({ includeEmpty: true }, (_cell, rowNumber) => {
         expect(rowNumber).to.equal(count++);
       });
       expect(count).to.equal(7);

@@ -80,7 +80,7 @@ const row = worksheet.getRow(5);
 const rows = worksheet.getRows(5, 2); // start, length (>0, else undefined is returned)
 
 // Get the last editable row in a worksheet (or undefined if there are none)
-const row = worksheet.lastRow;
+const lastRow = worksheet.lastRow;
 
 // Set a specific row height
 row.height = 42.5;
@@ -103,8 +103,8 @@ row.getCell('C').value = new Date(); // C5's value set to now
 
 // Get a row as a sparse array
 // Note: interface change: worksheet.getRow(4) ==> worksheet.getRow(4).values
-row = worksheet.getRow(4).values;
-expect(row[5]).toEqual('Kyle');
+const row4Values = worksheet.getRow(4).values;
+expect(row4Values[5]).toEqual('Kyle');
 
 // assign row values by contiguous array (where array element 0 has a value)
 row.values = [1,2,3];
@@ -208,7 +208,7 @@ const cell = worksheet.getCell('C3');
 cell.value = new Date(1968, 5, 1);
 
 // query a cell's type
-expect(cell.type).toEqual(Excel.ValueType.Date);
+expect(cell.type).toEqual(ExcelJS.ValueType.Date);
 
 // use string value of cell
 myInput.value = cell.text;

@@ -114,8 +114,8 @@ const utilsModule: any = {
     return {
       _keys: {} as Record<string, any>,
       _cells: {} as Record<string, any>,
-      rows: [],
-      columns: [],
+      rows: [] as Row[],
+      columns: [] as Column[],
       properties: {
         outlineLevelCol: 0,
         outlineLevelRow: 0,
@@ -145,8 +145,8 @@ const utilsModule: any = {
         }
         return row;
       },
-      getCell(rowNumber: number, colNumber: number) {
-        return this.getRow(rowNumber).getCell(colNumber);
+      getCell(rowNumber: string | number, colNumber?: number) {
+        return this.getRow(rowNumber as number).getCell(colNumber as number);
       },
       getColumnKey(key: string) {
         return this._keys[key];

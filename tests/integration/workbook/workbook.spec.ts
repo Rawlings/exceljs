@@ -885,10 +885,10 @@ describe('Workbook', () => {
   it('throw an error for wrong data type', async () => {
     const wb = new ExcelJS.Workbook();
     try {
-      await wb.xlsx.load({});
+      await wb.xlsx.load({} as unknown as Buffer);
       expect.fail('should fail for given argument');
     } catch (e) {
-      expect((e).message).to.equal(
+      expect((e as Error).message).to.equal(
         "Can't read the data of 'the loaded zip file'. Is it in a supported JavaScript type (String, Blob, ArrayBuffer, etc) ?"
       );
     }

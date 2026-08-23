@@ -233,7 +233,7 @@ describe('Row', () => {
     });
 
     let count = 1;
-    row1.eachCell({ includeEmpty: true }, (cell: any, colNumber: any) => {
+    row1.eachCell({ includeEmpty: true }, (_cell: unknown, colNumber: number) => {
       expect(colNumber).to.equal(count++);
     });
     expect(count).to.equal(7);

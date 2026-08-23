@@ -193,16 +193,19 @@ describe('Worksheet', () => {
       const r2 = ws.getRow(2);
       const r3 = ws.getRow(3);
 
-      const cellVals: any[] = [];
+      const cellVals: unknown[] = [];
       for (const r of [r2, r3]) {
-        for (const cell of (r)._cells) {
-          cellVals.push(cell._value);
+        for (const cell of r._cells) {
+          if (cell) cellVals.push(cell._value);
         }
       }
 
       let nNumberVals = 0;
       let nMergeVals = 0;
-      for (const cellVal of cellVals) {
+      for (const cellVal of cellVals as Array<{
+        constructor: { name: string };
+        model: { master: string };
+      }>) {
         const { name } = cellVal.constructor;
         if (name === 'NumberValue') nNumberVals += 1;
         if (name === 'MergeValue' && cellVal.model.master === 'A2') {

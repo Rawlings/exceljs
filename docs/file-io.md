@@ -12,25 +12,25 @@ Options supported when reading XLSX files.
 
 ```javascript
 // read from a file
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 await workbook.xlsx.readFile(filename);
 // ... use workbook
 
 
 // read from a stream
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 await workbook.xlsx.read(stream);
 // ... use workbook
 
 
 // load from buffer
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 await workbook.xlsx.load(data);
 // ... use workbook
 
 
 // using additional options
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 await workbook.xlsx.load(data, {
   ignoreNodes: [
     'dataValidations' // ignores the workbook's Data Validations
@@ -68,19 +68,19 @@ Options supported when reading CSV files.
 
 ```javascript
 // read from a file
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 const worksheet = await workbook.csv.readFile(filename);
 // ... use workbook or worksheet
 
 
 // read from a stream
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 const worksheet = await workbook.csv.read(stream);
 // ... use workbook or worksheet
 
 
 // read from a file with European Dates
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 const options = {
   dateFormats: ['DD/MM/YYYY']
 };
@@ -89,7 +89,7 @@ const worksheet = await workbook.csv.readFile(filename, options);
 
 
 // read from a file with custom value parsing
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 const options = {
   map(value, index) {
     switch(index) {
@@ -157,7 +157,7 @@ await workbook.csv.writeFile(filename);
 await workbook.csv.write(stream, { sheetName: 'Page name' });
 
 // write to a file with European Date-Times
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 const options = {
   dateFormat: 'DD/MM/YYYY HH:mm:ss',
   dateUTC: true, // use utc when rendering dates
@@ -166,7 +166,7 @@ await workbook.csv.writeFile(filename, options);
 
 
 // write to a file with custom value formatting
-const workbook = new Excel.Workbook();
+const workbook = new ExcelJS.Workbook();
 const options = {
   map(value, index) {
     switch(index) {
@@ -253,7 +253,7 @@ const options = {
   useStyles: true,
   useSharedStrings: true
 };
-const workbook = new Excel.stream.xlsx.WorkbookWriter(options);
+const workbook = new ExcelJS.stream.xlsx.WorkbookWriter(options);
 ```
 
 In general, the interface to the streaming XLSX writer is the same as the Document workbook (and worksheets)

@@ -5,7 +5,7 @@ import SharedStringsXform from '../../../../../../../src/formats/xlsx/xml/string
 import Enums from '../../../../../../../src/core/enums';
 
 const fakeStyles = {
-  addStyleModel(style: any, effectiveType: any) {
+  addStyleModel(_style: any, effectiveType: any) {
     if (effectiveType === Enums.ValueType.Date) {
       return 1;
     }

@@ -302,7 +302,7 @@ ws.getCell('A1').value = {
 };
 
 expect(ws.getCell('A1').text).to.equal('This is a colorful text with in-cell format');
-expect(ws.getCell('A1').type).to.equal(Excel.ValueType.RichText);
+expect(ws.getCell('A1').type).to.equal(ExcelJS.ValueType.RichText);
 
 ```
 

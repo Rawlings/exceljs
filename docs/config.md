@@ -1,40 +1,21 @@
 # Config[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-ExcelJS now supports dependency injection for the promise library.
- You can restore Bluebird promises by including the following code in your module...
-
-```javascript
-ExcelJS.config.setValue('promise', require('bluebird'));
-```
-
-Please note: I have tested ExcelJS with bluebird specifically (since up until recently this was the library it used).
- From the tests I have done it will not work with Q.
+ExcelJS natively targets Node.js 24+ and ES2024 environments using standard JavaScript `Promise` objects for all asynchronous operations. Legacy promise library configuration options (such as Bluebird dependency injection) are obsolete and no longer required or supported.
 
 # Caveats[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
 ## Dist Folder[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-Before publishing this module, the source code is transpiled and otherwise processed
-before being placed in a dist/ folder.
-This README identifies two files - a browserified bundle and minified version.
-No other contents of the dist/ folder are guaranteed in any way other than the file
-specified as "main" in the package.json
+Source code is compiled with TypeScript into standard ES Modules (`type: "module"`) in the `dist/` directory.
 
+Main package entrypoints specified in `package.json`:
+- `import`: `./dist/index.js`
+- `types`: `./dist/index.d.ts`
+
+When consuming ExcelJS in browser or bundler environments, import via standard ES module syntax or rely on modern bundlers (such as Vite, Webpack, Rollup, or esbuild).
 
 # Known Issues[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-## Testing with Puppeteer[⬆](../README.md#contents)<!-- Link generated with jump2header -->
-
-The test suite included in this lib includes a small script executed in a headless browser
-to validate the bundled packages. At the time of this writing, it appears that
-this test does not play nicely in the Windows Linux subsystem.
-
-For this reason, the browser test can be disabled by the existence of a file named .disable-test-browser
-
-```bash
-sudo apt-get install libfontconfig
-```
-
 ## Splice vs Merge[⬆](../README.md#contents)<!-- Link generated with jump2header -->
 
-If any splice operation affects a merged cell, the merge group will not be moved correctly
+If a `spliceRows` or `spliceColumns` operation intersects or affects a merged cell range, the merged cell group coordinates may not be adjusted automatically. When splicing worksheets containing merged cells, verify or re-apply merged ranges after splicing.
