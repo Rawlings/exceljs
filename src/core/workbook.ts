@@ -1,10 +1,22 @@
-import { Worksheet } from './worksheet';
-import type { WorksheetOptions, WorksheetState } from './worksheet';
-import type { ImagePayload } from './image';
-import { DefinedNames } from './defined-names';
+import {
+  Worksheet,
+  type WorksheetModel,
+  type WorksheetOptions,
+  type WorksheetState,
+} from './worksheet';
+import type { ImagePayload, Image } from './image';
+import { DefinedNames, type DefinedNamesModel } from './defined-names';
 import { XLSX } from '../formats/xlsx/xlsx';
 import { CSV } from '../formats/csv/csv';
 import type { WorkbookLike, WorksheetLike } from './internal-types';
+
+function isObjectRecord(val: unknown): val is Record<string, unknown> {
+  return typeof val === 'object' && val !== null;
+}
+
+function isWorksheetState(val: unknown): val is WorksheetState {
+  return val === 'visible' || val === 'hidden' || val === 'veryHidden';
+}
 
 // Workbook requirements
 //  Load and Save from file and stream
@@ -33,13 +45,13 @@ export interface CalculationProperties {
 export interface WorkbookModel {
   creator: string;
   lastModifiedBy: string;
-  lastPrinted: unknown;
+  lastPrinted: Date;
   created: Date;
   modified: Date;
-  properties: Partial<WorkbookProperties>;
-  worksheets: Record<string, unknown>[];
-  sheets: Record<string, unknown>[];
-  definedNames: unknown;
+  properties: WorkbookProperties;
+  worksheets: (WorksheetModel | null | Record<string, unknown>)[];
+  sheets: (WorksheetModel | null | Record<string, unknown>)[];
+  definedNames: DefinedNamesModel;
   views: WorkbookView[];
   company: string;
   manager: string;
@@ -48,68 +60,74 @@ export interface WorkbookModel {
   keywords: string;
   category: string;
   description: string;
-  language: unknown;
-  revision: unknown;
-  contentStatus: unknown;
+  language: string;
+  revision: number | Date;
+  contentStatus: string;
   themes: unknown;
-  media: unknown[];
-  pivotTables: unknown[];
-  calcProperties: Partial<CalculationProperties>;
+  media: Image[];
+  pivotTables?: unknown[];
+  calcProperties?: Partial<CalculationProperties>;
 }
 
 export class Workbook implements WorkbookLike {
   category: string;
   company: string;
-  created: Date;
+  creator: string;
   description: string;
   keywords: string;
+  lastModifiedBy: string;
+  created: Date;
   manager: string;
   modified: Date;
-  properties: Partial<WorkbookProperties>;
-  calcProperties: Partial<CalculationProperties>;
-  _worksheets: (Worksheet | undefined)[];
+  lastPrinted: Date;
+  properties: WorkbookProperties;
   subject: string;
   title: string;
+  calcProperties: CalculationProperties;
   views: WorkbookView[];
-  media: unknown[];
+  media: Image[];
   pivotTables: unknown[];
+  _worksheets: (Worksheet | undefined)[];
   _definedNames: DefinedNames;
   _xlsx: XLSX | undefined;
   _csv: CSV | undefined;
   _themes: unknown;
-  creator: unknown;
-  lastModifiedBy: unknown;
-  lastPrinted: unknown;
-  language: unknown;
-  revision: unknown;
-  contentStatus: unknown;
+  language: string;
+  revision: number | Date;
+  contentStatus: string;
 
   constructor() {
     this.category = '';
     this.company = '';
-    this.created = new Date();
+    this.creator = '';
     this.description = '';
     this.keywords = '';
+    this.lastModifiedBy = '';
+    this.created = new Date();
     this.manager = '';
     this.modified = this.created;
-    this.properties = {};
-    this.calcProperties = {};
-    this._worksheets = [];
+    this.lastPrinted = this.created;
+    this.properties = { date1904: false };
+    this.calcProperties = { fullCalcOnLoad: false };
     this.subject = '';
     this.title = '';
     this.views = [];
     this.media = [];
     this.pivotTables = [];
+    this._worksheets = [];
     this._definedNames = new DefinedNames();
+    this.language = '';
+    this.revision = 0;
+    this.contentStatus = '';
   }
 
   get xlsx() {
-    if (!this._xlsx) this._xlsx = new XLSX(this);
+    this._xlsx ??= new XLSX(this);
     return this._xlsx;
   }
 
   get csv() {
-    if (!this._csv) this._csv = new CSV(this);
+    this._csv ??= new CSV(this);
     return this._csv;
   }
 
@@ -152,7 +170,8 @@ export class Workbook implements WorkbookLike {
     }
 
     const lastOrderNo = this._worksheets.reduce(
-      (acc: number, ws) => (ws && (ws.orderNo as number) > acc ? (ws.orderNo as number) : acc),
+      (acc: number, ws) =>
+        ws && typeof ws.orderNo === 'number' && ws.orderNo > acc ? ws.orderNo : acc,
       0,
     );
     const worksheetOptions: WorksheetOptions = Object.assign({}, options, {
@@ -170,7 +189,10 @@ export class Workbook implements WorkbookLike {
 
   removeWorksheetEx(worksheet: Worksheet | WorksheetLike) {
     if (worksheet.id !== undefined) {
-      this._worksheets.splice(worksheet.id as unknown as number, 1);
+      const wsId = typeof worksheet.id === 'number' ? worksheet.id : parseInt(worksheet.id, 10);
+      if (!Number.isNaN(wsId)) {
+        this._worksheets.splice(wsId, 1);
+      }
     }
   }
 
@@ -186,25 +208,24 @@ export class Workbook implements WorkbookLike {
       return this._worksheets.find(Boolean);
     }
     if (typeof id === 'number') {
-      return this._worksheets[id] || this._worksheets.find((ws) => ws?.id === id);
+      return this._worksheets[id] ?? this._worksheets.find((ws) => ws?.id === id);
     }
     if (typeof id === 'string') {
       const byName = this._worksheets.find((worksheet) => worksheet?.name === id);
       if (byName) return byName;
       const num = parseInt(id, 10);
       if (!Number.isNaN(num)) {
-        return this._worksheets[num] || this._worksheets.find((ws) => ws?.id === num);
+        return this._worksheets[num] ?? this._worksheets.find((ws) => ws?.id === num);
       }
     }
     return undefined;
   }
 
-  get worksheets() {
+  get worksheets(): Worksheet[] {
     // return a clone of _worksheets
-    return (this._worksheets as Worksheet[])
-      .slice(1)
-      .toSorted((a, b) => (a?.orderNo as number) - (b?.orderNo as number))
-      .filter(Boolean);
+    return this._worksheets
+      .filter((ws): ws is Worksheet => Boolean(ws))
+      .toSorted((a, b) => (a.orderNo ?? 0) - (b.orderNo ?? 0));
   }
 
   eachSheet(iteratee: (sheet: Worksheet, id: number) => void) {
@@ -229,26 +250,20 @@ export class Workbook implements WorkbookLike {
     return id;
   }
 
-  getImage(id: number): unknown {
+  getImage(id: number): Image {
     return this.media[id];
   }
 
-  get model() {
+  get model(): WorkbookModel {
     return {
-      creator: (this.creator as string) || 'Unknown',
-      lastModifiedBy: (this.lastModifiedBy as string) || 'Unknown',
+      creator: this.creator || 'Unknown',
+      lastModifiedBy: this.lastModifiedBy || 'Unknown',
       lastPrinted: this.lastPrinted,
       created: this.created,
       modified: this.modified,
       properties: this.properties,
-      worksheets: this.worksheets.map((worksheet) => worksheet.model) as unknown as Record<
-        string,
-        unknown
-      >[],
-      sheets: this.worksheets.map((ws) => ws.model).filter(Boolean) as unknown as Record<
-        string,
-        unknown
-      >[],
+      worksheets: this.worksheets.map((worksheet) => worksheet.model),
+      sheets: this.worksheets.map((ws) => ws.model).filter(Boolean),
       definedNames: this._definedNames.model,
       views: this.views,
       company: this.company,
@@ -286,17 +301,22 @@ export class Workbook implements WorkbookLike {
     this.contentStatus = value.contentStatus;
 
     this.properties = value.properties;
-    this.calcProperties = value.calcProperties;
+    this.calcProperties = { fullCalcOnLoad: value.calcProperties?.fullCalcOnLoad ?? false };
     this._worksheets = [];
-    value.worksheets.forEach((worksheetModel: Record<string, unknown>, index: number) => {
-      const id = (worksheetModel.id as number) || index + 1;
-      const name = worksheetModel.name as string;
-      const state = worksheetModel.state as WorksheetState;
-      const orderNo = value.sheets?.findIndex((ws) => ws.id === id);
+    const sheets = value.sheets ?? (value.worksheets as typeof value.sheets) ?? [];
+    (value.worksheets ?? []).forEach((worksheetModel, index) => {
+      if (!isObjectRecord(worksheetModel)) return;
+      const id =
+        (typeof worksheetModel.id === 'number' ? worksheetModel.id : undefined) ?? index + 1;
+      const name = typeof worksheetModel.name === 'string' ? worksheetModel.name : `Sheet${id}`;
+      const state = isWorksheetState(worksheetModel.state) ? worksheetModel.state : undefined;
+      const orderNo = Array.isArray(sheets)
+        ? sheets.findIndex((ws) => isObjectRecord(ws) && ws.id === id)
+        : index;
       const worksheet = (this._worksheets[id] = new Worksheet({
         id,
         name,
-        orderNo,
+        orderNo: orderNo >= 0 ? orderNo : index,
         state,
         workbook: this,
       }));
@@ -306,8 +326,8 @@ export class Workbook implements WorkbookLike {
     (this._definedNames as { model: unknown }).model = value.definedNames;
     this.views = value.views;
     this._themes = value.themes;
-    this.media = value.media || [];
-    this.pivotTables = value.pivotTables || [];
+    this.media = value.media ?? [];
+    this.pivotTables = value.pivotTables ?? [];
   }
 }
 

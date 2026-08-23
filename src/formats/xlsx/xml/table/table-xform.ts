@@ -54,7 +54,7 @@ class TableXform extends BaseXform {
       ...TableXform.TABLE_ATTRIBUTES,
       id: model.id,
       name: model.name,
-      displayName: model.displayName || model.name,
+      displayName: model.displayName ?? model.name,
       ref: model.tableRef,
       totalsRowCount: model.totalsRow ? '1' : undefined,
       totalsRowShown: model.totalsRow ? undefined : '1',

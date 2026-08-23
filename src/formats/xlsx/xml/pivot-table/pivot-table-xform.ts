@@ -31,8 +31,7 @@ class PivotTableXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: PivotTableModel) {
-    // eslint-disable-next-line no-unused-vars
-    const { rows, columns, values, metric: _metric, cacheFields, cacheId } = model;
+    const { rows, columns, values, cacheFields, cacheId } = model;
 
     // Examples
     // --------
@@ -153,17 +152,15 @@ class PivotTableXform extends BaseXform {
 // Helpers
 
 function renderPivotFields(pivotTable: PivotTableModel): string {
-  /* eslint-disable no-nested-ternary */
   return pivotTable.cacheFields
     .map((cacheField, fieldIndex) => {
-      const fieldType =
-        pivotTable.rows.indexOf(fieldIndex) >= 0
-          ? 'row'
-          : pivotTable.columns.indexOf(fieldIndex) >= 0
-            ? 'column'
-            : pivotTable.values.indexOf(fieldIndex) >= 0
-              ? 'value'
-              : null;
+      const fieldType = pivotTable.rows.includes(fieldIndex)
+        ? 'row'
+        : pivotTable.columns.includes(fieldIndex)
+          ? 'column'
+          : pivotTable.values.includes(fieldIndex)
+            ? 'value'
+            : null;
       return renderPivotField(fieldType, cacheField.sharedItems);
     })
     .join('');

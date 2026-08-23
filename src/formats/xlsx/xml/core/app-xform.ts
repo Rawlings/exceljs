@@ -45,7 +45,7 @@ class AppXform extends BaseXform {
 
     this.map.HeadingPairs.render(xmlStream, model.worksheets);
     this.map.TitleOfParts.render(xmlStream, model.worksheets);
-    this.map.Company.render(xmlStream, model.company || '');
+    this.map.Company.render(xmlStream, model.company ?? '');
     this.map.Manager.render(xmlStream, model.manager);
 
     xmlStream.leafNode('LinksUpToDate', undefined, 'false');

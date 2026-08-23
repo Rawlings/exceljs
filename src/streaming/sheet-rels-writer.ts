@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import utils from '../utils/helpers/utils';
 import { RelType } from '../formats/xlsx/rel-type';
 
@@ -49,9 +48,7 @@ class SheetRelsWriter {
   }
 
   get stream() {
-    if (!this._stream) {
-      this._stream = this._workbook._openStream(`xl/worksheets/_rels/sheet${this.id}.xml.rels`);
-    }
+    this._stream ??= this._workbook._openStream(`xl/worksheets/_rels/sheet${this.id}.xml.rels`);
     return this._stream;
   }
 
@@ -64,7 +61,7 @@ class SheetRelsWriter {
   }
 
   get hyperlinksProxy() {
-    return this._hyperlinksProxy || (this._hyperlinksProxy = new HyperlinksProxy(this));
+    return this._hyperlinksProxy ?? (this._hyperlinksProxy = new HyperlinksProxy(this));
   }
 
   addHyperlink(hyperlink: { target: string; address: string }): void {

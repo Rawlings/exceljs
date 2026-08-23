@@ -3,7 +3,7 @@ import { Anchor } from './anchor';
 import type { AnchorWorksheet, AnchorModel } from './anchor';
 
 export interface Image {
-  extension: 'jpeg' | 'png' | 'gif' | string;
+  extension: 'jpeg' | 'png' | 'gif' | 'JPEG' | 'PNG' | 'GIF';
   base64?: string;
   filename?: string;
   buffer?: Buffer;
@@ -19,11 +19,8 @@ export interface Media {
 }
 
 export interface ImageRange {
-  tl: Anchor | { col: number; row: number };
-  br: Anchor | { col: number; row: number };
-  ext?: { width: number; height: number };
-  editAs?: string;
-  hyperlinks?: Partial<ImageHyperlinkValue>;
+  tl: Anchor;
+  br: Anchor;
 }
 
 export interface ImagePosition {
@@ -39,8 +36,16 @@ export interface ImageHyperlinkValue {
 export type ImageType = 'background' | 'image';
 
 export interface ImageRangeInput {
-  tl: AnchorModel | string | { col?: number; row?: number };
-  br?: AnchorModel | { col?: number; row?: number };
+  tl: Anchor | AnchorModel | string | { col?: number; row?: number };
+  br?: Anchor | AnchorModel | { col?: number; row?: number };
+  ext?: { width: number; height: number };
+  editAs?: string;
+  hyperlinks?: Partial<ImageHyperlinkValue>;
+}
+
+export interface ImageRangeInternal {
+  tl: Anchor;
+  br?: Anchor;
   ext?: { width: number; height: number };
   editAs?: string;
   hyperlinks?: Partial<ImageHyperlinkValue>;
@@ -57,67 +62,113 @@ export class WorksheetImage {
   worksheet: AnchorWorksheet | undefined;
   type: ImageType | undefined;
   imageId: number | undefined;
-  range: ImageRange | undefined;
+  range: ImageRangeInternal | undefined;
 
-  constructor(worksheet?: AnchorWorksheet, model?: ImageModel) {
+  constructor(worksheet?: AnchorWorksheet, model?: ImageModel | Media | Record<string, unknown>) {
     this.worksheet = worksheet;
     if (model) {
       this.model = model;
     }
   }
 
-  get model(): ImageModel | Record<string, unknown> {
+  get model(): ImageModel {
     switch (this.type) {
       case 'background':
         return {
           type: this.type,
-          imageId: this.imageId!,
+          imageId: this.imageId ?? 0,
         };
       case 'image':
         return {
           type: this.type,
-          imageId: this.imageId!,
+          imageId: this.imageId ?? 0,
           range: {
-            tl: (this.range?.tl as Anchor | undefined)?.model,
-            br: (this.range?.br as Anchor)?.model,
+            tl: this.range?.tl.model ?? {
+              col: 0,
+              row: 0,
+              nativeCol: 0,
+              nativeRow: 0,
+              nativeColOff: 0,
+              nativeRowOff: 0,
+            },
+            br: this.range?.br?.model,
             ext: this.range?.ext,
             editAs: this.range?.editAs,
           },
           hyperlinks: this.range?.hyperlinks,
         };
+      case undefined:
       default:
         throw new Error('Invalid Image Type');
     }
   }
 
-  set model(value: ImageModel) {
-    const { type, imageId, range, hyperlinks } = value;
+  set model(value: ImageModel | Media | Record<string, unknown>) {
+    const type =
+      'type' in value && (value.type === 'background' || value.type === 'image')
+        ? value.type
+        : undefined;
+    const imageId =
+      'imageId' in value && typeof value.imageId === 'number' ? value.imageId : undefined;
+    const range = 'range' in value ? value.range : undefined;
+    const hyperlinks = 'hyperlinks' in value ? value.hyperlinks : undefined;
     this.type = type;
     this.imageId = imageId;
 
     if (type === 'image') {
       if (typeof range === 'string') {
-        const decoded = colCache.decode(range) as {
-          left: number;
-          top: number;
-          right: number;
-          bottom: number;
-        };
+        const decoded = colCache.decode(range);
+        const left = 'top' in decoded ? decoded.left : decoded.col;
+        const top = 'top' in decoded ? decoded.top : decoded.row;
+        const right = 'top' in decoded ? decoded.right : decoded.col;
+        const bottom = 'top' in decoded ? decoded.bottom : decoded.row;
         this.range = {
-          tl: new Anchor(this.worksheet, { col: decoded.left, row: decoded.top }, -1),
-          br: new Anchor(this.worksheet, { col: decoded.right, row: decoded.bottom }, 0),
+          tl: new Anchor(this.worksheet, { col: left, row: top }, -1),
+          br: new Anchor(this.worksheet, { col: right, row: bottom }, 0),
           editAs: 'oneCell',
         };
-      } else {
-        // NB: matches original behavior — if `range` is undefined here,
-        // this throws (range.tl on undefined), same as the untyped original.
-        const r = range as ImageRangeInput;
+      } else if (range && typeof range === 'object' && 'tl' in range) {
+        const tlVal = range.tl;
+        const tlAnchor =
+          tlVal instanceof Anchor
+            ? tlVal
+            : new Anchor(
+                this.worksheet,
+                typeof tlVal === 'object' && tlVal !== null ? tlVal : undefined,
+                0,
+              );
+        const brVal = 'br' in range ? range.br : undefined;
+        const brAnchor = brVal
+          ? brVal instanceof Anchor
+            ? brVal
+            : new Anchor(this.worksheet, typeof brVal === 'object' ? brVal : undefined, 0)
+          : undefined;
+        const extObj =
+          'ext' in range && typeof range.ext === 'object' && range.ext !== null
+            ? range.ext
+            : undefined;
+        let extVal: { width: number; height: number } | undefined;
+        if (
+          extObj &&
+          'width' in extObj &&
+          'height' in extObj &&
+          typeof extObj.width === 'number' &&
+          typeof extObj.height === 'number'
+        ) {
+          extVal = { width: extObj.width, height: extObj.height };
+        }
+        const editAsVal =
+          'editAs' in range && typeof range.editAs === 'string' ? range.editAs : undefined;
+        const hyperlinksVal =
+          'hyperlinks' in range && typeof range.hyperlinks === 'object' && range.hyperlinks !== null
+            ? (range.hyperlinks as Partial<ImageHyperlinkValue>)
+            : undefined;
         this.range = {
-          tl: new Anchor(this.worksheet, r.tl, 0),
-          br: r.br ? new Anchor(this.worksheet, r.br, 0) : (undefined as unknown as Anchor),
-          ext: r.ext,
-          editAs: r.editAs,
-          hyperlinks: hyperlinks || r.hyperlinks,
+          tl: tlAnchor,
+          br: brAnchor,
+          ext: extVal,
+          editAs: editAsVal,
+          hyperlinks: hyperlinks && typeof hyperlinks === 'object' ? hyperlinks : hyperlinksVal,
         };
       }
     }

@@ -96,7 +96,7 @@ interface ParseWorksheetModel {
   drawing?: { name: string; rels: RelationshipModel[]; anchors: unknown[] };
 }
 
-interface ParseWorkbookModel extends Partial<WorkbookModel> {
+interface ParseWorkbookModel extends Omit<Partial<WorkbookModel>, 'media'> {
   [key: string]: unknown;
   worksheets: ParseWorksheetModel[];
   worksheetHash: Record<string, ParseWorksheetModel>;
@@ -163,12 +163,16 @@ function getZipEntryPriority(rawName: string): number {
   return 15;
 }
 
+export interface ModelHolder {
+  model: unknown;
+}
+
 export class XLSX {
-  workbook: Workbook;
+  workbook: Workbook | ModelHolder;
   static RelType: typeof RelType;
 
-  constructor(workbook?: Workbook) {
-    this.workbook = workbook as Workbook;
+  constructor(workbook?: Workbook | ModelHolder) {
+    this.workbook = workbook ?? { model: undefined };
   }
 
   // ===============================================================================
@@ -340,8 +344,8 @@ export class XLSX {
     const lastDot = filename.lastIndexOf('.');
     // if we can't determine extension, ignore it
     if (lastDot >= 1) {
-      const extension = filename.substr(lastDot + 1);
-      const name = filename.substr(0, lastDot);
+      const extension = filename.slice(lastDot + 1);
+      const name = filename.slice(0, lastDot);
       let buffer: Buffer;
       if (typeof entry.read === 'function') {
         const chunks: Buffer[] = [];
@@ -442,11 +446,10 @@ export class XLSX {
       .map(([name, content]) => ({ name, content, dir: name.endsWith('/') }))
       .toSorted((a, b) => getZipEntryPriority(a.name) - getZipEntryPriority(b.name));
     for (const entry of entries) {
-      /* eslint-disable no-await-in-loop */
       if (!entry.dir) {
         let entryName = entry.name;
-        if (entryName[0] === '/') {
-          entryName = entryName.substr(1);
+        if (entryName.startsWith('/')) {
+          entryName = entryName.slice(1);
         }
         let stream: Readable | string;
         if (
@@ -518,17 +521,13 @@ export class XLSX {
 
           default: {
             let match = keyName.match(/xl\/worksheets\/sheet(\d+)[.]xml/);
-            if (!match) {
-              match = keyName.match(/xl\/worksheets\/(sheet\d+|[^/]+)[.]xml/);
-            }
+            match ??= keyName.match(/xl\/worksheets\/(sheet\d+|[^/]+)[.]xml/);
             if (match) {
               await this._processWorksheetEntry(stream, model, match[1], options, keyName);
               break;
             }
             match = keyName.match(/xl\/worksheets\/_rels\/sheet(\d+)[.]xml.rels/);
-            if (!match) {
-              match = keyName.match(/xl\/worksheets\/_rels\/(sheet\d+|[^/]+)[.]xml.rels/);
-            }
+            match ??= keyName.match(/xl\/worksheets\/_rels\/(sheet\d+|[^/]+)[.]xml.rels/);
             if (match) {
               await this._processWorksheetRelsEntry(stream, model, match[1]);
               break;
@@ -603,7 +602,7 @@ export class XLSX {
           }
           if (medium.base64) {
             const dataimg64 = medium.base64;
-            const content = dataimg64.substring(dataimg64.indexOf(',') + 1);
+            const content = dataimg64.slice(dataimg64.indexOf(',') + 1);
             return zip.append(content, { name: filename, base64: true });
           }
         }
@@ -645,7 +644,7 @@ export class XLSX {
   }
 
   addPivotTables(zip: ZipWriter, model: WriteModel) {
-    const pivotTables = (model.pivotTables as Record<string, unknown>[] | undefined) || [];
+    const pivotTables = (model.pivotTables as Record<string, unknown>[] | undefined) ?? [];
     if (!pivotTables.length) return;
 
     const pivotTable = pivotTables[0];
@@ -728,7 +727,7 @@ export class XLSX {
   }
 
   async addThemes(zip: ZipWriter, model: WriteModel) {
-    const themes = (model.themes as Record<string, string> | undefined) || { theme1: theme1Xml };
+    const themes = (model.themes as Record<string, string> | undefined) ?? { theme1: theme1Xml };
     Object.keys(themes).forEach((name) => {
       const xml = themes[name];
       const path = `xl/theme/${name}.xml`;
@@ -760,7 +759,7 @@ export class XLSX {
         Target: 'sharedStrings.xml',
       });
     }
-    const pivotTables = (model.pivotTables as Record<string, unknown>[] | undefined) || [];
+    const pivotTables = (model.pivotTables as Record<string, unknown>[] | undefined) ?? [];
     if (pivotTables.length) {
       const pivotTable = pivotTables[0];
       pivotTable.rId = `rId${count++}`;
@@ -844,16 +843,15 @@ export class XLSX {
 
   prepareModel(model: WriteModel, options: Partial<XlsxWriteOptions>) {
     // ensure following properties have sane values
-    model.creator = model.creator || 'ExcelJS';
-    model.lastModifiedBy = model.lastModifiedBy || 'ExcelJS';
-    model.created = model.created || new Date();
-    model.modified = model.modified || new Date();
+    model.creator = model.creator ?? 'ExcelJS';
+    model.lastModifiedBy = model.lastModifiedBy ?? 'ExcelJS';
+    model.created = model.created ?? new Date();
+    model.modified = model.modified ?? new Date();
 
-    model.useSharedStrings =
-      options.useSharedStrings !== undefined ? options.useSharedStrings : true;
-    model.useStyles = options.useStyles !== undefined ? options.useStyles : true;
-    model.media = model.media || [];
-    model.definedNames = model.definedNames || [];
+    model.useSharedStrings = options.useSharedStrings ?? true;
+    model.useStyles = options.useStyles ?? true;
+    model.media = model.media ?? [];
+    model.definedNames = model.definedNames ?? [];
 
     // Manage the shared strings
     const sharedStrings = new SharedStringsXform();
@@ -903,7 +901,7 @@ export class XLSX {
   }
 
   async write(stream: NodeJS.WritableStream, options?: Partial<XlsxWriteOptions>) {
-    options = options || {};
+    options = options ?? {};
     // Workbook#model's getter return type has no index signature (see
     // src/core/workbook.ts); the write pipeline below treats it as the
     // dynamically-shaped bag of properties it actually is at runtime.

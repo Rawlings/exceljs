@@ -26,7 +26,7 @@ class ColXform extends BaseXform {
   }
 
   override prepare(model: ColModel, options: { styles: StyleManagerLike }) {
-    const styleId = options.styles.addStyleModel(model.style || {});
+    const styleId = options.styles.addStyleModel(model.style ?? {});
     if (styleId) {
       model.styleId = styleId;
     }

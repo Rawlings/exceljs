@@ -227,9 +227,9 @@ class WorkSheetXform extends BaseXform {
   constructor(options?: { maxRows?: number; maxCols?: number; ignoreNodes?: string[] }) {
     super();
 
-    const { maxRows, maxCols, ignoreNodes } = options || {};
+    const { maxRows, maxCols, ignoreNodes } = options ?? {};
 
-    this.ignoreNodes = ignoreNodes || [];
+    this.ignoreNodes = ignoreNodes ?? [];
 
     this.map = {
       sheetPr: new SheetPropertiesXform(),
@@ -340,7 +340,7 @@ class WorkSheetXform extends BaseXform {
     const media = options.media as BookImage[];
     const drawingRelsHash: Record<string, string> = {};
     let bookImage: BookImage;
-    (model.media || []).forEach((medium) => {
+    (model.media ?? []).forEach((medium) => {
       if (medium.type === 'background') {
         const rId = nextRid(rels);
         bookImage = media[medium.imageId as number];
@@ -413,7 +413,7 @@ class WorkSheetXform extends BaseXform {
     });
 
     // prepare tables
-    (model.tables || []).forEach((table) => {
+    (model.tables ?? []).forEach((table) => {
       // relationships
       const rId = nextRid(rels);
       table.rId = rId;
@@ -433,7 +433,7 @@ class WorkSheetXform extends BaseXform {
     });
 
     // prepare pivot tables
-    if ((model.pivotTables || []).length) {
+    if ((model.pivotTables ?? []).length) {
       rels.push({
         Id: nextRid(rels),
         Type: RelType.PivotTable,
@@ -551,7 +551,7 @@ class WorkSheetXform extends BaseXform {
     }
     switch (name) {
       case 'worksheet': {
-        const properties = this.map.sheetFormatPr.model || {};
+        const properties = this.map.sheetFormatPr.model ?? {};
         if (this.map.sheetPr.model?.tabColor) {
           properties.tabColor = this.map.sheetPr.model.tabColor;
         }
@@ -559,7 +559,7 @@ class WorkSheetXform extends BaseXform {
           properties.outlineProperties = this.map.sheetPr.model.outlineProperties;
         }
         const sheetProperties = {
-          fitToPage: this.map.sheetPr.model?.pageSetup?.fitToPage || false,
+          fitToPage: this.map.sheetPr.model?.pageSetup?.fitToPage ?? false,
           margins: this.map.pageMargins.model,
         };
         const pageSetup = Object.assign(
@@ -607,20 +607,20 @@ class WorkSheetXform extends BaseXform {
   override reconcile(model: WorksheetXformModel, options: WorksheetReconcileOptions) {
     // options.merges = new Merges();
     // options.merges.reconcile(model.mergeCells, model.rows);
-    const rels = (model.relationships || []).reduce<Record<string, RelationshipModel>>((h, rel) => {
+    const rels = (model.relationships ?? []).reduce<Record<string, RelationshipModel>>((h, rel) => {
       if (rel.Id) h[rel.Id] = rel;
       if (rel.Type === RelType.Comments) {
-        model.comments = options.comments?.[rel.Target]?.comments || [];
+        model.comments = options.comments?.[rel.Target]?.comments ?? [];
       }
       if (rel.Type === RelType.VmlDrawing && model.comments?.length) {
-        const vmlComment = options.vmlDrawings?.[rel.Target]?.comments || [];
+        const vmlComment = options.vmlDrawings?.[rel.Target]?.comments ?? [];
         (model.comments as Array<{ note?: Record<string, unknown> }>).forEach((comment, index) => {
           comment.note = Object.assign({}, comment.note, vmlComment[index]);
         });
       }
       return h;
     }, {});
-    options.commentsMap = ((model.comments as Array<{ ref?: string }> | undefined) || []).reduce<
+    options.commentsMap = ((model.comments as Array<{ ref?: string }> | undefined) ?? []).reduce<
       Record<string, unknown>
     >((h, comment) => {
       if (comment.ref) {
@@ -628,7 +628,7 @@ class WorkSheetXform extends BaseXform {
       }
       return h;
     }, {});
-    options.hyperlinkMap = (model.hyperlinks || []).reduce<Record<string, string>>(
+    options.hyperlinkMap = (model.hyperlinks ?? []).reduce<Record<string, string>>(
       (h, hyperlink) => {
         if (hyperlink.rId && hyperlink.address) {
           h[hyperlink.address] = rels[hyperlink.rId].Target;
@@ -640,9 +640,9 @@ class WorkSheetXform extends BaseXform {
     options.formulae = {};
 
     // compact the rows and cells
-    model.rows = model.rows?.filter(Boolean) || [];
+    model.rows = model.rows?.filter(Boolean) ?? [];
     model.rows.forEach((row) => {
-      row.cells = row.cells?.filter(Boolean) || [];
+      row.cells = row.cells?.filter(Boolean) ?? [];
     });
 
     this.map.cols.reconcile(model.cols, options);
@@ -690,7 +690,7 @@ class WorkSheetXform extends BaseXform {
       }
     }
 
-    model.tables = (model.tables || [])
+    model.tables = (model.tables ?? [])
       .map((tablePart) => {
         const rel = rels[tablePart.rId as string];
         return options.tables?.[rel.Target];

@@ -24,14 +24,12 @@ export default class CommentXform extends BaseXform {
   }
 
   get richTextXform() {
-    if (!this._richTextXform) {
-      this._richTextXform = new RichTextXform();
-    }
+    this._richTextXform ??= new RichTextXform();
     return this._richTextXform;
   }
 
   override render(xmlStream: XmlStream, modelInput?: CommentModel) {
-    const model: CommentModel = modelInput || this.model;
+    const model: CommentModel = modelInput ?? this.model;
 
     xmlStream.openNode('comment', {
       ref: model.ref,

@@ -29,14 +29,12 @@ class ConditionalFormattingsXform extends BaseXform {
   ) {
     // ensure each rule has a priority value
     let nextPriority = model.reduce(
-      (p: number, cf) => Math.max(p, ...cf.rules.map((rule) => rule.priority || 0)),
+      (p: number, cf) => Math.max(p, ...cf.rules.map((rule) => rule.priority ?? 0)),
       1,
     );
     model.forEach((cf) => {
       cf.rules.forEach((rule) => {
-        if (!rule.priority) {
-          rule.priority = nextPriority++;
-        }
+        rule.priority ??= nextPriority++;
 
         if (rule.style) {
           rule.dxfId = options.styles.addDxfStyle(rule.style);

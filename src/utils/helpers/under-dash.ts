@@ -117,7 +117,7 @@ const _ = {
   },
 
   deepMerge(...args: unknown[]): unknown {
-    const target = (args[0] || {}) as Record<string, unknown>;
+    const target = (args[0] ?? {}) as Record<string, unknown>;
     for (let i = 1; i < args.length; i++) {
       const source = args[i];
       if (!source) continue;
@@ -138,7 +138,7 @@ const _ = {
         }
       }
     }
-    return target as unknown;
+    return target;
   },
 };
 

@@ -19,7 +19,7 @@ class RelationshipsXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, modelInput?: RelationshipModel[]) {
-    const model = modelInput || this._values;
+    const model = modelInput ?? this._values ?? [];
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode('Relationships', RelationshipsXform.RELATIONSHIPS_ATTRIBUTES);
 

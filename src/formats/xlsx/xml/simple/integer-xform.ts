@@ -26,7 +26,7 @@ class IntegerXform extends BaseXform {
 
   constructor(options?: IntegerXformOptions) {
     super();
-    options = options || {};
+    options = options ?? {};
 
     this.tag = options.tag;
     this.attr = options.attr;

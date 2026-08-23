@@ -24,32 +24,18 @@ export interface DataValidation {
   showInputMessage?: boolean;
 }
 
-export interface DataValidationModel {
-  type: string;
-  formulae?: string[];
-  allowBlank?: boolean;
-  showInputMessage?: boolean;
-  promptTitle?: string;
-  prompt?: string;
-  showErrorMessage?: boolean;
-  errorStyle?: string;
-  errorTitle?: string;
-  error?: string;
-  operator?: string;
-}
-
 export class DataValidations {
-  model: Record<string, DataValidationModel | undefined>;
+  model: Record<string, DataValidation | undefined>;
 
-  constructor(model?: Record<string, DataValidationModel | undefined>) {
-    this.model = model || {};
+  constructor(model?: Record<string, DataValidation | undefined> | Record<string, unknown>) {
+    this.model = (model ?? {}) as Record<string, DataValidation | undefined>;
   }
 
-  add(address: string, validation: DataValidationModel): DataValidationModel {
+  add(address: string, validation: DataValidation): DataValidation {
     return (this.model[address] = validation);
   }
 
-  find(address: string): DataValidationModel | undefined {
+  find(address: string): DataValidation | undefined {
     return this.model[address];
   }
 

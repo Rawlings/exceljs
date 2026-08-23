@@ -1,10 +1,10 @@
-/* eslint-disable max-classes-per-file */
 import colCache from '../utils/data/col-cache';
 import type { WorksheetLike, CellLike } from './internal-types';
 import type { Style } from './cell';
 
 export interface TableStyleProperties {
   theme?: string;
+  name?: string;
   showFirstColumn?: boolean;
   showLastColumn?: boolean;
   showRowStripes?: boolean;
@@ -34,6 +34,7 @@ export interface TableColumnProperties {
 export interface TableProperties {
   name: string;
   displayName?: string;
+  displyName?: string;
   ref: string;
   headerRow?: boolean;
   totalsRow?: boolean;
@@ -67,12 +68,11 @@ class Column {
     this.index = index;
   }
 
-  _set(name: keyof TableColumnProperties, value: unknown) {
+  _set<K extends keyof TableColumnProperties>(name: K, value: TableColumnProperties[K]) {
     this.table.cacheState();
-    (this.column as Record<string, unknown>)[name] = value;
+    this.column[name] = value;
   }
 
-  /* eslint-disable lines-between-class-members */
   get name() {
     return this.column.name;
   }
@@ -87,10 +87,10 @@ class Column {
     this.column.filterButton = value;
   }
 
-  get style() {
+  get style(): Partial<Style> | undefined {
     return this.column.style;
   }
-  set style(value: Record<string, unknown> | undefined) {
+  set style(value: Partial<Style> | undefined) {
     this.column.style = value;
   }
 
@@ -104,7 +104,7 @@ class Column {
   get totalsRowFunction() {
     return this.column.totalsRowFunction;
   }
-  set totalsRowFunction(value: string | undefined) {
+  set totalsRowFunction(value: TableColumnProperties['totalsRowFunction']) {
     this._set('totalsRowFunction', value);
   }
 
@@ -121,13 +121,6 @@ class Column {
   set totalsRowFormula(value: string | undefined) {
     this._set('totalsRowFormula', value);
   }
-  /* eslint-enable lines-between-class-members */
-}
-
-function assign(o: Record<string, unknown>, name: string, dflt: unknown) {
-  if (o[name] === undefined) {
-    o[name] = dflt;
-  }
 }
 
 function assert(test: unknown, message: string): asserts test {
@@ -136,11 +129,9 @@ function assert(test: unknown, message: string): asserts test {
   }
 }
 
-function assignStyle(cell: CellLike, style: Record<string, unknown> | undefined) {
+function assignStyle(cell: CellLike, style: Partial<Style> | undefined) {
   if (style) {
-    Object.keys(style).forEach((key) => {
-      cell.style[key] = style[key];
-    });
+    Object.assign(cell.style, style);
   }
 }
 
@@ -167,6 +158,7 @@ export class Table {
     // get the correct formula to apply to the totals row
     switch (column.totalsRowFunction) {
       case 'none':
+      case undefined:
         return null;
       case 'average':
         return `SUBTOTAL(101,${this.table.name}[${column.name}])`;
@@ -185,9 +177,9 @@ export class Table {
       case 'sum':
         return `SUBTOTAL(109,${this.table.name}[${column.name}])`;
       case 'custom':
-        return column.totalsRowFormula as string;
+        return column.totalsRowFormula ?? '';
       default:
-        throw new Error(`Invalid Totals Row Function: ${column.totalsRowFunction}`);
+        throw new Error(`Invalid Totals Row Function: ${String(column.totalsRowFunction)}`);
     }
   }
 
@@ -216,21 +208,20 @@ export class Table {
     if (!table.ref && table.tableRef) {
       table.ref = table.tableRef;
     }
-    assign(table as unknown as Record<string, unknown>, 'headerRow', true);
-    assign(table as unknown as Record<string, unknown>, 'totalsRow', false);
+    table.headerRow ??= true;
+    table.totalsRow ??= false;
+    table.rows ??= [];
 
-    assign(table as unknown as Record<string, unknown>, 'style', {});
-    const style = table.style as Record<string, unknown>;
-    assign(style, 'theme', 'TableStyleMedium2');
-    assign(style, 'showFirstColumn', false);
-    assign(style, 'showLastColumn', false);
-    assign(style, 'showRowStripes', false);
-    assign(style, 'showColumnStripes', false);
+    table.style ??= {};
+    const { style } = table;
+    style.theme ??= 'TableStyleMedium2';
+    style.showFirstColumn ??= false;
+    style.showLastColumn ??= false;
+    style.showRowStripes ??= false;
+    style.showColumnStripes ??= false;
 
     assert(table.ref, 'Table must have ref');
     assert(table.columns, 'Table must have column definitions');
-    table.rows = table.rows || [];
-    assert(table.rows, 'Table must have row definitions');
 
     table.tl = colCache.decodeAddress(table.ref);
     const { row, col } = table.tl;
@@ -248,10 +239,10 @@ export class Table {
     table.columns.forEach((column, i) => {
       assert(column.name, `Column ${i} must have a name`);
       if (i === 0) {
-        assign(column as unknown as Record<string, unknown>, 'totalsRowLabel', 'Total');
+        column.totalsRowLabel ??= 'Total';
       } else {
-        assign(column as unknown as Record<string, unknown>, 'totalsRowFunction', 'none');
-        column.totalsRowFormula = this.getFormula(column) as string;
+        column.totalsRowFunction ??= 'none';
+        column.totalsRowFormula = this.getFormula(column) ?? undefined;
       }
     });
   }
@@ -261,7 +252,7 @@ export class Table {
     // the sheet...
 
     const { worksheet, table } = this;
-    const { row, col } = table.tl as { row: number; col: number };
+    const { row, col } = table.tl ?? { row: 1, col: 1 };
     let count = 0;
     if (table.headerRow) {
       const r = worksheet.getRow!(row + count++);
@@ -272,7 +263,7 @@ export class Table {
         assignStyle(cell, style);
       });
     }
-    table.rows.forEach((data) => {
+    table.rows.forEach((data: unknown[]) => {
       const r = worksheet.getRow!(row + count++);
       data.forEach((value, j) => {
         const cell = r.getCell(col + j);
@@ -308,7 +299,7 @@ export class Table {
   load(worksheet: WorksheetLike) {
     // where the table will read necessary features from a loaded sheet
     const { table } = this;
-    const { row, col } = table.tl as { row: number; col: number };
+    const { row, col } = table.tl ?? { row: 1, col: 1 };
     let count = 0;
     if (table.headerRow) {
       const r = worksheet.getRow!(row + count++);
@@ -317,7 +308,7 @@ export class Table {
         cell.value = column.name;
       });
     }
-    table.rows.forEach((data) => {
+    table.rows.forEach((data: unknown[]) => {
       const r = worksheet.getRow!(row + count++);
       data.forEach((value, j) => {
         const cell = r.getCell(col + j);
@@ -355,13 +346,11 @@ export class Table {
   // ================================================================
   // TODO: Mutating methods
   cacheState() {
-    if (!this._cache) {
-      this._cache = {
-        ref: this.ref,
-        width: this.width,
-        tableHeight: this.tableHeight,
-      };
-    }
+    this._cache ??= {
+      ref: this.ref,
+      width: this.width,
+      tableHeight: this.tableHeight,
+    };
   }
 
   commit() {
@@ -456,17 +445,22 @@ export class Table {
     });
   }
 
-  _assign(target: Record<string, unknown>, prop: string, value: unknown) {
+  _assign<K extends keyof TableProperties>(prop: K, value: TableProperties[K]) {
     this.cacheState();
-    target[prop] = value;
+    this.table[prop] = value;
   }
 
-  /* eslint-disable lines-between-class-members */
+  _assignStyle<K extends keyof TableStyleProperties>(prop: K, value: TableStyleProperties[K]) {
+    this.cacheState();
+    this.table.style ??= {};
+    this.table.style[prop] = value;
+  }
+
   get ref() {
     return this.table.ref;
   }
   set ref(value: string) {
-    this._assign(this.table as unknown as Record<string, unknown>, 'ref', value);
+    this._assign('ref', value);
   }
 
   get name() {
@@ -476,16 +470,10 @@ export class Table {
     this.table.name = value;
   }
 
-  // NB: preserves two original bugs verbatim — the getter reads the typo'd
-  // `displyName` (not `displayName`), and the setter is named
-  // `displayNamename` (not `displayName`), so `table.displayName = x` never
-  // actually invokes it. A typing pass must not silently fix behavior.
   get displayName() {
-    return (
-      ((this.table as unknown as Record<string, unknown>).displyName as string) || this.table.name
-    );
+    return this.table.displyName ?? this.table.name;
   }
-  set displayNamename(value: string) {
+  set displayName(value: string) {
     this.table.displayName = value;
   }
 
@@ -493,51 +481,50 @@ export class Table {
     return this.table.headerRow;
   }
   set headerRow(value: boolean | undefined) {
-    this._assign(this.table as unknown as Record<string, unknown>, 'headerRow', value);
+    this._assign('headerRow', value);
   }
 
   get totalsRow() {
     return this.table.totalsRow;
   }
   set totalsRow(value: boolean | undefined) {
-    this._assign(this.table as unknown as Record<string, unknown>, 'totalsRow', value);
+    this._assign('totalsRow', value);
   }
 
   get theme() {
-    return (this.table.style as Record<string, unknown>).name as string | undefined;
+    return this.table.style?.name;
   }
   set theme(value: string | undefined) {
-    (this.table.style as Record<string, unknown>).name = value;
+    this._assignStyle('name', value);
   }
 
   get showFirstColumn() {
-    return (this.table.style as Record<string, unknown>).showFirstColumn as boolean | undefined;
+    return this.table.style?.showFirstColumn;
   }
   set showFirstColumn(value: boolean | undefined) {
-    (this.table.style as Record<string, unknown>).showFirstColumn = value;
+    this._assignStyle('showFirstColumn', value);
   }
 
   get showLastColumn() {
-    return (this.table.style as Record<string, unknown>).showLastColumn as boolean | undefined;
+    return this.table.style?.showLastColumn;
   }
   set showLastColumn(value: boolean | undefined) {
-    (this.table.style as Record<string, unknown>).showLastColumn = value;
+    this._assignStyle('showLastColumn', value);
   }
 
   get showRowStripes() {
-    return (this.table.style as Record<string, unknown>).showRowStripes as boolean | undefined;
+    return this.table.style?.showRowStripes;
   }
   set showRowStripes(value: boolean | undefined) {
-    (this.table.style as Record<string, unknown>).showRowStripes = value;
+    this._assignStyle('showRowStripes', value);
   }
 
   get showColumnStripes() {
-    return (this.table.style as Record<string, unknown>).showColumnStripes as boolean | undefined;
+    return this.table.style?.showColumnStripes;
   }
   set showColumnStripes(value: boolean | undefined) {
-    (this.table.style as Record<string, unknown>).showColumnStripes = value;
+    this._assignStyle('showColumnStripes', value);
   }
-  /* eslint-enable lines-between-class-members */
 }
 
 export default Table;

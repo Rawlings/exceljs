@@ -1,9 +1,6 @@
 import parseSax from '../../../utils/helpers/parse-sax';
 import XmlStream from '../../../utils/stream/xml-stream';
 
-/* 'virtual' methods used as a form of documentation */
-/* eslint-disable class-methods-use-this */
-
 export interface SaxNode {
   name: string;
   attributes?: Record<string, string>;
@@ -81,7 +78,7 @@ class BaseXform {
 
   mergeModel(obj: any): void {
     // set obj's props to this.model
-    this.model = Object.assign(this.model || {}, obj);
+    this.model = Object.assign(this.model ?? {}, obj);
   }
 
   async parse(saxParser: any): Promise<any> {

@@ -1,7 +1,7 @@
 import _ from '../utils/helpers/under-dash';
 import * as Enums from './enums';
 import colCache from '../utils/data/col-cache';
-import type { Style } from './cell';
+import type { Style, Font, Alignment, Protection, Borders, Fill } from './cell';
 import type { WorksheetLike, ColumnLike, CellLike, EachRowOptions } from './internal-types';
 
 const DEFAULT_COLUMN_WIDTH = 9;
@@ -13,6 +13,17 @@ export interface ColumnDefinition {
   style?: Partial<Style>;
   hidden?: boolean;
   outlineLevel?: number;
+}
+
+export interface ColumnModel {
+  min: number;
+  max: number;
+  width?: number;
+  style?: Partial<Style>;
+  isCustomWidth?: boolean;
+  hidden?: boolean;
+  outlineLevel?: number;
+  collapsed?: boolean;
 }
 
 // Column defines the column properties for 1 column.
@@ -67,8 +78,8 @@ export class Column implements ColumnLike {
   set defn(value: ColumnDefinition | undefined) {
     if (value) {
       this.key = value.key;
-      this.width = value.width !== undefined ? value.width : DEFAULT_COLUMN_WIDTH;
-      this.outlineLevel = value.outlineLevel as number;
+      this.width = value.width ?? DEFAULT_COLUMN_WIDTH;
+      this.outlineLevel = value.outlineLevel ?? 0;
       if (value.style) {
         this.style = value.style;
       } else {
@@ -111,9 +122,11 @@ export class Column implements ColumnLike {
   }
 
   set key(value: string | undefined) {
-    const column = this._key && this._worksheet.getColumnKey?.(this._key);
-    if (column === (this as ColumnLike)) {
-      this._worksheet.deleteColumnKey?.(this._key as string);
+    if (this._key) {
+      const column = this._worksheet.getColumnKey?.(this._key);
+      if (column === (this as ColumnLike)) {
+        this._worksheet.deleteColumnKey?.(this._key);
+      }
     }
 
     this._key = value;
@@ -131,7 +144,7 @@ export class Column implements ColumnLike {
   }
 
   get outlineLevel() {
-    return this._outlineLevel || 0;
+    return this._outlineLevel ?? 0;
   }
 
   set outlineLevel(value: number) {
@@ -152,11 +165,11 @@ export class Column implements ColumnLike {
     });
   }
 
-  equivalentTo(other: ColumnLike): boolean {
+  equivalentTo(other: ColumnLike | ColumnModel): boolean {
     return (
       this.width === other.width &&
-      this.hidden === other.hidden &&
-      this.outlineLevel === other.outlineLevel &&
+      this.hidden === !!other.hidden &&
+      this.outlineLevel === (other.outlineLevel ?? 0) &&
       _.isEqual(this.style, other.style)
     );
   }
@@ -172,7 +185,7 @@ export class Column implements ColumnLike {
       return false;
     }
     const s = this.style;
-    if (s && (s.font || s.numFmt || s.alignment || s.border || s.fill || s.protection)) {
+    if (s.font || s.numFmt || s.alignment || s.border || s.fill || s.protection) {
       return false;
     }
     return true;
@@ -192,22 +205,22 @@ export class Column implements ColumnLike {
     iteratee?: (cell: CellLike, rowNumber: number) => void,
   ) {
     const colNumber = this.number;
-    if (!iteratee) {
-      iteratee = options as (cell: CellLike, rowNumber: number) => void;
-      options = null;
+    const callback = typeof options === 'function' ? options : iteratee;
+    const eachOptions = typeof options === 'function' ? null : options;
+    if (callback) {
+      this._worksheet.eachRow?.(
+        eachOptions,
+        (row: { getCell(n: number): CellLike }, rowNumber: number) => {
+          callback(row.getCell(colNumber), rowNumber);
+        },
+      );
     }
-    this._worksheet.eachRow?.(
-      options,
-      (row: { getCell(n: number): CellLike }, rowNumber: number) => {
-        iteratee(row.getCell(colNumber), rowNumber);
-      },
-    );
   }
 
   get values() {
     const v: unknown[] = [];
     this.eachCell((cell: CellLike, rowNumber: number) => {
-      if (cell && cell.type !== Enums.ValueType.Null) {
+      if (cell.type !== Enums.ValueType.Null) {
         v[rowNumber] = cell.value;
       }
     });
@@ -231,10 +244,14 @@ export class Column implements ColumnLike {
 
   // =========================================================================
   // styles
-  _applyStyle(name: string, value: unknown) {
-    (this.style as Record<string, unknown>)[name] = value;
+  _applyStyle<K extends keyof Style>(name: K, value: Style[K] | undefined) {
+    if (value === undefined) {
+      delete this.style[name];
+    } else {
+      this.style[name] = value;
+    }
     this.eachCell((cell: CellLike) => {
-      (cell as Record<string, unknown>)[name] = value;
+      cell.style[name] = value;
     });
     return value;
   }
@@ -243,7 +260,7 @@ export class Column implements ColumnLike {
     return this.style.numFmt;
   }
 
-  set numFmt(value: unknown) {
+  set numFmt(value: string | undefined) {
     this._applyStyle('numFmt', value);
   }
 
@@ -251,7 +268,7 @@ export class Column implements ColumnLike {
     return this.style.font;
   }
 
-  set font(value: unknown) {
+  set font(value: Partial<Font> | undefined) {
     this._applyStyle('font', value);
   }
 
@@ -259,7 +276,7 @@ export class Column implements ColumnLike {
     return this.style.alignment;
   }
 
-  set alignment(value: unknown) {
+  set alignment(value: Partial<Alignment> | undefined) {
     this._applyStyle('alignment', value);
   }
 
@@ -267,7 +284,7 @@ export class Column implements ColumnLike {
     return this.style.protection;
   }
 
-  set protection(value: unknown) {
+  set protection(value: Partial<Protection> | undefined) {
     this._applyStyle('protection', value);
   }
 
@@ -275,7 +292,7 @@ export class Column implements ColumnLike {
     return this.style.border;
   }
 
-  set border(value: unknown) {
+  set border(value: Partial<Borders> | undefined) {
     this._applyStyle('border', value);
   }
 
@@ -283,7 +300,7 @@ export class Column implements ColumnLike {
     return this.style.fill;
   }
 
-  set fill(value: unknown) {
+  set fill(value: Fill | undefined) {
     this._applyStyle('fill', value);
   }
 
@@ -292,19 +309,19 @@ export class Column implements ColumnLike {
 
   static toModel(columns: Column[] | undefined) {
     // Convert array of Column into compressed list cols
-    const cols: Record<string, unknown>[] = [];
-    let col: Record<string, unknown> | null = null;
+    const cols: ColumnModel[] = [];
+    let col: ColumnModel | null = null;
     if (columns) {
       columns.forEach((column: Column, index: number) => {
         if (column.isDefault) {
           if (col) {
             col = null;
           }
-        } else if (!col || !column.equivalentTo(col as ColumnLike)) {
+        } else if (!col || !column.equivalentTo(col)) {
           col = {
             min: index + 1,
             max: index + 1,
-            width: column.width !== undefined ? column.width : DEFAULT_COLUMN_WIDTH,
+            width: column.width ?? DEFAULT_COLUMN_WIDTH,
             style: column.style,
             isCustomWidth: column.isCustomWidth,
             hidden: column.hidden,
@@ -320,26 +337,25 @@ export class Column implements ColumnLike {
     return cols.length ? cols : undefined;
   }
 
-  static fromModel(
-    worksheet: WorksheetLike,
-    cols: Array<Record<string, unknown> & { min: number; max: number }> | undefined,
-  ) {
-    cols = cols || [];
+  static fromModel(worksheet: WorksheetLike, cols: ColumnModel[] | undefined) {
+    const list = cols ? cols.toSorted((pre, next) => pre.min - next.min) : [];
     const columns: Column[] = [];
     let count = 1;
     let index = 0;
-    /**
-     * sort cols by min
-     * If it is not sorted, the subsequent column configuration will be overwritten
-     * */
-    cols = cols.toSorted((pre, next) => pre.min - next.min);
-    while (index < cols.length) {
-      const col = cols[index++];
+    while (index < list.length) {
+      const col = list[index++];
       while (count < col.min) {
         columns.push(new Column(worksheet, count++));
       }
       while (count <= col.max) {
-        columns.push(new Column(worksheet, count++, col as ColumnDefinition));
+        columns.push(
+          new Column(worksheet, count++, {
+            width: col.width,
+            style: col.style,
+            hidden: col.hidden,
+            outlineLevel: col.outlineLevel,
+          }),
+        );
       }
     }
     return columns.length ? columns : null;

@@ -24,7 +24,7 @@ class StringXform extends BaseXform {
 
   constructor(options?: StringXformOptions) {
     super();
-    options = options || {};
+    options = options ?? {};
 
     this.tag = options.tag;
     this.attr = options.attr;

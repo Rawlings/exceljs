@@ -45,6 +45,23 @@ export interface HyperlinkReaderOptions {
   options?: { hyperlinks?: string; [key: string]: unknown };
 }
 
+interface RawRel {
+  Id?: string;
+  Type?: string;
+  Target?: string;
+  TargetMode?: string;
+}
+
+interface RawDoc {
+  Relationships?: {
+    Relationship?: RawRel[];
+  };
+}
+
+function isRawDoc(obj: unknown): obj is RawDoc {
+  return typeof obj === 'object' && obj !== null && 'Relationships' in obj;
+}
+
 class HyperlinkReader extends EventEmitter {
   workbook: unknown;
   id: number | string;
@@ -55,14 +72,14 @@ class HyperlinkReader extends EventEmitter {
   constructor({ workbook, id, iterator, options }: HyperlinkReaderOptions = {}) {
     super();
     this.workbook = workbook;
-    this.id = id || 0;
-    this.iterator = iterator as AsyncIterable<unknown>;
-    this.options = options || {};
+    this.id = id ?? 0;
+    this.iterator = iterator ?? (async function* () {})();
+    this.options = options ?? {};
     this.hyperlinks = null;
   }
 
   get count() {
-    return (this.hyperlinks && Object.keys(this.hyperlinks).length) || 0;
+    return (this.hyperlinks && Object.keys(this.hyperlinks).length) ?? 0;
   }
 
   each(fn: (hyperlink: HyperlinkRelationship, rId: string) => void): void {
@@ -83,6 +100,7 @@ class HyperlinkReader extends EventEmitter {
       case 'cache':
         this.hyperlinks = hyperlinks = {};
         break;
+      case undefined:
       default:
         this.emit('finished');
         return;
@@ -101,22 +119,24 @@ class HyperlinkReader extends EventEmitter {
     }
 
     try {
-      const doc = relsParser.parse(xml);
-      const relationships = doc.Relationships;
+      const parsed: unknown = relsParser.parse(xml);
+      if (isRawDoc(parsed)) {
+        const relationships = parsed.Relationships;
 
-      if (relationships?.Relationship) {
-        for (const rel of relationships.Relationship) {
-          if (rel.Type === RelType.Hyperlink) {
-            const relationship = {
-              type: Enums.RelationshipType.Styles,
-              rId: rel.Id,
-              target: rel.Target,
-              targetMode: rel.TargetMode,
-            };
-            if (emitHyperlinks) {
-              this.emit('hyperlink', relationship);
-            } else if (hyperlinks) {
-              hyperlinks[relationship.rId] = relationship;
+        if (relationships && Array.isArray(relationships.Relationship)) {
+          for (const rel of relationships.Relationship) {
+            if (rel.Type === RelType.Hyperlink) {
+              const relationship: HyperlinkRelationship = {
+                type: Enums.RelationshipType.Styles,
+                rId: typeof rel.Id === 'string' ? rel.Id : '',
+                target: typeof rel.Target === 'string' ? rel.Target : '',
+                targetMode: typeof rel.TargetMode === 'string' ? rel.TargetMode : '',
+              };
+              if (emitHyperlinks) {
+                this.emit('hyperlink', relationship);
+              } else if (hyperlinks) {
+                hyperlinks[relationship.rId] = relationship;
+              }
             }
           }
         }

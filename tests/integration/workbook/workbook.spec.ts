@@ -12,7 +12,7 @@ let wbFileSeq = 0;
 describe('Workbook', () => {
   beforeEach(() => {
     const id = ++wbFileSeq;
-    const tag = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    const tag = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     TEST_XLSX_FILE_NAME = `./fixtures/out/wb.book-${id}-${tag}.xlsx`;
     TEST_CSV_FILE_NAME = `./fixtures/out/wb.book-${id}-${tag}.csv`;
   });

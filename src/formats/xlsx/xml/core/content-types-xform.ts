@@ -24,7 +24,7 @@ class ContentTypesXform extends BaseXform {
     xmlStream.openNode('Types', ContentTypesXform.PROPERTY_ATTRIBUTES);
 
     const mediaHash: Record<string, boolean> = {};
-    (model.media || []).forEach((medium) => {
+    (model.media ?? []).forEach((medium) => {
       if (medium.type === 'image') {
         const imageType = medium.extension;
         if (!mediaHash[imageType]) {
@@ -56,7 +56,7 @@ class ContentTypesXform extends BaseXform {
       });
     });
 
-    if ((model.pivotTables || []).length) {
+    if ((model.pivotTables ?? []).length) {
       // Note(2023-10-06): assuming at most one pivot table for now.
       xmlStream.leafNode('Override', {
         PartName: '/xl/pivotCache/pivotCacheDefinition1.xml',

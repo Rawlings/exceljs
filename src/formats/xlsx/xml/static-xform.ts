@@ -54,7 +54,6 @@ class StaticXform extends BaseXform {
     return null;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override set model(_val: unknown) {}
 
   override parseOpen() {

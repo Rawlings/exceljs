@@ -12,7 +12,7 @@ interface VmlClientDataModel {
   note?: { protection?: { locked?: unknown; lockText?: unknown }; editAs?: string };
   protection?: { locked?: unknown; lockText?: unknown };
   editAs?: string;
-  refAddress: { row: number; col: number };
+  refAddress?: { row: number; col: number };
 }
 
 class VmlClientDataXform extends BaseXform {
@@ -41,8 +41,8 @@ class VmlClientDataXform extends BaseXform {
 
   override render(xmlStream: XmlStream, model: VmlClientDataModel) {
     const note = typeof model.note === 'object' ? model.note : model;
-    const protection = note?.protection || {};
-    const editAs = note?.editAs || 'twoCells';
+    const protection = note?.protection ?? {};
+    const editAs = note?.editAs ?? 'twoCells';
     xmlStream.openNode(this.tag, { ObjectType: 'Note' });
     this.map['x:MoveWithCells'].render(xmlStream, editAs, POSITION_TYPE);
     this.map['x:SizeWithCells'].render(xmlStream, editAs, POSITION_TYPE);
@@ -50,8 +50,10 @@ class VmlClientDataXform extends BaseXform {
     this.map['x:Locked'].render(xmlStream, protection.locked);
     xmlStream.leafNode('x:AutoFill', undefined, 'False');
     this.map['x:LockText'].render(xmlStream, protection.lockText);
-    xmlStream.leafNode('x:Row', undefined, model.refAddress.row - 1);
-    xmlStream.leafNode('x:Column', undefined, model.refAddress.col - 1);
+    if (model.refAddress) {
+      xmlStream.leafNode('x:Row', undefined, model.refAddress.row - 1);
+      xmlStream.leafNode('x:Column', undefined, model.refAddress.col - 1);
+    }
     xmlStream.closeNode();
   }
 

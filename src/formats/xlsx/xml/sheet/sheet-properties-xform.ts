@@ -40,7 +40,7 @@ class SheetPropertiesXform extends BaseXform {
       xmlStream.addRollback();
       xmlStream.openNode('sheetPr');
 
-      const hasContent = Boolean(model.tabColor || model.pageSetup || model.outlineProperties);
+      const hasContent = Boolean(model.tabColor ?? model.pageSetup ?? model.outlineProperties);
       if (hasContent) {
         this.map.tabColor.render(xmlStream, model.tabColor);
         this.map.pageSetUpPr.render(xmlStream, model.pageSetup);

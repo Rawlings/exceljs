@@ -1,25 +1,34 @@
-/* oxlint-disable typescript/no-explicit-any */
 // Forward-declared shapes for the circular Cell <-> Row <-> Column <-> Worksheet
 // <-> Workbook reference graph. These are intentionally minimal — only the
-// members actually called by the *consuming* class are declared. As each real
-// class gets fully typed, callers should migrate off these stand-ins onto the
-// real class type; until then, these keep call sites honest without `any`.
+// members actually called by the *consuming* class are declared.
 
 export interface CellLike {
-  value?: unknown;
-  style: Record<string, unknown>;
-  type?: unknown;
+  value?: any;
+  style: any;
+  type?: any;
   col: number;
   row: number;
   address: string;
+  formula?: string;
   model?: any;
-  merge?(master: unknown): void;
+  merge?(master: any, ignoreStyle?: boolean): void;
   unmerge?(): void;
-  master?: any;
+  master?: CellLike;
+  text?: string;
+  hyperlink?: string;
+  numFmt?: any;
+  font?: any;
+  alignment?: any;
+  protection?: any;
+  border?: any;
+  fill?: any;
+  name?: any;
+  names?: any;
+  note?: any;
+  comment?: any;
   _value?: any;
-  _row?: any;
-  _column?: any;
-  [key: string]: any;
+  _row?: RowLike;
+  _column?: ColumnLike;
 }
 
 export interface FullAddress {
@@ -29,50 +38,47 @@ export interface FullAddress {
   col: number;
 }
 
-// DefinedNames isn't typed yet — this is the minimal surface Cell/Worksheet
-// call into.
+// DefinedNames surface Cell/Worksheet call into.
 export interface DefinedNamesLike {
-  model?: unknown;
-  getNamesEx?(address: FullAddress): string[];
-  addEx?(location: FullAddress, name: string): void;
-  removeEx?(location: FullAddress, name: string): void;
-  removeAllNames?(location: FullAddress): void;
+  model?: any;
+  getNamesEx(address: FullAddress): string[];
+  addEx(location: FullAddress, name: string): void;
+  removeEx(location: FullAddress, name: string): void;
+  removeAllNames(location: FullAddress): void;
   spliceRows?(sheetName: string, start: number, numDelete: number, numInsert: number): void;
   spliceColumns?(sheetName: string, start: number, numDelete: number, numInsert: number): void;
-  [key: string]: any;
 }
 
-// DataValidations is fully typed (src/models/data-validations.ts) — Cell only
-// needs find/add, matching that class's real API.
+import type { DataValidation } from './data-validations';
+
+// DataValidations surface Cell calls into.
 export interface DataValidationLike {
-  find(address: string): unknown;
-  add(address: string, validation: unknown): unknown;
-  [key: string]: any;
+  find(address: string): DataValidation | undefined;
+  add(address: string, validation: any): any;
+  remove?(address: string): any;
 }
 
-// Workbook isn't typed yet — this is the minimal surface Worksheet calls into.
+// Workbook surface Worksheet calls into.
 export interface WorkbookLike {
-  definedNames?: DefinedNamesLike;
+  definedNames?: any;
   pivotTables?: any[];
   _worksheets?: any[];
-  removeWorksheetEx?(worksheet: WorksheetLike): void;
+  removeWorksheetEx?(worksheet: any): void;
   [key: string]: any;
 }
 
 export interface RowLike {
   number: number;
-  style?: Record<string, unknown>;
+  style?: any;
   dimensions?: { min: number; max: number } | null;
   getCell?(col: number): any;
-  getCellEx?(address: { col: number; row: number; address: string }): any;
+  getCellEx?(address: any): any;
   findCell?(col: number): any;
   values?: any;
   height?: number;
-  eachCell?(
-    options: { includeEmpty?: boolean },
-    callback: (cell: any, colNumber: number) => void,
-  ): void;
-  [key: string]: any;
+  _worksheet?: any;
+  worksheet?: any;
+  eachCell?(options: any, callback?: any): void;
 }
 
 export interface EachRowOptions {
@@ -82,18 +88,20 @@ export interface EachRowOptions {
 export interface WorksheetLike {
   id?: number | string;
   name?: string;
-  workbook?: WorkbookLike;
-  dataValidations?: DataValidationLike;
-  properties?: Record<string, any>;
-  getCell?: (row: number | string, col?: number) => any;
+  workbook?: any;
+  dataValidations?: any;
+  properties?: any;
+  getCell?: (row: any, col?: number) => any;
+  findCell?: (rowOrAddress: any, col?: number) => any;
   getRow?: (number: number) => any;
   getColumn?: (number: number | string) => any;
   getColumnKey?: (key: string) => any;
   setColumnKey?: (key: string, column: any) => void;
   deleteColumnKey?: (key: string) => void;
-  eachRow?: (options?: any, iteratee?: any) => void;
+  eachRow?: (...args: any[]) => void;
   eachColumnKey?: (iteratee: (column: any, key: string) => void) => void;
   _commitRow?: (row: any) => void;
+  rowBreaks?: any[];
   [key: string]: any;
 }
 
@@ -102,11 +110,11 @@ export interface ColumnLike {
   letter?: string;
   width?: number | undefined;
   isCustomWidth?: boolean;
-  style?: Record<string, unknown>;
+  style?: any;
   hidden?: boolean;
   outlineLevel?: number;
   collapsed?: boolean;
-  equivalentTo?(other: ColumnLike): boolean;
+  equivalentTo?(other: any): boolean;
   defn?: any;
-  [key: string]: any;
+  values?: any;
 }

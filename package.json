@@ -35,9 +35,9 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "lint": "oxlint src tests",
-    "lint:check": "oxlint src tests",
-    "lint:fix": "oxlint --fix src tests",
+    "lint": "oxlint --report-unused-disable-directives-severity=error src tests",
+    "lint:check": "oxlint --report-unused-disable-directives-severity=error src tests",
+    "lint:fix": "oxlint --report-unused-disable-directives-severity=error --fix src tests",
     "format": "oxfmt --write src tests vitest.config.ts",
     "format:check": "oxfmt --check src tests vitest.config.ts",
     "format:fix": "oxfmt --write src tests vitest.config.ts",

@@ -91,9 +91,7 @@ class SharedStringXform extends BaseXform {
           case 'r': {
             const model = this.model;
             let rt = model.richText;
-            if (!rt) {
-              rt = model.richText = [];
-            }
+            rt ??= model.richText = [];
             rt.push(this.parser.model);
             break;
           }

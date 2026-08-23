@@ -40,7 +40,7 @@ class RowXform extends BaseXform {
   }
 
   override prepare(model: RowXformModel, options: CellXformOptions) {
-    const styleId = options.styles!.addStyleModel(model.style || {});
+    const styleId = options.styles!.addStyleModel(model.style ?? {});
     if (styleId) {
       model.styleId = styleId;
     }

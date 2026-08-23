@@ -5,17 +5,18 @@ import type XmlStream from '../../../../utils/stream/xml-stream';
 import type { SaxNode } from '../base-xform';
 
 export interface VmlShapeModel {
+  [key: string]: unknown;
   note?: {
     margins?: { insetmode?: unknown; inset?: number[] | string };
     protection?: { locked?: unknown; lockText?: unknown };
     editAs?: string;
   };
-  margins: { insetmode?: unknown; inset?: unknown };
-  anchor: unknown;
-  editAs: string;
-  protection: Record<string, unknown>;
+  margins?: { insetmode?: unknown; inset?: unknown };
+  anchor?: unknown;
+  editAs?: string;
+  protection?: Record<string, unknown>;
   // set on the comment before rendering (see worksheet-xform.ts prepare())
-  refAddress: { row: number; col: number };
+  refAddress?: { row: number; col: number };
 }
 
 class VmlShapeXform extends BaseXform {

@@ -38,7 +38,7 @@ export class ZipBuilder {
   constructor(private options: Record<string, unknown> = {}) {}
 
   append(data: unknown, options: { name?: string; base64?: boolean } | string = {}): void {
-    const rawName = typeof options === 'string' ? options : options.name || 'file';
+    const rawName = typeof options === 'string' ? options : (options.name ?? 'file');
     const name = rawName.replace(/^\//, '');
     const isBase64 = typeof options === 'object' && options?.base64;
     const d = data as Record<string, unknown>;
@@ -59,11 +59,10 @@ export class ZipBuilder {
         (data as Promise<unknown>).then((resolved) => {
           const u8 = toU8(resolved as Uint8Array | string);
           this.files[name] = u8;
-          return u8;
         }),
       );
     } else {
-      this.files[name] = toU8(String(data || ''));
+      this.files[name] = toU8(String(data ?? ''));
     }
   }
 

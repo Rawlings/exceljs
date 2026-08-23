@@ -12,7 +12,7 @@ const fsReadFileAsync = promisify(fs.readFile);
 
 describe('WorkbookWriter', () => {
   beforeEach(() => {
-    TEST_XLSX_FILE_NAME = `./fixtures/out/wb.writer-${++fileSeq}-${Date.now()}-${Math.random().toString(36).substring(2)}.xlsx`;
+    TEST_XLSX_FILE_NAME = `./fixtures/out/wb.writer-${++fileSeq}-${Date.now()}-${Math.random().toString(36).slice(2)}.xlsx`;
   });
 
   it('creates sheets with correct names', () => {
@@ -437,11 +437,11 @@ describe('WorkbookWriter', () => {
 
       expect(ws2.getCell('B2').value).to.equal(5);
       expect(ws2.getCell('B2').note).to.equal('five');
-      expect(ws2.getCell('D2').value).to.equal(7);
-      expect(ws2.getCell('D2').note.texts).to.deep.equal(note.texts);
-      expect(ws2.getCell('D2').note.margins).to.deep.equal(note.margins);
-      expect(ws2.getCell('D2').note.protection).to.deep.equal(note.protection);
-      expect(ws2.getCell('D2').note.editAs).to.deep.equal(note.editAs);
+      const d2Note = ws2.getCell('D2').note as any;
+      expect(d2Note.texts).to.deep.equal(note.texts);
+      expect(d2Note.margins).to.deep.equal(note.margins);
+      expect(d2Note.protection).to.deep.equal(note.protection);
+      expect(d2Note.editAs).to.deep.equal(note.editAs);
     });
 
     it('Cell annotation supports setting margins and protection properties', async () => {
@@ -485,11 +485,11 @@ describe('WorkbookWriter', () => {
       expect(ws2.getCell('B2').value).to.equal(5);
       expect(ws2.getCell('B2').note).to.equal('five');
 
-      expect(ws2.getCell('D2').value).to.equal(7);
-      expect(ws2.getCell('D2').note.texts).to.deep.equal(note.texts);
-      expect(ws2.getCell('D2').note.margins).to.deep.equal(note.margins);
-      expect(ws2.getCell('D2').note.protection).to.deep.equal(note.protection);
-      expect(ws2.getCell('D2').note.editAs).to.deep.equal(note.editAs);
+      const d2Note = ws2.getCell('D2').note as any;
+      expect(d2Note.texts).to.deep.equal(note.texts);
+      expect(d2Note.margins).to.deep.equal(note.margins);
+      expect(d2Note.protection).to.deep.equal(note.protection);
+      expect(d2Note.editAs).to.deep.equal(note.editAs);
     });
 
     it('with background image', async () => {
@@ -515,7 +515,7 @@ describe('WorkbookWriter', () => {
       const backgroundId2 = ws2.getBackgroundImageId();
       const image = wb2.getImage(backgroundId2!);
       const imageData = await fsReadFileAsync(IMAGE_FILENAME);
-      expect(Buffer.compare(imageData, image.buffer)).to.equal(0);
+      expect(Buffer.compare(imageData, image.buffer!)).to.equal(0);
     });
 
     it('with background image where worksheet is commited in advance', async () => {
@@ -542,7 +542,7 @@ describe('WorkbookWriter', () => {
       const backgroundId2 = ws2.getBackgroundImageId();
       const image = wb2.getImage(backgroundId2!);
       const imageData = await fsReadFileAsync(IMAGE_FILENAME);
-      expect(Buffer.compare(imageData, image.buffer)).to.equal(0);
+      expect(Buffer.compare(imageData, image.buffer!)).to.equal(0);
     });
 
     it('with conditional formatting', async () => {
@@ -584,7 +584,7 @@ describe('WorkbookWriter', () => {
       const [cf2] = ws2.conditionalFormattings;
 
       // verify that rules from generated file contain styles with valid numFmt
-      cf2.rules.forEach((rule: any) => {
+      (cf2 as any).rules.forEach((rule: any) => {
         expect(rule.style.numFmt).to.exist;
         expect(rule.style.numFmt.id).to.be.a('number');
         expect(rule.style.numFmt.formatCode).to.be.a('string');

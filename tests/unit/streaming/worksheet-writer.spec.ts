@@ -26,7 +26,7 @@ describe('Workbook Writer', () => {
 
       const writer = new WorksheetWriter({
         id: 1,
-        workbook: mockWorkbook,
+        workbook: mockWorkbook as any,
       });
 
       writer.commit();

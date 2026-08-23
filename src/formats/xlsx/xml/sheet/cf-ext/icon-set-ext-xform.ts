@@ -72,9 +72,7 @@ class IconSetExtXform extends CompositeXform {
         break;
 
       case 'cfIcon':
-        if (!model.icons) {
-          model.icons = [];
-        }
+        model.icons ??= [];
         model.icons.push(parser.model);
         break;
 

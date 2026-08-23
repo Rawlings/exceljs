@@ -23,7 +23,7 @@ class VmlTextboxXform extends BaseXform {
       style: 'mso-direction-alt:auto',
     };
     if (model?.note) {
-      let { inset } = model.note?.margins || {};
+      let { inset } = model.note?.margins ?? {};
       if (Array.isArray(inset)) {
         inset = inset
           .map((margin) => {

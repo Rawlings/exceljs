@@ -17,8 +17,8 @@ const utils = {
   parsePath(filepath: string): { path: string; name: string } {
     const last = filepath.lastIndexOf('/');
     return {
-      path: filepath.substring(0, last),
-      name: filepath.substring(last + 1),
+      path: filepath.slice(0, last),
+      name: filepath.slice(last + 1),
     };
   },
 
@@ -66,11 +66,11 @@ const utils = {
           continue;
         }
       }
-      if (lastIndex !== i) result += str.substring(lastIndex, i);
+      if (lastIndex !== i) result += str.slice(lastIndex, i);
       lastIndex = i + 1;
       if (escape) result += escape;
     }
-    if (lastIndex !== i) return result + str.substring(lastIndex, i);
+    if (lastIndex !== i) return result + str.slice(lastIndex, i);
     return result;
   },
 

@@ -38,15 +38,15 @@ class RichTextXform extends BaseXform {
   }
 
   get textXform() {
-    return this._textXform || (this._textXform = new TextXform());
+    return this._textXform ?? (this._textXform = new TextXform());
   }
 
   get fontXform() {
-    return this._fontXform || (this._fontXform = new FontXform(RichTextXform.FONT_OPTIONS));
+    return this._fontXform ?? (this._fontXform = new FontXform(RichTextXform.FONT_OPTIONS));
   }
 
   override render(xmlStream: XmlStream, modelInput?: RichTextRunModel) {
-    const model = modelInput || this.model;
+    const model = modelInput ?? this.model;
 
     xmlStream.openNode('r');
     if (model.font) {

@@ -18,10 +18,10 @@ class WorkbookViewXform extends BaseXform {
     if (model.visibility && model.visibility !== 'visible') {
       attributes.visibility = model.visibility;
     }
-    attributes.xWindow = model.x || 0;
-    attributes.yWindow = model.y || 0;
-    attributes.windowWidth = model.width || 12000;
-    attributes.windowHeight = model.height || 24000;
+    attributes.xWindow = model.x ?? 0;
+    attributes.yWindow = model.y ?? 0;
+    attributes.windowWidth = model.width ?? 12000;
+    attributes.windowHeight = model.height ?? 24000;
     if (model.activeTab !== undefined) {
       attributes.activeTab = model.activeTab;
     }

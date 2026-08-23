@@ -9,12 +9,27 @@ import { Range as Dimensions } from '../core/range';
 import { Row } from '../core/row';
 import { Column } from '../core/column';
 import type { CellLike } from '../core/internal-types';
+import type { CellErrorValue, CellValue } from '../core/cell';
 
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
 
 const textDecoder = new TextDecoder('utf-8');
+
+const VALID_ERRORS: ReadonlySet<string> = new Set([
+  '#N/A',
+  '#REF!',
+  '#NAME?',
+  '#DIV/0!',
+  '#NULL!',
+  '#VALUE!',
+  '#NUM!',
+]);
+
+function isCellError(val: string): val is CellErrorValue['error'] {
+  return VALID_ERRORS.has(val);
+}
 
 function decodeChunk(chunk: unknown): string {
   if (typeof chunk === 'string') return chunk;
@@ -32,8 +47,8 @@ function getNodeText(val: unknown): string {
   if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
     return String(val);
   }
-  if (typeof val === 'object' && '#text' in (val as Record<string, unknown>)) {
-    return String((val as Record<string, unknown>)['#text']);
+  if (typeof val === 'object' && '#text' in val) {
+    return String(val['#text']);
   }
   return '';
 }
@@ -50,6 +65,62 @@ const worksheetParser = new XMLParser({
   isArray: (name: string) => ['col', 'row', 'c', 'hyperlink'].includes(name),
 });
 
+interface RawHyperlink {
+  ref?: string;
+  'r:id'?: string;
+}
+
+interface RawCol {
+  min?: string | number;
+  max?: string | number;
+  width?: string | number;
+  style?: string | number;
+  ':@'?: Record<string, string>;
+}
+
+interface RawFormula {
+  '#text'?: unknown;
+  t?: string;
+  ref?: string;
+  si?: number | string;
+}
+
+interface RawCell {
+  r?: string;
+  s?: string | number;
+  t?: string;
+  f?: string | RawFormula;
+  v?: unknown;
+  is?: { t?: unknown };
+  ':@'?: Record<string, string>;
+}
+
+interface RawRow {
+  r?: string | number;
+  ht?: string | number;
+  s?: string | number;
+  c?: RawCell | RawCell[];
+  ':@'?: Record<string, string>;
+}
+
+interface RawWorksheetDoc {
+  worksheet?: {
+    cols?: {
+      col?: RawCol | RawCol[];
+    };
+    sheetData?: {
+      row?: RawRow | RawRow[];
+    };
+    hyperlinks?: {
+      hyperlink?: RawHyperlink | RawHyperlink[];
+    };
+  };
+}
+
+function isRawWorksheetDoc(val: unknown): val is RawWorksheetDoc {
+  return typeof val === 'object' && val !== null && 'worksheet' in val;
+}
+
 // ---------------------------------------------------------------------------
 // WorksheetReader
 // ---------------------------------------------------------------------------
@@ -57,7 +128,7 @@ const worksheetParser = new XMLParser({
 export interface WorksheetReaderOptions {
   workbook: {
     sharedStrings?: unknown[];
-    styles?: { getStyleModel(id: number): Record<string, unknown> | undefined };
+    styles?: { getStyleModel(id: number): Record<string, unknown> | null | undefined };
     properties?: { model?: { date1904?: boolean } };
   };
   id: number | string;
@@ -80,18 +151,19 @@ export class WorksheetReader extends EventEmitter {
   iterator: AsyncIterable<unknown>;
   options: WorksheetReaderOptions['options'];
   name: string;
+  state?: string;
   _columns: Column[] | null;
-  _keys: Record<string, Column>;
+  _keys: Record<string, Column | undefined>;
   _dimensions: Dimensions;
-  hyperlinks: Record<string, unknown> | undefined;
+  hyperlinks: Record<string, Record<string, unknown> | undefined> | undefined;
 
-  constructor({ workbook, id, iterator, options }: Partial<WorksheetReaderOptions> = {}) {
+  constructor(options: Partial<WorksheetReaderOptions> = {}) {
     super();
 
-    this.workbook = workbook as WorksheetReaderOptions['workbook'];
-    this.id = id as number | string;
-    this.iterator = iterator as AsyncIterable<unknown>;
-    this.options = options || {};
+    this.workbook = options.workbook ?? {};
+    this.id = options.id ?? 1;
+    this.iterator = options.iterator ?? (async function* () {})();
+    this.options = options.options ?? {};
 
     // and a name
     this.name = `Sheet${this.id}`;
@@ -136,9 +208,7 @@ export class WorksheetReader extends EventEmitter {
       // otherise, assume letter
       c = colCache.l2n(c);
     }
-    if (!this._columns) {
-      this._columns = [];
-    }
+    this._columns ??= [];
     if (c > this._columns.length) {
       let n = this._columns.length + 1;
       while (n <= c) {
@@ -161,7 +231,9 @@ export class WorksheetReader extends EventEmitter {
   }
 
   eachColumnKey(f: (column: Column, key: string) => void) {
-    _.each(this._keys, f);
+    Object.entries(this._keys).forEach(([key, column]) => {
+      if (column) f(column, key);
+    });
   }
 
   async read() {
@@ -191,14 +263,14 @@ export class WorksheetReader extends EventEmitter {
     const { iterator, options } = this;
     let emitSheet = false;
     let emitHyperlinks = false;
-    let hyperlinks: Record<string, Record<string, unknown>> | null = null;
+    let hyperlinks: Record<string, Record<string, unknown> | undefined> | null = null;
 
     switch (options.worksheets) {
       case 'emit':
         emitSheet = true;
         break;
       case 'prep':
-        break;
+      case undefined:
       default:
         break;
     }
@@ -209,6 +281,7 @@ export class WorksheetReader extends EventEmitter {
       case 'cache':
         this.hyperlinks = hyperlinks = {};
         break;
+      case undefined:
       default:
         break;
     }
@@ -227,8 +300,9 @@ export class WorksheetReader extends EventEmitter {
     const xml = parts.join('');
     if (!xml) return;
 
-    const doc = worksheetParser.parse(xml);
-    const ws = doc.worksheet;
+    const rawDoc: unknown = worksheetParser.parse(xml);
+    if (!isRawWorksheetDoc(rawDoc)) return;
+    const ws = rawDoc.worksheet;
     if (!ws) return;
 
     // -----------------------------------------------------------------------
@@ -236,13 +310,18 @@ export class WorksheetReader extends EventEmitter {
     // them to cells during row processing (fixes ordering issue in old code).
     // -----------------------------------------------------------------------
     if ((emitHyperlinks || hyperlinks) && ws.hyperlinks?.hyperlink) {
-      for (const hl of ws.hyperlinks.hyperlink) {
-        const hyperlink = {
-          ref: hl.ref,
-          rId: hl['r:id'],
-        };
-        if (hyperlinks) {
-          hyperlinks[hyperlink.ref] = hyperlink;
+      const rawHyperlinks = Array.isArray(ws.hyperlinks.hyperlink)
+        ? ws.hyperlinks.hyperlink
+        : [ws.hyperlinks.hyperlink];
+      for (const hl of rawHyperlinks) {
+        if (hl.ref) {
+          const hyperlink: Record<string, unknown> = {
+            ref: hl.ref,
+            rId: hl['r:id'],
+          };
+          if (hyperlinks) {
+            hyperlinks[hl.ref] = hyperlink;
+          }
         }
       }
     }
@@ -251,12 +330,16 @@ export class WorksheetReader extends EventEmitter {
     // Columns
     // -----------------------------------------------------------------------
     if (emitSheet && ws.cols?.col) {
-      const cols = (ws.cols.col as Record<string, string>[]).map((col: Record<string, string>) => ({
-        min: parseInt(col.min, 10),
-        max: parseInt(col.max, 10),
-        width: parseFloat(col.width),
-        styleId: parseInt(col.style || '0', 10),
-      }));
+      const rawCols = Array.isArray(ws.cols.col) ? ws.cols.col : [ws.cols.col];
+      const cols = rawCols.map((col) => {
+        const cAttrs = col[':@'] ?? col;
+        return {
+          min: parseInt(String(cAttrs.min ?? col.min ?? '0'), 10),
+          max: parseInt(String(cAttrs.max ?? col.max ?? '0'), 10),
+          width: parseFloat(String(cAttrs.width ?? col.width ?? '0')),
+          styleId: parseInt(String(cAttrs.style ?? col.style ?? '0'), 10),
+        };
+      });
       this._columns = Column.fromModel(this, cols);
     }
 
@@ -268,17 +351,17 @@ export class WorksheetReader extends EventEmitter {
       for (const rowNode of rowNodes) {
         const worksheetEvents: WorksheetEvent[] = [];
 
-        const rAttrs = (rowNode[':@'] as Record<string, string>) || rowNode;
-        const r = parseInt((rAttrs.r || rowNode.r) as string, 10);
+        const rAttrs = rowNode[':@'] ?? rowNode;
+        const r = parseInt(String(rAttrs.r ?? rowNode.r ?? '0'), 10);
         const row = new Row(this, r);
 
-        const ht = rAttrs.ht || rowNode.ht;
-        if (ht) {
-          row.height = parseFloat(ht as string);
+        const ht = rAttrs.ht ?? rowNode.ht;
+        if (ht !== undefined) {
+          row.height = parseFloat(String(ht));
         }
-        const rowStyle = rAttrs.s || rowNode.s;
-        if (rowStyle) {
-          const styleId = parseInt(rowStyle as string, 10);
+        const rowStyle = rAttrs.s ?? rowNode.s;
+        if (rowStyle !== undefined) {
+          const styleId = parseInt(String(rowStyle), 10);
           const style = styles?.getStyleModel(styleId);
           if (style) {
             row.style = style;
@@ -287,21 +370,23 @@ export class WorksheetReader extends EventEmitter {
 
         const cellNodes = Array.isArray(rowNode.c) ? rowNode.c : rowNode.c ? [rowNode.c] : [];
         for (const cellNode of cellNodes) {
-          const cAttrs = (cellNode[':@'] as Record<string, string>) || cellNode;
-          const cellRef = (cAttrs.r || cellNode.r) as string;
+          const cAttrs = cellNode[':@'] ?? cellNode;
+          const cellRef = cAttrs.r ?? cellNode.r ?? '';
+          if (!cellRef) continue;
           const address = colCache.decodeAddress(cellRef);
           const cell = row.getCell(address.col);
 
           // Cell style
-          const cellStyle = cAttrs.s || cellNode.s;
-          if (cellStyle) {
-            const style = styles?.getStyleModel(parseInt(cellStyle as string, 10));
+          const cellStyle = cAttrs.s ?? cellNode.s;
+          if (cellStyle !== undefined) {
+            const styleId = parseInt(String(cellStyle), 10);
+            const style = styles?.getStyleModel(styleId);
             if (style) {
               cell.style = style;
             }
           }
 
-          const cellType: string | undefined = (cAttrs.t || cellNode.t) as string | undefined;
+          const cellType = cAttrs.t ?? cellNode.t;
           const fNode = cellNode.f;
           const vNode = cellNode.v;
 
@@ -310,14 +395,13 @@ export class WorksheetReader extends EventEmitter {
             // Formula cell
             // ---------------------------------------------------------------
             const formulaText = getNodeText(fNode);
-            const fAttrs: Record<string, unknown> =
-              typeof fNode === 'object' && fNode !== null ? (fNode as Record<string, unknown>) : {};
+            const fAttrs = typeof fNode === 'object' ? fNode : undefined;
 
             const cellValue: Record<string, unknown> = {};
             if (formulaText) cellValue.formula = formulaText;
-            if (fAttrs.t) cellValue.shareType = fAttrs.t;
-            if (fAttrs.ref) cellValue.ref = fAttrs.ref;
-            if (fAttrs.si !== undefined) cellValue.si = fAttrs.si;
+            if (fAttrs?.t) cellValue.shareType = fAttrs.t;
+            if (fAttrs?.ref) cellValue.ref = fAttrs.ref;
+            if (fAttrs?.si !== undefined) cellValue.si = fAttrs.si;
 
             if (vNode !== undefined) {
               const vText = getNodeText(vNode);
@@ -331,7 +415,7 @@ export class WorksheetReader extends EventEmitter {
                 cellValue.result = parseFloat(vText);
               }
             }
-            cell.value = cellValue;
+            cell.value = cellValue as unknown as CellValue;
           } else if (vNode !== undefined) {
             // ---------------------------------------------------------------
             // Value cell
@@ -341,9 +425,9 @@ export class WorksheetReader extends EventEmitter {
               case 's': {
                 const index = parseInt(vText, 10);
                 if (sharedStrings?.[index] !== undefined) {
-                  cell.value = sharedStrings[index];
+                  cell.value = sharedStrings[index] as CellValue;
                 } else {
-                  cell.value = { sharedString: index };
+                  cell.value = { sharedString: index } as unknown as CellValue;
                 }
                 break;
               }
@@ -354,15 +438,16 @@ export class WorksheetReader extends EventEmitter {
                 break;
 
               case 'e':
-                cell.value = { error: vText };
+                cell.value = { error: isCellError(vText) ? vText : '#VALUE!' };
                 break;
 
               case 'b':
                 cell.value = parseInt(vText, 10) !== 0;
                 break;
 
+              case undefined:
               default:
-                if (utils.isDateFmt(cell.numFmt)) {
+                if (utils.isDateFmt(cell.numFmt ?? '')) {
                   cell.value = utils.excelToDate(parseFloat(vText), properties?.model?.date1904);
                 } else {
                   cell.value = parseFloat(vText);
@@ -374,24 +459,24 @@ export class WorksheetReader extends EventEmitter {
             // Inline string cell
             // ---------------------------------------------------------------
             const isNode = cellNode.is;
-            const tNode =
-              typeof isNode === 'object' && isNode !== null
-                ? (isNode as Record<string, unknown>).t
-                : undefined;
+            const tNode = typeof isNode === 'object' ? isNode.t : undefined;
             cell.value = tNode !== undefined ? getNodeText(tNode) : '';
           }
 
           // Apply cached hyperlink if present
-          if (hyperlinks) {
-            const hyperlink = hyperlinks[cellNode.r as string];
-            if (hyperlink) {
+          if (hyperlinks && cellRef) {
+            const hyperlink = hyperlinks[cellRef];
+            if (hyperlink !== undefined) {
               // NB: `text` is a getter-only accessor on Cell (no setter) —
               // this assignment already throws a TypeError at runtime in the
               // original code too (classes are always strict mode); preserved
               // verbatim rather than silently fixed during a typing pass.
-              (cell as CellLike).text = cell.value;
+              (cell as CellLike).text = cell.value as string | undefined;
               cell.value = undefined;
-              (cell as CellLike).hyperlink = hyperlink;
+              (cell as CellLike).hyperlink =
+                typeof hyperlink === 'string'
+                  ? hyperlink
+                  : (hyperlink?.hyperlink as string | undefined);
             }
           }
         }
@@ -409,12 +494,17 @@ export class WorksheetReader extends EventEmitter {
     // Emit hyperlink events (emit mode — emit after rows are done)
     // -----------------------------------------------------------------------
     if (emitHyperlinks && ws.hyperlinks?.hyperlink) {
+      const rawHyperlinks = Array.isArray(ws.hyperlinks.hyperlink)
+        ? ws.hyperlinks.hyperlink
+        : [ws.hyperlinks.hyperlink];
       const hyperlinkEvents: WorksheetEvent[] = [];
-      for (const hl of ws.hyperlinks.hyperlink) {
-        hyperlinkEvents.push({
-          eventType: 'hyperlink',
-          value: { ref: hl.ref, rId: hl['r:id'] },
-        });
+      for (const hl of rawHyperlinks) {
+        if (hl.ref) {
+          hyperlinkEvents.push({
+            eventType: 'hyperlink',
+            value: { ref: hl.ref, rId: hl['r:id'] },
+          });
+        }
       }
       if (hyperlinkEvents.length > 0) {
         yield hyperlinkEvents;

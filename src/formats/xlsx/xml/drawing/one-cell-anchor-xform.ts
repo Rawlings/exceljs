@@ -29,7 +29,7 @@ class OneCellAnchorXform extends BaseCellAnchorXform {
   }
 
   override render(xmlStream: XmlStream, model: OneCellAnchorModel) {
-    xmlStream.openNode(this.tag, { editAs: model.range?.editAs || 'oneCell' });
+    xmlStream.openNode(this.tag, { editAs: model.range?.editAs ?? 'oneCell' });
 
     this.map['xdr:from'].render(xmlStream, model.range?.tl);
     this.map['xdr:ext'].render(xmlStream, model.range?.ext);

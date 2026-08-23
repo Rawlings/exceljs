@@ -100,7 +100,6 @@ async function fileExists(filename: string): Promise<boolean> {
   }
 }
 
-/* eslint-disable quote-props */
 const SpecialValues: Record<string, CellValue> = {
   true: true,
   false: false,
@@ -112,7 +111,6 @@ const SpecialValues: Record<string, CellValue> = {
   '#VALUE!': { error: '#VALUE!' },
   '#NUM!': { error: '#NUM!' },
 };
-/* eslint-enable quote-props */
 
 function parseCsvLine(line: string, delimiter = ','): string[] {
   const result: string[] = [];
@@ -179,7 +177,7 @@ function defaultWriteMap(value: CellValue): CellValue {
         return value.hyperlink || value.text || '';
       }
       if ('formula' in value) {
-        return value.result || '';
+        return value.result ?? '';
       }
       if ('error' in value) {
         return value.error;
@@ -214,14 +212,14 @@ export class CSV {
   read(stream: Readable, options: Partial<CsvReadOptions> = {}): Promise<Worksheet> {
     return new Promise((resolve, reject) => {
       const worksheet = this.workbook.addWorksheet(options.sheetName);
-      const delimiter = options.parserOptions?.delimiter || ',';
-      const map = options.map || defaultReadMap;
+      const delimiter = options.parserOptions?.delimiter ?? ',';
+      const map = options.map ?? defaultReadMap;
 
       let buffer = '';
       stream.on('data', (chunk: Buffer | string) => {
         buffer += chunk.toString();
         const lines = buffer.split(/\r?\n/);
-        buffer = lines.pop() || '';
+        buffer = lines.pop() ?? '';
         for (const line of lines) {
           if (line.length === 0) continue;
           const parsed = parseCsvLine(line, delimiter);
@@ -247,9 +245,9 @@ export class CSV {
 
   write(stream: NodeJS.WritableStream, options: Partial<CsvWriteOptions> = {}): Promise<void> {
     return new Promise((resolve, reject) => {
-      const worksheet = this.workbook.getWorksheet(options.sheetName || options.sheetId);
-      const delimiter = options.formatterOptions?.delimiter || ',';
-      const map = options.map || defaultWriteMap;
+      const worksheet = this.workbook.getWorksheet(options.sheetName ?? options.sheetId);
+      const delimiter = options.formatterOptions?.delimiter ?? ',';
+      const map = options.map ?? defaultWriteMap;
 
       const formatField = (field: CellValue) => {
         const str = field === null || field === undefined ? '' : String(field);
@@ -294,7 +292,7 @@ export class CSV {
 
   writeFile(filename: string, options: Partial<CsvWriteOptions> = {}): Promise<void> {
     const streamOptions = {
-      encoding: (options.encoding || 'utf8') as BufferEncoding,
+      encoding: (options.encoding ?? 'utf8') as BufferEncoding,
     };
     const stream = fs.createWriteStream(filename, streamOptions);
     return this.write(stream, options);

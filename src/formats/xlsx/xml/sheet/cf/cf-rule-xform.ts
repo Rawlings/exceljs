@@ -122,11 +122,13 @@ const opType = (attributes: Record<string, string>) => {
     case 'notContainsErrors':
       return {
         type: 'containsText',
-        operator: type,
+        operator,
       };
-
     default:
-      return { type, operator };
+      return {
+        type,
+        operator,
+      };
   }
 };
 
@@ -191,6 +193,8 @@ class CfRuleXform extends CompositeXform {
         break;
       case 'timePeriod':
         this.renderTimePeriod(xmlStream, model);
+        break;
+      default:
         break;
     }
   }
@@ -340,7 +344,7 @@ class CfRuleXform extends CompositeXform {
 
       case 'formula':
         // except - formula is a string and appends to formulae
-        model.formulae = model.formulae || [];
+        model.formulae = model.formulae ?? [];
         model.formulae.push(parser.model);
         break;
     }

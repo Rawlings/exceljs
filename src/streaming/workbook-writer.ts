@@ -12,28 +12,21 @@ import CoreXform from '../formats/xlsx/xml/core/core-xform';
 import RelationshipsXform from '../formats/xlsx/xml/core/relationships-xform';
 import ContentTypesXform from '../formats/xlsx/xml/core/content-types-xform';
 import AppXform from '../formats/xlsx/xml/core/app-xform';
-import WorkbookXform from '../formats/xlsx/xml/book/workbook-xform';
+import WorkbookXform, { type WorkbookXformModel } from '../formats/xlsx/xml/book/workbook-xform';
 import SharedStringsXform from '../formats/xlsx/xml/strings/shared-strings-xform';
 
 import WorksheetWriter from './worksheet-writer';
-import type {
-  WorksheetProperties,
-  WorksheetState,
-  PageSetup,
-  WorksheetView,
-  AutoFilter,
-  HeaderFooter,
-} from '../core/worksheet';
+import type { AutoFilter, AddWorksheetOptions } from '../core/worksheet';
 
 import theme1Xml from '../formats/xlsx/theme1';
 
-function commitWorksheet(worksheet: WorksheetWriter) {
+function commitWorksheet(worksheet: WorksheetWriter | undefined) {
   if (!worksheet) {
     return Promise.resolve();
   }
-  if (!(worksheet as { committed: boolean }).committed) {
+  if (!worksheet.committed) {
     return new Promise<void>((resolve) => {
-      (worksheet as { stream: { on(e: string, cb: () => void): void } }).stream.on('zipped', () => {
+      worksheet.stream.on('zipped', () => {
         resolve();
       });
       worksheet.commit();
@@ -77,7 +70,7 @@ export class WorkbookWriter {
   styles: StylesXform;
   _definedNames: DefinedNames;
   _worksheets: (WorksheetWriter | undefined)[];
-  views: unknown[];
+  views: WorkbookXformModel['views'];
   zipOptions: Record<string, unknown> | undefined;
   stream: NodeJS.WritableStream & { write?: unknown };
   zip: ZipWriter;
@@ -88,16 +81,16 @@ export class WorkbookWriter {
   promise: Promise<unknown>;
 
   constructor(options?: WorkbookWriterOptions) {
-    options = options || {};
+    options = options ?? {};
 
-    this.created = options.created || new Date();
-    this.modified = options.modified || this.created;
-    this.creator = options.creator || 'ExcelJS';
-    this.lastModifiedBy = options.lastModifiedBy || 'ExcelJS';
+    this.created = options.created ?? new Date();
+    this.modified = options.modified ?? this.created;
+    this.creator = options.creator ?? 'ExcelJS';
+    this.lastModifiedBy = options.lastModifiedBy ?? 'ExcelJS';
     this.lastPrinted = options.lastPrinted;
 
     // using shared strings creates a smaller xlsx file but may use more memory
-    this.useSharedStrings = options.useSharedStrings || false;
+    this.useSharedStrings = options.useSharedStrings ?? false;
     this.sharedStrings = new SharedStrings();
 
     // style manager
@@ -138,11 +131,10 @@ export class WorkbookWriter {
     const cleanPath = typeof path === 'string' ? path.replace(/^\//, '') : path;
     const stream = new PassThrough();
     const bufPromise = buffer(stream);
-    const appendPromise = this.zip.append(bufPromise, { name: cleanPath });
+    this.zip.append(bufPromise, { name: cleanPath });
     stream.on('finish', async () => {
       try {
         await bufPromise;
-        await appendPromise;
       } catch {
         // ignore or handle error
       }
@@ -153,7 +145,7 @@ export class WorkbookWriter {
 
   _commitWorksheets() {
     // if there are any uncommitted worksheets, commit them now and wait
-    const promises = (this._worksheets as WorksheetWriter[]).map(commitWorksheet);
+    const promises = this._worksheets.map(commitWorksheet);
     if (promises.length) {
       return Promise.all(promises);
     }
@@ -204,41 +196,48 @@ export class WorkbookWriter {
     return this.media[id];
   }
 
-  addWorksheet(name?: string, options?: Record<string, unknown>): WorksheetWriter {
+  addWorksheet(
+    name?: string,
+    options?: Partial<AddWorksheetOptions> & {
+      useSharedStrings?: boolean;
+      tabColor?: unknown;
+      autoFilter?: AutoFilter;
+      [key: string]: unknown;
+    },
+  ): WorksheetWriter {
     // it's possible to add a worksheet with different than default
     // shared string handling
     // in fact, it's even possible to switch it mid-sheet
-    options = options || {};
+    const opts = options ?? {};
     const useSharedStrings: boolean =
-      options.useSharedStrings !== undefined
-        ? (options.useSharedStrings as boolean)
-        : this.useSharedStrings;
+      typeof opts.useSharedStrings === 'boolean' ? opts.useSharedStrings : this.useSharedStrings;
 
-    if (options.tabColor) {
+    let properties = opts.properties;
+    if (opts.tabColor) {
       // eslint-disable-next-line no-console
       console.trace('tabColor option has moved to { properties: tabColor: {...} }');
-      options.properties = Object.assign(
+      properties = Object.assign(
         {
-          tabColor: options.tabColor,
+          tabColor: opts.tabColor,
         },
-        options.properties,
+        properties,
       );
     }
 
     const id = this.nextId;
-    name = name || `sheet${id}`;
+    name = name ?? `sheet${id}`;
 
     const worksheet = new WorksheetWriter({
       id,
       name,
       workbook: this,
       useSharedStrings,
-      properties: options.properties as WorksheetProperties | undefined,
-      state: options.state as WorksheetState | undefined,
-      pageSetup: options.pageSetup as Partial<PageSetup> | undefined,
-      views: options.views as Array<Partial<WorksheetView>> | undefined,
-      autoFilter: options.autoFilter as AutoFilter | undefined,
-      headerFooter: options.headerFooter as Partial<HeaderFooter> | undefined,
+      properties,
+      state: opts.state,
+      pageSetup: opts.pageSetup,
+      views: opts.views,
+      autoFilter: opts.autoFilter,
+      headerFooter: opts.headerFooter,
     });
 
     this._worksheets[id] = worksheet;
@@ -250,7 +249,7 @@ export class WorkbookWriter {
       return this._worksheets.find(Boolean);
     }
     if (typeof id === 'number') {
-      return this._worksheets[id] || this._worksheets.find((ws) => ws?.id === id);
+      return this._worksheets[id] ?? this._worksheets.find((ws) => ws?.id === id);
     }
     if (typeof id === 'string') {
       const byName = this._worksheets.find(
@@ -259,7 +258,7 @@ export class WorkbookWriter {
       if (byName) return byName;
       const num = parseInt(id, 10);
       if (!Number.isNaN(num)) {
-        return this._worksheets[num] || this._worksheets.find((ws) => ws?.id === num);
+        return this._worksheets[num] ?? this._worksheets.find((ws) => ws?.id === num);
       }
     }
     return undefined;
@@ -307,28 +306,25 @@ export class WorkbookWriter {
     });
   }
 
-  addMedia() {
-    return Promise.all(
-      this.media.map((medium) => {
-        if (medium.type === 'image') {
-          const filename = `xl/media/${medium.name}`;
-          if (medium.filename) {
-            return this.zip.append(buffer(fs.createReadStream(medium.filename)), {
-              name: filename,
-            });
-          }
-          if (medium.buffer) {
-            return this.zip.append(medium.buffer, { name: filename });
-          }
-          if (medium.base64) {
-            const dataimg64 = medium.base64;
-            const content = dataimg64.substring(dataimg64.indexOf(',') + 1);
-            return this.zip.append(content, { name: filename, base64: true });
-          }
+  async addMedia() {
+    for (const medium of this.media) {
+      if (medium.type === 'image') {
+        const filename = `xl/media/${medium.name}`;
+        if (medium.filename) {
+          this.zip.append(buffer(fs.createReadStream(medium.filename)), {
+            name: filename,
+          });
+        } else if (medium.buffer) {
+          this.zip.append(medium.buffer, { name: filename });
+        } else if (medium.base64) {
+          const dataimg64 = medium.base64;
+          const content = dataimg64.slice(dataimg64.indexOf(',') + 1);
+          this.zip.append(content, { name: filename, base64: true });
         }
+      } else {
         throw new Error('Unsupported media');
-      }),
-    );
+      }
+    }
   }
 
   addApp() {
@@ -397,9 +393,13 @@ export class WorkbookWriter {
 
   addWorkbook() {
     const { zip } = this;
-    const model = {
-      worksheets: this._worksheets.filter(Boolean),
-      definedNames: (this._definedNames as { model: unknown }).model,
+    const model: WorkbookXformModel = {
+      worksheets: this._worksheets.filter((ws): ws is WorksheetWriter =>
+        Boolean(ws),
+      ) as unknown as NonNullable<WorkbookXformModel['worksheets']>,
+      definedNames: this._definedNames.model as unknown as NonNullable<
+        WorkbookXformModel['definedNames']
+      >,
       views: this.views,
       properties: {},
       calcProperties: {},
@@ -407,9 +407,8 @@ export class WorkbookWriter {
 
     return new Promise((resolve) => {
       const xform = new WorkbookXform();
-      const xformModel = model as unknown as Parameters<typeof xform.prepare>[0];
-      xform.prepare(xformModel);
-      zip.append(xform.toXml(xformModel), { name: 'xl/workbook.xml' });
+      xform.prepare(model);
+      zip.append(xform.toXml(model), { name: 'xl/workbook.xml' });
       resolve(undefined);
     });
   }

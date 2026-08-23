@@ -3,11 +3,6 @@ import { RelType } from '../formats/xlsx/rel-type';
 import colCache from '../utils/data/col-cache';
 import CommentXform from '../formats/xlsx/xml/comment/comment-xform';
 import VmlShapeXform from '../formats/xlsx/xml/comment/vml-shape-xform';
-import type { VmlShapeModel } from '../formats/xlsx/xml/comment/vml-shape-xform';
-
-interface CommentsWorksheetLike {
-  comments?: unknown[];
-}
 
 interface CommentsWriterStream {
   write(text: string): void;
@@ -26,7 +21,7 @@ interface CommentsSheetRelsWriter {
 class SheetCommentsWriter {
   id: number;
   count: number;
-  _worksheet: CommentsWorksheetLike;
+  _worksheet: { comments?: unknown[] };
   _workbook: CommentsWorkbook;
   _sheetRelsWriter: CommentsSheetRelsWriter;
   _commentsStream: CommentsWriterStream | undefined;
@@ -35,7 +30,7 @@ class SheetCommentsWriter {
   vmlRelId: string | undefined;
 
   constructor(
-    worksheet: CommentsWorksheetLike,
+    worksheet: { comments?: unknown[] },
     sheetRelsWriter: CommentsSheetRelsWriter,
     options: { id: number; workbook: CommentsWorkbook },
   ) {
@@ -48,16 +43,12 @@ class SheetCommentsWriter {
   }
 
   get commentsStream() {
-    if (!this._commentsStream) {
-      this._commentsStream = this._workbook._openStream(`xl/comments${this.id}.xml`);
-    }
+    this._commentsStream ??= this._workbook._openStream(`xl/comments${this.id}.xml`);
     return this._commentsStream;
   }
 
   get vmlStream() {
-    if (!this._vmlStream) {
-      this._vmlStream = this._workbook._openStream(`xl/drawings/vmlDrawing${this.id}.vml`);
-    }
+    this._vmlStream ??= this._workbook._openStream(`xl/drawings/vmlDrawing${this.id}.vml`);
     return this._vmlStream;
   }
 
@@ -110,7 +101,7 @@ class SheetCommentsWriter {
 
     const vmlShapeXform = new VmlShapeXform();
     const vmlXmlStream = new XmlStream();
-    vmlShapeXform.render(vmlXmlStream, comment as unknown as VmlShapeModel, index);
+    vmlShapeXform.render(vmlXmlStream, comment, index);
     this.vmlStream.write(vmlXmlStream.xml);
   }
 
@@ -120,7 +111,7 @@ class SheetCommentsWriter {
   }
 
   addComments(comments: Record<string, unknown>[]): void {
-    if (comments?.length) {
+    if (comments.length) {
       if (!this.startedData) {
         this._worksheet.comments = [];
         this._writeOpen();
@@ -130,7 +121,9 @@ class SheetCommentsWriter {
       }
 
       comments.forEach((item) => {
-        item.refAddress = colCache.decodeAddress(item.ref as string);
+        if (typeof item.ref === 'string') {
+          item.refAddress = colCache.decodeAddress(item.ref);
+        }
       });
 
       comments.forEach((comment) => {

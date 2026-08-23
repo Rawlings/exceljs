@@ -17,7 +17,7 @@ class ColorXform extends BaseXform {
     super();
 
     // this.name controls the xm node name
-    this.name = name || 'color';
+    this.name = name ?? 'color';
   }
 
   override get tag() {

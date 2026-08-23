@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import BaseXform from '../base-xform';
 import utils from '../../../../utils/helpers/utils';
 
@@ -43,7 +42,7 @@ class EdgeXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, model: EdgeModel | undefined, defaultColor?: ColorModel) {
-    const color = model?.color || defaultColor || this.defaultColor;
+    const color = model?.color ?? defaultColor ?? this.defaultColor;
     xmlStream.openNode(this.name);
     if (model?.style) {
       xmlStream.addAttribute('style', model.style);
@@ -96,9 +95,7 @@ class EdgeXform extends BaseXform {
 
     if (name === this.name) {
       if (this.map.color.model) {
-        if (!this.model) {
-          this.model = {};
-        }
+        this.model ??= {};
         this.model.color = this.map.color.model;
       }
     }

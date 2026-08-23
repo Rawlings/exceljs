@@ -1,19 +1,15 @@
 import _ from '../utils/helpers/under-dash';
 import * as Enums from './enums';
 import colCache from '../utils/data/col-cache';
-import { Cell, type Style, type CellValue } from './cell';
-import type { WorksheetLike, RowLike, CellLike, EachRowOptions } from './internal-types';
+import { Cell, type Style, type CellValue, type CellModel, type CellValueModel } from './cell';
+import { copyStyle } from '../utils/helpers/copy-style';
+import type { WorksheetLike, RowLike, EachRowOptions } from './internal-types';
 
-export type RowValues =
-  | CellValue[]
-  | { [key: string]: CellValue }
-  | unknown[]
-  | Record<string, unknown>
-  | undefined
-  | null;
+export type RowValues = CellValue[] | { [key: string]: CellValue } | undefined | null;
 
 export interface RowModel {
-  cells: Record<string, unknown>[];
+  [key: string]: unknown;
+  cells: (CellModel | CellValueModel)[];
   number: number;
   min: number;
   max: number;
@@ -27,7 +23,7 @@ export interface RowModel {
 export class Row implements RowLike {
   _worksheet: WorksheetLike;
   _number: number;
-  _cells: (CellLike | undefined)[];
+  _cells: (Cell | undefined)[];
   style: Partial<Style>;
   _hidden: boolean | undefined;
   _outlineLevel: number | undefined;
@@ -53,19 +49,17 @@ export class Row implements RowLike {
   // Inform Streaming Writer that this row (and all rows before it) are complete
   // and ready to write. Has no effect on Worksheet document
   commit() {
-    this._worksheet._commitRow?.(this); // eslint-disable-line no-underscore-dangle
+    this._worksheet._commitRow?.(this);
   }
 
   // helps GC by breaking cyclic references
   destroy() {
-    const self = this as Record<string, unknown>;
-    delete self._worksheet;
-    delete self._cells;
-    delete self.style;
+    this._cells = [];
+    this.style = {};
   }
 
   findCell(colNumber: number): Cell | undefined {
-    return this._cells[colNumber - 1] as Cell | undefined;
+    return this._cells[colNumber - 1];
   }
 
   // given {address, row, col}, find or create new cell
@@ -76,7 +70,7 @@ export class Row implements RowLike {
       cell = new Cell(this, column, address.address);
       this._cells[address.col - 1] = cell;
     }
-    return cell as Cell;
+    return cell;
   }
 
   // get cell by key, letter or column number
@@ -89,18 +83,18 @@ export class Row implements RowLike {
         cell = new Cell(this, column, address);
         this._cells[col - 1] = cell;
       }
-      return cell as Cell;
+      return cell;
     }
 
     if (typeof col === 'string') {
-      const colOption = this._worksheet?.getColumn?.(col) as { number?: number } | undefined;
+      const colOption = this._worksheet.getColumn?.(col);
       if (colOption && typeof colOption.number === 'number') {
         return this.getCell(colOption.number);
       }
       const address = colCache.decodeAddress(col);
       return this.getCell(address.col);
     }
-    throw new Error(`Invalid column key/number: ${col}`);
+    throw new Error(`Invalid column key/number: ${String(col)}`);
   }
 
   // remove cell(s) and shift all higher cells down by count
@@ -121,15 +115,15 @@ export class Row implements RowLike {
           cDst = this.getCell(i);
           cDst.value = cSrc.value;
           cDst.style = cSrc.style;
-          // eslint-disable-next-line no-underscore-dangle
-          cDst._comment = cSrc._comment;
+          cDst.note = cSrc.note;
         } else if (cDst) {
           cDst.value = null;
           cDst.style = {};
-          // eslint-disable-next-line no-underscore-dangle
-          cDst._comment = undefined;
+          cDst.note = undefined;
         }
       }
+      const actualDeleteCount = Math.min(count, Math.max(0, nEnd - start + 1));
+      this._cells.length = nEnd - actualDeleteCount + inserts.length;
     } else if (nExpand > 0) {
       // insert new cells
       for (i = nEnd; i >= nKeep; i--) {
@@ -138,21 +132,19 @@ export class Row implements RowLike {
           cDst = this.getCell(i + nExpand);
           cDst.value = cSrc.value;
           cDst.style = cSrc.style;
-          // eslint-disable-next-line no-underscore-dangle
-          cDst._comment = cSrc._comment;
+          cDst.note = cSrc.note;
         } else {
           this._cells[i + nExpand - 1] = undefined;
         }
       }
     }
 
-    // now add the new values
+    // handle insert values
     for (i = 0; i < inserts.length; i++) {
       cDst = this.getCell(start + i);
-      cDst.value = inserts[i];
+      cDst.value = inserts[i] as CellValue;
       cDst.style = {};
-      // eslint-disable-next-line no-underscore-dangle
-      cDst._comment = undefined;
+      cDst.note = undefined;
     }
   }
 
@@ -163,19 +155,23 @@ export class Row implements RowLike {
     options: EachRowOptions | null | ((cell: Cell, colNumber: number) => void),
     iteratee?: (cell: Cell, colNumber: number) => void,
   ) {
-    if (!iteratee) {
-      iteratee = options as (cell: CellLike, colNumber: number) => void;
-      options = null;
+    let fn: (cell: Cell, colNumber: number) => void;
+    let opt: EachRowOptions | null = null;
+    if (typeof options === 'function') {
+      fn = options;
+    } else {
+      opt = options;
+      fn = iteratee ?? (() => {});
     }
-    if (options && (options as EachRowOptions).includeEmpty) {
+    if (opt?.includeEmpty) {
       const n = this._cells.length;
       for (let i = 1; i <= n; i++) {
-        iteratee(this.getCell(i), i);
+        fn(this.getCell(i), i);
       }
     } else {
       this._cells.forEach((cell, index) => {
         if (cell && cell.type !== Enums.ValueType.Null) {
-          (iteratee as (cell: CellLike, colNumber: number) => void)(cell, index + 1);
+          fn(cell, index + 1);
         }
       });
     }
@@ -184,9 +180,9 @@ export class Row implements RowLike {
   // ===========================================================================
   // Page Breaks
   addPageBreak(lft?: number, rght?: number) {
-    const ws = this._worksheet as unknown as { rowBreaks: unknown[] };
-    const left = Math.max(0, (lft as number) - 1) || 0;
-    const right = Math.max(0, (rght as number) - 1) || 16838;
+    this._worksheet.rowBreaks ??= [];
+    const left = Math.max(0, (lft ?? 0) - 1) || 0;
+    const right = Math.max(0, (rght ?? 0) - 1) || 16838;
     const pb: Record<string, unknown> = {
       id: this._number,
       max: right,
@@ -194,14 +190,14 @@ export class Row implements RowLike {
     };
     if (left) pb.min = left;
 
-    ws.rowBreaks.push(pb);
+    this._worksheet.rowBreaks.push(pb);
   }
 
   get values() {
     const values: CellValue[] = [];
     this._cells.forEach((cell) => {
       if (cell && cell.type !== Enums.ValueType.Null) {
-        values[cell.col] = cell.value as CellValue;
+        values[cell.col] = cell.value;
       }
     });
     return values;
@@ -219,43 +215,21 @@ export class Row implements RowLike {
         // contiguous array - start at column 1
         offset = 1;
       }
-      value.forEach((item, index) => {
-        if (item !== undefined) {
-          this.getCellEx({
-            address: colCache.encodeAddress(this._number, index + offset),
-            row: this._number,
-            col: index + offset,
-          }).value = item;
+      value.forEach((val, index) => {
+        if (val !== undefined) {
+          this.getCell(index + offset).value = val;
         }
       });
     } else {
-      // assume object with column keys
-      this._worksheet.eachColumnKey?.((column, key) => {
-        if (value[key] !== undefined) {
-          this.getCellEx({
-            address: colCache.encodeAddress(this._number, column.number),
-            row: this._number,
-            col: column.number,
-          }).value = value[key];
-        }
+      // object literal - { A: 1, B: 2 } or { 1: 1, 2: 2 }
+      Object.keys(value).forEach((key) => {
+        this.getCell(key).value = value[key];
       });
     }
   }
 
-  get height() {
-    return this._height;
-  }
-
-  set height(value: number | undefined) {
-    this._height = value;
-  }
-
-  // returns true if the row includes at least one cell with a value
   get hasValues() {
-    return _.some(
-      this._cells,
-      (cell: CellLike | undefined) => !!cell && cell.type !== Enums.ValueType.Null,
-    );
+    return this._cells.some((cell) => cell && cell.type !== Enums.ValueType.Null);
   }
 
   get cellCount() {
@@ -270,101 +244,87 @@ export class Row implements RowLike {
     return count;
   }
 
-  // get the min and max column number for the non-null cells in this row or null
-  get dimensions() {
-    let min = 0;
-    let max = 0;
-    this._cells.forEach((cell) => {
-      if (cell && cell.type !== Enums.ValueType.Null) {
-        if (!min || min > cell.col) {
-          min = cell.col;
-        }
-        if (max < cell.col) {
-          max = cell.col;
-        }
-      }
-    });
-    return min > 0
-      ? {
-          min,
-          max,
-        }
-      : null;
-  }
-
   // =========================================================================
-  // styles
-  _applyStyle(name: string, value: unknown) {
-    (this.style as Record<string, unknown>)[name] = value;
-    this._cells.forEach((cell) => {
-      if (cell) {
-        (cell as Record<string, unknown>)[name] = value;
-      }
-    });
-    return value;
-  }
-
-  get numFmt() {
-    return this.style.numFmt;
-  }
-
-  set numFmt(value: unknown) {
-    this._applyStyle('numFmt', value);
-  }
-
+  // Styles
   get font() {
     return this.style.font;
   }
 
-  set font(value: unknown) {
-    this._applyStyle('font', value);
+  set font(value) {
+    this.style.font = value;
+    this._cells.forEach((cell) => {
+      if (cell) cell.font = value;
+    });
   }
 
   get alignment() {
     return this.style.alignment;
   }
 
-  set alignment(value: unknown) {
-    this._applyStyle('alignment', value);
-  }
-
-  get protection() {
-    return this.style.protection;
-  }
-
-  set protection(value: unknown) {
-    this._applyStyle('protection', value);
+  set alignment(value) {
+    this.style.alignment = value;
+    this._cells.forEach((cell) => {
+      if (cell) cell.alignment = value;
+    });
   }
 
   get border() {
     return this.style.border;
   }
 
-  set border(value: unknown) {
-    this._applyStyle('border', value);
+  set border(value) {
+    this.style.border = value;
+    this._cells.forEach((cell) => {
+      if (cell) cell.border = value;
+    });
   }
 
   get fill() {
     return this.style.fill;
   }
 
-  set fill(value: unknown) {
-    this._applyStyle('fill', value);
+  set fill(value) {
+    this.style.fill = value;
+    this._cells.forEach((cell) => {
+      if (cell) cell.fill = value;
+    });
+  }
+
+  get numFmt() {
+    return this.style.numFmt;
+  }
+
+  set numFmt(value) {
+    this.style.numFmt = value;
+    this._cells.forEach((cell) => {
+      if (cell) cell.numFmt = value;
+    });
+  }
+
+  get protection() {
+    return this.style.protection;
+  }
+
+  set protection(value) {
+    this.style.protection = value;
+    this._cells.forEach((cell) => {
+      if (cell) cell.protection = value;
+    });
   }
 
   get hidden() {
     return !!this._hidden;
   }
 
-  set hidden(value: boolean) {
+  set hidden(value) {
     this._hidden = value;
   }
 
   get outlineLevel() {
-    return this._outlineLevel || 0;
+    return this._outlineLevel ?? 0;
   }
 
-  set outlineLevel(value: number) {
+  set outlineLevel(value) {
     this._outlineLevel = value;
   }
 
@@ -375,26 +335,61 @@ export class Row implements RowLike {
   }
 
   // =========================================================================
+  get height() {
+    return this._height;
+  }
+
+  set height(value: number | undefined) {
+    const isCustom = value !== undefined;
+    if (this._worksheet.properties) {
+      this._worksheet.properties.customRowHeight = isCustom;
+    }
+    this._height = value;
+  }
+
+  get min() {
+    let min = 0;
+    this._cells.forEach((cell) => {
+      if (cell) {
+        min = min ? Math.min(min, cell.col) : cell.col;
+      }
+    });
+    return min;
+  }
+
+  get max() {
+    let max = 0;
+    this._cells.forEach((cell) => {
+      if (cell) {
+        max = Math.max(max, cell.col);
+      }
+    });
+    return max;
+  }
+
+  get dimensions() {
+    const { min, max } = this;
+    return min && max ? { min, max } : null;
+  }
+
+  // =========================================================================
+  // Model
   get model(): RowModel | null {
-    const cells: Record<string, unknown>[] = [];
+    const cells: (CellModel | CellValueModel)[] = [];
     let min = 0;
     let max = 0;
     this._cells.forEach((cell) => {
       if (cell) {
         const cellModel = cell.model;
         if (cellModel) {
-          if (!min || min > cell.col) {
-            min = cell.col;
-          }
-          if (max < cell.col) {
-            max = cell.col;
-          }
           cells.push(cellModel);
+          min = min ? Math.min(min, cell.col) : cell.col;
+          max = Math.max(max, cell.col);
         }
       }
     });
 
-    return this.height || cells.length
+    return cells.length
       ? {
           cells,
           number: this.number,
@@ -409,38 +404,39 @@ export class Row implements RowLike {
       : null;
   }
 
-  set model(value: RowModel) {
-    if (value.number !== this._number) {
-      throw new Error('Invalid row number in model');
+  set model(value: RowModel | null) {
+    if (!value) {
+      this._cells = [];
+      return;
     }
     this._cells = [];
     let previousAddress: { row: number; col: number; address: string } | undefined;
-    value.cells.forEach((cellModel: Record<string, unknown>) => {
-      switch (cellModel.type) {
-        case (Cell as { Types: Record<string, unknown> }).Types.Merge:
-          // special case - don't add this types
-          break;
-        default: {
-          let address: { row: number; col: number; address: string } | undefined;
-          if (cellModel.address) {
-            address = colCache.decodeAddress(cellModel.address as string);
-          } else if (previousAddress) {
-            // This is a <c> element without an r attribute
-            // Assume that it's the cell for the next column
-            const { row } = previousAddress;
-            const col = previousAddress.col + 1;
-            address = {
-              row,
-              col,
-              address: colCache.encodeAddress(row, col),
-              $col$row: `$${colCache.n2l(col)}$${row}`,
-            } as { row: number; col: number; address: string };
-          }
-          previousAddress = address;
-          const cell = this.getCellEx(address as { col: number; row: number; address: string });
-          (cell as { model: unknown }).model = cellModel;
-          break;
-        }
+    value.cells.forEach((cellModel) => {
+      if (cellModel.type === Cell.Types.Merge) {
+        return;
+      }
+      let address: { row: number; col: number; address: string } | undefined;
+      if (typeof cellModel.address === 'string') {
+        address = colCache.decodeAddress(cellModel.address);
+      } else if (
+        cellModel.address &&
+        typeof cellModel.address === 'object' &&
+        'address' in cellModel.address
+      ) {
+        address = cellModel.address as { row: number; col: number; address: string };
+      } else if (previousAddress) {
+        const { row } = previousAddress;
+        const col = previousAddress.col + 1;
+        address = {
+          row,
+          col,
+          address: colCache.encodeAddress(row, col),
+        };
+      }
+      if (address) {
+        previousAddress = address;
+        const cell = this.getCellEx(address);
+        cell.model = cellModel as CellModel;
       }
     });
 
@@ -453,7 +449,7 @@ export class Row implements RowLike {
     this.hidden = value.hidden;
     this.outlineLevel = value.outlineLevel || 0;
 
-    this.style = (value.style && JSON.parse(JSON.stringify(value.style))) || {};
+    this.style = copyStyle(value.style);
   }
 }
 

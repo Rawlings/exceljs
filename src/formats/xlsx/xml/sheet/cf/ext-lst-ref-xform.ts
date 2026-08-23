@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import BaseXform from '../../base-xform';
 import CompositeXform from '../../composite-xform';
 import type XmlStream from '../../../../../utils/stream/xml-stream';

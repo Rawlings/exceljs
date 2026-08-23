@@ -62,7 +62,7 @@ class SheetViewXform extends BaseXform {
 
   override render(xmlStream: XmlStream, model: SheetViewModel) {
     xmlStream.openNode('sheetView', {
-      workbookViewId: model.workbookViewId || 0,
+      workbookViewId: model.workbookViewId ?? 0,
     });
     const add = function (name: string, value: unknown, included: unknown) {
       if (included) {
@@ -84,17 +84,17 @@ class SheetViewXform extends BaseXform {
     let activePane;
     switch (model.state) {
       case 'frozen':
-        xSplit = model.xSplit || 0;
-        ySplit = model.ySplit || 0;
-        topLeftCell = model.topLeftCell || colCache.getAddress(ySplit + 1, xSplit + 1).address;
+        xSplit = model.xSplit ?? 0;
+        ySplit = model.ySplit ?? 0;
+        topLeftCell = model.topLeftCell ?? colCache.getAddress(ySplit + 1, xSplit + 1).address;
         activePane =
-          (model.xSplit && model.ySplit && 'bottomRight') ||
-          (model.xSplit && 'topRight') ||
+          (model.xSplit && model.ySplit && 'bottomRight') ??
+          (model.xSplit && 'topRight') ??
           'bottomLeft';
 
         xmlStream.leafNode('pane', {
-          xSplit: model.xSplit || undefined,
-          ySplit: model.ySplit || undefined,
+          xSplit: model.xSplit ?? undefined,
+          ySplit: model.ySplit ?? undefined,
           topLeftCell,
           activePane,
           state: 'frozen',
@@ -110,8 +110,8 @@ class SheetViewXform extends BaseXform {
           model.activePane = undefined;
         }
         xmlStream.leafNode('pane', {
-          xSplit: model.xSplit || undefined,
-          ySplit: model.ySplit || undefined,
+          xSplit: model.xSplit ?? undefined,
+          ySplit: model.ySplit ?? undefined,
           topLeftCell: model.topLeftCell,
           activePane: model.activePane,
         });

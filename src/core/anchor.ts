@@ -38,11 +38,13 @@ export class Anchor implements IAnchor {
   nativeRowOff: number;
 
   constructor(
-    worksheet?: AnchorWorksheet,
-    address?: string | AnchorAddressInput,
+    worksheet?: AnchorWorksheet | AnchorAddressInput | Record<string, unknown> | null,
+    address?: string | AnchorAddressInput | Record<string, unknown> | null,
     offset: number = 0,
   ) {
-    this.worksheet = worksheet;
+    if (worksheet && typeof worksheet === 'object' && 'getColumn' in worksheet) {
+      this.worksheet = worksheet as AnchorWorksheet;
+    }
 
     if (!address) {
       this.nativeCol = 0;
@@ -55,18 +57,18 @@ export class Anchor implements IAnchor {
       this.nativeColOff = 0;
       this.nativeRow = decoded.row + offset;
       this.nativeRowOff = 0;
-    } else if (address.nativeCol !== undefined) {
-      this.nativeCol = address.nativeCol || 0;
-      this.nativeColOff = address.nativeColOff || 0;
-      this.nativeRow = address.nativeRow || 0;
-      this.nativeRowOff = address.nativeRowOff || 0;
-    } else if (address.col !== undefined) {
+    } else if ('nativeCol' in address && typeof address.nativeCol === 'number') {
+      this.nativeCol = address.nativeCol;
+      this.nativeColOff = typeof address.nativeColOff === 'number' ? address.nativeColOff : 0;
+      this.nativeRow = typeof address.nativeRow === 'number' ? address.nativeRow : 0;
+      this.nativeRowOff = typeof address.nativeRowOff === 'number' ? address.nativeRowOff : 0;
+    } else if ('col' in address && typeof address.col === 'number') {
       this.nativeCol = 0;
       this.nativeColOff = 0;
       this.nativeRow = 0;
       this.nativeRowOff = 0;
       this.col = address.col + offset;
-      this.row = (address.row || 0) + offset;
+      this.row = (typeof address.row === 'number' ? address.row : 0) + offset;
     } else {
       this.nativeCol = 0;
       this.nativeColOff = 0;
@@ -82,9 +84,10 @@ export class Anchor implements IAnchor {
     // as the `worksheet` positional arg, not `address` — since `address` is
     // then undefined, the resulting Anchor's natives are zeroed, not built
     // from `model`. Not fixing here; a typing pass must not change behavior.
-    return model instanceof Anchor || model === null || model === undefined
-      ? model
-      : new Anchor(model as AnchorWorksheet);
+    if (model instanceof Anchor || model === null || model === undefined) {
+      return model;
+    }
+    return new Anchor(model);
   }
 
   get col() {
@@ -107,9 +110,8 @@ export class Anchor implements IAnchor {
 
   get colWidth() {
     const column = this.worksheet?.getColumn(this.nativeCol + 1);
-    // NB: matches original — if width is undefined here (shouldn't happen
-    // when isCustomWidth is true), this yields NaN, same as untyped original.
-    return column?.isCustomWidth ? Math.floor((column.width as number) * 10000) : 640000;
+    const width = column?.width;
+    return column?.isCustomWidth && typeof width === 'number' ? Math.floor(width * 10000) : 640000;
   }
 
   get rowHeight() {

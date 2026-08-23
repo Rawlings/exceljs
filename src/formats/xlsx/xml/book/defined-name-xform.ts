@@ -78,7 +78,7 @@ function extractRanges(parsedText: string): string[] {
     if (!item) {
       return;
     }
-    const quotes = (item.match(/'/g) || []).length;
+    const quotes = (item.match(/'/g) ?? []).length;
 
     if (!quotes) {
       if (quotesOpened) {

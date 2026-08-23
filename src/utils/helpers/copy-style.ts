@@ -15,9 +15,9 @@ const setIfExists = (src: StyleRecord, dst: StyleRecord, key: string, nestKeys: 
 
 const isEmptyObj = (obj: StyleRecord) => Object.keys(obj).length === 0;
 
-const copyStyle = (style: StyleRecord | undefined | null): StyleRecord | undefined | null => {
+const copyStyle = <T extends StyleRecord | undefined | null>(style: T): T => {
   if (!style) return style;
-  if (isEmptyObj(style)) return {};
+  if (isEmptyObj(style)) return {} as T;
 
   const copied: StyleRecord = { ...style };
 
@@ -43,7 +43,7 @@ const copyStyle = (style: StyleRecord | undefined | null): StyleRecord | undefin
     }
   }
 
-  return copied;
+  return copied as T;
 };
 
 export { copyStyle };

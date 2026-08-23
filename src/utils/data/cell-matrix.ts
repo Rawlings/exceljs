@@ -26,7 +26,7 @@ export class CellMatrix {
     this.addCellEx(colCache.decodeEx(addressStr));
   }
 
-  getCell(addressStr: string): MatrixCell {
+  getCell(addressStr: string): MatrixCell | undefined {
     return this.findCellEx(colCache.decodeEx(addressStr), true);
   }
 
@@ -56,21 +56,21 @@ export class CellMatrix {
     }
   }
 
-  getCellEx(address: DecodedExAddress): MatrixCell {
+  getCellEx(address: DecodedExAddress): MatrixCell | undefined {
     return this.findCellEx(address, true);
   }
 
-  findCellEx(address: DecodedExAddress, create: boolean): MatrixCell {
+  findCellEx(address: DecodedExAddress, create: boolean): MatrixCell | undefined {
     const sheet = this.findSheet(address, create);
     const row = this.findSheetRow(sheet, address, create);
-    return this.findRowCell(row, address, create) as MatrixCell;
+    return this.findRowCell(row, address, create);
   }
 
   getCellAt(sheetName: string, rowNumber: number, colNumber: number): MatrixCell {
     const sheet = this.sheets[sheetName] || (this.sheets[sheetName] = []);
-    const row = sheet[rowNumber] || (sheet[rowNumber] = []);
+    const row = sheet[rowNumber] ?? (sheet[rowNumber] = []);
     const cell =
-      row[colNumber] ||
+      row[colNumber] ??
       (row[colNumber] = {
         sheetName,
         address: colCache.n2l(colNumber) + rowNumber,
@@ -85,7 +85,7 @@ export class CellMatrix {
     if (!sheet) return;
     const row = this.findSheetRow(sheet, address, false);
     if (!row) return;
-    row.splice(address.col as number, 1);
+    delete row[address.col as number];
   }
 
   forEachInSheet(

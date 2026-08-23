@@ -181,7 +181,7 @@ class DataValidationsXform extends BaseXform {
           xmlStream.addAttribute('error', value.error);
         }
         xmlStream.addAttribute('sqref', value.sqref);
-        (value.formulae || []).forEach((formula, index: number) => {
+        (value.formulae ?? []).forEach((formula, index: number) => {
           xmlStream.openNode(`formula${index + 1}`);
           if (value.type === 'date') {
             xmlStream.writeText(utils.dateToExcel(new Date(formula as string | number), false));

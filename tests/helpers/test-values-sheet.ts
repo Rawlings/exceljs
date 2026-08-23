@@ -38,7 +38,7 @@ const self: any = {
     ];
 
     ws.getCell('A1').value = 7;
-    ws.getCell('B1').value = self.testValues.string;
+    ws.getCell('B1').value = self.testValues.str;
     ws.getCell('C1').value = self.testValues.date;
     ws.getCell('D1').value = self.testValues.formulas[0];
     ws.getCell('E1').value = self.testValues.formulas[1];
@@ -51,13 +51,13 @@ const self: any = {
     ws.getCell('A4').value = 1.5;
     ws.getCell('B4').value = 'Hello';
 
-    ws.getCell('A5').value = self.testValues.string;
+    ws.getCell('A5').value = self.testValues.str;
     ws.getCell('A5').font = self.styles.fonts.arialBlackUI14;
 
-    ws.getCell('B5').value = self.testValues.string;
+    ws.getCell('B5').value = self.testValues.str;
     ws.getCell('B5').font = self.styles.fonts.comicSansUdB16;
 
-    ws.getCell('C5').value = self.testValues.string;
+    ws.getCell('C5').value = self.testValues.str;
     ws.getCell('C5').font = self.styles.fonts.broadwayRedOutline20;
 
     ws.getCell('D5').value = 1.6;
@@ -102,6 +102,26 @@ const self: any = {
     ws.getCell('C8').fill = self.styles.fills.grayPattern;
 
     ws.getRow(8).height = 40;
+
+    // Shared Formula
+    ws.getCell('A9').value = 1;
+    ws.getCell('B9').value = {
+      formula: 'A9+1',
+      result: 2,
+      shareType: 'shared',
+      ref: 'B9:E9',
+    };
+    ws.getCell('C9').value = { sharedFormula: 'B9', result: 3 };
+    ws.getCell('D9').value = { sharedFormula: 'B9', result: 4 };
+    ws.getCell('E9').value = { sharedFormula: 'B9', result: 5 };
+
+    if (typeof ws.fillFormula === 'function') {
+      // Fill Formula Shared
+      ws.fillFormula('A10:E10', 'A9', [1, 2, 3, 4, 5], 'shared');
+
+      // Array Formula
+      ws.fillFormula('A11:E11', 'A9', [1, 1, 1, 1, 1], 'array');
+    }
   },
 
   checkSheet(wb: any, options: any) {

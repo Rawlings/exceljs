@@ -114,3 +114,25 @@ worksheetXform.reconcile(
 - Only `npm run typecheck`, `npm run lint` (or `npm run lint:check`), `npm run format:check`, and `npm run test` (or `npx vitest run tests/unit/type-parity-ast.spec.ts`) are approved verification commands in this workflow — no ad-hoc scripts/one-off node invocations even for quick checks.
 - Before editing a file, check whether its current typecheck errors are pre-existing (unrelated background/other-session drift) vs. ones you just introduced: `git diff --stat <file>` — if it shows changes you didn't make this turn, the errors in it aren't yours to fix as part of this task.
 
+---
+
+### 7. Typing Quality & Modernization Checklist
+
+Follow this checklist for every module refactored:
+
+- [ ] **1. Source of Truth from `fixtures/parity.d.ts`**:
+  - Always check `fixtures/parity.d.ts` for established domain shapes (`Table`, `TableColumnProperties`, `WorksheetProperties`, `PageSetup`, `Style`, `CellModel`, `RowModel`, etc.) before creating or changing types.
+- [ ] **2. Zero Suppression Policy**:
+  - **NO** `oxlint-disable`, `eslint-disable`, `@ts-ignore`, or `@ts-expect-error` comments. Solve type errors structurally.
+- [ ] **3. No Blind `unknown` Shifts**:
+  - Do not blindly replace `any` with `unknown` to silence linters — define concrete interfaces and use type guards (`typeof`, `instanceof`, `'key' in obj`) where necessary.
+- [ ] **4. Natural TypeScript Inference**:
+  - Do not add redundant type annotations on forwarding getters/setters or local assignments when the underlying property is already typed.
+- [ ] **5. Verification Gate (Run in Order)**:
+  1. `npm run build` (`tsc -p tsconfig.build.json`) → 0 errors.
+  2. `npm run typecheck` (`tsc -p tsconfig.json`) → 0 errors.
+  3. `npm run lint` (`oxlint --report-unused-disable-directives-severity=error`) → 0 errors, 0 warnings.
+  4. `npm run format:check` (`oxfmt --check`) → 0 issues.
+  5. `npx vitest run tests/unit/type-parity-ast.spec.ts` → 208/208 passing.
+  6. `npm run test` → 100% passing across all unit and integration test suites.
+

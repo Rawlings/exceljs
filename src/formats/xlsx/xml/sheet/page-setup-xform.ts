@@ -29,6 +29,7 @@ function pageOrderToXml(model: string | undefined) {
   switch (model) {
     case 'overThenDown':
       return model;
+    case undefined:
     default:
       return undefined;
   }
@@ -38,6 +39,7 @@ function cellCommentsToXml(model: string | undefined) {
     case 'atEnd':
     case 'asDisplyed':
       return model;
+    case undefined:
     default:
       return undefined;
   }
@@ -48,6 +50,7 @@ function errorsToXml(model: string | undefined) {
     case 'blank':
     case 'NA':
       return model;
+    case undefined:
     default:
       return undefined;
   }

@@ -73,6 +73,8 @@ class CfRuleExtXform extends CompositeXform {
       case 'iconSet':
         this.renderIconSet(xmlStream, model);
         break;
+      default:
+        break;
     }
   }
 
@@ -91,7 +93,7 @@ class CfRuleExtXform extends CompositeXform {
     xmlStream.openNode(this.tag, {
       type: 'iconSet',
       priority: model.priority,
-      id: model.x14Id || `{${uuidv4()}}`,
+      id: model.x14Id ?? `{${uuidv4()}}`,
     });
 
     this.iconSetXform.render(xmlStream, model as IconSetExtModel);

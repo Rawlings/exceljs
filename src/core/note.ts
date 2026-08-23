@@ -29,28 +29,25 @@ export class Note {
 
   get model() {
     let value: NoteModel;
-    switch (typeof this.note) {
-      case 'string':
-        value = {
-          type: 'note',
-          note: {
-            texts: [
-              {
-                text: this.note,
-              },
-            ],
-          },
-        };
-        break;
-      default:
-        value = {
-          type: 'note',
-          note: this.note as Comment,
-        };
-        break;
+    if (typeof this.note === 'string') {
+      value = {
+        type: 'note',
+        note: {
+          texts: [
+            {
+              text: this.note,
+            },
+          ],
+        },
+      };
+    } else {
+      value = {
+        type: 'note',
+        note: this.note ?? {},
+      };
     }
     // Suitable for all cell comments
-    return _.deepMerge({}, Note.DEFAULT_CONFIGS, value);
+    return _.deepMerge({}, Note.DEFAULT_CONFIGS, value) as NoteModel;
   }
 
   set model(value: NoteModel) {

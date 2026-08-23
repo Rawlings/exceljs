@@ -105,6 +105,7 @@ function getEffectiveCellType(cell: CellXformModel) {
   switch (cell.type) {
     case Enums.ValueType.Formula:
       return getValueType(cell.result);
+    case undefined:
     default:
       return cell.type;
   }
@@ -126,7 +127,7 @@ class CellXform extends BaseXform {
   }
 
   override prepare(model: CellXformModel, options: CellXformOptions) {
-    const styleId = options.styles!.addStyleModel(model.style || {}, getEffectiveCellType(model));
+    const styleId = options.styles!.addStyleModel(model.style ?? {}, getEffectiveCellType(model));
     if (styleId) {
       model.styleId = styleId;
     }
@@ -194,6 +195,7 @@ class CellXform extends BaseXform {
         }
         break;
 
+      case undefined:
       default:
         break;
     }
@@ -205,7 +207,7 @@ class CellXform extends BaseXform {
       case 'shared':
         attrs = {
           t: 'shared',
-          ref: model.ref || model.range?.range,
+          ref: model.ref ?? model.range?.range,
           si: model.si,
         };
         break;
@@ -217,6 +219,7 @@ class CellXform extends BaseXform {
         };
         break;
 
+      case undefined:
       default:
         if (model.si !== undefined) {
           attrs = {
@@ -261,8 +264,8 @@ class CellXform extends BaseXform {
         xmlStream.leafNode('v', undefined, utils.dateToExcel(model.result as Date, model.date1904));
         break;
 
-      // case Enums.ValueType.Hyperlink: // ??
-      // case Enums.ValueType.Formula:
+      case Enums.ValueType.Hyperlink:
+      case Enums.ValueType.Formula:
       default:
         throw new Error('I could not understand type of value');
     }
@@ -341,6 +344,7 @@ class CellXform extends BaseXform {
         // nothing to add
         break;
 
+      case undefined:
       default:
         break;
     }
@@ -410,6 +414,7 @@ class CellXform extends BaseXform {
           this.model.value = this.model.value ? this.model.value + text : text;
         }
         break;
+      case undefined:
       default:
         break;
     }
@@ -456,6 +461,7 @@ class CellXform extends BaseXform {
               model.type = Enums.ValueType.Error;
               model.value = { error: model.value };
               break;
+            case undefined:
             default:
               model.type = Enums.ValueType.Number;
               model.value = parseFloat(model.value);
@@ -484,8 +490,8 @@ class CellXform extends BaseXform {
         return true;
 
       case 'r':
-        this.model.value = this.model.value || {};
-        this.model.value.richText = this.model.value.richText || [];
+        this.model.value = this.model.value ?? {};
+        this.model.value.richText = this.model.value.richText ?? [];
         this.model.value.richText.push(this.parser.model);
         this.parser = undefined;
         this.currentNode = undefined;
@@ -525,14 +531,14 @@ class CellXform extends BaseXform {
         break;
 
       case Enums.ValueType.Number:
-        if (style && utils.isDateFmt(style.numFmt || '')) {
+        if (style && utils.isDateFmt(style.numFmt ?? '')) {
           model.type = Enums.ValueType.Date;
           model.value = utils.excelToDate(model.value as number, options.date1904);
         }
         break;
 
       case Enums.ValueType.Formula:
-        if (model.result !== undefined && style && utils.isDateFmt(style.numFmt || '')) {
+        if (model.result !== undefined && style && utils.isDateFmt(style.numFmt ?? '')) {
           model.result = utils.excelToDate(model.result as number, options.date1904);
         }
         if (model.shareType === 'shared') {
@@ -548,6 +554,7 @@ class CellXform extends BaseXform {
         }
         break;
 
+      case undefined:
       default:
         break;
     }

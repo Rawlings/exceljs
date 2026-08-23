@@ -26,9 +26,7 @@ class ConditionalFormattingsExtXform extends CompositeXform {
   }
 
   hasContent(model: ConditionalFormattingsExtModel) {
-    if (model.hasExtContent === undefined) {
-      model.hasExtContent = model.some((cf) => cf.rules.some(CfRuleExtXform.isExt));
-    }
+    model.hasExtContent ??= model.some((cf) => cf.rules.some(CfRuleExtXform.isExt));
     return model.hasExtContent;
   }
 

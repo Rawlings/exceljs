@@ -30,7 +30,7 @@ class FontXform extends BaseXform {
   constructor(options?: FontXformOptions) {
     super();
 
-    this.options = options || FontXform.OPTIONS;
+    this.options = options ?? FontXform.OPTIONS;
 
     this.map = {
       b: { prop: 'bold', xform: new BooleanXform({ tag: 'b', attr: 'val' }) },

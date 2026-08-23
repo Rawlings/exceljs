@@ -18,7 +18,7 @@ class SharedStringsXform extends BaseXform {
   constructor(model?: SharedStringsModel) {
     super();
 
-    this.model = model || {
+    this.model = model ?? {
       values: [],
       count: 0,
     };
@@ -27,7 +27,7 @@ class SharedStringsXform extends BaseXform {
   }
 
   get sharedStringXform() {
-    return this._sharedStringXform || (this._sharedStringXform = new SharedStringXform());
+    return this._sharedStringXform ?? (this._sharedStringXform = new SharedStringXform());
   }
 
   get values() {
@@ -91,7 +91,7 @@ class SharedStringsXform extends BaseXform {
   // </sst>
 
   override render(xmlStream: XmlStream, modelInput?: SharedStringsModel) {
-    const model = modelInput || this._values;
+    const model = modelInput ?? this._values ?? { count: 0, values: [] };
     xmlStream.openXml(XmlStream.StdDocAttributes);
 
     xmlStream.openNode('sst', {

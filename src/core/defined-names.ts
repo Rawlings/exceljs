@@ -17,14 +17,18 @@ export type DefinedNamesRanges = DefinedNameRanges;
 export type DefinedNamesModel = DefinedNameRanges[];
 
 export class DefinedNames {
-  matrixMap: Record<string, CellMatrix>;
+  matrixMap: Record<string, CellMatrix | undefined>;
 
   constructor() {
     this.matrixMap = {};
   }
 
   getMatrix(name: string): CellMatrix {
-    const matrix = this.matrixMap[name] || (this.matrixMap[name] = new CellMatrix(undefined));
+    let matrix = this.matrixMap[name];
+    if (!matrix) {
+      matrix = new CellMatrix(undefined);
+      this.matrixMap[name] = matrix;
+    }
     return matrix;
   }
 
@@ -36,11 +40,21 @@ export class DefinedNames {
 
   addEx(location: DecodedExAddress, name: string) {
     const matrix = this.getMatrix(name);
-    if (location.top) {
-      for (let col = location.left as number; col <= (location.right as number); col++) {
-        for (let row = location.top; row <= (location.bottom as number); row++) {
+    const top = location.top;
+    const left = location.left;
+    const right = location.right;
+    const bottom = location.bottom;
+    if (
+      typeof top === 'number' &&
+      typeof left === 'number' &&
+      typeof right === 'number' &&
+      typeof bottom === 'number'
+    ) {
+      const sheetName = location.sheetName ?? '';
+      for (let col = left; col <= right; col++) {
+        for (let row = top; row <= bottom; row++) {
           const address = {
-            sheetName: location.sheetName as string,
+            sheetName,
             address: colCache.n2l(col) + row,
             row,
             col,
@@ -65,16 +79,20 @@ export class DefinedNames {
   }
 
   removeAllNames(location: DecodedExAddress) {
-    _.each(this.matrixMap, (matrix: CellMatrix) => {
-      matrix.removeCellEx(location);
+    Object.values(this.matrixMap).forEach((matrix) => {
+      if (matrix) {
+        matrix.removeCellEx(location);
+      }
     });
   }
 
   forEach(callback: (name: string, cell: MatrixCell) => void) {
-    _.each(this.matrixMap, (matrix: CellMatrix, name: string) => {
-      matrix.forEach((cell) => {
-        callback(name, cell);
-      });
+    Object.entries(this.matrixMap).forEach(([name, matrix]) => {
+      if (matrix) {
+        matrix.forEach((cell) => {
+          callback(name, cell);
+        });
+      }
     });
   }
 
@@ -84,10 +102,14 @@ export class DefinedNames {
   }
 
   getNamesEx(address: DecodedExAddress): string[] {
-    return _.map(
-      this.matrixMap,
-      (matrix: CellMatrix, name: string) => matrix.findCellEx(address, false) && name,
-    ).filter(Boolean);
+    const names: string[] = [];
+    Object.keys(this.matrixMap).forEach((name) => {
+      const matrix = this.matrixMap[name];
+      if (matrix?.findCellEx(address, false)) {
+        names.push(name);
+      }
+    });
+    return names;
   }
 
   _explore(matrix: CellMatrix, cell: MatrixCell): Range {
@@ -134,8 +156,8 @@ export class DefinedNames {
     return range;
   }
 
-  getRanges(name: string, matrix?: CellMatrix): DefinedNameRanges {
-    matrix = matrix || this.matrixMap[name];
+  getRanges(name: string, matrixParam?: CellMatrix): DefinedNameRanges {
+    const matrix = matrixParam ?? this.matrixMap[name];
 
     if (!matrix) {
       return { name, ranges: [] };
@@ -145,10 +167,13 @@ export class DefinedNames {
     matrix.forEach((cell) => {
       cell.mark = true;
     });
-    const ranges = matrix
-      .map((cell) => cell.mark && this._explore(matrix, cell))
-      .filter(Boolean)
-      .map((range) => (range as Range).$shortRange);
+    const ranges: string[] = [];
+    matrix.forEach((cell) => {
+      if (cell.mark) {
+        const range = this._explore(matrix, cell);
+        ranges.push(range.$shortRange);
+      }
+    });
 
     return {
       name,
@@ -160,35 +185,37 @@ export class DefinedNames {
     // some of the cells might have shifted on specified sheet
     // need to reassign rows, cols
     matrix.forEachInSheet(sheetName, (cell, row, col) => {
-      if (cell) {
-        if (cell.row !== row || cell.col !== col) {
-          cell.row = row;
-          cell.col = col;
-          cell.address = colCache.n2l(col) + row;
-        }
+      if (cell.row !== row || cell.col !== col) {
+        cell.row = row;
+        cell.col = col;
+        cell.address = colCache.n2l(col) + row;
       }
     });
   }
 
   spliceRows(sheetName: string, start: number, numDelete: number, numInsert: number) {
-    _.each(this.matrixMap, (matrix: CellMatrix) => {
-      matrix.spliceRows(sheetName, start, numDelete, numInsert);
-      this.normaliseMatrix(matrix, sheetName);
+    Object.values(this.matrixMap).forEach((matrix) => {
+      if (matrix) {
+        matrix.spliceRows(sheetName, start, numDelete, numInsert);
+        this.normaliseMatrix(matrix, sheetName);
+      }
     });
   }
 
   spliceColumns(sheetName: string, start: number, numDelete: number, numInsert: number) {
-    _.each(this.matrixMap, (matrix: CellMatrix) => {
-      matrix.spliceColumns(sheetName, start, numDelete, numInsert);
-      this.normaliseMatrix(matrix, sheetName);
+    Object.values(this.matrixMap).forEach((matrix) => {
+      if (matrix) {
+        matrix.spliceColumns(sheetName, start, numDelete, numInsert);
+        this.normaliseMatrix(matrix, sheetName);
+      }
     });
   }
 
-  get model() {
+  get model(): DefinedNamesModel {
     // To get names per cell - just iterate over all names finding cells if they exist
-    return _.map(this.matrixMap, (matrix: CellMatrix, name: string) =>
-      this.getRanges(name, matrix),
-    ).filter((definedName) => definedName.ranges.length);
+    return Object.entries(this.matrixMap)
+      .map(([name, matrix]) => (matrix ? this.getRanges(name, matrix) : { name, ranges: [] }))
+      .filter((definedName) => definedName.ranges.length > 0);
   }
 
   set model(value: DefinedNamesModel | undefined) {
@@ -198,7 +225,7 @@ export class DefinedNames {
       value.forEach((definedName) => {
         const matrix = (matrixMap[definedName.name] = new CellMatrix(undefined));
         definedName.ranges.forEach((rangeStr) => {
-          if (rangeRegexp.test(rangeStr.split('!').pop() || '')) {
+          if (rangeRegexp.test(rangeStr.split('!').pop() ?? '')) {
             matrix.addCell(rangeStr);
           }
         });

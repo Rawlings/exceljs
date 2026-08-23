@@ -21,7 +21,7 @@ class BooleanXform extends BaseXform {
 
   constructor(options?: BooleanXformOptions) {
     super();
-    options = options || {};
+    options = options ?? {};
 
     this.tag = options.tag;
     this.attr = options.attr;

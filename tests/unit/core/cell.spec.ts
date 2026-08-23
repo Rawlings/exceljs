@@ -111,7 +111,7 @@ describe('Cell', () => {
     expect(a1.value).to.equal(dateValue);
     expect(a1.type).to.equal(Enums.ValueType.Date);
 
-    let formulaValue = { formula: 'A2', result: 5 };
+    let formulaValue: any = { formula: 'A2', result: 5 };
     expect((a1.value = formulaValue)).to.deep.equal(formulaValue);
     expect(a1.value).to.deep.equal(formulaValue);
     expect(a1.type).to.equal(Enums.ValueType.Formula);
@@ -141,25 +141,25 @@ describe('Cell', () => {
     const column = sheetMock.getColumn(1);
 
     expect(() => {
-      new Cell();
+      new (Cell as any)();
     }).to.throw(Error);
     expect(() => {
-      new Cell(row);
+      new (Cell as any)(row);
     }).to.throw(Error);
     expect(() => {
-      new Cell(row, 'A');
+      new (Cell as any)(row, 'A');
     }).to.throw(Error);
     expect(() => {
-      new Cell(row, 'Hello, World!');
+      new (Cell as any)(row, 'Hello, World!');
     }).to.throw(Error);
     expect(() => {
-      new Cell(null, null, 'A1');
+      new (Cell as any)(null, null, 'A1');
     }).to.throw(Error);
     expect(() => {
-      new Cell(row, null, 'A1');
+      new (Cell as any)(row, null, 'A1');
     }).to.throw(Error);
     expect(() => {
-      new Cell(null, column, 'A1');
+      new (Cell as any)(null, column, 'A1');
     }).to.throw(Error);
   });
   it('merges', () => {

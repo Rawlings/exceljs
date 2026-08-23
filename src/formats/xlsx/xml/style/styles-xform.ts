@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import * as Enums from '../../../../core/enums';
 import XmlStream from '../../../../utils/stream/xml-stream';
 
@@ -143,7 +142,7 @@ class StylesXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, modelInput?: StylesModel) {
-    const model: StylesModel = modelInput || this.model;
+    const model: StylesModel = modelInput ?? this.model;
     //
     //   <fonts count="2" x14ac:knownFonts="1">
     xmlStream.openXml(XmlStream.StdDocAttributes);
@@ -307,7 +306,7 @@ class StylesXform extends BaseXform {
     }
 
     const style: StyleXfModel & { numFmtId?: number } = {};
-    cellType = cellType || Enums.ValueType.Number;
+    cellType = cellType ?? Enums.ValueType.Number;
 
     if (model.numFmt) {
       style.numFmtId = this._addNumFmtStr(model.numFmt);

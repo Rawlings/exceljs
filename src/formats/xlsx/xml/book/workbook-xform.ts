@@ -27,9 +27,9 @@ interface SheetPageSetup {
 
 interface SheetItem {
   name: string;
-  id?: unknown;
+  id?: number | string;
   rId?: string;
-  state?: unknown;
+  state?: string;
   pageSetup?: SheetPageSetup;
   [key: string]: unknown;
 }
@@ -59,7 +59,7 @@ interface WorksheetItem {
 // This is the assembled workbook-level slice of the model as it flows
 // through prepare/render/reconcile — a working superset of the public
 // WorkbookModel, same reasoning as ParseWorkbookModel in xlsx.ts.
-interface WorkbookXformModel {
+export interface WorkbookXformModel {
   [key: string]: unknown;
   sheets?: SheetItem[];
   worksheets?: WorksheetItem[];
@@ -76,6 +76,12 @@ interface WorkbookXformModel {
 class WorkbookXform extends BaseXform {
   static STATIC_XFORMS: Record<string, StaticXform>;
   static WORKBOOK_ATTRIBUTES: Record<string, string>;
+  override get model(): WorkbookXformModel {
+    return super.model as WorkbookXformModel;
+  }
+  override set model(value: WorkbookXformModel) {
+    super.model = value;
+  }
   override map: {
     fileVersion: StaticXform;
     workbookPr: WorkbookPropertiesXform;
@@ -158,12 +164,31 @@ class WorkbookXform extends BaseXform {
       index++;
     });
     if (printAreas.length) {
-      model.definedNames = (model.definedNames || []).concat(printAreas);
+      model.definedNames = (model.definedNames ?? []).concat(printAreas);
     }
 
-    (model.media || []).forEach((medium, i: number) => {
+    (model.media ?? []).forEach((medium, i: number) => {
       // assign name
       medium.name = medium.type + (i + 1);
+    });
+
+    (model.sheets ?? []).forEach((sheet, i) => {
+      sheet.rId = sheet.rId || `rId${i + 1}`;
+    });
+    this.map.sheets.prepare(model.sheets, {
+      tag: 'sheets',
+      count: false,
+      childXform: new SheetXform(),
+    });
+    this.map.definedNames.prepare(model.definedNames, {
+      tag: 'definedNames',
+      count: false,
+      childXform: new DefinedNameXform(),
+    });
+    this.map.pivotCaches.prepare(model.pivotTables, {
+      tag: 'pivotCaches',
+      count: false,
+      childXform: new WorkbookPivotCacheXform(),
     });
   }
 
@@ -172,11 +197,11 @@ class WorkbookXform extends BaseXform {
     xmlStream.openNode('workbook', WorkbookXform.WORKBOOK_ATTRIBUTES);
 
     this.map.fileVersion.render(xmlStream);
-    this.map.workbookPr.render(xmlStream, model.properties as WorkbookPropertiesModel);
+    this.map.workbookPr.render(xmlStream, model.properties ?? {});
     this.map.bookViews.render(xmlStream, model.views);
     this.map.sheets.render(xmlStream, model.sheets);
     this.map.definedNames.render(xmlStream, model.definedNames);
-    this.map.calcPr.render(xmlStream, model.calcProperties as WorkbookCalcPropertiesModel);
+    this.map.calcPr.render(xmlStream, model.calcProperties ?? {});
     this.map.pivotCaches.render(xmlStream, model.pivotTables);
 
     xmlStream.closeNode();
@@ -191,7 +216,7 @@ class WorkbookXform extends BaseXform {
       case 'workbook':
         return true;
       default:
-        this.parser = this.map[node.name as keyof WorkbookXform['map']];
+        this.parser = this.map[node.name as keyof typeof this.map];
         if (this.parser) {
           this.parser.parseOpen(node);
         }
@@ -205,7 +230,7 @@ class WorkbookXform extends BaseXform {
     }
   }
 
-  override parseClose(name: string): boolean {
+  override parseClose(name: string) {
     if (this.parser) {
       if (!this.parser.parseClose(name)) {
         this.parser = undefined;
@@ -216,9 +241,9 @@ class WorkbookXform extends BaseXform {
       case 'workbook': {
         const model: WorkbookXformModel = {
           sheets: this.map.sheets.model,
-          properties: this.map.workbookPr.model || {},
+          properties: this.map.workbookPr.model ?? {},
           views: this.map.bookViews.model,
-          calcProperties: this.map.calcPr.model || {},
+          calcProperties: this.map.calcPr.model ?? {},
         };
         if (this.map.definedNames.model) {
           model.definedNames = this.map.definedNames.model;
@@ -234,7 +259,7 @@ class WorkbookXform extends BaseXform {
   }
 
   override reconcile(model: WorkbookXformModel) {
-    const rels = (model.workbookRels || []).reduce<Record<string, { Id: string; Target: string }>>(
+    const rels = (model.workbookRels ?? []).reduce<Record<string, { Id: string; Target: string }>>(
       (map, rel) => {
         map[rel.Id] = rel;
         return map;
@@ -244,10 +269,10 @@ class WorkbookXform extends BaseXform {
 
     // reconcile sheet ids, rIds and names
     const worksheets: WorksheetItem[] = [];
-    let worksheet: WorksheetItem;
+    let worksheet: WorksheetItem | undefined;
     let index = 0;
 
-    (model.sheets || []).forEach((sheet) => {
+    (model.sheets ?? []).forEach((sheet) => {
       const rel = sheet.rId ? rels[sheet.rId] : undefined;
       if (!rel) {
         return;
@@ -275,9 +300,7 @@ class WorkbookXform extends BaseXform {
       if (definedName.name === '_xlnm.Print_Area') {
         worksheet = worksheets[definedName.localSheetId as number];
         if (worksheet) {
-          if (!worksheet.pageSetup) {
-            worksheet.pageSetup = {};
-          }
+          worksheet.pageSetup ??= {};
           const range = colCache.decodeEx(definedName.ranges[0]) as { dimensions: string };
           worksheet.pageSetup.printArea = worksheet.pageSetup.printArea
             ? `${worksheet.pageSetup.printArea}&&${range.dimensions}`
@@ -286,9 +309,7 @@ class WorkbookXform extends BaseXform {
       } else if (definedName.name === '_xlnm.Print_Titles') {
         worksheet = worksheets[definedName.localSheetId as number];
         if (worksheet) {
-          if (!worksheet.pageSetup) {
-            worksheet.pageSetup = {};
-          }
+          worksheet.pageSetup ??= {};
 
           const rangeString = definedName.ranges.join(',');
 
@@ -317,7 +338,7 @@ class WorkbookXform extends BaseXform {
     model.definedNames = definedNames;
 
     // used by sheets to build their image models
-    (model.media as MediaItem[]).forEach((media, i: number) => {
+    (model.media ?? []).forEach((media, i: number) => {
       media.index = i;
     });
   }

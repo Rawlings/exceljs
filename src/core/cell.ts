@@ -1,11 +1,16 @@
-/* eslint-disable max-classes-per-file */
 import colCache from '../utils/data/col-cache';
 import _ from '../utils/helpers/under-dash';
 import * as Enums from './enums';
 import { slideFormula } from '../utils/data/shared-formula';
 import { Note } from './note';
 import type { NoteModel } from './note';
-import type { RowLike, ColumnLike } from './internal-types';
+import type {
+  RowLike,
+  ColumnLike,
+  WorksheetLike,
+  WorkbookLike,
+  DataValidationLike,
+} from './internal-types';
 import type { DataValidation } from './data-validations';
 
 export type FillPatterns =
@@ -156,6 +161,8 @@ export interface CellHyperlinkValue {
 export interface CellFormulaValue {
   formula: string;
   result?: number | string | boolean | Date | CellErrorValue;
+  shareType?: string;
+  ref?: string;
   date1904?: boolean;
 }
 
@@ -238,13 +245,13 @@ export interface CellValueModel {
 export interface CellValueImpl {
   model: CellValueModel;
   value: unknown;
-  readonly type: number;
-  readonly effectiveType: number;
+  readonly type: Enums.ValueType;
+  readonly effectiveType: Enums.ValueType;
   address: string;
   toCsvString(): string | number;
   release(): void;
   toString(): string;
-  master?: CellValueImpl | Cell;
+  master?: Cell;
   isMergedTo?(master: unknown): boolean;
   formula?: string;
   result?: unknown;
@@ -256,8 +263,16 @@ export interface CellValueImpl {
   cell?: Cell;
 }
 
+function isObjectRecord(val: unknown): val is Record<string, unknown> {
+  return typeof val === 'object' && val !== null && !(val instanceof Date);
+}
+
+function isNoteModel(c: unknown): c is NoteModel {
+  return typeof c === 'object' && c !== null && (c as { type?: string }).type === 'note';
+}
+
 export class Cell {
-  static Types: Record<string, number> = { ...Enums.ValueType, JSON: 11 };
+  static Types = Enums.ValueType;
   _row: RowLike;
   _column: ColumnLike;
   _address: string;
@@ -267,44 +282,40 @@ export class Cell {
   _comment: Note | undefined;
 
   constructor(row?: RowLike, column?: ColumnLike, address?: string) {
-    if (!row || !column) {
+    if (!row || !column || !address) {
       throw new Error('A Cell needs a Row');
     }
 
     this._row = row;
     this._column = column;
 
-    colCache.validateAddress(address as string);
-    this._address = address as string;
+    colCache.validateAddress(address);
+    this._address = address;
 
     // TODO: lazy evaluation of this._value
-    this._value = Value.create(Cell.Types.Null, this);
+    this._value = Value.create(Enums.ValueType.Null, this);
 
-    this.style = this._mergeStyle(row.style || {}, column.style || {}, {});
+    this.style = this._mergeStyle(row.style ?? {}, column.style ?? {}, {});
 
     this._mergeCount = 0;
   }
 
-  get worksheet() {
+  get worksheet(): WorksheetLike | undefined {
     return this._row.worksheet;
   }
 
-  get workbook() {
-    return this.worksheet.workbook;
+  get workbook(): WorkbookLike | undefined {
+    return this.worksheet?.workbook;
   }
 
-  get sheetName() {
-    return this.worksheet.name;
+  get sheetName(): string {
+    return this.worksheet?.name ?? '';
   }
 
   // help GC by removing cyclic (and other) references
   destroy() {
-    const self = this as Record<string, unknown>;
-    delete self.style;
-    delete self._value;
-    delete self._row;
-    delete self._column;
-    delete self._address;
+    this.style = {};
+    this._value = new NullValue(this);
   }
 
   release() {
@@ -314,10 +325,10 @@ export class Cell {
   // =========================================================================
   // Styles stuff
   get numFmt() {
-    return (this.style.numFmt as string) || '';
+    return this.style.numFmt ?? '';
   }
 
-  set numFmt(value: string) {
+  set numFmt(value: string | undefined) {
     this.style.numFmt = value;
   }
 
@@ -346,7 +357,7 @@ export class Cell {
   }
 
   get fill() {
-    return this.style.fill || { type: 'pattern', pattern: 'none' };
+    return this.style.fill ?? { type: 'pattern', pattern: 'none' };
   }
 
   set fill(value: Fill | undefined) {
@@ -366,22 +377,22 @@ export class Cell {
     colStyle: Record<string, unknown>,
     style: Record<string, unknown>,
   ) {
-    const numFmt = rowStyle?.numFmt || colStyle?.numFmt;
+    const numFmt = rowStyle.numFmt ?? colStyle.numFmt;
     if (numFmt) style.numFmt = numFmt;
 
-    const font = rowStyle?.font || colStyle?.font;
+    const font = rowStyle.font ?? colStyle.font;
     if (font) style.font = font;
 
-    const alignment = rowStyle?.alignment || colStyle?.alignment;
+    const alignment = rowStyle.alignment ?? colStyle.alignment;
     if (alignment) style.alignment = alignment;
 
-    const border = rowStyle?.border || colStyle?.border;
+    const border = rowStyle.border ?? colStyle.border;
     if (border) style.border = border;
 
-    const fill = rowStyle?.fill || colStyle?.fill;
+    const fill = rowStyle.fill ?? colStyle.fill;
     if (fill) style.fill = fill;
 
-    const protection = rowStyle?.protection || colStyle?.protection;
+    const protection = rowStyle.protection ?? colStyle.protection;
     if (protection) style.protection = protection;
 
     return style;
@@ -408,11 +419,11 @@ export class Cell {
   // =========================================================================
   // Value stuff
 
-  get type() {
+  get type(): Enums.ValueType {
     return this._value.type;
   }
 
-  get effectiveType() {
+  get effectiveType(): Enums.ValueType {
     return this._value.effectiveType;
   }
 
@@ -432,39 +443,39 @@ export class Cell {
   }
 
   get isMerged() {
-    return this._mergeCount > 0 || this.type === Cell.Types.Merge;
+    return this._mergeCount > 0 || this.type === Enums.ValueType.Merge;
   }
 
   merge(master: Cell, ignoreStyle?: boolean) {
     this._value.release();
-    this._value = Value.create(Cell.Types.Merge, this, master);
+    this._value = Value.create(Enums.ValueType.Merge, this, master);
     if (!ignoreStyle) {
       this.style = master.style;
     }
   }
 
   unmerge() {
-    if (this.type === Cell.Types.Merge) {
+    if (this.type === Enums.ValueType.Merge) {
       this._value.release();
-      this._value = Value.create(Cell.Types.Null, this);
-      this.style = this._mergeStyle(this._row.style || {}, this._column.style || {}, {});
+      this._value = Value.create(Enums.ValueType.Null, this);
+      this.style = this._mergeStyle(this._row.style ?? {}, this._column.style ?? {}, {});
     }
   }
 
   isMergedTo(master: unknown): boolean {
-    if (this._value.type !== Cell.Types.Merge) return false;
+    if (this._value.type !== Enums.ValueType.Merge) return false;
     return this._value.isMergedTo!(master);
   }
 
   get master(): Cell {
-    if (this.type === Cell.Types.Merge) {
-      return (this._value.master as Cell) || this;
+    if (this.type === Enums.ValueType.Merge) {
+      return this._value.master ?? this;
     }
     return this; // an unmerged cell is its own master
   }
 
   get isHyperlink() {
-    return this._value.type === Cell.Types.Hyperlink;
+    return this._value.type === Enums.ValueType.Hyperlink;
   }
 
   get hyperlink() {
@@ -472,15 +483,15 @@ export class Cell {
   }
 
   // return the value
-  get value() {
-    return this._value.value;
+  get value(): CellValue {
+    return this._value.value as CellValue;
   }
 
   // set the value - can be number, string or raw
-  set value(v: unknown) {
+  set value(v: CellValue) {
     // special case - merge cells set their master's value
-    if (this.type === Cell.Types.Merge) {
-      (this._value.master as CellValueImpl | Cell).value = v;
+    if (this.type === Enums.ValueType.Merge) {
+      this._value.value = v;
       return;
     }
 
@@ -512,8 +523,8 @@ export class Cell {
 
   _upgradeToHyperlink(hyperlink: unknown) {
     // if this cell is a string, turn it into a Hyperlink
-    if (this.type === Cell.Types.String) {
-      this._value = Value.create(Cell.Types.Hyperlink, this, {
+    if (this.type === Enums.ValueType.String) {
+      this._value = Value.create(Enums.ValueType.Hyperlink, this, {
         text: this._value.value,
         hyperlink,
       });
@@ -554,42 +565,48 @@ export class Cell {
     this.names = [value];
   }
 
-  get names() {
-    return this.workbook.definedNames.getNamesEx(this.fullAddress);
+  get names(): string[] {
+    return this.workbook?.definedNames?.getNamesEx(this.fullAddress) ?? [];
   }
 
   set names(value: string[]) {
-    const { definedNames } = this.workbook;
-    definedNames.removeAllNames(this.fullAddress);
-    value.forEach((name: string) => {
-      definedNames.addEx(this.fullAddress, name);
-    });
+    const definedNames = this.workbook?.definedNames;
+    if (definedNames) {
+      definedNames.removeAllNames(this.fullAddress);
+      value.forEach((name: string) => {
+        definedNames.addEx(this.fullAddress, name);
+      });
+    }
   }
 
   addName(name: string) {
-    this.workbook.definedNames.addEx(this.fullAddress, name);
+    this.workbook?.definedNames?.addEx(this.fullAddress, name);
   }
 
   removeName(name: string) {
-    this.workbook.definedNames.removeEx(this.fullAddress, name);
+    this.workbook?.definedNames?.removeEx(this.fullAddress, name);
   }
 
   removeAllNames() {
-    this.workbook.definedNames.removeAllNames(this.fullAddress);
+    this.workbook?.definedNames?.removeAllNames(this.fullAddress);
   }
 
   // =========================================================================
   // Data Validation stuff
-  get _dataValidations() {
-    return this.worksheet.dataValidations;
+  get _dataValidations(): DataValidationLike | undefined {
+    return this.worksheet?.dataValidations;
   }
 
-  get dataValidation() {
-    return this._dataValidations.find(this.address) as DataValidation | undefined;
+  get dataValidation(): DataValidation | undefined {
+    return this._dataValidations?.find(this.address);
   }
 
   set dataValidation(value: DataValidation | undefined) {
-    this._dataValidations.add(this.address, value);
+    if (value) {
+      this._dataValidations?.add(this.address, value);
+    } else {
+      this._dataValidations?.remove?.(this.address);
+    }
   }
 
   // =========================================================================
@@ -610,11 +627,8 @@ export class Cell {
     this._value.model = value as CellValueModel;
 
     if (value.comment) {
-      const comment = value.comment as { type: string };
-      switch (comment.type) {
-        case 'note':
-          this._comment = Note.fromModel(comment as NoteModel);
-          break;
+      if (isNoteModel(value.comment)) {
+        this._comment = Note.fromModel(value.comment);
       }
     }
 
@@ -635,7 +649,7 @@ class NullValue implements CellValueImpl {
   constructor(cell: Cell) {
     this.model = {
       address: cell.address,
-      type: Cell.Types.Null,
+      type: Enums.ValueType.Null,
     };
   }
 
@@ -648,11 +662,11 @@ class NullValue implements CellValueImpl {
   }
 
   get type() {
-    return Cell.Types.Null;
+    return Enums.ValueType.Null;
   }
 
   get effectiveType() {
-    return Cell.Types.Null;
+    return Enums.ValueType.Null;
   }
 
   get address() {
@@ -675,18 +689,18 @@ class NullValue implements CellValueImpl {
 }
 
 class NumberValue implements CellValueImpl {
-  model: CellValueModel;
+  model: CellValueModel & { value: number };
 
   constructor(cell: Cell, value: number) {
     this.model = {
       address: cell.address,
-      type: Cell.Types.Number,
+      type: Enums.ValueType.Number,
       value,
     };
   }
 
-  get value() {
-    return this.model.value as number;
+  get value(): number {
+    return this.model.value;
   }
 
   set value(value: number) {
@@ -694,11 +708,11 @@ class NumberValue implements CellValueImpl {
   }
 
   get type() {
-    return Cell.Types.Number;
+    return Enums.ValueType.Number;
   }
 
   get effectiveType() {
-    return Cell.Types.Number;
+    return Enums.ValueType.Number;
   }
 
   get address() {
@@ -710,29 +724,29 @@ class NumberValue implements CellValueImpl {
   }
 
   toCsvString(): string {
-    return (this.model.value as number).toString();
+    return String(this.model.value);
   }
 
   release() {}
 
   toString(): string {
-    return (this.model.value as number).toString();
+    return String(this.model.value);
   }
 }
 
 class StringValue implements CellValueImpl {
-  model: CellValueModel;
+  model: CellValueModel & { value: string };
 
   constructor(cell: Cell, value: string) {
     this.model = {
       address: cell.address,
-      type: Cell.Types.String,
+      type: Enums.ValueType.String,
       value,
     };
   }
 
-  get value() {
-    return this.model.value as string;
+  get value(): string {
+    return this.model.value;
   }
 
   set value(value: string) {
@@ -740,11 +754,11 @@ class StringValue implements CellValueImpl {
   }
 
   get type() {
-    return Cell.Types.String;
+    return Enums.ValueType.String;
   }
 
   get effectiveType() {
-    return Cell.Types.String;
+    return Enums.ValueType.String;
   }
 
   get address() {
@@ -756,13 +770,13 @@ class StringValue implements CellValueImpl {
   }
 
   toCsvString(): string {
-    return `"${(this.model.value as string).replace(/"/g, '""')}"`;
+    return `"${this.model.value.replace(/"/g, '""')}"`;
   }
 
   release() {}
 
   toString(): string {
-    return this.model.value as string;
+    return this.model.value;
   }
 }
 
@@ -776,18 +790,18 @@ interface RichTextValueShape {
 }
 
 class RichTextValue implements CellValueImpl {
-  model: CellValueModel;
+  model: CellValueModel & { value: RichTextValueShape };
 
   constructor(cell: Cell, value: RichTextValueShape) {
     this.model = {
       address: cell.address,
-      type: Cell.Types.String,
+      type: Enums.ValueType.String,
       value,
     };
   }
 
-  get value() {
-    return this.model.value as RichTextValueShape;
+  get value(): RichTextValueShape {
+    return this.model.value;
   }
 
   set value(value: RichTextValueShape) {
@@ -795,19 +809,19 @@ class RichTextValue implements CellValueImpl {
   }
 
   get text() {
-    return (this.model.value as RichTextValueShape).richText.map((t) => t.text).join('');
+    return this.model.value.richText.map((t) => t.text).join('');
   }
 
   toString(): string {
-    return (this.model.value as RichTextValueShape).richText.map((t) => t.text).join('');
+    return this.model.value.richText.map((t) => t.text).join('');
   }
 
   get type() {
-    return Cell.Types.RichText;
+    return Enums.ValueType.RichText;
   }
 
   get effectiveType() {
-    return Cell.Types.RichText;
+    return Enums.ValueType.RichText;
   }
 
   get address() {
@@ -826,17 +840,17 @@ class RichTextValue implements CellValueImpl {
 }
 
 class DateValue implements CellValueImpl {
-  model: CellValueModel;
+  model: CellValueModel & { value: Date };
   constructor(cell: Cell, value: Date) {
     this.model = {
       address: cell.address,
-      type: Cell.Types.Date,
+      type: Enums.ValueType.Date,
       value,
     };
   }
 
-  get value() {
-    return this.model.value as Date;
+  get value(): Date {
+    return this.model.value;
   }
 
   set value(value: Date) {
@@ -844,11 +858,11 @@ class DateValue implements CellValueImpl {
   }
 
   get type() {
-    return Cell.Types.Date;
+    return Enums.ValueType.Date;
   }
 
   get effectiveType() {
-    return Cell.Types.Date;
+    return Enums.ValueType.Date;
   }
 
   get address() {
@@ -860,13 +874,13 @@ class DateValue implements CellValueImpl {
   }
 
   toCsvString(): string {
-    return (this.model.value as Date).toISOString();
+    return this.model.value.toISOString();
   }
 
   release() {}
 
   toString(): string {
-    return (this.model.value as Date).toString();
+    return this.model.value.toString();
   }
 }
 
@@ -877,12 +891,12 @@ interface HyperlinkValueShape {
 }
 
 class HyperlinkValue implements CellValueImpl {
-  model: CellValueModel;
+  model: CellValueModel & { text?: string; hyperlink?: string; tooltip?: string };
 
   constructor(cell: Cell, value: HyperlinkValueShape | undefined) {
     this.model = {
       address: cell.address,
-      type: Cell.Types.Hyperlink,
+      type: Enums.ValueType.Hyperlink,
       text: value ? value.text : undefined,
       hyperlink: value ? value.hyperlink : undefined,
     };
@@ -891,13 +905,13 @@ class HyperlinkValue implements CellValueImpl {
     }
   }
 
-  get value() {
+  get value(): HyperlinkValueShape {
     const v: HyperlinkValueShape = {
-      text: this.model.text as string,
-      hyperlink: this.model.hyperlink as string,
+      text: this.model.text,
+      hyperlink: this.model.hyperlink,
     };
     if (this.model.tooltip) {
-      v.tooltip = this.model.tooltip as string;
+      v.tooltip = this.model.tooltip;
     }
     return v;
   }
@@ -905,7 +919,7 @@ class HyperlinkValue implements CellValueImpl {
   set value(value: HyperlinkValueShape) {
     this.model = {
       address: this.model.address,
-      type: Cell.Types.Hyperlink,
+      type: Enums.ValueType.Hyperlink,
       text: value.text,
       hyperlink: value.hyperlink,
     };
@@ -914,25 +928,16 @@ class HyperlinkValue implements CellValueImpl {
     }
   }
 
-  get text() {
-    return this.model.text as string | undefined;
+  get text(): string | undefined {
+    return this.model.text;
   }
 
   set text(value: string | undefined) {
     this.model.text = value;
   }
 
-  /*
-  get tooltip() {
-    return this.model.tooltip;
-  }
-
-  set tooltip(value: any) {
-    this.model.tooltip = value;
-  } */
-
-  get hyperlink() {
-    return this.model.hyperlink as string | undefined;
+  get hyperlink(): string | undefined {
+    return this.model.hyperlink;
   }
 
   set hyperlink(value: string | undefined) {
@@ -940,11 +945,11 @@ class HyperlinkValue implements CellValueImpl {
   }
 
   get type() {
-    return Cell.Types.Hyperlink;
+    return Enums.ValueType.Hyperlink;
   }
 
   get effectiveType() {
-    return Cell.Types.Hyperlink;
+    return Enums.ValueType.Hyperlink;
   }
 
   get address() {
@@ -956,13 +961,13 @@ class HyperlinkValue implements CellValueImpl {
   }
 
   toCsvString(): string {
-    return this.model.hyperlink as string;
+    return this.model.hyperlink ?? '';
   }
 
   release() {}
 
   toString(): string {
-    return this.model.text as string;
+    return this.model.text ?? '';
   }
 }
 
@@ -973,7 +978,7 @@ class MergeValue implements CellValueImpl {
   constructor(cell: Cell, master: Cell | undefined) {
     this.model = {
       address: cell.address,
-      type: Cell.Types.Merge,
+      type: Enums.ValueType.Merge,
       master: master ? master.address : undefined,
     };
     this._master = master;
@@ -983,7 +988,7 @@ class MergeValue implements CellValueImpl {
   }
 
   get value() {
-    return (this._master as Cell).value;
+    return this._master?.value;
   }
 
   set value(value: unknown) {
@@ -993,8 +998,8 @@ class MergeValue implements CellValueImpl {
       }
       value.addMergeRef();
       this._master = value;
-    } else {
-      (this._master as Cell).value = value;
+    } else if (this._master) {
+      this._master.value = value as CellValue;
     }
   }
 
@@ -1002,16 +1007,16 @@ class MergeValue implements CellValueImpl {
     return master === this._master;
   }
 
-  get master() {
+  get master(): Cell | undefined {
     return this._master;
   }
 
   get type() {
-    return Cell.Types.Merge;
+    return Enums.ValueType.Merge;
   }
 
   get effectiveType() {
-    return (this._master as Cell).effectiveType;
+    return this._master ? this._master.effectiveType : Enums.ValueType.Null;
   }
 
   get address() {
@@ -1027,11 +1032,18 @@ class MergeValue implements CellValueImpl {
   }
 
   release() {
-    (this._master as Cell).releaseMergeRef();
+    this._master?.releaseMergeRef();
   }
 
   toString(): string {
-    return (this.value as { toString(): string }).toString();
+    const val = this.value;
+    if (val === null || val === undefined) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+    if (typeof val === 'object' && 'toString' in val && typeof val.toString === 'function') {
+      return (val as { toString(): string }).toString();
+    }
+    return '';
   }
 }
 
@@ -1045,7 +1057,13 @@ interface FormulaValueShape {
 
 class FormulaValue implements CellValueImpl {
   cell: Cell;
-  model: CellValueModel;
+  model: CellValueModel & {
+    formula?: string;
+    sharedFormula?: string;
+    shareType?: string;
+    ref?: string;
+    result?: unknown;
+  };
   _translatedFormula: string | undefined;
 
   constructor(cell: Cell, value: FormulaValueShape | undefined) {
@@ -1053,7 +1071,7 @@ class FormulaValue implements CellValueImpl {
 
     this.model = {
       address: cell.address,
-      type: Cell.Types.Formula,
+      type: Enums.ValueType.Formula,
       shareType: value ? value.shareType : undefined,
       ref: value ? value.ref : undefined,
       formula: value ? value.formula : undefined,
@@ -1083,18 +1101,28 @@ class FormulaValue implements CellValueImpl {
   }
 
   set value(value: Record<string, unknown>) {
-    this.model = this._copyModel(value) as CellValueModel;
+    this.model = {
+      address: this.model.address,
+      type: Enums.ValueType.Formula,
+      ...this._copyModel(value),
+    };
   }
 
   validate(value: unknown) {
     switch (Value.getType(value)) {
-      case Cell.Types.Null:
-      case Cell.Types.String:
-      case Cell.Types.Number:
-      case Cell.Types.Date:
+      case Enums.ValueType.Null:
+      case Enums.ValueType.String:
+      case Enums.ValueType.Number:
+      case Enums.ValueType.Date:
         break;
-      case Cell.Types.Hyperlink:
-      case Cell.Types.Formula:
+      case Enums.ValueType.Hyperlink:
+      case Enums.ValueType.Formula:
+      case Enums.ValueType.Merge:
+      case Enums.ValueType.SharedString:
+      case Enums.ValueType.RichText:
+      case Enums.ValueType.Boolean:
+      case Enums.ValueType.Error:
+      case 11:
       default:
         throw new Error('Cannot process that type of result value');
     }
@@ -1102,10 +1130,9 @@ class FormulaValue implements CellValueImpl {
 
   get dependencies() {
     // find all the ranges and cells mentioned in the formula
-    const ranges = (this.formula as string).match(
-      /([a-zA-Z0-9]+!)?[A-Z]{1,3}\d{1,4}:[A-Z]{1,3}\d{1,4}/g,
-    );
-    const cells = (this.formula as string)
+    const form = this.formula ?? '';
+    const ranges = form.match(/([a-zA-Z0-9]+!)?[A-Z]{1,3}\d{1,4}:[A-Z]{1,3}\d{1,4}/g);
+    const cells = form
       .replace(/([a-zA-Z0-9]+!)?[A-Z]{1,3}\d{1,4}:[A-Z]{1,3}\d{1,4}/g, '')
       .match(/([a-zA-Z0-9]+!)?[A-Z]{1,3}\d{1,4}/g);
     return {
@@ -1114,8 +1141,8 @@ class FormulaValue implements CellValueImpl {
     };
   }
 
-  get formula() {
-    return (this.model.formula as string) || this._getTranslatedFormula();
+  get formula(): string | undefined {
+    return this.model.formula ?? this._getTranslatedFormula();
   }
 
   set formula(value: string | undefined) {
@@ -1141,7 +1168,7 @@ class FormulaValue implements CellValueImpl {
   }
 
   get type() {
-    return Cell.Types.Formula;
+    return Enums.ValueType.Formula;
   }
 
   get effectiveType() {
@@ -1161,11 +1188,13 @@ class FormulaValue implements CellValueImpl {
     if (v instanceof Date) {
       return Enums.ValueType.Date;
     }
-    if ((v as Record<string, unknown>).text && (v as Record<string, unknown>).hyperlink) {
-      return Enums.ValueType.Hyperlink;
-    }
-    if ((v as Record<string, unknown>).formula) {
-      return Enums.ValueType.Formula;
+    if (isObjectRecord(v)) {
+      if (v.text && v.hyperlink) {
+        return Enums.ValueType.Hyperlink;
+      }
+      if (v.formula) {
+        return Enums.ValueType.Formula;
+      }
     }
 
     return Enums.ValueType.Null;
@@ -1181,151 +1210,63 @@ class FormulaValue implements CellValueImpl {
 
   _getTranslatedFormula(): string | undefined {
     if (!this._translatedFormula && this.model.sharedFormula) {
-      const { worksheet } = this.cell as {
-        worksheet: { findCell(address: string): { formula: string; address: string } | undefined };
-      };
-      const master = worksheet.findCell(this.model.sharedFormula as string);
-      this._translatedFormula =
-        master && slideFormula(master.formula, master.address, this.model.address);
+      const ws = this.cell.worksheet;
+      const master = ws?.findCell ? ws.findCell(this.model.sharedFormula) : undefined;
+      const formula = master?.formula;
+      const address = master?.address ?? '';
+      this._translatedFormula = formula
+        ? slideFormula(formula, address, this.model.address)
+        : undefined;
     }
     return this._translatedFormula;
   }
 
   toCsvString(): string {
-    return `${this.model.result || ''}`;
+    const res = this.model.result;
+    if (res === null || res === undefined) return '';
+    if (typeof res === 'string') return res;
+    if (typeof res === 'number' || typeof res === 'boolean') return String(res);
+    if (res instanceof Date) return res.toISOString();
+    return '';
   }
 
   release() {}
 
   toString(): string {
-    return this.model.result ? this.model.result.toString() : '';
+    const res = this.model.result;
+    if (res === null || res === undefined) return '';
+    if (typeof res === 'string') return res;
+    if (typeof res === 'number' || typeof res === 'boolean') return String(res);
+    if (res instanceof Date) return res.toString();
+    return '';
   }
 }
 
 class SharedStringValue implements CellValueImpl {
-  model: CellValueModel;
+  model: CellValueModel & { value: unknown };
 
-  constructor(cell: Cell, value: string) {
+  constructor(cell: Cell, value: unknown) {
     this.model = {
       address: cell.address,
-      type: Cell.Types.SharedString,
+      type: Enums.ValueType.String,
       value,
     };
   }
 
-  get value() {
-    return this.model.value as string;
+  get value(): unknown {
+    return this.model.value;
   }
 
-  set value(value: string) {
+  set value(value: unknown) {
     this.model.value = value;
   }
 
   get type() {
-    return Cell.Types.SharedString;
+    return Enums.ValueType.String;
   }
 
   get effectiveType() {
-    return Cell.Types.SharedString;
-  }
-
-  get address() {
-    return this.model.address;
-  }
-
-  set address(value: string) {
-    this.model.address = value;
-  }
-
-  toCsvString(): string {
-    return this.model.value as string;
-  }
-
-  release() {}
-
-  toString(): string {
-    return this.model.value as string;
-  }
-}
-
-class BooleanValue implements CellValueImpl {
-  model: CellValueModel;
-
-  constructor(cell: Cell, value: boolean) {
-    this.model = {
-      address: cell.address,
-      type: Cell.Types.Boolean,
-      value,
-    };
-  }
-
-  get value() {
-    return this.model.value as boolean;
-  }
-
-  set value(value: boolean) {
-    this.model.value = value;
-  }
-
-  get type() {
-    return Cell.Types.Boolean;
-  }
-
-  get effectiveType() {
-    return Cell.Types.Boolean;
-  }
-
-  get address() {
-    return this.model.address;
-  }
-
-  set address(value: string) {
-    this.model.address = value;
-  }
-
-  // NB: returns number, not string, unlike every other variant's
-  // toCsvString() — preserved verbatim; CellValueImpl's signature is
-  // widened to string | number to match rather than "fixing" this quirk.
-  toCsvString(): number {
-    return this.model.value ? 1 : 0;
-  }
-
-  release() {}
-
-  toString(): string {
-    return (this.model.value as boolean).toString();
-  }
-}
-
-interface ErrorValueShape {
-  error: string;
-}
-
-class ErrorValue implements CellValueImpl {
-  model: CellValueModel;
-
-  constructor(cell: Cell, value: ErrorValueShape) {
-    this.model = {
-      address: cell.address,
-      type: Cell.Types.Error,
-      value,
-    };
-  }
-
-  get value() {
-    return this.model.value as ErrorValueShape;
-  }
-
-  set value(value: ErrorValueShape) {
-    this.model.value = value;
-  }
-
-  get type() {
-    return Cell.Types.Error;
-  }
-
-  get effectiveType() {
-    return Cell.Types.Error;
+    return Enums.ValueType.String;
   }
 
   get address() {
@@ -1343,17 +1284,113 @@ class ErrorValue implements CellValueImpl {
   release() {}
 
   toString(): string {
-    return (this.model.value as ErrorValueShape).error;
+    return String(this.model.value ?? '');
+  }
+}
+
+class BooleanValue implements CellValueImpl {
+  model: CellValueModel & { value: boolean };
+
+  constructor(cell: Cell, value: boolean) {
+    this.model = {
+      address: cell.address,
+      type: Enums.ValueType.Boolean,
+      value,
+    };
+  }
+
+  get value(): boolean {
+    return this.model.value;
+  }
+
+  set value(value: boolean) {
+    this.model.value = value;
+  }
+
+  get type() {
+    return Enums.ValueType.Boolean;
+  }
+
+  get effectiveType() {
+    return Enums.ValueType.Boolean;
+  }
+
+  get address() {
+    return this.model.address;
+  }
+
+  set address(value: string) {
+    this.model.address = value;
+  }
+
+  toCsvString(): number {
+    return this.model.value ? 1 : 0;
+  }
+
+  release() {}
+
+  toString(): string {
+    return String(this.model.value);
+  }
+}
+
+interface ErrorValueShape {
+  error: string;
+}
+
+class ErrorValue implements CellValueImpl {
+  model: CellValueModel & { value: ErrorValueShape };
+
+  constructor(cell: Cell, value: ErrorValueShape) {
+    this.model = {
+      address: cell.address,
+      type: Enums.ValueType.Error,
+      value,
+    };
+  }
+
+  get value(): ErrorValueShape {
+    return this.model.value;
+  }
+
+  set value(value: ErrorValueShape) {
+    this.model.value = value;
+  }
+
+  get type() {
+    return Enums.ValueType.Error;
+  }
+
+  get effectiveType() {
+    return Enums.ValueType.Error;
+  }
+
+  get address() {
+    return this.model.address;
+  }
+
+  set address(value: string) {
+    this.model.address = value;
+  }
+
+  toCsvString(): string {
+    return this.toString();
+  }
+
+  release() {}
+
+  toString(): string {
+    return this.model.value.error;
   }
 }
 
 class JSONValue implements CellValueImpl {
-  model: CellValueModel;
+  model: CellValueModel & { value: string; rawValue: unknown };
 
   constructor(cell: Cell, value: unknown) {
     this.model = {
       address: cell.address,
-      type: Cell.Types.String,
+      type: Enums.ValueType.String,
       value: JSON.stringify(value),
       rawValue: value,
     };
@@ -1369,11 +1406,11 @@ class JSONValue implements CellValueImpl {
   }
 
   get type() {
-    return Cell.Types.String;
+    return Enums.ValueType.String;
   }
 
   get effectiveType() {
-    return Cell.Types.String;
+    return Enums.ValueType.String;
   }
 
   get address() {
@@ -1385,83 +1422,86 @@ class JSONValue implements CellValueImpl {
   }
 
   toCsvString(): string {
-    return this.model.value as string;
+    return this.model.value;
   }
 
   release() {}
 
   toString(): string {
-    return this.model.value as string;
+    return this.model.value;
   }
 }
 
-type ValueCtor = new (cell: Cell, value?: unknown) => CellValueImpl;
-
 // Value is a place to hold common static Value type functions
 const Value = {
-  getType(value: unknown): number {
+  getType(value: unknown): Enums.ValueType | 11 {
     if (value === null || value === undefined) {
-      return Cell.Types.Null;
+      return Enums.ValueType.Null;
     }
     if (
       typeof value === 'string' ||
       (typeof value === 'object' && Object.prototype.toString.call(value) === '[object String]')
     ) {
-      return Cell.Types.String;
+      return Enums.ValueType.String;
     }
     if (typeof value === 'number') {
-      return Cell.Types.Number;
+      return Enums.ValueType.Number;
     }
     if (typeof value === 'boolean') {
-      return Cell.Types.Boolean;
+      return Enums.ValueType.Boolean;
     }
     if (value instanceof Date) {
-      return Cell.Types.Date;
+      return Enums.ValueType.Date;
     }
-    const v = value as Record<string, unknown>;
-    if (v.text && v.hyperlink) {
-      return Cell.Types.Hyperlink;
+    if (isObjectRecord(value)) {
+      if (value.text && value.hyperlink) {
+        return Enums.ValueType.Hyperlink;
+      }
+      if (value.formula || value.sharedFormula) {
+        return Enums.ValueType.Formula;
+      }
+      if (value.richText) {
+        return Enums.ValueType.RichText;
+      }
+      if (value.sharedString !== undefined) {
+        return Enums.ValueType.SharedString;
+      }
+      if (value.error) {
+        return Enums.ValueType.Error;
+      }
     }
-    if (v.formula || v.sharedFormula) {
-      return Cell.Types.Formula;
-    }
-    if (v.richText) {
-      return Cell.Types.RichText;
-    }
-    if (v.sharedString !== undefined) {
-      return Cell.Types.SharedString;
-    }
-    if (v.error) {
-      return Cell.Types.Error;
-    }
-    return Cell.Types.JSON;
+    return 11;
   },
 
-  // map valueType to constructor
-  types: [
-    { t: Cell.Types.Null, f: NullValue },
-    { t: Cell.Types.Number, f: NumberValue },
-    { t: Cell.Types.String, f: StringValue },
-    { t: Cell.Types.Date, f: DateValue },
-    { t: Cell.Types.Hyperlink, f: HyperlinkValue },
-    { t: Cell.Types.Formula, f: FormulaValue },
-    { t: Cell.Types.Merge, f: MergeValue },
-    { t: Cell.Types.JSON, f: JSONValue },
-    { t: Cell.Types.SharedString, f: SharedStringValue },
-    { t: Cell.Types.RichText, f: RichTextValue },
-    { t: Cell.Types.Boolean, f: BooleanValue },
-    { t: Cell.Types.Error, f: ErrorValue },
-  ].reduce((p: Record<string, ValueCtor>, t) => {
-    p[t.t as unknown as string] = t.f as ValueCtor;
-    return p;
-  }, {}),
-
   create(type: number, cell: Cell, value?: unknown): CellValueImpl {
-    const T = this.types[type as unknown as string];
-    if (!T) {
-      throw new Error(`Could not create Value of type ${type}`);
+    switch (type) {
+      case Enums.ValueType.Null:
+        return new NullValue(cell);
+      case Enums.ValueType.Number:
+        return new NumberValue(cell, value as number);
+      case Enums.ValueType.String:
+        return new StringValue(cell, value as string);
+      case Enums.ValueType.Date:
+        return new DateValue(cell, value as Date);
+      case Enums.ValueType.Hyperlink:
+        return new HyperlinkValue(cell, value as HyperlinkValueShape);
+      case Enums.ValueType.Formula:
+        return new FormulaValue(cell, value as FormulaValueShape);
+      case Enums.ValueType.Merge:
+        return new MergeValue(cell, value as Cell);
+      case 11:
+        return new JSONValue(cell, value);
+      case Enums.ValueType.SharedString:
+        return new SharedStringValue(cell, value as number);
+      case Enums.ValueType.RichText:
+        return new RichTextValue(cell, value as RichTextValueShape);
+      case Enums.ValueType.Boolean:
+        return new BooleanValue(cell, value as boolean);
+      case Enums.ValueType.Error:
+        return new ErrorValue(cell, value as ErrorValueShape);
+      default:
+        throw new Error(`Could not create Value of type ${type}`);
     }
-    return new T(cell, value);
   },
 };
 

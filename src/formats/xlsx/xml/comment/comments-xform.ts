@@ -25,7 +25,7 @@ export default class CommentsXform extends BaseXform {
   }
 
   override render(xmlStream: XmlStream, modelInput?: CommentsModel) {
-    const model: CommentsModel = modelInput || this.model;
+    const model: CommentsModel = modelInput ?? this.model;
     xmlStream.openXml(XmlStream.StdDocAttributes);
     xmlStream.openNode('comments', CommentsXform.COMMENTS_ATTRIBUTES);
 

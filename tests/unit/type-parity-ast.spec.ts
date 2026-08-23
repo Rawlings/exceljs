@@ -269,7 +269,7 @@ describe('AST Type Parity 1:1 Diffing (parity.d.ts vs src/index.ts exports)', ()
           for (const member of targetDecl.members) {
             if (member.name) {
               const propName = member.name.getText().trim();
-              const optional = Boolean(member.questionToken);
+              const optional = 'questionToken' in member && Boolean(member.questionToken);
               srcPropMap.set(propName, { optional });
             }
           }

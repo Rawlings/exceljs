@@ -28,13 +28,13 @@ class DateXform extends BaseXform {
 
   constructor(options?: DateXformOptions) {
     super();
-    options = options || {};
+    options = options ?? {};
 
     this.tag = options.tag;
     this.attr = options.attr;
     this.attrs = options.attrs;
     this._format =
-      options.format ||
+      options.format ??
       function (dt: unknown) {
         try {
           const dateObj = dt instanceof Date ? dt : new Date(dt as string | number);
@@ -45,7 +45,7 @@ class DateXform extends BaseXform {
         }
       };
     this._parse =
-      options.parse ||
+      options.parse ??
       function (str: string) {
         return str ? new Date(str) : undefined;
       };
