@@ -3,9 +3,11 @@ name: CI
 on:
   push:
     branches:
+      - master
       - main
   pull_request:
     branches:
+      - master
       - main
   workflow_dispatch:
 
@@ -39,6 +41,9 @@ jobs:
 
       - name: Lint (oxlint)
         run: npm run lint
+
+      - name: Format check (oxfmt)
+        run: npm run format:check
 
       - name: Test (vitest)
         run: npm run test

@@ -69,8 +69,9 @@ async function readAllChunks(
     return chunks.join('');
   }
 
+  const onData = (chunk: unknown) => chunks.push(decodeChunk(chunk));
+
   return new Promise<string>((resolve, reject) => {
-    const onData = (chunk: unknown) => chunks.push(decodeChunk(chunk));
     const onEnd = () => {
       cleanup();
       resolve(chunks.join(''));
